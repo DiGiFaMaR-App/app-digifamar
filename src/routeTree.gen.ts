@@ -9,38 +9,267 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SigninRouteImport } from './routes/signin'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as LendingRouteImport } from './routes/lending'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as BuyerProtectionRouteImport } from './routes/buyer-protection'
+import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SignupIndexRouteImport } from './routes/signup.index'
+import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
+import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as FarmIdRouteImport } from './routes/farm.$id'
 
+const SigninRoute = SigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendingRoute = LendingRouteImport.update({
+  id: '/lending',
+  path: '/lending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuyerProtectionRoute = BuyerProtectionRouteImport.update({
+  id: '/buyer-protection',
+  path: '/buyer-protection',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrowseRoute = BrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupIndexRoute = SignupIndexRouteImport.update({
+  id: '/signup/',
+  path: '/signup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupFarmerRoute = SignupFarmerRouteImport.update({
+  id: '/signup/farmer',
+  path: '/signup/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupBuyerRoute = SignupBuyerRouteImport.update({
+  id: '/signup/buyer',
+  path: '/signup/buyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarmIdRoute = FarmIdRouteImport.update({
+  id: '/farm/$id',
+  path: '/farm/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/browse': typeof BrowseRoute
+  '/buyer-protection': typeof BuyerProtectionRoute
+  '/contact': typeof ContactRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/lending': typeof LendingRoute
+  '/pricing': typeof PricingRoute
+  '/signin': typeof SigninRoute
+  '/farm/$id': typeof FarmIdRoute
+  '/product/$id': typeof ProductIdRoute
+  '/signup/buyer': typeof SignupBuyerRoute
+  '/signup/farmer': typeof SignupFarmerRoute
+  '/signup/': typeof SignupIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/browse': typeof BrowseRoute
+  '/buyer-protection': typeof BuyerProtectionRoute
+  '/contact': typeof ContactRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/lending': typeof LendingRoute
+  '/pricing': typeof PricingRoute
+  '/signin': typeof SigninRoute
+  '/farm/$id': typeof FarmIdRoute
+  '/product/$id': typeof ProductIdRoute
+  '/signup/buyer': typeof SignupBuyerRoute
+  '/signup/farmer': typeof SignupFarmerRoute
+  '/signup': typeof SignupIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/browse': typeof BrowseRoute
+  '/buyer-protection': typeof BuyerProtectionRoute
+  '/contact': typeof ContactRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/lending': typeof LendingRoute
+  '/pricing': typeof PricingRoute
+  '/signin': typeof SigninRoute
+  '/farm/$id': typeof FarmIdRoute
+  '/product/$id': typeof ProductIdRoute
+  '/signup/buyer': typeof SignupBuyerRoute
+  '/signup/farmer': typeof SignupFarmerRoute
+  '/signup/': typeof SignupIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/browse'
+    | '/buyer-protection'
+    | '/contact'
+    | '/how-it-works'
+    | '/lending'
+    | '/pricing'
+    | '/signin'
+    | '/farm/$id'
+    | '/product/$id'
+    | '/signup/buyer'
+    | '/signup/farmer'
+    | '/signup/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/browse'
+    | '/buyer-protection'
+    | '/contact'
+    | '/how-it-works'
+    | '/lending'
+    | '/pricing'
+    | '/signin'
+    | '/farm/$id'
+    | '/product/$id'
+    | '/signup/buyer'
+    | '/signup/farmer'
+    | '/signup'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/browse'
+    | '/buyer-protection'
+    | '/contact'
+    | '/how-it-works'
+    | '/lending'
+    | '/pricing'
+    | '/signin'
+    | '/farm/$id'
+    | '/product/$id'
+    | '/signup/buyer'
+    | '/signup/farmer'
+    | '/signup/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  BrowseRoute: typeof BrowseRoute
+  BuyerProtectionRoute: typeof BuyerProtectionRoute
+  ContactRoute: typeof ContactRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  LendingRoute: typeof LendingRoute
+  PricingRoute: typeof PricingRoute
+  SigninRoute: typeof SigninRoute
+  FarmIdRoute: typeof FarmIdRoute
+  ProductIdRoute: typeof ProductIdRoute
+  SignupBuyerRoute: typeof SignupBuyerRoute
+  SignupFarmerRoute: typeof SignupFarmerRoute
+  SignupIndexRoute: typeof SignupIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lending': {
+      id: '/lending'
+      path: '/lending'
+      fullPath: '/lending'
+      preLoaderRoute: typeof LendingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buyer-protection': {
+      id: '/buyer-protection'
+      path: '/buyer-protection'
+      fullPath: '/buyer-protection'
+      preLoaderRoute: typeof BuyerProtectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/browse': {
+      id: '/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +277,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup/': {
+      id: '/signup/'
+      path: '/signup'
+      fullPath: '/signup/'
+      preLoaderRoute: typeof SignupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/farmer': {
+      id: '/signup/farmer'
+      path: '/signup/farmer'
+      fullPath: '/signup/farmer'
+      preLoaderRoute: typeof SignupFarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/buyer': {
+      id: '/signup/buyer'
+      path: '/signup/buyer'
+      fullPath: '/signup/buyer'
+      preLoaderRoute: typeof SignupBuyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farm/$id': {
+      id: '/farm/$id'
+      path: '/farm/$id'
+      fullPath: '/farm/$id'
+      preLoaderRoute: typeof FarmIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  BrowseRoute: BrowseRoute,
+  BuyerProtectionRoute: BuyerProtectionRoute,
+  ContactRoute: ContactRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  LendingRoute: LendingRoute,
+  PricingRoute: PricingRoute,
+  SigninRoute: SigninRoute,
+  FarmIdRoute: FarmIdRoute,
+  ProductIdRoute: ProductIdRoute,
+  SignupBuyerRoute: SignupBuyerRoute,
+  SignupFarmerRoute: SignupFarmerRoute,
+  SignupIndexRoute: SignupIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
