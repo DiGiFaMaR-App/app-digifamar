@@ -93,7 +93,7 @@ function FarmPage() {
             {farm.description}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {farm.certifications.map((c) => (
+            {farm.certifications.map((c: string) => (
               <span
                 key={c}
                 className="rounded-full bg-leaf-soft px-3 py-1 text-xs font-semibold text-primary"
