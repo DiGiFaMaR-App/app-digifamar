@@ -73,13 +73,65 @@ const ratingsBreakdown = [
 
 function FarmerDashboard() {
   const farm = farms[0];
-  const myListings = products.filter((p) => p.farmId === farm.id);
   const earnings30d = 4827.5;
   const orders30d = 41;
   const lendingTarget = 30;
   const lendingProgress = Math.min(orders30d, lendingTarget);
   const ref = useReveal<HTMLDivElement>({ stagger: 0.06, y: 24, scale: 0.97 });
+  const [listings, setListings] = useState<Product[]>(() => products.filter((p) => p.farmId === farm.id));
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Draft | null>(null);
+
+  const openNew = () => {
+    setEditing(emptyDraft);
+    setOpen(true);
+  };
+  const openEdit = (p: Product) => {
+    setEditing({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      price: String(p.price),
+      unit: p.unit,
+      stock: String(p.stock),
+      delivery: p.delivery,
+      organic: !!p.organic,
+      fresh: p.freshnessGrade === "A",
+      description: p.description,
+    });
+    setOpen(true);
+  };
+  const removeListing = (id: string) => setListings((prev) => prev.filter((p) => p.id !== id));
+  const upsert = (d: Draft) => {
+    const base: Product = {
+      id: d.id ?? `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
+      name: d.name,
+      farmId: farm.id,
+      category: d.category,
+      price: parseFloat(d.price) || 0,
+      unit: d.unit,
+      image: d.id ? listings.find((p) => p.id === d.id)?.image ?? produceCrate : produceCrate,
+      delivery: d.delivery,
+      organic: d.organic,
+      rating: d.id ? listings.find((p) => p.id === d.id)?.rating ?? 5 : 5,
+      reviews: d.id ? listings.find((p) => p.id === d.id)?.reviews ?? 0 : 0,
+      stock: parseInt(d.stock) || 0,
+      freshnessGrade: d.fresh ? "A" : "B",
+      freshnessScore: d.fresh ? 9.2 : 7.5,
+      description: d.description,
+    };
+    setListings((prev) => {
+      const idx = prev.findIndex((p) => p.id === base.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = base;
+        return next;
+      }
+      return [base, ...prev];
+    });
+    setOpen(false);
+  };
+
 
   return (
     <AppShell role="farmer">
