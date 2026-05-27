@@ -3,7 +3,7 @@ import { ArrowRight, Mail, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
-
+import { FluidHero } from "@/components/FluidHero";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,17 +27,17 @@ export const Route = createFileRoute("/")({
 function Splash() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-12">
-      {/* Ambient animated glow */}
+      {/* WebGL fluid backdrop */}
+      <FluidHero className="-z-10" />
+
+      {/* CSS ambient orbs (fallback + extra depth) */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-[38%] h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl animate-pulse-glow" />
-        <div className="absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-primary/10 blur-3xl animate-float" />
-        <div className="absolute right-1/5 top-1/4 h-72 w-72 rounded-full bg-primary/10 blur-3xl animate-float [animation-delay:1.5s]" />
-        {/* subtle vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.55)_100%)]" />
+        <div className="absolute left-1/2 top-[38%] h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl animate-pulse-glow" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.65)_100%)]" />
       </div>
 
       {/* Verified pill */}
-      <div className="splash-rise opacity-0 [animation-delay:60ms] mb-8 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
+      <div className="splash-rise opacity-0 [animation-delay:60ms] mb-8 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
         <Sparkles className="h-3.5 w-3.5 text-primary" />
         Verified American farms · 50 states
       </div>
@@ -81,10 +81,8 @@ function Splash() {
           <Link to="/auth" search={{ tab: "signin" }}>Sign In</Link>
         </Button>
         <GoogleAuthButton className="mt-1 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card/40 text-sm font-semibold text-foreground transition hover:bg-card hover:border-primary/30" />
-
       </div>
 
-      {/* Footer links */}
       <div className="splash-rise opacity-0 [animation-delay:520ms] mt-10 flex items-center gap-4 text-xs text-muted-foreground">
         <Link to="/marketplace" className="hover:text-primary transition-colors">Browse marketplace</Link>
         <span aria-hidden>·</span>

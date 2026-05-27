@@ -26,7 +26,7 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData();
+  const { product } = Route.useLoaderData() as { product: NonNullable<ReturnType<typeof getProduct>> };
   const farm = getFarm(product.farmId);
   const navigate = useNavigate();
 
