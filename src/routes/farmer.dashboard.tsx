@@ -332,10 +332,6 @@ function ListProductDialog({
   initial: Draft | null;
   onSubmit: (d: Draft) => void;
 }) {
-  const [draft, setDraft] = useState<Draft>(initial ?? emptyDraft);
-
-  // Sync local form when a different listing is opened
-  useState(() => draft);
   const key = initial?.id ?? "new";
 
   return (
@@ -353,8 +349,6 @@ function ListProductDialog({
           onCancel={() => onOpenChange(false)}
           onSubmit={onSubmit}
         />
-        {/* draft used to satisfy lint */}
-        <span className="hidden">{draft.name}</span>
       </DialogContent>
     </Dialog>
   );
