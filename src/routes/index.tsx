@@ -80,13 +80,8 @@ function Splash() {
         >
           <Link to="/auth" search={{ tab: "signin" }}>Sign In</Link>
         </Button>
-        <button
-          type="button"
-          className="mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-border bg-card/40 text-sm font-semibold text-foreground transition hover:bg-card hover:border-primary/30"
-        >
-          <GoogleIcon className="h-5 w-5" />
-          Continue with Google
-        </button>
+        <GoogleAuthButton className="mt-1 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card/40 text-sm font-semibold text-foreground transition hover:bg-card hover:border-primary/30" />
+
       </div>
 
       {/* Footer links */}
