@@ -98,7 +98,7 @@ function Splash() {
       </div>
 
       {/* Tagline */}
-      <div className="splash-rise opacity-0 [animation-delay:260ms] mt-6 text-center">
+      <div className="splash-rise opacity-0 [animation-delay:260ms] mt-2 text-center">
         <p
           className="text-base sm:text-lg font-light tracking-wide"
           style={{ color: "#f5ecd9" }}
