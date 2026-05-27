@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SmoothScroll } from "@/components/SmoothScroll";
+import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
@@ -65,6 +66,7 @@ function RootComponent() {
       <SmoothScroll>
         <Outlet />
       </SmoothScroll>
+      <Toaster />
     </QueryClientProvider>
   );
 }

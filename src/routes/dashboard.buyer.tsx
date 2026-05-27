@@ -148,7 +148,11 @@ function Stat({ icon: Icon, label, value, accent = false }: { icon: React.Elemen
 function OrderRow({ order, active = false }: { order: typeof orders[number] | typeof history[number]; active?: boolean }) {
   const farm = getFarm(order.product.farmId);
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+    <Link
+      to="/orders/$id"
+      params={{ id: order.id }}
+      className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-3"
+    >
       <img src={order.product.image} alt="" className="h-14 w-14 rounded-lg object-cover" />
       <div className="min-w-0 flex-1">
         <p className="line-clamp-1 text-sm font-semibold">{order.product.name}</p>
@@ -160,6 +164,6 @@ function OrderRow({ order, active = false }: { order: typeof orders[number] | ty
       }`}>
         {order.status === "out-for-delivery" ? "Out for delivery" : order.status === "shipped" ? "Shipped" : "Delivered"}
       </span>
-    </div>
+    </Link>
   );
 }
