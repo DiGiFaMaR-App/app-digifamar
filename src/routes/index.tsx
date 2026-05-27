@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Mail, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
