@@ -66,6 +66,7 @@ function RootComponent() {
       <SmoothScroll>
         <Outlet />
       </SmoothScroll>
+      <Toaster />
     </QueryClientProvider>
   );
 }
