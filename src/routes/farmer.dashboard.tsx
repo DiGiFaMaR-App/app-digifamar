@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { DollarSign, Package, Plus, Star, TrendingUp, Trophy, X } from "lucide-react";
+import { DollarSign, Leaf, Package, Pencil, Plus, Star, Trash2, TrendingUp, Trophy, X, Zap } from "lucide-react";
 import { useState } from "react";
 import {
   ResponsiveContainer,
@@ -17,10 +17,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useReveal } from "@/hooks/use-reveal";
-import { products, farms, categories } from "@/lib/mock-data";
+import { products, farms, categories, type Product } from "@/lib/mock-data";
+import produceCrate from "@/assets/produce-crate.jpg";
+
+type Draft = {
+  id?: string;
+  name: string;
+  category: string;
+  price: string;
+  unit: string;
+  stock: string;
+  delivery: "24h" | "48h";
+  organic: boolean;
+  fresh: boolean;
+  description: string;
+};
+
+const emptyDraft: Draft = {
+  name: "",
+  category: categories[0].slug,
+  price: "",
+  unit: "lb",
+  stock: "10",
+  delivery: "24h",
+  organic: true,
+  fresh: true,
+  description: "",
+};
 
 export const Route = createFileRoute("/farmer/dashboard")({
   head: () => ({ meta: [{ title: "Farmer Dashboard — DiGiFaMaR" }] }),
