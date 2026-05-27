@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { DollarSign, Package, Plus, Star, TrendingUp, Trophy, X } from "lucide-react";
+import { DollarSign, Leaf, Package, Pencil, Plus, Star, Trash2, TrendingUp, Trophy, X, Zap } from "lucide-react";
 import { useState } from "react";
 import {
   ResponsiveContainer,
@@ -17,10 +17,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useReveal } from "@/hooks/use-reveal";
-import { products, farms, categories } from "@/lib/mock-data";
+import { products, farms, categories, type Product } from "@/lib/mock-data";
+import produceCrate from "@/assets/produce-crate.jpg";
+
+type Draft = {
+  id?: string;
+  name: string;
+  category: string;
+  price: string;
+  unit: string;
+  stock: string;
+  delivery: "24h" | "48h";
+  organic: boolean;
+  fresh: boolean;
+  description: string;
+};
+
+const emptyDraft: Draft = {
+  name: "",
+  category: categories[0].slug,
+  price: "",
+  unit: "lb",
+  stock: "10",
+  delivery: "24h",
+  organic: true,
+  fresh: true,
+  description: "",
+};
 
 export const Route = createFileRoute("/farmer/dashboard")({
   head: () => ({ meta: [{ title: "Farmer Dashboard — DiGiFaMaR" }] }),
@@ -46,13 +73,65 @@ const ratingsBreakdown = [
 
 function FarmerDashboard() {
   const farm = farms[0];
-  const myListings = products.filter((p) => p.farmId === farm.id);
   const earnings30d = 4827.5;
   const orders30d = 41;
   const lendingTarget = 30;
   const lendingProgress = Math.min(orders30d, lendingTarget);
   const ref = useReveal<HTMLDivElement>({ stagger: 0.06, y: 24, scale: 0.97 });
+  const [listings, setListings] = useState<Product[]>(() => products.filter((p) => p.farmId === farm.id));
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Draft | null>(null);
+
+  const openNew = () => {
+    setEditing(emptyDraft);
+    setOpen(true);
+  };
+  const openEdit = (p: Product) => {
+    setEditing({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      price: String(p.price),
+      unit: p.unit,
+      stock: String(p.stock),
+      delivery: p.delivery,
+      organic: !!p.organic,
+      fresh: p.freshnessGrade === "A",
+      description: p.description,
+    });
+    setOpen(true);
+  };
+  const removeListing = (id: string) => setListings((prev) => prev.filter((p) => p.id !== id));
+  const upsert = (d: Draft) => {
+    const base: Product = {
+      id: d.id ?? `${d.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
+      name: d.name,
+      farmId: farm.id,
+      category: d.category,
+      price: parseFloat(d.price) || 0,
+      unit: d.unit,
+      image: d.id ? listings.find((p) => p.id === d.id)?.image ?? produceCrate : produceCrate,
+      delivery: d.delivery,
+      organic: d.organic,
+      rating: d.id ? listings.find((p) => p.id === d.id)?.rating ?? 5 : 5,
+      reviews: d.id ? listings.find((p) => p.id === d.id)?.reviews ?? 0 : 0,
+      stock: parseInt(d.stock) || 0,
+      freshnessGrade: d.fresh ? "A" : "B",
+      freshnessScore: d.fresh ? 9.2 : 7.5,
+      description: d.description,
+    };
+    setListings((prev) => {
+      const idx = prev.findIndex((p) => p.id === base.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = base;
+        return next;
+      }
+      return [base, ...prev];
+    });
+    setOpen(false);
+  };
+
 
   return (
     <AppShell role="farmer">
@@ -64,7 +143,7 @@ function FarmerDashboard() {
           </div>
           <Button
             size="lg"
-            onClick={() => setOpen(true)}
+            onClick={openNew}
             className="bg-primary text-primary-foreground hover:bg-primary-hover"
           >
             <Plus className="mr-1 h-5 w-5" /> List a new product
@@ -157,26 +236,55 @@ function FarmerDashboard() {
 
         <Section title="Your listings" right={<Link to="/marketplace" className="text-xs font-semibold text-primary hover:underline">View public store →</Link>}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {myListings.map((p) => (
-              <div key={p.id} className="card-lift overflow-hidden rounded-2xl border border-border bg-card">
+            {listings.map((p) => (
+              <div key={p.id} className="card-lift group overflow-hidden rounded-2xl border border-border bg-card">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                  <div className="absolute left-2 top-2 flex gap-1">
+                    {p.organic && (
+                      <span className="rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                        <Leaf className="mr-0.5 inline h-2.5 w-2.5" /> Organic
+                      </span>
+                    )}
+                    {p.freshnessGrade === "A" && (
+                      <span className="rounded-full bg-badge-gold/90 px-2 py-0.5 text-[10px] font-bold text-background">
+                        <Zap className="mr-0.5 inline h-2.5 w-2.5" /> Fresh
+                      </span>
+                    )}
+                  </div>
+                  <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <button
+                      onClick={() => openEdit(p)}
+                      className="rounded-full bg-background/80 p-1.5 text-foreground backdrop-blur hover:bg-primary hover:text-primary-foreground"
+                      aria-label="Edit listing"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => removeListing(p.id)}
+                      className="rounded-full bg-background/80 p-1.5 text-destructive backdrop-blur hover:bg-destructive hover:text-destructive-foreground"
+                      aria-label="Delete listing"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <div className="p-3">
                   <p className="line-clamp-1 text-sm font-semibold">{p.name}</p>
                   <div className="mt-1 flex items-center justify-between text-xs">
                     <span className="font-bold text-primary">${p.price.toFixed(2)}/{p.unit}</span>
-                    <span className="text-muted-foreground">{p.stock} in stock</span>
+                    <span className="text-muted-foreground">{p.stock} in stock · {p.delivery}</span>
                   </div>
                 </div>
               </div>
             ))}
             <button
-              onClick={() => setOpen(true)}
+              onClick={openNew}
               className="card-lift flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card/30 text-sm font-semibold text-muted-foreground hover:text-primary"
             >
               <Plus className="h-6 w-6" /> Add listing
             </button>
+
           </div>
         </Section>
 
@@ -203,60 +311,140 @@ function FarmerDashboard() {
         </Section>
       </div>
 
-      <ListProductDialog open={open} onOpenChange={setOpen} />
+      <ListProductDialog
+        open={open}
+        onOpenChange={setOpen}
+        initial={editing}
+        onSubmit={upsert}
+      />
     </AppShell>
   );
 }
 
-function ListProductDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+function ListProductDialog({
+  open,
+  onOpenChange,
+  initial,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  initial: Draft | null;
+  onSubmit: (d: Draft) => void;
+}) {
+  const key = initial?.id ?? "new";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg border-border bg-card">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            List a new product
+            {initial?.id ? "Edit listing" : "List a new product"}
             <button onClick={() => onOpenChange(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
           </DialogTitle>
         </DialogHeader>
-        <form
-          className="space-y-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onOpenChange(false);
-          }}
-        >
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product name</Label>
-            <Input placeholder="e.g. Heirloom tomatoes" required className="mt-1" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price</Label>
-              <Input type="number" min="0" step="0.01" placeholder="5.50" required className="mt-1" />
-            </div>
-            <div>
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Unit</Label>
-              <Input placeholder="lb / jar / dozen" required className="mt-1" />
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</Label>
-            <select className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-              {categories.map((c) => <option key={c.slug} value={c.slug}>{c.emoji} {c.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</Label>
-            <Textarea placeholder="What makes this special?" rows={3} className="mt-1" />
-          </div>
-          <Button type="submit" size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary-hover">
-            Publish listing
-          </Button>
-        </form>
+        <DraftForm
+          key={key}
+          initial={initial ?? emptyDraft}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={onSubmit}
+        />
       </DialogContent>
     </Dialog>
   );
 }
+
+function DraftForm({
+  initial,
+  onSubmit,
+  onCancel,
+}: {
+  initial: Draft;
+  onSubmit: (d: Draft) => void;
+  onCancel: () => void;
+}) {
+  const [d, setD] = useState<Draft>(initial);
+  const update = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((prev) => ({ ...prev, [k]: v }));
+
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(d);
+      }}
+    >
+      <div>
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product name</Label>
+        <Input value={d.name} onChange={(e) => update("name", e.target.value)} placeholder="e.g. Heirloom tomatoes" required className="mt-1" />
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price</Label>
+          <Input type="number" min="0" step="0.01" value={d.price} onChange={(e) => update("price", e.target.value)} placeholder="5.50" required className="mt-1" />
+        </div>
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Unit</Label>
+          <Input value={d.unit} onChange={(e) => update("unit", e.target.value)} placeholder="lb / jar" required className="mt-1" />
+        </div>
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Stock</Label>
+          <Input type="number" min="0" value={d.stock} onChange={(e) => update("stock", e.target.value)} required className="mt-1" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</Label>
+          <select
+            value={d.category}
+            onChange={(e) => update("category", e.target.value)}
+            className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {categories.map((c) => <option key={c.slug} value={c.slug}>{c.emoji} {c.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Delivery</Label>
+          <select
+            value={d.delivery}
+            onChange={(e) => update("delivery", e.target.value as "24h" | "48h")}
+            className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="24h">⚡ 24h express</option>
+            <option value="48h">📦 48h standard</option>
+          </select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <label className="flex items-center justify-between rounded-md border border-border bg-background/40 px-3 py-2">
+          <span className="flex items-center gap-2 text-sm">
+            <Leaf className="h-4 w-4 text-primary" /> Organic
+          </span>
+          <Switch checked={d.organic} onCheckedChange={(v) => update("organic", v)} />
+        </label>
+        <label className="flex items-center justify-between rounded-md border border-border bg-background/40 px-3 py-2">
+          <span className="flex items-center gap-2 text-sm">
+            <Zap className="h-4 w-4 text-badge-gold" /> Fresh grade A
+          </span>
+          <Switch checked={d.fresh} onCheckedChange={(v) => update("fresh", v)} />
+        </label>
+      </div>
+      <div>
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</Label>
+        <Textarea value={d.description} onChange={(e) => update("description", e.target.value)} placeholder="What makes this special?" rows={3} className="mt-1" />
+      </div>
+      <div className="flex gap-2 pt-1">
+        <Button type="button" variant="outline" size="lg" onClick={onCancel} className="flex-1">
+          Cancel
+        </Button>
+        <Button type="submit" size="lg" className="flex-[2] bg-primary text-primary-foreground hover:bg-primary-hover">
+          {initial.id ? "Save changes" : "Publish listing"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 
 function Section({ title, right, children }: { title: string; right?: React.ReactNode; children: React.ReactNode }) {
   return (
