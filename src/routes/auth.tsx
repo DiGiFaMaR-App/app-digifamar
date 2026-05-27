@@ -6,6 +6,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 const search = z.object({
   tab: z.enum(["signup", "signin"]).default("signup").catch("signup"),
