@@ -101,13 +101,12 @@ function Auth() {
           <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
         </div>
 
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/marketplace" })}
+        <GoogleAuthButton
+          defaultRole={tab === "signup" ? role : undefined}
+          label={tab === "signup" ? `Continue with Google as ${role}` : "Continue with Google"}
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background/40 px-4 py-3 text-sm font-semibold hover:bg-card"
-        >
-          <GoogleIcon className="h-5 w-5" /> Continue with Google
-        </button>
+        />
+
 
         <p className="mt-5 text-center text-xs text-muted-foreground">
           {tab === "signup" ? (
