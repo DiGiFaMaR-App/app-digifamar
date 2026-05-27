@@ -143,7 +143,7 @@ function FarmerDashboard() {
           </div>
           <Button
             size="lg"
-            onClick={() => setOpen(true)}
+            onClick={openNew}
             className="bg-primary text-primary-foreground hover:bg-primary-hover"
           >
             <Plus className="mr-1 h-5 w-5" /> List a new product
