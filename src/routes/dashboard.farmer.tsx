@@ -49,7 +49,7 @@ const emptyDraft: Draft = {
   description: "",
 };
 
-export const Route = createFileRoute("/farmer/dashboard")({
+export const Route = createFileRoute("/dashboard/farmer")({
   head: () => ({ meta: [{ title: "Farmer Dashboard — DiGiFaMaR" }] }),
   component: FarmerDashboard,
 });
@@ -234,7 +234,7 @@ function FarmerDashboard() {
           <Progress value={(lendingProgress / lendingTarget) * 100} className="mt-3 h-2" />
         </div>
 
-        <Section title="Your listings" right={<Link to="/marketplace" className="text-xs font-semibold text-primary hover:underline">View public store →</Link>}>
+        <Section title="Your listings" right={<Link to="/market" className="text-xs font-semibold text-primary hover:underline">View public store →</Link>}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((p) => (
               <div key={p.id} className="card-lift group overflow-hidden rounded-2xl border border-border bg-card">

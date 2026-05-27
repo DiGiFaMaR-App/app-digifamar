@@ -33,7 +33,7 @@ function ProductPage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6">
-        <Link to="/marketplace" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+        <Link to="/market" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
           <ArrowLeft className="h-3.5 w-3.5" /> Back to marketplace
         </Link>
 
@@ -76,7 +76,7 @@ function ProductPage() {
             {/* Farm profile */}
             {farm && (
               <Link
-                to="/marketplace"
+                to="/market"
                 className="mt-5 flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3 hover:border-primary/40"
               >
                 <img src={farm.image} alt={farm.name} className="h-12 w-12 rounded-lg object-cover" />

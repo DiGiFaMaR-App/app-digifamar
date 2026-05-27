@@ -71,7 +71,7 @@ export function GoogleAuthButton({
       window.setTimeout(() => {
         setOpen(false);
         navigate({
-          to: chosen === "farmer" ? "/farmer/dashboard" : "/buyer/dashboard",
+          to: chosen === "farmer" ? "/dashboard/farmer" : "/dashboard/buyer",
         });
       }, 700);
     }, 1100);

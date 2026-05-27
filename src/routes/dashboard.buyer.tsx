@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { useReveal } from "@/hooks/use-reveal";
 import { products, farms, getFarm } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/buyer/dashboard")({
+export const Route = createFileRoute("/dashboard/buyer")({
   head: () => ({ meta: [{ title: "My Orders — DiGiFaMaR" }] }),
   component: BuyerDashboard,
 });
@@ -97,7 +97,7 @@ function BuyerDashboard() {
             {favFarms.map((f) => (
               <Link
                 key={f.id}
-                to="/marketplace"
+                to="/market"
                 className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-3"
               >
                 <img src={f.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
@@ -117,7 +117,7 @@ function BuyerDashboard() {
 
         <div className="mt-8 flex justify-center">
           <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary-hover">
-            <Link to="/marketplace"><ShoppingBag className="mr-1 h-5 w-5" /> Shop the marketplace</Link>
+            <Link to="/market"><ShoppingBag className="mr-1 h-5 w-5" /> Shop the marketplace</Link>
           </Button>
         </div>
       </div>
