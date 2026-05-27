@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Mail, Sparkles } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useMemo } from "react";
+import { ArrowRight, Mail } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
@@ -24,37 +26,83 @@ export const Route = createFileRoute("/")({
   component: Splash,
 });
 
+function DewField() {
+  // Deterministic-ish particles so SSR + hydration match well enough.
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 28 }).map((_, i) => {
+        const seed = (i * 9301 + 49297) % 233280;
+        const r = (n: number) => ((seed * (n + 1)) % 1000) / 1000;
+        const size = 2 + r(1) * 4;
+        return {
+          left: `${r(2) * 100}%`,
+          bottom: `-${r(3) * 30 + 5}%`,
+          size,
+          duration: 18 + r(4) * 28,
+          delay: -r(5) * 30,
+          dx: `${(r(6) - 0.5) * 80}px`,
+          opacity: 0.35 + r(7) * 0.5,
+        };
+      }),
+    [],
+  );
+  return (
+    <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+      {particles.map((p, i) => (
+        <span
+          key={i}
+          className="dew-particle"
+          style={{
+            left: p.left,
+            bottom: p.bottom,
+            width: p.size,
+            height: p.size,
+            animationDuration: `${p.duration}s`,
+            animationDelay: `${p.delay}s`,
+            // CSS custom props consumed by the keyframes
+            ["--dew-dx" as string]: p.dx,
+            ["--dew-opacity" as string]: p.opacity,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function Splash() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-6 py-12">
-      {/* WebGL fluid backdrop */}
-      <FluidHero className="-z-10" />
-
-      {/* CSS ambient orbs (fallback + extra depth) */}
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-12">
+      {/* Layered background: deep gradient → soil texture → fluid → dew → vignette */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-30"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 30%, #122014 0%, #0c1410 45%, #070a08 100%)",
+        }}
+      />
+      <div className="pointer-events-none absolute inset-0 -z-20 opacity-60 soil-texture" />
+      <FluidHero className="-z-20 opacity-50" />
+      <DewField />
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-[38%] h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl animate-pulse-glow" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.65)_100%)]" />
+        <div className="absolute left-1/2 top-[42%] h-[680px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl animate-pulse-glow" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(0,0,0,0.7)_100%)]" />
       </div>
 
-      {/* Verified pill */}
-      <div className="splash-rise opacity-0 [animation-delay:60ms] mb-8 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
-        <Sparkles className="h-3.5 w-3.5 text-primary" />
-        Verified American farms · 50 states
-      </div>
-
-      {/* Logo */}
-      <div className="splash-rise opacity-0 [animation-delay:140ms] flex flex-col items-center text-center">
+      {/* Logo — blends into dark canvas via screen blend mode */}
+      <div className="splash-rise opacity-0 [animation-delay:120ms] relative flex flex-col items-center text-center">
+        {/* soft halo sitting behind the logo for "merged" depth */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/25 blur-[80px]" />
         <div className="animate-pulse-glow">
-          <Logo size="xl" glow linked={false} />
+          <Logo size="xl" blend linked={false} />
         </div>
       </div>
 
-      {/* Wordmark + tagline */}
-      <div className="splash-rise opacity-0 [animation-delay:260ms] mt-8 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-          DiGi<span className="text-primary text-glow">FaMaR</span>
-        </h1>
-        <p className="mt-3 max-w-sm text-base text-muted-foreground">
+      {/* Tagline */}
+      <div className="splash-rise opacity-0 [animation-delay:260ms] mt-6 text-center">
+        <p
+          className="text-base sm:text-lg font-light tracking-wide"
+          style={{ color: "#f5ecd9" }}
+        >
           Direct from Farm to You
         </p>
         <div className="mx-auto mt-4 h-px w-32 bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
