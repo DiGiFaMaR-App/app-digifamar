@@ -118,7 +118,7 @@ function Splash() {
           size="lg"
           className="group h-12 bg-primary text-primary-foreground hover:bg-primary-hover shadow-[0_0_40px_-8px_color-mix(in_oklab,var(--primary)_70%,transparent)] transition-transform hover:scale-[1.02] active:scale-[0.99]"
         >
-          <Link to="/auth" search={{ tab: "signup" }}>
+          <Link to="/signup">
             Sign Up
             <ArrowRight className="ml-1 h-5 w-5 transition-transform group-hover:translate-x-0.5" />
           </Link>
