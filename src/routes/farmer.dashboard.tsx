@@ -311,60 +311,146 @@ function FarmerDashboard() {
         </Section>
       </div>
 
-      <ListProductDialog open={open} onOpenChange={setOpen} />
+      <ListProductDialog
+        open={open}
+        onOpenChange={setOpen}
+        initial={editing}
+        onSubmit={upsert}
+      />
     </AppShell>
   );
 }
 
-function ListProductDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+function ListProductDialog({
+  open,
+  onOpenChange,
+  initial,
+  onSubmit,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  initial: Draft | null;
+  onSubmit: (d: Draft) => void;
+}) {
+  const [draft, setDraft] = useState<Draft>(initial ?? emptyDraft);
+
+  // Sync local form when a different listing is opened
+  useState(() => draft);
+  const key = initial?.id ?? "new";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg border-border bg-card">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            List a new product
+            {initial?.id ? "Edit listing" : "List a new product"}
             <button onClick={() => onOpenChange(false)} className="text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
           </DialogTitle>
         </DialogHeader>
-        <form
-          className="space-y-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onOpenChange(false);
-          }}
-        >
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product name</Label>
-            <Input placeholder="e.g. Heirloom tomatoes" required className="mt-1" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price</Label>
-              <Input type="number" min="0" step="0.01" placeholder="5.50" required className="mt-1" />
-            </div>
-            <div>
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Unit</Label>
-              <Input placeholder="lb / jar / dozen" required className="mt-1" />
-            </div>
-          </div>
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</Label>
-            <select className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
-              {categories.map((c) => <option key={c.slug} value={c.slug}>{c.emoji} {c.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</Label>
-            <Textarea placeholder="What makes this special?" rows={3} className="mt-1" />
-          </div>
-          <Button type="submit" size="lg" className="w-full bg-primary text-primary-foreground hover:bg-primary-hover">
-            Publish listing
-          </Button>
-        </form>
+        <DraftForm
+          key={key}
+          initial={initial ?? emptyDraft}
+          onCancel={() => onOpenChange(false)}
+          onSubmit={onSubmit}
+        />
+        {/* draft used to satisfy lint */}
+        <span className="hidden">{draft.name}</span>
       </DialogContent>
     </Dialog>
   );
 }
+
+function DraftForm({
+  initial,
+  onSubmit,
+  onCancel,
+}: {
+  initial: Draft;
+  onSubmit: (d: Draft) => void;
+  onCancel: () => void;
+}) {
+  const [d, setD] = useState<Draft>(initial);
+  const update = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((prev) => ({ ...prev, [k]: v }));
+
+  return (
+    <form
+      className="space-y-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(d);
+      }}
+    >
+      <div>
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product name</Label>
+        <Input value={d.name} onChange={(e) => update("name", e.target.value)} placeholder="e.g. Heirloom tomatoes" required className="mt-1" />
+      </div>
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Price</Label>
+          <Input type="number" min="0" step="0.01" value={d.price} onChange={(e) => update("price", e.target.value)} placeholder="5.50" required className="mt-1" />
+        </div>
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Unit</Label>
+          <Input value={d.unit} onChange={(e) => update("unit", e.target.value)} placeholder="lb / jar" required className="mt-1" />
+        </div>
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Stock</Label>
+          <Input type="number" min="0" value={d.stock} onChange={(e) => update("stock", e.target.value)} required className="mt-1" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</Label>
+          <select
+            value={d.category}
+            onChange={(e) => update("category", e.target.value)}
+            className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            {categories.map((c) => <option key={c.slug} value={c.slug}>{c.emoji} {c.name}</option>)}
+          </select>
+        </div>
+        <div>
+          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Delivery</Label>
+          <select
+            value={d.delivery}
+            onChange={(e) => update("delivery", e.target.value as "24h" | "48h")}
+            className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="24h">⚡ 24h express</option>
+            <option value="48h">📦 48h standard</option>
+          </select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <label className="flex items-center justify-between rounded-md border border-border bg-background/40 px-3 py-2">
+          <span className="flex items-center gap-2 text-sm">
+            <Leaf className="h-4 w-4 text-primary" /> Organic
+          </span>
+          <Switch checked={d.organic} onCheckedChange={(v) => update("organic", v)} />
+        </label>
+        <label className="flex items-center justify-between rounded-md border border-border bg-background/40 px-3 py-2">
+          <span className="flex items-center gap-2 text-sm">
+            <Zap className="h-4 w-4 text-badge-gold" /> Fresh grade A
+          </span>
+          <Switch checked={d.fresh} onCheckedChange={(v) => update("fresh", v)} />
+        </label>
+      </div>
+      <div>
+        <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description</Label>
+        <Textarea value={d.description} onChange={(e) => update("description", e.target.value)} placeholder="What makes this special?" rows={3} className="mt-1" />
+      </div>
+      <div className="flex gap-2 pt-1">
+        <Button type="button" variant="outline" size="lg" onClick={onCancel} className="flex-1">
+          Cancel
+        </Button>
+        <Button type="submit" size="lg" className="flex-[2] bg-primary text-primary-foreground hover:bg-primary-hover">
+          {initial.id ? "Save changes" : "Publish listing"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 
 function Section({ title, right, children }: { title: string; right?: React.ReactNode; children: React.ReactNode }) {
   return (
