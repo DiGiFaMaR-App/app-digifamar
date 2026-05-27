@@ -7,9 +7,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 /*
- * DiGiFaMaR design system.
- * Forest green primary, harvest orange secondary, fresh farm aesthetic.
- * All colors in oklch.
+ * DiGiFaMaR — premium dark agri-tech theme.
+ * Deep greens (#0A0F0A bg, #121A12 surfaces) with #22C55E accents.
+ * All colors in oklch. Dark mode only.
  */
 
 @theme inline {
@@ -31,6 +31,7 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-hover: var(--primary-hover);
+  --color-primary-glow: var(--primary-glow);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary-hover: var(--secondary-hover);
@@ -44,14 +45,13 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Brand surfaces */
-  --color-cream: var(--cream);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
   --color-leaf: var(--leaf);
   --color-leaf-soft: var(--leaf-soft);
   --color-harvest: var(--harvest);
   --color-harvest-soft: var(--harvest-soft);
 
-  /* Badge palette */
   --color-badge-verified: var(--badge-verified);
   --color-badge-verified-foreground: var(--badge-verified-foreground);
   --color-badge-delivery: var(--badge-delivery);
@@ -62,113 +62,74 @@
   --color-badge-gold-foreground: var(--badge-gold-foreground);
   --color-badge-new: var(--badge-new);
   --color-badge-new-foreground: var(--badge-new-foreground);
+  --color-badge-fresh: var(--badge-fresh);
+  --color-badge-fresh-foreground: var(--badge-fresh-foreground);
 }
 
 :root {
-  --radius: 0.75rem;
+  --radius: 0.85rem;
 
-  /* Brand base — forest green #2D6A4F, harvest orange #F4A261 */
-  --background: oklch(0.985 0.003 90);            /* #FAFAFA */
-  --foreground: oklch(0.18 0.02 160);
+  /* Deep green-black base */
+  --background: oklch(0.16 0.018 150);            /* #0A0F0A vibe */
+  --foreground: oklch(0.97 0.01 130);
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 160);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 160);
+  --card: oklch(0.205 0.022 150);                 /* #121A12 */
+  --card-foreground: oklch(0.97 0.01 130);
+  --popover: oklch(0.22 0.022 150);
+  --popover-foreground: oklch(0.97 0.01 130);
 
-  --primary: oklch(0.44 0.09 158);                /* #2D6A4F forest green */
-  --primary-foreground: oklch(0.985 0.003 90);
-  --primary-hover: oklch(0.37 0.09 158);
+  --primary: oklch(0.72 0.19 145);                /* #22C55E vivid green */
+  --primary-foreground: oklch(0.14 0.02 150);
+  --primary-hover: oklch(0.78 0.19 145);
+  --primary-glow: oklch(0.82 0.2 145);
 
-  --secondary: oklch(0.78 0.13 60);               /* #F4A261 harvest orange */
-  --secondary-foreground: oklch(0.2 0.04 60);
-  --secondary-hover: oklch(0.72 0.14 55);
+  --secondary: oklch(0.28 0.04 150);
+  --secondary-foreground: oklch(0.95 0.01 130);
+  --secondary-hover: oklch(0.32 0.05 150);
 
-  --muted: oklch(0.96 0.005 100);
-  --muted-foreground: oklch(0.48 0.02 160);
+  --muted: oklch(0.24 0.018 150);
+  --muted-foreground: oklch(0.72 0.02 130);
 
-  --accent: oklch(0.94 0.04 145);                 /* very soft leaf */
-  --accent-foreground: oklch(0.3 0.08 158);
-
-  --destructive: oklch(0.58 0.21 27);             /* #DC2626 */
-  --destructive-foreground: oklch(0.985 0.003 90);
-
-  --border: oklch(0.92 0.008 140);
-  --input: oklch(0.92 0.008 140);
-  --ring: oklch(0.44 0.09 158);
-
-  /* Surfaces */
-  --cream: oklch(0.98 0.012 90);
-  --leaf: oklch(0.44 0.09 158);
-  --leaf-soft: oklch(0.94 0.045 150);
-  --harvest: oklch(0.78 0.13 60);
-  --harvest-soft: oklch(0.95 0.05 70);
-
-  /* Badges */
-  --badge-verified: oklch(0.55 0.13 155);
-  --badge-verified-foreground: oklch(0.99 0.005 150);
-  --badge-delivery: oklch(0.58 0.13 235);
-  --badge-delivery-foreground: oklch(0.99 0.003 240);
-  --badge-organic: oklch(0.92 0.07 145);
-  --badge-organic-foreground: oklch(0.32 0.09 155);
-  --badge-gold: oklch(0.82 0.13 85);
-  --badge-gold-foreground: oklch(0.28 0.07 75);
-  --badge-new: oklch(0.78 0.13 60);
-  --badge-new-foreground: oklch(0.2 0.04 60);
-}
-
-.dark {
-  --background: oklch(0.18 0.03 270);             /* #1A1A2E */
-  --foreground: oklch(0.97 0.005 90);
-
-  --card: oklch(0.22 0.03 270);
-  --card-foreground: oklch(0.97 0.005 90);
-  --popover: oklch(0.22 0.03 270);
-  --popover-foreground: oklch(0.97 0.005 90);
-
-  --primary: oklch(0.62 0.12 155);
-  --primary-foreground: oklch(0.12 0.02 160);
-  --primary-hover: oklch(0.7 0.12 155);
-
-  --secondary: oklch(0.78 0.13 60);
-  --secondary-foreground: oklch(0.2 0.04 60);
-  --secondary-hover: oklch(0.72 0.14 55);
-
-  --muted: oklch(0.26 0.03 270);
-  --muted-foreground: oklch(0.72 0.02 250);
-
-  --accent: oklch(0.3 0.05 160);
-  --accent-foreground: oklch(0.97 0.005 90);
+  --accent: oklch(0.3 0.08 150);
+  --accent-foreground: oklch(0.97 0.01 130);
 
   --destructive: oklch(0.65 0.22 27);
   --destructive-foreground: oklch(0.99 0.003 90);
 
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.62 0.12 155);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.72 0.19 145);
 
-  --cream: oklch(0.22 0.03 270);
-  --leaf: oklch(0.62 0.12 155);
-  --leaf-soft: oklch(0.28 0.05 160);
-  --harvest: oklch(0.78 0.13 60);
-  --harvest-soft: oklch(0.3 0.05 70);
+  --surface-1: oklch(0.205 0.022 150);
+  --surface-2: oklch(0.245 0.025 150);
+  --leaf: oklch(0.72 0.19 145);
+  --leaf-soft: oklch(0.3 0.08 150);
+  --harvest: oklch(0.78 0.15 65);
+  --harvest-soft: oklch(0.32 0.08 70);
 
-  --badge-verified: oklch(0.62 0.13 155);
-  --badge-verified-foreground: oklch(0.12 0.02 160);
-  --badge-delivery: oklch(0.65 0.14 235);
-  --badge-delivery-foreground: oklch(0.99 0.003 240);
-  --badge-organic: oklch(0.4 0.08 150);
+  --badge-verified: oklch(0.7 0.18 150);
+  --badge-verified-foreground: oklch(0.14 0.02 150);
+  --badge-delivery: oklch(0.7 0.16 235);
+  --badge-delivery-foreground: oklch(0.14 0.03 240);
+  --badge-organic: oklch(0.4 0.1 150);
   --badge-organic-foreground: oklch(0.95 0.05 145);
-  --badge-gold: oklch(0.78 0.13 85);
+  --badge-gold: oklch(0.82 0.14 85);
   --badge-gold-foreground: oklch(0.2 0.05 75);
-  --badge-new: oklch(0.78 0.13 60);
+  --badge-new: oklch(0.78 0.15 65);
   --badge-new-foreground: oklch(0.18 0.04 60);
+  --badge-fresh: oklch(0.72 0.19 145);
+  --badge-fresh-foreground: oklch(0.14 0.02 150);
+
+  --gradient-radial-glow: radial-gradient(circle at center,
+    color-mix(in oklab, var(--primary) 35%, transparent) 0%,
+    transparent 70%);
+  --shadow-glow: 0 0 40px color-mix(in oklab, var(--primary) 45%, transparent),
+                 0 0 80px color-mix(in oklab, var(--primary) 25%, transparent);
+  --shadow-card: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
-  }
+  * { border-color: var(--color-border); }
 
   html, body {
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
@@ -178,27 +139,59 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    background-image:
+      radial-gradient(circle at 15% 0%, color-mix(in oklab, var(--primary) 10%, transparent) 0%, transparent 45%),
+      radial-gradient(circle at 85% 100%, color-mix(in oklab, var(--primary) 8%, transparent) 0%, transparent 50%);
+    background-attachment: fixed;
   }
 
-  h1, h2, h3, h4 {
-    letter-spacing: -0.02em;
-  }
+  h1, h2, h3, h4 { letter-spacing: -0.02em; }
 }
 
 @layer utilities {
   .card-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
   .card-lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px -12px color-mix(in oklab, var(--primary) 25%, transparent);
+    border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
+    box-shadow: 0 12px 32px -16px color-mix(in oklab, var(--primary) 40%, transparent);
   }
-  .hero-overlay {
-    background: linear-gradient(180deg,
-      color-mix(in oklab, var(--background) 10%, transparent) 0%,
-      color-mix(in oklab, var(--background) 40%, transparent) 60%,
-      color-mix(in oklab, var(--background) 90%, transparent) 100%);
+  .glow-logo {
+    filter: drop-shadow(0 0 24px color-mix(in oklab, var(--primary) 55%, transparent))
+            drop-shadow(0 0 48px color-mix(in oklab, var(--primary) 30%, transparent));
+  }
+  .glow-ring {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 50%, transparent),
+                0 0 40px color-mix(in oklab, var(--primary) 35%, transparent);
+  }
+  .text-glow {
+    text-shadow: 0 0 24px color-mix(in oklab, var(--primary) 50%, transparent);
   }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { scrollbar-width: none; }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.03); }
+  }
+  .animate-pulse-glow { animation: pulse-glow 3.5s ease-in-out infinite; }
+
+  @keyframes float-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .animate-float { animation: float-slow 6s ease-in-out infinite; }
+
+  @keyframes success-pop {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .animate-success-pop { animation: success-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
 }
