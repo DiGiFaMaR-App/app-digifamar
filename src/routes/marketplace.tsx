@@ -1,10 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { MapPin, Search, Star, Sparkles, BadgeCheck, Filter } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { categories, products, getFarm } from "@/lib/mock-data";
+import { ProductSheet } from "@/components/ProductSheet";
+import { useReveal } from "@/hooks/use-reveal";
+import { categories, products, getFarm, type Product } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/marketplace")({
   head: () => ({
@@ -30,6 +32,7 @@ function Marketplace() {
   const [cat, setCat] = useState<string>("all");
   const [tier, setTier] = useState(0);
   const [maxDist, setMaxDist] = useState(100);
+  const [active, setActive] = useState<Product | null>(null);
 
   const detect = () => {
     setLocation("Locating…");
@@ -53,10 +56,11 @@ function Marketplace() {
     });
   }, [cat, tier, maxDist, query]);
 
+  const gridRef = useReveal<HTMLDivElement>({ stagger: 0.05, y: 32, scale: 0.96 });
+
   return (
     <AppShell role="buyer">
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-        {/* Location + search */}
         <div className="flex flex-col gap-3">
           <button
             onClick={detect}
@@ -75,7 +79,6 @@ function Marketplace() {
           </div>
         </div>
 
-        {/* Category chips */}
         <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           <Chip active={cat === "all"} onClick={() => setCat("all")}>All</Chip>
           {categories.map((c) => (
@@ -85,7 +88,6 @@ function Marketplace() {
           ))}
         </div>
 
-        {/* Filters row */}
         <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
           <span className="inline-flex items-center gap-1 text-muted-foreground"><Filter className="h-3.5 w-3.5" /> Filters:</span>
           {PRICE_TIERS.map((p, i) => (
@@ -97,7 +99,6 @@ function Marketplace() {
           ))}
         </div>
 
-        {/* Fresh-today banner */}
         <div className="mt-5 flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
             <Sparkles className="h-4 w-4 text-primary" />
@@ -106,23 +107,25 @@ function Marketplace() {
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+        <div
+          ref={gridRef}
+          className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
+        >
           {filtered.map((p) => {
             const farm = getFarm(p.farmId);
             return (
-              <Link
+              <button
                 key={p.id}
-                to="/product/$id"
-                params={{ id: p.id }}
-                className="card-lift group flex flex-col overflow-hidden rounded-2xl border border-border bg-card"
+                data-reveal
+                onClick={() => setActive(p)}
+                className="card-lift group flex flex-col overflow-hidden rounded-2xl border border-border bg-card text-left"
               >
                 <div className="relative aspect-square overflow-hidden bg-muted">
                   <img
                     src={p.image}
                     alt={p.name}
                     loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   {p.delivery === "24h" && (
                     <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
@@ -154,7 +157,7 @@ function Marketplace() {
                     <p className="text-[10px] text-muted-foreground">{farm.distance.toFixed(1)} mi away</p>
                   )}
                 </div>
-              </Link>
+              </button>
             );
           })}
         </div>
@@ -168,6 +171,8 @@ function Marketplace() {
           </div>
         )}
       </div>
+
+      <ProductSheet product={active} open={!!active} onOpenChange={(v) => !v && setActive(null)} />
     </AppShell>
   );
 }
