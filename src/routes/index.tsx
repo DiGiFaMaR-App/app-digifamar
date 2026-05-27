@@ -105,6 +105,9 @@ function Splash() {
         >
           Direct from Farm to You
         </p>
+        <p className="mt-2 text-sm font-semibold tracking-[0.2em] text-blue-400">
+          BUILT ON TRUST
+        </p>
         <div className="mx-auto mt-4 h-px w-32 bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
       </div>
 
