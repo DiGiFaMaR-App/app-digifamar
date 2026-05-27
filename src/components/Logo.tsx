@@ -1,20 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import { Leaf, MapPin } from "lucide-react";
+import logoSrc from "@/assets/logo.jpg";
 
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <Link to="/" className={`flex items-center gap-2 ${className}`}>
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-        <Leaf className="h-5 w-5" strokeWidth={2.4} />
-        <MapPin
-          className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 text-secondary"
-          fill="currentColor"
-          strokeWidth={1.5}
-        />
-      </span>
-      <span className="text-lg font-extrabold tracking-tight">
-        DiGi<span className="text-primary">Fa</span>MaR
-      </span>
+    <Link
+      to="/"
+      aria-label="DiGiFaMaR — home"
+      className={`flex items-center ${className}`}
+    >
+      <img
+        src={logoSrc}
+        alt="DiGiFaMaR"
+        width={160}
+        height={160}
+        className="h-10 w-auto object-contain sm:h-12"
+      />
     </Link>
   );
 }
