@@ -8,7 +8,7 @@ import { ProductSheet } from "@/components/ProductSheet";
 import { useReveal } from "@/hooks/use-reveal";
 import { categories, products, getFarm, type Product } from "@/lib/mock-data";
 
-export const Route = createFileRoute("/marketplace")({
+export const Route = createFileRoute("/market")({
   head: () => ({
     meta: [
       { title: "Marketplace — DiGiFaMaR" },

@@ -43,10 +43,10 @@ function Success() {
 
         <div className="mt-5 flex w-full flex-col gap-2">
           <Button asChild size="lg" className="h-12 bg-primary text-primary-foreground hover:bg-primary-hover">
-            <Link to="/buyer/dashboard"><Package className="mr-1 h-5 w-5" /> Track My Order</Link>
+            <Link to="/dashboard/buyer"><Package className="mr-1 h-5 w-5" /> Track My Order</Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="h-12">
-            <Link to="/marketplace"><ShoppingBag className="mr-1 h-5 w-5" /> Continue shopping</Link>
+            <Link to="/market"><ShoppingBag className="mr-1 h-5 w-5" /> Continue shopping</Link>
           </Button>
           <button
             onClick={() => window.print()}

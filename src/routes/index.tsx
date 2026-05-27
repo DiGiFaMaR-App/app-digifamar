@@ -135,7 +135,7 @@ function Splash() {
       </div>
 
       <div className="splash-rise opacity-0 [animation-delay:520ms] mt-10 flex items-center gap-4 text-xs text-muted-foreground">
-        <Link to="/marketplace" className="hover:text-primary transition-colors">Browse marketplace</Link>
+        <Link to="/market" className="hover:text-primary transition-colors">Browse marketplace</Link>
         <span aria-hidden>·</span>
         <a href="mailto:hello@digifamar.com" className="inline-flex items-center gap-1 hover:text-primary transition-colors">
           <Mail className="h-3.5 w-3.5" /> Contact

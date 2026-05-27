@@ -6,13 +6,13 @@ import { Logo } from "./Logo";
 type NavItem = { to: string; label: string; icon: React.ElementType };
 
 const buyerNav: NavItem[] = [
-  { to: "/marketplace", label: "Shop", icon: Search },
-  { to: "/buyer/dashboard", label: "Orders", icon: Package },
+  { to: "/market", label: "Shop", icon: Search },
+  { to: "/dashboard/buyer", label: "Orders", icon: Package },
 ];
 
 const farmerNav: NavItem[] = [
-  { to: "/marketplace", label: "Browse", icon: Search },
-  { to: "/farmer/dashboard", label: "Dashboard", icon: Tractor },
+  { to: "/market", label: "Browse", icon: Search },
+  { to: "/dashboard/farmer", label: "Dashboard", icon: Tractor },
 ];
 
 export function AppShell({

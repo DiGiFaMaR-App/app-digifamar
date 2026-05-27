@@ -33,9 +33,9 @@ function Auth() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (tab === "signup" && role === "farmer") navigate({ to: "/farmer/dashboard" });
-    else if (tab === "signup") navigate({ to: "/marketplace" });
-    else navigate({ to: "/marketplace" });
+    if (tab === "signup" && role === "farmer") navigate({ to: "/dashboard/farmer" });
+    else if (tab === "signup") navigate({ to: "/market" });
+    else navigate({ to: "/market" });
   };
 
   return (
