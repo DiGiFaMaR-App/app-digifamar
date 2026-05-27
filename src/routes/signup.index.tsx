@@ -1,106 +1,78 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShoppingBasket, Tractor } from "lucide-react";
-import { SiteLayout } from "@/components/SiteLayout";
-import { Button } from "@/components/ui/button";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { User, Tractor } from "lucide-react";
+import { toast } from "sonner";
+import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/signup/")({
   head: () => ({
     meta: [
-      { title: "Join DiGiFaMaR — Buyer or Farmer signup" },
-      { name: "description", content: "Choose how you want to use DiGiFaMaR." },
-      { property: "og:url", content: "/signup" },
+      { title: "Join DiGiFaMaR — Choose your role" },
+      { name: "description", content: "Sign up as a farmer or buyer on DiGiFaMaR." },
     ],
   }),
-  component: Signup,
+  component: RoleSelection,
 });
 
-function Signup() {
+function RoleSelection() {
+  const navigate = useNavigate();
+
+  const handleRoleSelect = (role: "farmer" | "buyer") => {
+    localStorage.setItem("userRole", role);
+    localStorage.setItem("isAuthenticated", "true");
+
+    toast.success(
+      `${role === "farmer" ? "Farmer" : "Buyer"} account verification started`,
+      { description: "Redirecting you to your space…" },
+    );
+
+    if (role === "farmer") {
+      navigate({ to: "/dashboard/farmer" });
+    } else {
+      navigate({ to: "/market" });
+    }
+  };
+
   return (
-    <SiteLayout>
-      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-extrabold sm:text-4xl">Join DiGiFaMaR</h1>
-          <p className="mt-2 text-muted-foreground">How do you want to use the platform?</p>
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F0A] via-[#121A12] to-[#0A0F0A] text-white flex items-center justify-center p-6">
+      <div className="max-w-md w-full text-center">
+        <div className="mx-auto mb-10 flex justify-center">
+          <Logo size="lg" glow />
         </div>
-        <div className="mt-10 grid gap-6 md:grid-cols-2">
-          <RoleCard
-            to="/signup/buyer"
-            icon={ShoppingBasket}
-            title="I want to BUY fresh produce"
-            color="primary"
-            benefits={[
-              "Shop verified American farms",
-              "Escrow-protected checkout",
-              "24-48 hour delivery",
-              "72-hour refund guarantee",
-            ]}
-          />
-          <RoleCard
-            to="/signup/farmer"
-            icon={Tractor}
-            title="I want to SELL my farm products"
-            color="secondary"
-            benefits={[
-              "Keep 80-92% of every sale",
-              "Same-day payouts",
-              "List in under 5 minutes",
-              "Build credit for farm loans",
-            ]}
-          />
+        <h1 className="text-4xl font-bold mb-2">Join DiGiFaMaR</h1>
+        <p className="text-gray-400 mb-10">Choose how you want to participate</p>
+
+        <div className="space-y-4">
+          <button
+            onClick={() => handleRoleSelect("farmer")}
+            className="w-full bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold py-6 rounded-3xl text-left px-6 flex items-center gap-4 transition-all active:scale-[0.98]"
+          >
+            <div className="bg-black/20 p-3 rounded-2xl">
+              <Tractor className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="text-xl font-semibold">I am a Farmer</div>
+              <div className="text-sm opacity-75">Sell produce directly • Access lending</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleRoleSelect("buyer")}
+            className="w-full border border-white/30 hover:bg-white/10 py-6 rounded-3xl text-left px-6 flex items-center gap-4 transition-all active:scale-[0.98]"
+          >
+            <div className="bg-white/10 p-3 rounded-2xl">
+              <User className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="text-xl font-semibold">I am a Buyer</div>
+              <div className="text-sm opacity-75">Get fresh local produce • Support farmers</div>
+            </div>
+          </button>
         </div>
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link to="/signin" className="font-semibold text-primary hover:underline">
-            Sign in
-          </Link>
+
+        <p className="text-xs text-gray-500 mt-12">
+          Your role can be changed later in settings
         </p>
       </div>
-    </SiteLayout>
-  );
-}
-
-function RoleCard({
-  to,
-  icon: Icon,
-  title,
-  benefits,
-  color,
-}: {
-  to: string;
-  icon: React.ElementType;
-  title: string;
-  benefits: string[];
-  color: "primary" | "secondary";
-}) {
-  return (
-    <Link
-      to={to}
-      className="card-lift flex flex-col rounded-2xl border-2 border-border bg-card p-6 hover:border-primary"
-    >
-      <span
-        className={`flex h-12 w-12 items-center justify-center rounded-xl ${
-          color === "primary"
-            ? "bg-primary text-primary-foreground"
-            : "bg-secondary text-secondary-foreground"
-        }`}
-      >
-        <Icon className="h-6 w-6" />
-      </span>
-      <h3 className="mt-4 text-xl font-bold">{title}</h3>
-      <ul className="mt-4 flex-1 space-y-2 text-sm text-muted-foreground">
-        {benefits.map((b) => (
-          <li key={b}>✓ {b}</li>
-        ))}
-      </ul>
-      <Button
-        className={`mt-6 w-full ${
-          color === "secondary"
-            ? "bg-secondary text-secondary-foreground hover:bg-secondary-hover"
-            : ""
-        }`}
-      >
-        Continue
-      </Button>
-    </Link>
+    </div>
   );
 }
