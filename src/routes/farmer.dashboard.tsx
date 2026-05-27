@@ -236,26 +236,55 @@ function FarmerDashboard() {
 
         <Section title="Your listings" right={<Link to="/marketplace" className="text-xs font-semibold text-primary hover:underline">View public store →</Link>}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {myListings.map((p) => (
-              <div key={p.id} className="card-lift overflow-hidden rounded-2xl border border-border bg-card">
+            {listings.map((p) => (
+              <div key={p.id} className="card-lift group overflow-hidden rounded-2xl border border-border bg-card">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img src={p.image} alt={p.name} className="h-full w-full object-cover" />
+                  <div className="absolute left-2 top-2 flex gap-1">
+                    {p.organic && (
+                      <span className="rounded-full bg-primary/90 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                        <Leaf className="mr-0.5 inline h-2.5 w-2.5" /> Organic
+                      </span>
+                    )}
+                    {p.freshnessGrade === "A" && (
+                      <span className="rounded-full bg-badge-gold/90 px-2 py-0.5 text-[10px] font-bold text-background">
+                        <Zap className="mr-0.5 inline h-2.5 w-2.5" /> Fresh
+                      </span>
+                    )}
+                  </div>
+                  <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                    <button
+                      onClick={() => openEdit(p)}
+                      className="rounded-full bg-background/80 p-1.5 text-foreground backdrop-blur hover:bg-primary hover:text-primary-foreground"
+                      aria-label="Edit listing"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => removeListing(p.id)}
+                      className="rounded-full bg-background/80 p-1.5 text-destructive backdrop-blur hover:bg-destructive hover:text-destructive-foreground"
+                      aria-label="Delete listing"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <div className="p-3">
                   <p className="line-clamp-1 text-sm font-semibold">{p.name}</p>
                   <div className="mt-1 flex items-center justify-between text-xs">
                     <span className="font-bold text-primary">${p.price.toFixed(2)}/{p.unit}</span>
-                    <span className="text-muted-foreground">{p.stock} in stock</span>
+                    <span className="text-muted-foreground">{p.stock} in stock · {p.delivery}</span>
                   </div>
                 </div>
               </div>
             ))}
             <button
-              onClick={() => setOpen(true)}
+              onClick={openNew}
               className="card-lift flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card/30 text-sm font-semibold text-muted-foreground hover:text-primary"
             >
               <Plus className="h-6 w-6" /> Add listing
             </button>
+
           </div>
         </Section>
 
