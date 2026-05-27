@@ -6,6 +6,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 
 const search = z.object({
   tab: z.enum(["signup", "signin"]).default("signup").catch("signup"),
@@ -100,13 +101,12 @@ function Auth() {
           <div className="h-px flex-1 bg-border" /> or <div className="h-px flex-1 bg-border" />
         </div>
 
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/marketplace" })}
+        <GoogleAuthButton
+          defaultRole={tab === "signup" ? role : undefined}
+          label={tab === "signup" ? `Continue with Google as ${role}` : "Continue with Google"}
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background/40 px-4 py-3 text-sm font-semibold hover:bg-card"
-        >
-          <GoogleIcon className="h-5 w-5" /> Continue with Google
-        </button>
+        />
+
 
         <p className="mt-5 text-center text-xs text-muted-foreground">
           {tab === "signup" ? (
@@ -165,13 +165,5 @@ function Field({
         {children}
       </div>
     </div>
-  );
-}
-
-function GoogleIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden>
-      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.7 3.5 14.6 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12s4.2 9.5 9.4 9.5c5.4 0 9-3.8 9-9.2 0-.6-.1-1.1-.2-1.6H12z"/>
-    </svg>
   );
 }

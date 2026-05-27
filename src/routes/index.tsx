@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Mail, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
+import { GoogleAuthButton } from "@/components/GoogleAuthButton";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -78,13 +80,8 @@ function Splash() {
         >
           <Link to="/auth" search={{ tab: "signin" }}>Sign In</Link>
         </Button>
-        <button
-          type="button"
-          className="mt-1 inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-border bg-card/40 text-sm font-semibold text-foreground transition hover:bg-card hover:border-primary/30"
-        >
-          <GoogleIcon className="h-5 w-5" />
-          Continue with Google
-        </button>
+        <GoogleAuthButton className="mt-1 inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card/40 text-sm font-semibold text-foreground transition hover:bg-card hover:border-primary/30" />
+
       </div>
 
       {/* Footer links */}
@@ -96,13 +93,5 @@ function Splash() {
         </a>
       </div>
     </div>
-  );
-}
-
-function GoogleIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden>
-      <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.7 3.5 14.6 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12s4.2 9.5 9.4 9.5c5.4 0 9-3.8 9-9.2 0-.6-.1-1.1-.2-1.6H12z"/>
-    </svg>
   );
 }
