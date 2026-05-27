@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
-import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as MarketRouteImport } from './routes/market'
 import { Route as LendingRouteImport } from './routes/lending'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -25,9 +25,9 @@ import { Route as SignupIndexRouteImport } from './routes/signup.index'
 import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
-import { Route as FarmerDashboardRouteImport } from './routes/farmer.dashboard'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
-import { Route as BuyerDashboardRouteImport } from './routes/buyer.dashboard'
+import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
+import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
@@ -44,9 +44,9 @@ const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
   path: '/payment-success',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketplaceRoute = MarketplaceRouteImport.update({
-  id: '/marketplace',
-  path: '/marketplace',
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LendingRoute = LendingRouteImport.update({
@@ -109,19 +109,19 @@ const ProductIdRoute = ProductIdRouteImport.update({
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FarmerDashboardRoute = FarmerDashboardRouteImport.update({
-  id: '/farmer/dashboard',
-  path: '/farmer/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FarmIdRoute = FarmIdRouteImport.update({
   id: '/farm/$id',
   path: '/farm/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuyerDashboardRoute = BuyerDashboardRouteImport.update({
-  id: '/buyer/dashboard',
-  path: '/buyer/dashboard',
+const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
+  id: '/dashboard/farmer',
+  path: '/dashboard/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardBuyerRoute = DashboardBuyerRouteImport.update({
+  id: '/dashboard/buyer',
+  path: '/dashboard/buyer',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -134,13 +134,13 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
-  '/marketplace': typeof MarketplaceRoute
+  '/market': typeof MarketRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
-  '/buyer/dashboard': typeof BuyerDashboardRoute
+  '/dashboard/buyer': typeof DashboardBuyerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
-  '/farmer/dashboard': typeof FarmerDashboardRoute
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -155,13 +155,13 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
-  '/marketplace': typeof MarketplaceRoute
+  '/market': typeof MarketRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
-  '/buyer/dashboard': typeof BuyerDashboardRoute
+  '/dashboard/buyer': typeof DashboardBuyerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
-  '/farmer/dashboard': typeof FarmerDashboardRoute
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -177,13 +177,13 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
-  '/marketplace': typeof MarketplaceRoute
+  '/market': typeof MarketRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
-  '/buyer/dashboard': typeof BuyerDashboardRoute
+  '/dashboard/buyer': typeof DashboardBuyerRoute
+  '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
-  '/farmer/dashboard': typeof FarmerDashboardRoute
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -200,13 +200,13 @@ export interface FileRouteTypes {
     | '/contact'
     | '/how-it-works'
     | '/lending'
-    | '/marketplace'
+    | '/market'
     | '/payment-success'
     | '/pricing'
     | '/signin'
-    | '/buyer/dashboard'
+    | '/dashboard/buyer'
+    | '/dashboard/farmer'
     | '/farm/$id'
-    | '/farmer/dashboard'
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -221,13 +221,13 @@ export interface FileRouteTypes {
     | '/contact'
     | '/how-it-works'
     | '/lending'
-    | '/marketplace'
+    | '/market'
     | '/payment-success'
     | '/pricing'
     | '/signin'
-    | '/buyer/dashboard'
+    | '/dashboard/buyer'
+    | '/dashboard/farmer'
     | '/farm/$id'
-    | '/farmer/dashboard'
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -242,13 +242,13 @@ export interface FileRouteTypes {
     | '/contact'
     | '/how-it-works'
     | '/lending'
-    | '/marketplace'
+    | '/market'
     | '/payment-success'
     | '/pricing'
     | '/signin'
-    | '/buyer/dashboard'
+    | '/dashboard/buyer'
+    | '/dashboard/farmer'
     | '/farm/$id'
-    | '/farmer/dashboard'
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -264,13 +264,13 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LendingRoute: typeof LendingRoute
-  MarketplaceRoute: typeof MarketplaceRoute
+  MarketRoute: typeof MarketRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
   SigninRoute: typeof SigninRoute
-  BuyerDashboardRoute: typeof BuyerDashboardRoute
+  DashboardBuyerRoute: typeof DashboardBuyerRoute
+  DashboardFarmerRoute: typeof DashboardFarmerRoute
   FarmIdRoute: typeof FarmIdRoute
-  FarmerDashboardRoute: typeof FarmerDashboardRoute
   ProductIdRoute: typeof ProductIdRoute
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
@@ -300,11 +300,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/marketplace': {
-      id: '/marketplace'
-      path: '/marketplace'
-      fullPath: '/marketplace'
-      preLoaderRoute: typeof MarketplaceRouteImport
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lending': {
@@ -391,13 +391,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/farmer/dashboard': {
-      id: '/farmer/dashboard'
-      path: '/farmer/dashboard'
-      fullPath: '/farmer/dashboard'
-      preLoaderRoute: typeof FarmerDashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/farm/$id': {
       id: '/farm/$id'
       path: '/farm/$id'
@@ -405,11 +398,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarmIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/buyer/dashboard': {
-      id: '/buyer/dashboard'
-      path: '/buyer/dashboard'
-      fullPath: '/buyer/dashboard'
-      preLoaderRoute: typeof BuyerDashboardRouteImport
+    '/dashboard/farmer': {
+      id: '/dashboard/farmer'
+      path: '/dashboard/farmer'
+      fullPath: '/dashboard/farmer'
+      preLoaderRoute: typeof DashboardFarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/buyer': {
+      id: '/dashboard/buyer'
+      path: '/dashboard/buyer'
+      fullPath: '/dashboard/buyer'
+      preLoaderRoute: typeof DashboardBuyerRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -424,13 +424,13 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,
   LendingRoute: LendingRoute,
-  MarketplaceRoute: MarketplaceRoute,
+  MarketRoute: MarketRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
   SigninRoute: SigninRoute,
-  BuyerDashboardRoute: BuyerDashboardRoute,
+  DashboardBuyerRoute: DashboardBuyerRoute,
+  DashboardFarmerRoute: DashboardFarmerRoute,
   FarmIdRoute: FarmIdRoute,
-  FarmerDashboardRoute: FarmerDashboardRoute,
   ProductIdRoute: ProductIdRoute,
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
