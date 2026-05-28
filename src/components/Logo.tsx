@@ -9,7 +9,7 @@ export function Logo({
   linked = true,
 }: {
   className?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
   glow?: boolean;
   /** Use mix-blend-mode: screen so a JPG logo blends seamlessly into a dark background. */
   blend?: boolean;
