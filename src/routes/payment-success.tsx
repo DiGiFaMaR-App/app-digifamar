@@ -9,14 +9,18 @@ export const Route = createFileRoute("/payment-success")({
   head: () => ({
     meta: [{ title: "Payment successful — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
-  validateSearch: z.object({ id: z.string().optional() }),
+  validateSearch: z.object({
+    id: z.string().optional(),
+    orderId: z.string().optional(),
+    amount: z.number().optional(),
+  }),
   component: Success,
 });
 
 function Success() {
-  const { id } = Route.useSearch();
+  const { id, orderId: passedOrderId, amount } = Route.useSearch();
   const product = id ? getProduct(id) : undefined;
-  const orderId = "DFM-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const orderId = passedOrderId ?? "DFM-" + Math.random().toString(36).slice(2, 8).toUpperCase();
   const eta = new Date(Date.now() + (product?.delivery === "48h" ? 48 : 24) * 3600 * 1000);
 
   return (
