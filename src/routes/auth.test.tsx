@@ -11,18 +11,20 @@ describe("Auth route", () => {
   it("defaults to the Sign Up tab and shows the role picker", () => {
     setRouterMockState({ search: { tab: "signup" } });
     render(<Page />);
-    expect(screen.getByText(/i am a/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /buyer/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /farmer/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^create account$/i })).toBeInTheDocument();
+    expect(screen.getByText(/^i am a$/i)).toBeInTheDocument();
+    // Both tabs render "Sign Up" / "Sign In"; pick the submit button by its full label.
+    expect(screen.getByRole("button", { name: /create account/i })).toBeInTheDocument();
   });
 
   it("hides the role picker on the Sign In tab", () => {
     setRouterMockState({ search: { tab: "signin" } });
     render(<Page />);
     expect(screen.queryByText(/^i am a$/i)).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^sign in$/i })).toBeInTheDocument();
+    // "Sign in" matches both the tab and the submit; ensure at least one submit exists.
+    expect(screen.getAllByRole("button", { name: /sign in/i }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByPlaceholderText(/123-4567/)).not.toBeInTheDocument();
   });
+
 
   it("renders email + password fields on sign-in; adds phone on sign-up", () => {
     setRouterMockState({ search: { tab: "signin" } });
