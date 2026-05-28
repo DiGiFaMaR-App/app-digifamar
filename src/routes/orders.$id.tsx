@@ -60,8 +60,9 @@ function OrderTracking() {
   const [message, setMessage] = useState("");
   const [enteredCode, setEnteredCode] = useState("");
   const [released, setReleased] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const { product, farm, currentStage, etaDate, placedDate, address, releaseCode } = useMemo(() => {
+  const { product, farm, currentStage, etaDate, placedDate, address } = useMemo(() => {
     const seed = hashSeed(id);
     const product = products[seed % products.length];
     const farm = getFarm(product.farmId) ?? farms[0];
@@ -69,20 +70,35 @@ function OrderTracking() {
     const placedDate = new Date(Date.now() - (seed % 36) * 3600 * 1000);
     const etaDate = new Date(Date.now() + ((seed % 30) + 6) * 3600 * 1000);
     const address = "245 Cedar Ln, Brooklyn, NY 11215";
-    const releaseCode = String(100000 + (seed % 900000)).padStart(6, "0");
-    return { product, farm, currentStage, etaDate, placedDate, address, releaseCode };
+    return { product, farm, currentStage, etaDate, placedDate, address };
   }, [id]);
 
   const progressPct = (currentStage / (STAGES.length - 1)) * 100;
   const codeAvailable = currentStage >= 4; // Out for delivery or later
 
-  const handleReleaseFunds = () => {
-    if (enteredCode !== releaseCode) {
-      toast.error("Invalid release code", { description: "Check the SMS sent to your phone." });
-      return;
+  const handleReleaseFunds = async () => {
+    if (enteredCode.length !== 6) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/orders/${encodeURIComponent(id)}/release`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: enteredCode }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        toast.error(data.error ?? "Invalid release code", {
+          description: "Check the SMS sent to your phone.",
+        });
+        return;
+      }
+      setReleased(true);
+      toast.success("Funds released to farmer", { description: "Thanks for confirming delivery!" });
+    } catch {
+      toast.error("Network error", { description: "Please try again." });
+    } finally {
+      setSubmitting(false);
     }
-    setReleased(true);
-    toast.success("Funds released to farmer", { description: "Thanks for confirming delivery!" });
   };
 
   const handleSendMessage = () => {
@@ -259,21 +275,14 @@ function OrderTracking() {
               </div>
               <Button
                 onClick={handleReleaseFunds}
-                disabled={enteredCode.length !== 6}
+                disabled={enteredCode.length !== 6 || submitting}
                 className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
               >
-                <KeyRound className="mr-1 h-4 w-4" /> Release funds
+                <KeyRound className="mr-1 h-4 w-4" /> {submitting ? "Releasing…" : "Release funds"}
               </Button>
-              <button
-                onClick={() =>
-                  toast.info(`Mock SMS: your release code is ${releaseCode}`, {
-                    description: "In production this would be sent via Twilio.",
-                  })
-                }
-                className="mt-2 w-full text-center text-[11px] text-muted-foreground hover:text-primary"
-              >
-                Didn't get the code? Resend
-              </button>
+              <p className="mt-2 text-center text-[11px] text-muted-foreground">
+                Didn't get the code? Check your SMS or contact support.
+              </p>
             </>
           ) : (
             <p className="mt-2 text-xs text-muted-foreground">

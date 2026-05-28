@@ -14,11 +14,15 @@ export type EscrowOrder = {
 
 const orders = new Map<string, EscrowOrder>();
 
-// Demo code matches the in-app product modal.
-const MOCK_RELEASE_CODE = "123456";
-
 function makeId() {
   return "DFM-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+}
+
+// Cryptographically secure 6-digit release code, per order.
+function generateReleaseCode(): string {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return String(buf[0] % 1_000_000).padStart(6, "0");
 }
 
 export function createEscrowOrder(input: {
@@ -32,7 +36,7 @@ export function createEscrowOrder(input: {
     amount: input.amount,
     buyerPhone: input.buyerPhone,
     status: "held",
-    releaseCode: MOCK_RELEASE_CODE,
+    releaseCode: generateReleaseCode(),
     createdAt: new Date().toISOString(),
   };
   orders.set(order.id, order);
