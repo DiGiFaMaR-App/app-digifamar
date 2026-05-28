@@ -57,17 +57,15 @@ describe("ChatRoom route", () => {
     const navigate = vi.fn();
     setRouterMockState({ params: { productId: "heirloom-tomatoes" }, navigate });
     vi.spyOn(window, "alert").mockImplementation(() => {});
-    vi.useFakeTimers();
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const user = userEvent.setup();
     render(<Page />);
     await user.click(screen.getByRole("button", { name: /pay into escrow/i }));
-    vi.runAllTimers();
+    await new Promise((r) => setTimeout(r, 900));
     expect(navigate).toHaveBeenCalledWith(
       expect.objectContaining({
         to: "/payment-success",
         search: expect.objectContaining({ id: "heirloom-tomatoes" }),
       }),
     );
-    vi.useRealTimers();
   });
 });
