@@ -71,7 +71,7 @@ function DewField() {
 
 function Splash() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden px-6 pt-10 pb-12">
+    <div className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden px-6 pt-14 pb-12">
       {/* Layered background: deep gradient → soil texture → fluid → dew → vignette */}
       <div
         className="pointer-events-none absolute inset-0 -z-30"
