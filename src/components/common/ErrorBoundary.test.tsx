@@ -38,10 +38,13 @@ describe("ErrorBoundary", () => {
 
   it("clears the error when the user clicks Try again", async () => {
     const user = userEvent.setup();
+    let shouldThrow = true;
     function Toggle() {
-      // Throws on first render only; after reset re-renders cleanly.
-      const ref = { current: true };
-      return <Boom when={ref.current && !(ref.current = false)} />;
+      if (shouldThrow) {
+        shouldThrow = false;
+        throw new Error("once");
+      }
+      return <p>recovered</p>;
     }
     render(
       <ErrorBoundary>
@@ -50,6 +53,7 @@ describe("ErrorBoundary", () => {
     );
     await user.click(screen.getByRole("button", { name: /try again/i }));
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByText("recovered")).toBeInTheDocument();
   });
 
   it("uses a custom fallback when provided", () => {
