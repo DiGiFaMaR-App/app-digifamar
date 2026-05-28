@@ -5,7 +5,7 @@ import { Route } from "./signup.index";
 import { setRouterMockState } from "@/test/router-state";
 import { toast } from "sonner";
 
-const Page = Route.component as () => JSX.Element;
+const Page = (Route as unknown as { component: () => React.ReactElement }).component;
 
 describe("Signup role selection", () => {
   it("renders heading, copy, and both role buttons", () => {

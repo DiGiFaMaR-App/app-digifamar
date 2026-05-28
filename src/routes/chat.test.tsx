@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { Route } from "./chat.$productId";
 import { setRouterMockState } from "@/test/router-state";
 
-const Page = Route.component as () => JSX.Element;
+const Page = (Route as unknown as { component: () => React.ReactElement }).component;
 
 describe("ChatRoom route", () => {
   it("renders an unavailable state when the product id is unknown", () => {

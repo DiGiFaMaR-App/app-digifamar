@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { Route } from "./auth";
 import { setRouterMockState } from "@/test/router-state";
 
-const Page = Route.component as () => JSX.Element;
+const Page = (Route as unknown as { component: () => React.ReactElement }).component;
 
 describe("Auth route", () => {
   it("defaults to the Sign Up tab and shows the role picker", () => {

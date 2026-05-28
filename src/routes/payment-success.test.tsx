@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import { Route } from "./payment-success";
 import { setRouterMockState } from "@/test/router-state";
 
-const Page = Route.component as () => JSX.Element;
+const Page = (Route as unknown as { component: () => React.ReactElement }).component;
 
 describe("PaymentSuccess route", () => {
   it("renders the success state with the provided order id and amount", () => {
@@ -44,7 +44,7 @@ describe("PaymentSuccess route", () => {
   });
 
   it("sets a noindex meta entry", () => {
-    expect(Route.head?.().meta).toEqual(
+    expect((Route as unknown as { head?: () => { meta?: unknown[] } }).head?.().meta).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ name: "robots", content: "noindex" }),
       ]),
