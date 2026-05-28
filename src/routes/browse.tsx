@@ -45,6 +45,7 @@ function Browse() {
 
   return (
     <SiteLayout>
+      <h1 className="sr-only">Browse verified American farms and fresh products</h1>
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
           <div className="relative flex-1">
