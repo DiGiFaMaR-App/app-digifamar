@@ -80,7 +80,16 @@ function ChatRoom() {
   };
 
   const proceedToEscrow = () => {
-    navigate({ to: "/payment-success", search: { id: product.id } });
+    const orderId = `DFM-ORD-${Math.floor(10000 + Math.random() * 90000)}`;
+    alert(
+      `✅ Payment of $${negotiatedPrice.toFixed(2)} has been placed into Dummy Escrow.\n\nRelease Code: 123456\n\nFarmer will be notified.`,
+    );
+    setTimeout(() => {
+      navigate({
+        to: "/payment-success",
+        search: { id: product.id, orderId, amount: negotiatedPrice },
+      });
+    }, 800);
   };
 
   return (

@@ -9,14 +9,18 @@ export const Route = createFileRoute("/payment-success")({
   head: () => ({
     meta: [{ title: "Payment successful — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
-  validateSearch: z.object({ id: z.string().optional() }),
+  validateSearch: z.object({
+    id: z.string().optional(),
+    orderId: z.string().optional(),
+    amount: z.number().optional(),
+  }),
   component: Success,
 });
 
 function Success() {
-  const { id } = Route.useSearch();
+  const { id, orderId: passedOrderId, amount } = Route.useSearch();
   const product = id ? getProduct(id) : undefined;
-  const orderId = "DFM-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const orderId = passedOrderId ?? "DFM-" + Math.random().toString(36).slice(2, 8).toUpperCase();
   const eta = new Date(Date.now() + (product?.delivery === "48h" ? 48 : 24) * 3600 * 1000);
 
   return (
@@ -36,7 +40,8 @@ function Success() {
 
         <div className="mt-6 w-full rounded-2xl border border-border bg-card/80 p-5 text-left">
           <Row k="Order ID" v={orderId} mono />
-          {product && <Row k="Item" v={`${product.name} · $${product.price.toFixed(2)}`} />}
+          {product && <Row k="Item" v={`${product.name} · $${(amount ?? product.price).toFixed(2)}`} />}
+          {amount !== undefined && <Row k="Amount paid" v={`$${amount.toFixed(2)}`} />}
           <Row k="Delivery window" v={eta.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + " by 6pm"} />
           <Row k="Status" v={<span className="text-primary">Awaiting farmer ship-out</span>} />
         </div>
