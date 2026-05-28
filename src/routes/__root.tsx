@@ -6,9 +6,11 @@ import {
   Link,
   useRouter,
 } from "@tanstack/react-router";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Toaster } from "@/components/ui/sonner";
+import { supabase } from "@/integrations/supabase/client";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
@@ -69,12 +71,26 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthSync />
       <SmoothScroll>
         <Outlet />
       </SmoothScroll>
       <Toaster />
     </QueryClientProvider>
   );
+}
+
+function AuthSync() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      router.invalidate();
+      queryClient.invalidateQueries();
+    });
+    return () => subscription.unsubscribe();
+  }, [router, queryClient]);
+  return null;
 }
 
 function NotFound() {
