@@ -11,6 +11,8 @@ import {
   Send,
   ArrowLeft,
   Clock,
+  ShieldCheck,
+  KeyRound,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { products, farms, getFarm } from "@/lib/mock-data";
 import { toast } from "sonner";
 
