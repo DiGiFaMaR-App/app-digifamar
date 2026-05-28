@@ -58,8 +58,10 @@ function OrderTracking() {
   const { id } = Route.useParams();
   const [contactOpen, setContactOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [enteredCode, setEnteredCode] = useState("");
+  const [released, setReleased] = useState(false);
 
-  const { product, farm, currentStage, etaDate, placedDate, address } = useMemo(() => {
+  const { product, farm, currentStage, etaDate, placedDate, address, releaseCode } = useMemo(() => {
     const seed = hashSeed(id);
     const product = products[seed % products.length];
     const farm = getFarm(product.farmId) ?? farms[0];
@@ -67,10 +69,21 @@ function OrderTracking() {
     const placedDate = new Date(Date.now() - (seed % 36) * 3600 * 1000);
     const etaDate = new Date(Date.now() + ((seed % 30) + 6) * 3600 * 1000);
     const address = "245 Cedar Ln, Brooklyn, NY 11215";
-    return { product, farm, currentStage, etaDate, placedDate, address };
+    const releaseCode = String(100000 + (seed % 900000)).padStart(6, "0");
+    return { product, farm, currentStage, etaDate, placedDate, address, releaseCode };
   }, [id]);
 
   const progressPct = (currentStage / (STAGES.length - 1)) * 100;
+  const codeAvailable = currentStage >= 4; // Out for delivery or later
+
+  const handleReleaseFunds = () => {
+    if (enteredCode !== releaseCode) {
+      toast.error("Invalid release code", { description: "Check the SMS sent to your phone." });
+      return;
+    }
+    setReleased(true);
+    toast.success("Funds released to farmer", { description: "Thanks for confirming delivery!" });
+  };
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
