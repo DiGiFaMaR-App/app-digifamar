@@ -138,10 +138,12 @@ class MockResizeObserver {
   unobserve() {}
   disconnect() {}
 }
-// @ts-expect-error -- jsdom shim
-globalThis.ResizeObserver = globalThis.ResizeObserver ?? MockResizeObserver;
-// @ts-expect-error -- jsdom shim
-globalThis.IntersectionObserver = globalThis.IntersectionObserver ?? class {
+const g = globalThis as unknown as {
+  ResizeObserver?: unknown;
+  IntersectionObserver?: unknown;
+};
+g.ResizeObserver = g.ResizeObserver ?? MockResizeObserver;
+g.IntersectionObserver = g.IntersectionObserver ?? class {
   observe() {}
   unobserve() {}
   disconnect() {}
