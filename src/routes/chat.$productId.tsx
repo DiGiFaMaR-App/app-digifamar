@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { Send, MapPin, ShieldCheck, ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getProduct, getFarm } from "@/lib/mock-data";
@@ -93,6 +94,7 @@ function ChatRoom() {
   };
 
   return (
+    <RequireAuth>
     <AppShell>
       <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-2xl flex-col">
         {/* Header */}
@@ -198,5 +200,6 @@ function ChatRoom() {
         </div>
       </div>
     </AppShell>
+    </RequireAuth>
   );
 }

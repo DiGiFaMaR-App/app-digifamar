@@ -13,6 +13,7 @@ import {
   Bar,
 } from "recharts";
 import { AppShell } from "@/components/AppShell";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -134,6 +135,7 @@ function FarmerDashboard() {
 
 
   return (
+    <RequireAuth>
     <AppShell role="farmer">
       <div ref={ref} className="mx-auto max-w-5xl px-4 pt-6 sm:px-6">
         <div data-reveal className="flex flex-wrap items-center justify-between gap-3">
@@ -318,6 +320,7 @@ function FarmerDashboard() {
         onSubmit={upsert}
       />
     </AppShell>
+    </RequireAuth>
   );
 }
 
