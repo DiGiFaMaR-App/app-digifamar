@@ -94,6 +94,7 @@ function Splash() {
       <div className="splash-rise opacity-0 [animation-delay:120ms] relative flex flex-col items-center text-center">
         {/* soft halo sitting behind the logo for "merged" depth */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/25 blur-[80px]" />
+        <h1 className="sr-only">DiGiFaMaR — From American Farms, Direct To You</h1>
         <div className="animate-pulse-glow">
           <Logo size="2xl" blend linked={false} />
         </div>
