@@ -40,7 +40,8 @@ function Success() {
 
         <div className="mt-6 w-full rounded-2xl border border-border bg-card/80 p-5 text-left">
           <Row k="Order ID" v={orderId} mono />
-          {product && <Row k="Item" v={`${product.name} · $${product.price.toFixed(2)}`} />}
+          {product && <Row k="Item" v={`${product.name} · $${(amount ?? product.price).toFixed(2)}`} />}
+          {amount !== undefined && <Row k="Amount paid" v={`$${amount.toFixed(2)}`} />}
           <Row k="Delivery window" v={eta.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + " by 6pm"} />
           <Row k="Status" v={<span className="text-primary">Awaiting farmer ship-out</span>} />
         </div>
