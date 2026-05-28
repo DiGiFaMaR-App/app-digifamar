@@ -8,9 +8,11 @@ export const Route = createFileRoute("/pricing")({
     meta: [
       { title: "Farmer pricing plans | DiGiFaMaR" },
       { name: "description", content: "Free, Pro, and Elite plans. Keep more of every sale, get featured placement, and access farm lending." },
-      { property: "og:url", content: "/pricing" },
+      { property: "og:title", content: "Farmer pricing plans | DiGiFaMaR" },
+      { property: "og:description", content: "Free, Pro, and Elite plans for American farmers." },
+      { property: "og:url", content: "https://farmer-forward.lovable.app/pricing" },
     ],
-    links: [{ rel: "canonical", href: "/pricing" }],
+    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/pricing" }],
   }),
   component: Pricing,
 });
