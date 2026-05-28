@@ -29,6 +29,7 @@ import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
+import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
@@ -132,6 +133,11 @@ const DashboardBuyerRoute = DashboardBuyerRouteImport.update({
   path: '/dashboard/buyer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatProductIdRoute = ChatProductIdRouteImport.update({
+  id: '/chat/$productId',
+  path: '/chat/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiOrdersRoute = ApiOrdersRouteImport.update({
   id: '/api/orders',
   path: '/api/orders',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
+  '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
+  '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
+  '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signin'
     | '/api/orders'
+    | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signin'
     | '/api/orders'
+    | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/signin'
     | '/api/orders'
+    | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
@@ -305,6 +317,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   SigninRoute: typeof SigninRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
+  ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
   FarmIdRoute: typeof FarmIdRoute
@@ -457,6 +470,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBuyerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/$productId': {
+      id: '/chat/$productId'
+      path: '/chat/$productId'
+      fullPath: '/chat/$productId'
+      preLoaderRoute: typeof ChatProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/orders': {
       id: '/api/orders'
       path: '/api/orders'
@@ -500,6 +520,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   SigninRoute: SigninRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
+  ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
   FarmIdRoute: FarmIdRoute,
