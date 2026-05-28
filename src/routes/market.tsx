@@ -12,7 +12,23 @@ export const Route = createFileRoute("/market")({
   head: () => ({
     meta: [
       { title: "Marketplace — DiGiFaMaR" },
-      { name: "description", content: "Browse fresh produce from verified farms near you." },
+      { name: "description", content: "Browse fresh produce from verified American farms near you, with escrow-protected checkout and 24-48 hour delivery." },
+      { property: "og:title", content: "Marketplace — DiGiFaMaR" },
+      { property: "og:description", content: "Browse fresh produce from verified American farms near you." },
+      { property: "og:url", content: "https://farmer-forward.lovable.app/market" },
+    ],
+    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/market" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "DiGiFaMaR Marketplace",
+          url: "https://farmer-forward.lovable.app/market",
+          description: "Fresh produce from verified American farms.",
+        }),
+      },
     ],
   }),
   component: Marketplace,
@@ -61,6 +77,7 @@ function Marketplace() {
   return (
     <AppShell role="buyer">
       <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+        <h1 className="sr-only">DiGiFaMaR Marketplace</h1>
         <div className="flex flex-col gap-3">
           <button
             onClick={detect}

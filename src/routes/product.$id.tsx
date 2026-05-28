@@ -7,11 +7,41 @@ import { getFarm, getProduct } from "@/lib/mock-data";
 export const Route = createFileRoute("/product/$id")({
   head: ({ params }) => {
     const p = getProduct(params.id);
+    const url = `https://farmer-forward.lovable.app/product/${params.id}`;
+    const title = p ? `${p.name} — DiGiFaMaR` : "Product — DiGiFaMaR";
+    const desc = p?.description ?? "Farm-fresh product on DiGiFaMaR.";
     return {
       meta: [
-        { title: p ? `${p.name} — DiGiFaMaR` : "Product — DiGiFaMaR" },
-        { name: "description", content: p?.description ?? "Farm-fresh product on DiGiFaMaR." },
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        { property: "og:type", content: "product" },
+        ...(p?.image ? [{ property: "og:image", content: p.image }] : []),
       ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: p
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: p.name,
+                image: p.image,
+                description: p.description,
+                offers: {
+                  "@type": "Offer",
+                  price: p.price,
+                  priceCurrency: "USD",
+                  availability: "https://schema.org/InStock",
+                  url,
+                },
+              }),
+            },
+          ]
+        : [],
     };
   },
   loader: ({ params }) => {

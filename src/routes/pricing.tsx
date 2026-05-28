@@ -8,9 +8,11 @@ export const Route = createFileRoute("/pricing")({
     meta: [
       { title: "Farmer pricing plans | DiGiFaMaR" },
       { name: "description", content: "Free, Pro, and Elite plans. Keep more of every sale, get featured placement, and access farm lending." },
-      { property: "og:url", content: "/pricing" },
+      { property: "og:title", content: "Farmer pricing plans | DiGiFaMaR" },
+      { property: "og:description", content: "Free, Pro, and Elite plans for American farmers." },
+      { property: "og:url", content: "https://farmer-forward.lovable.app/pricing" },
     ],
-    links: [{ rel: "canonical", href: "/pricing" }],
+    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/pricing" }],
   }),
   component: Pricing,
 });
@@ -83,7 +85,7 @@ function Pricing() {
                   Most popular
                 </span>
               )}
-              <h3 className="text-xl font-bold">{t.name}</h3>
+              <h2 className="text-xl font-bold">{t.name}</h2>
               <div className="mt-3 flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold">{t.price}</span>
                 <span className="text-muted-foreground">{t.note}</span>

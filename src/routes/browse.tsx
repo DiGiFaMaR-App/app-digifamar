@@ -32,9 +32,9 @@ export const Route = createFileRoute("/browse")({
         property: "og:description",
         content: "Find verified farms near you on DiGiFaMaR.",
       },
-      { property: "og:url", content: "/browse" },
+      { property: "og:url", content: "https://farmer-forward.lovable.app/browse" },
     ],
-    links: [{ rel: "canonical", href: "/browse" }],
+    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/browse" }],
   }),
   component: Browse,
 });
@@ -45,6 +45,7 @@ function Browse() {
 
   return (
     <SiteLayout>
+      <h1 className="sr-only">Browse verified American farms and fresh products</h1>
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
           <div className="relative flex-1">
@@ -107,7 +108,7 @@ function Browse() {
             <div className="absolute right-0 top-0 h-full w-80 max-w-[85%] overflow-y-auto bg-background p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-bold">Filters</h2>
-                <button onClick={() => setFiltersOpen(false)}>
+                <button onClick={() => setFiltersOpen(false)} aria-label="Close filters">
                   <X className="h-5 w-5" />
                 </button>
               </div>
