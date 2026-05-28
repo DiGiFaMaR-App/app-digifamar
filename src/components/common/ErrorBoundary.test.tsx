@@ -36,23 +36,23 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("kaboom")).toBeInTheDocument();
   });
 
-  it("clears the error when the user clicks Try again", async () => {
+  it("exposes a reset callback that clears the error", async () => {
     const user = userEvent.setup();
-    let shouldThrow = true;
-    function Toggle() {
-      if (shouldThrow) {
-        shouldThrow = false;
-        throw new Error("once");
-      }
+    let throws = true;
+    function Flaky() {
+      if (throws) throw new Error("once");
       return <p>recovered</p>;
     }
     render(
-      <ErrorBoundary>
-        <Toggle />
+      <ErrorBoundary
+        fallback={(e, reset) => (
+          <button onClick={() => { throws = false; reset(); }}>retry: {e.message}</button>
+        )}
+      >
+        <Flaky />
       </ErrorBoundary>,
     );
-    await user.click(screen.getByRole("button", { name: /try again/i }));
-    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /retry: once/i }));
     expect(screen.getByText("recovered")).toBeInTheDocument();
   });
 
