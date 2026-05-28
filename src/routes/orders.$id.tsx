@@ -11,6 +11,8 @@ import {
   Send,
   ArrowLeft,
   Clock,
+  ShieldCheck,
+  KeyRound,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { products, farms, getFarm } from "@/lib/mock-data";
 import { toast } from "sonner";
 
@@ -55,8 +58,10 @@ function OrderTracking() {
   const { id } = Route.useParams();
   const [contactOpen, setContactOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [enteredCode, setEnteredCode] = useState("");
+  const [released, setReleased] = useState(false);
 
-  const { product, farm, currentStage, etaDate, placedDate, address } = useMemo(() => {
+  const { product, farm, currentStage, etaDate, placedDate, address, releaseCode } = useMemo(() => {
     const seed = hashSeed(id);
     const product = products[seed % products.length];
     const farm = getFarm(product.farmId) ?? farms[0];
@@ -64,10 +69,21 @@ function OrderTracking() {
     const placedDate = new Date(Date.now() - (seed % 36) * 3600 * 1000);
     const etaDate = new Date(Date.now() + ((seed % 30) + 6) * 3600 * 1000);
     const address = "245 Cedar Ln, Brooklyn, NY 11215";
-    return { product, farm, currentStage, etaDate, placedDate, address };
+    const releaseCode = String(100000 + (seed % 900000)).padStart(6, "0");
+    return { product, farm, currentStage, etaDate, placedDate, address, releaseCode };
   }, [id]);
 
   const progressPct = (currentStage / (STAGES.length - 1)) * 100;
+  const codeAvailable = currentStage >= 4; // Out for delivery or later
+
+  const handleReleaseFunds = () => {
+    if (enteredCode !== releaseCode) {
+      toast.error("Invalid release code", { description: "Check the SMS sent to your phone." });
+      return;
+    }
+    setReleased(true);
+    toast.success("Funds released to farmer", { description: "Thanks for confirming delivery!" });
+  };
 
   const handleSendMessage = () => {
     if (!message.trim()) return;
@@ -206,6 +222,67 @@ function OrderTracking() {
             </Button>
           </div>
         </div>
+
+        {/* Escrow release */}
+        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+              Confirm delivery & release escrow
+            </h2>
+          </div>
+
+          {released ? (
+            <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/10 p-4">
+              <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" />
+              <div>
+                <p className="text-sm font-semibold text-primary">Funds released</p>
+                <p className="text-xs text-muted-foreground">
+                  Payment has been transferred to {farm.name}. Thanks for shopping local!
+                </p>
+              </div>
+            </div>
+          ) : codeAvailable ? (
+            <>
+              <p className="mt-2 text-xs text-muted-foreground">
+                We texted a 6-digit code to your phone. Enter it once your order arrives to release
+                payment to the farmer.
+              </p>
+              <div className="mt-4 flex justify-center">
+                <InputOTP maxLength={6} value={enteredCode} onChange={setEnteredCode}>
+                  <InputOTPGroup>
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <InputOTPSlot key={i} index={i} className="h-11 w-11 text-base" />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <Button
+                onClick={handleReleaseFunds}
+                disabled={enteredCode.length !== 6}
+                className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+              >
+                <KeyRound className="mr-1 h-4 w-4" /> Release funds
+              </Button>
+              <button
+                onClick={() =>
+                  toast.info(`Mock SMS: your release code is ${releaseCode}`, {
+                    description: "In production this would be sent via Twilio.",
+                  })
+                }
+                className="mt-2 w-full text-center text-[11px] text-muted-foreground hover:text-primary"
+              >
+                Didn't get the code? Resend
+              </button>
+            </>
+          ) : (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Your release code will be sent by SMS once the courier is out for delivery.
+            </p>
+          )}
+        </div>
+
+
 
         <div className="mt-6 flex justify-center">
           <Button asChild variant="outline">
