@@ -71,7 +71,7 @@ function DewField() {
 
 function Splash() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden px-6 pt-10 pb-12">
+    <div className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden px-6 pt-14 pb-12">
       {/* Layered background: deep gradient → soil texture → fluid → dew → vignette */}
       <div
         className="pointer-events-none absolute inset-0 -z-30"
@@ -93,7 +93,7 @@ function Splash() {
         {/* soft halo sitting behind the logo for "merged" depth */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/25 blur-[80px]" />
         <div className="animate-pulse-glow">
-          <Logo size="xl" blend linked={false} />
+          <Logo size="2xl" blend linked={false} />
         </div>
       </div>
 
