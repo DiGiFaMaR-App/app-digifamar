@@ -85,7 +85,7 @@ function Pricing() {
                   Most popular
                 </span>
               )}
-              <h3 className="text-xl font-bold">{t.name}</h3>
+              <h2 className="text-xl font-bold">{t.name}</h2>
               <div className="mt-3 flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold">{t.price}</span>
                 <span className="text-muted-foreground">{t.note}</span>
