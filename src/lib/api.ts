@@ -55,7 +55,14 @@ export type VerifyOtpResponse = { success: boolean; token?: string };
 export type CreateOrderResponse = {
   success: boolean;
   orderId: string;
-  status: "pending" | "held";
+  status: "held" | "released" | "refunded";
+  amount: number;
+};
+export type ReleaseOrderResponse = {
+  success: boolean;
+  orderId: string;
+  status: "released";
+  releasedAt: string;
 };
 
 export const api = {
@@ -73,10 +80,21 @@ export const api = {
     });
   },
 
-  createOrder(orderData: Record<string, unknown>) {
+  createOrder(orderData: {
+    productId?: string;
+    amount: number;
+    buyerPhone?: string;
+  }) {
     return request<CreateOrderResponse>("/orders", {
       method: "POST",
       body: JSON.stringify(orderData),
+    });
+  },
+
+  releaseOrder(orderId: string, code: string) {
+    return request<ReleaseOrderResponse>(`/orders/${encodeURIComponent(orderId)}/release`, {
+      method: "POST",
+      body: JSON.stringify({ code }),
     });
   },
 };

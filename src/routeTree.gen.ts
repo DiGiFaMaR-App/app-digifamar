@@ -29,6 +29,8 @@ import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
+import { Route as ApiOrdersRouteImport } from './routes/api/orders'
+import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
@@ -130,6 +132,16 @@ const DashboardBuyerRoute = DashboardBuyerRouteImport.update({
   path: '/dashboard/buyer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiOrdersRoute = ApiOrdersRouteImport.update({
+  id: '/api/orders',
+  path: '/api/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
+  id: '/$id/release',
+  path: '/$id/release',
+  getParentRoute: () => ApiOrdersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -144,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
+  '/api/orders': typeof ApiOrdersRouteWithChildren
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
@@ -152,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/signup/': typeof SignupIndexRoute
+  '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,6 +180,7 @@ export interface FileRoutesByTo {
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
+  '/api/orders': typeof ApiOrdersRouteWithChildren
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
@@ -174,6 +189,7 @@ export interface FileRoutesByTo {
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/signup': typeof SignupIndexRoute
+  '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -189,6 +205,7 @@ export interface FileRoutesById {
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
+  '/api/orders': typeof ApiOrdersRouteWithChildren
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
@@ -197,6 +214,7 @@ export interface FileRoutesById {
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/signup/': typeof SignupIndexRoute
+  '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -213,6 +231,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/pricing'
     | '/signin'
+    | '/api/orders'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
@@ -221,6 +240,7 @@ export interface FileRouteTypes {
     | '/signup/buyer'
     | '/signup/farmer'
     | '/signup/'
+    | '/api/orders/$id/release'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -235,6 +255,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/pricing'
     | '/signin'
+    | '/api/orders'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
@@ -243,6 +264,7 @@ export interface FileRouteTypes {
     | '/signup/buyer'
     | '/signup/farmer'
     | '/signup'
+    | '/api/orders/$id/release'
   id:
     | '__root__'
     | '/'
@@ -257,6 +279,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/pricing'
     | '/signin'
+    | '/api/orders'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
@@ -265,6 +288,7 @@ export interface FileRouteTypes {
     | '/signup/buyer'
     | '/signup/farmer'
     | '/signup/'
+    | '/api/orders/$id/release'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -280,6 +304,7 @@ export interface RootRouteChildren {
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
   SigninRoute: typeof SigninRoute
+  ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
   FarmIdRoute: typeof FarmIdRoute
@@ -432,8 +457,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBuyerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/orders': {
+      id: '/api/orders'
+      path: '/api/orders'
+      fullPath: '/api/orders'
+      preLoaderRoute: typeof ApiOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/orders/$id/release': {
+      id: '/api/orders/$id/release'
+      path: '/$id/release'
+      fullPath: '/api/orders/$id/release'
+      preLoaderRoute: typeof ApiOrdersIdReleaseRouteImport
+      parentRoute: typeof ApiOrdersRoute
+    }
   }
 }
+
+interface ApiOrdersRouteChildren {
+  ApiOrdersIdReleaseRoute: typeof ApiOrdersIdReleaseRoute
+}
+
+const ApiOrdersRouteChildren: ApiOrdersRouteChildren = {
+  ApiOrdersIdReleaseRoute: ApiOrdersIdReleaseRoute,
+}
+
+const ApiOrdersRouteWithChildren = ApiOrdersRoute._addFileChildren(
+  ApiOrdersRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -448,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
   SigninRoute: SigninRoute,
+  ApiOrdersRoute: ApiOrdersRouteWithChildren,
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
   FarmIdRoute: FarmIdRoute,
