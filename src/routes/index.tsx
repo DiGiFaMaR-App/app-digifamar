@@ -21,7 +21,9 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "The premium direct-to-farmer agricultural marketplace.",
       },
+      { property: "og:url", content: "https://farmer-forward.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/" }],
   }),
   component: Splash,
 });
