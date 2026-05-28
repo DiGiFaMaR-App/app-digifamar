@@ -3,7 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ErrorBoundary } from "./ErrorBoundary";
 
-function Boom({ when }: { when: boolean }): JSX.Element {
+function Boom({ when }: { when: boolean }) {
   if (when) throw new Error("kaboom");
   return <p>safe</p>;
 }
