@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Package, Truck, History, ShoppingBag, Heart, DollarSign } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Package, Truck, History, ShoppingBag, Heart, DollarSign, RotateCcw, Radio } from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -44,13 +45,37 @@ const favFarms = [farms[0], farms[2], farms[4]];
 function BuyerDashboard() {
   const totalSpend = spendSeries.reduce((s, x) => s + x.spend, 0);
   const ref = useReveal<HTMLDivElement>({ stagger: 0.05, y: 24, scale: 0.97 });
+  const [name, setName] = useState("there");
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("buyerProfile");
+      if (raw) {
+        const p = JSON.parse(raw);
+        const first = (p.fullName || p.name || "").trim().split(" ")[0];
+        if (first) setName(first);
+      }
+    } catch {}
+  }, []);
+
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 18) return "Good afternoon";
+    return "Good evening";
+  })();
 
   return (
     <AppShell role="buyer">
       <div ref={ref} className="mx-auto max-w-5xl px-4 pt-6 sm:px-6">
-        <div data-reveal>
-          <h1 className="text-2xl font-extrabold sm:text-3xl">My orders</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Track active deliveries and revisit past purchases.</p>
+        <div data-reveal className="overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-5 sm:p-6">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary">{greeting}</p>
+          <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
+            Welcome back, {name} 👋
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            You have {orders.length} active {orders.length === 1 ? "delivery" : "deliveries"} on the way — track them live below.
+          </p>
         </div>
 
         <div data-reveal className="mt-5 grid gap-3 sm:grid-cols-4">
@@ -97,7 +122,8 @@ function BuyerDashboard() {
             {favFarms.map((f) => (
               <Link
                 key={f.id}
-                to="/market"
+                to="/farm/$id"
+                params={{ id: f.id }}
                 className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-3"
               >
                 <img src={f.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
@@ -112,7 +138,7 @@ function BuyerDashboard() {
         </Section>
 
         <Section title="Past purchases">
-          {history.map((o) => <OrderRow key={o.id} order={o} />)}
+          {history.map((o) => <OrderRow key={o.id} order={o} reorder />)}
         </Section>
 
         <div className="mt-8 flex justify-center">
@@ -145,25 +171,58 @@ function Stat({ icon: Icon, label, value, accent = false }: { icon: React.Elemen
   );
 }
 
-function OrderRow({ order, active = false }: { order: typeof orders[number] | typeof history[number]; active?: boolean }) {
+function OrderRow({
+  order,
+  active = false,
+  reorder = false,
+}: {
+  order: typeof orders[number] | typeof history[number];
+  active?: boolean;
+  reorder?: boolean;
+}) {
   const farm = getFarm(order.product.farmId);
+  const navigate = useNavigate();
+
   return (
-    <Link
-      to="/orders/$id"
-      params={{ id: order.id }}
-      className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-3"
-    >
-      <img src={order.product.image} alt="" className="h-14 w-14 rounded-lg object-cover" />
-      <div className="min-w-0 flex-1">
-        <p className="line-clamp-1 text-sm font-semibold">{order.product.name}</p>
-        <p className="text-[11px] text-muted-foreground">{farm?.name} · {order.placed}</p>
-        <p className="font-mono text-[10px] text-muted-foreground">{order.id}</p>
+    <div className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+      <Link
+        to="/orders/$id"
+        params={{ id: order.id }}
+        className="flex min-w-0 flex-1 items-center gap-3"
+      >
+        <img src={order.product.image} alt="" className="h-14 w-14 rounded-lg object-cover" />
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-1 text-sm font-semibold">{order.product.name}</p>
+          <p className="text-[11px] text-muted-foreground">{farm?.name} · {order.placed}</p>
+          <p className="font-mono text-[10px] text-muted-foreground">{order.id}</p>
+          {active && "eta" in order && (
+            <p className="mt-0.5 inline-flex items-center gap-1 text-[10px] font-semibold text-primary">
+              <Radio className="h-3 w-3 animate-pulse" /> Live · ETA {order.eta}
+            </p>
+          )}
+        </div>
+      </Link>
+      <div className="flex shrink-0 flex-col items-end gap-1.5">
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+          active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+        }`}>
+          {order.status === "out-for-delivery" ? "Out for delivery" : order.status === "shipped" ? "Shipped" : "Delivered"}
+        </span>
+        {reorder && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 gap-1 px-2 text-[11px]"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              navigate({ to: "/payment-success", search: { id: order.product.id } });
+            }}
+          >
+            <RotateCcw className="h-3 w-3" /> Re-order
+          </Button>
+        )}
       </div>
-      <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold ${
-        active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
-      }`}>
-        {order.status === "out-for-delivery" ? "Out for delivery" : order.status === "shipped" ? "Shipped" : "Delivered"}
-      </span>
-    </Link>
+    </div>
   );
 }
