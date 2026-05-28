@@ -20,6 +20,7 @@ export function Logo({
     md: "h-10 sm:h-12",
     lg: "h-20 sm:h-24",
     xl: "h-40 sm:h-48",
+    "2xl": "h-52 sm:h-60",
   };
   const fx = blend ? "logo-blend" : glow ? "glow-logo" : "";
   const img = (
