@@ -26,7 +26,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           name: "description",
           content:
-            "Buy fresh produce, dairy, meat, and artisan goods direct from verified American farmers. 24-48 hour delivery, escrow protection, 50 states.",
+            "DiGiFaMaR connects verified American farmers directly with buyers for fresh produce, dairy, meat, and artisan goods. Escrow-protected checkout, 24-48 hour delivery, all 50 states.",
         },
         { property: "og:title", content: "DiGiFaMaR — From American Farms, Direct To You" },
         {
@@ -36,15 +36,34 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         },
         { property: "og:type", content: "website" },
         { property: "og:site_name", content: "DiGiFaMaR" },
+        { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: "DiGiFaMaR — From American Farms, Direct To You" },
-        { name: "description", content: "DiGiFaMaR connects verified American farmers directly with buyers for fresh, local produce. Enjoy 24-hour delivery, secure escrow payments, and fair prices whil" },
-        { property: "og:description", content: "DiGiFaMaR connects verified American farmers directly with buyers for fresh, local produce. Enjoy 24-hour delivery, secure escrow payments, and fair prices whil" },
-        { name: "twitter:description", content: "DiGiFaMaR connects verified American farmers directly with buyers for fresh, local produce. Enjoy 24-hour delivery, secure escrow payments, and fair prices whil" },
-        { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b" },
+        { name: "twitter:description", content: "Skip the middleman. Farmers keep 80-92% of every sale. Verified farms, escrow checkout, all 50 states." },
         { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b" },
       ],
       links: [{ rel: "stylesheet", href: appCss }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                name: "DiGiFaMaR",
+                url: "https://farmer-forward.lovable.app",
+                logo: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b",
+              },
+              {
+                "@type": "WebSite",
+                name: "DiGiFaMaR",
+                url: "https://farmer-forward.lovable.app",
+              },
+            ],
+          }),
+        },
+      ],
     }),
     shellComponent: RootShell,
     component: RootComponent,
