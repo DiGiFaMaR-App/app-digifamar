@@ -81,9 +81,10 @@ export const api = {
   },
 
   createOrder(orderData: {
-    productId?: string;
+    buyerId: string;
+    listingId: string;
     amount: number;
-    buyerPhone?: string;
+    paymentMethodId: string;
   }) {
     return request<CreateOrderResponse>("/orders", {
       method: "POST",
