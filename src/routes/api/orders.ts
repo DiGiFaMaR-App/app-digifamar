@@ -2,10 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { createEscrowOrder } from "@/lib/escrow-store.server";
 
+// Same-origin only — these endpoints are not meant to be called cross-origin.
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
+  "Vary": "Origin",
 } as const;
 
 // Mirrors the NestJS CreateOrderDto:
