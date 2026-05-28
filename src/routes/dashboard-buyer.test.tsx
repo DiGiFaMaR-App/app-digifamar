@@ -27,7 +27,7 @@ vi.mock("recharts", async () => {
 
 import { Route } from "./dashboard.buyer";
 
-const Page = Route.component as () => JSX.Element;
+const Page = (Route as unknown as { component: () => React.ReactElement }).component;
 
 describe("Buyer dashboard", () => {
   it("renders without crashing and shows order section headings", () => {
