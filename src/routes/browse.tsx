@@ -32,9 +32,9 @@ export const Route = createFileRoute("/browse")({
         property: "og:description",
         content: "Find verified farms near you on DiGiFaMaR.",
       },
-      { property: "og:url", content: "/browse" },
+      { property: "og:url", content: "https://farmer-forward.lovable.app/browse" },
     ],
-    links: [{ rel: "canonical", href: "/browse" }],
+    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/browse" }],
   }),
   component: Browse,
 });
