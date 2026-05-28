@@ -108,7 +108,7 @@ function Browse() {
             <div className="absolute right-0 top-0 h-full w-80 max-w-[85%] overflow-y-auto bg-background p-4">
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="font-bold">Filters</h2>
-                <button onClick={() => setFiltersOpen(false)}>
+                <button onClick={() => setFiltersOpen(false)} aria-label="Close filters">
                   <X className="h-5 w-5" />
                 </button>
               </div>
