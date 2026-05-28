@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
@@ -33,6 +34,11 @@ import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
   path: '/signin',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/signin': typeof SigninRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/pricing'
     | '/signin'
+    | '/sitemap.xml'
     | '/api/orders'
     | '/chat/$productId'
     | '/dashboard/buyer'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/pricing'
     | '/signin'
+    | '/sitemap.xml'
     | '/api/orders'
     | '/chat/$productId'
     | '/dashboard/buyer'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/payment-success'
     | '/pricing'
     | '/signin'
+    | '/sitemap.xml'
     | '/api/orders'
     | '/chat/$productId'
     | '/dashboard/buyer'
@@ -316,6 +328,7 @@ export interface RootRouteChildren {
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
   SigninRoute: typeof SigninRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
   ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
@@ -330,6 +343,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signin': {
       id: '/signin'
       path: '/signin'
@@ -519,6 +539,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
   SigninRoute: SigninRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
   ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
