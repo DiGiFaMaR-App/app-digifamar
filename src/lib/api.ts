@@ -19,9 +19,12 @@ async function request<T = unknown>(
   const data = text ? safeJson(text) : null;
 
   if (!res.ok) {
+    const errField =
+      data && typeof data === "object" && "error" in data
+        ? (data as { error?: unknown }).error
+        : undefined;
     const message =
-      (data && typeof data === "object" && "error" in data && (data as { error?: string }).error) ||
-      `Request failed (${res.status})`;
+      typeof errField === "string" ? errField : `Request failed (${res.status})`;
     throw new ApiError(message, res.status, data);
   }
 
