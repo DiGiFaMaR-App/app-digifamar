@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CartRouteImport } from './routes/cart'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -34,6 +35,11 @@ import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -156,6 +162,7 @@ const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/cart': typeof CartRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRoutesByTo {
+  '/cart': typeof CartRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -209,6 +217,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/cart': typeof CartRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -237,6 +246,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/cart'
     | '/'
     | '/about'
     | '/auth'
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/cart'
     | '/'
     | '/about'
     | '/auth'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
   id:
     | '__root__'
+    | '/cart'
     | '/'
     | '/about'
     | '/auth'
@@ -316,6 +328,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  CartRoute: typeof CartRoute
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
@@ -343,6 +356,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -527,6 +547,7 @@ const ApiOrdersRouteWithChildren = ApiOrdersRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
+  CartRoute: CartRoute,
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,

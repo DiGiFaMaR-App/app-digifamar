@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, Package, User, Tractor, MessageCircle } from "lucide-react";
+import { Home, Search, Package, User, Tractor, MessageCircle, ShoppingCart } from "lucide-react";
 import { type ReactNode } from "react";
 import { Logo } from "./Logo";
+import { useCart } from "@/hooks/use-cart";
 
 type NavItem = { to: string; label: string; icon: React.ElementType };
 
@@ -24,6 +25,7 @@ export function AppShell({
 }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const nav = role === "farmer" ? farmerNav : buyerNav;
+  const { cartCount } = useCart();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -46,13 +48,27 @@ export function AppShell({
               );
             })}
           </nav>
-          <Link
-            to="/auth"
-            search={{ tab: "signin" }}
-            className="rounded-lg border border-border bg-card/60 px-3 py-1.5 text-xs font-semibold hover:bg-card"
-          >
-            Account
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/cart"
+              className="relative flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-card/60 hover:bg-card transition-colors"
+              aria-label="Cart"
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              to="/auth"
+              search={{ tab: "signin" }}
+              className="rounded-lg border border-border bg-card/60 px-3 py-1.5 text-xs font-semibold hover:bg-card"
+            >
+              Account
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -60,11 +76,14 @@ export function AppShell({
 
       {/* Mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur md:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-4">
+        <div className={`mx-auto grid max-w-md ${role === "buyer" ? "grid-cols-5" : "grid-cols-4"}`}>
           <BottomItem to="/" icon={Home} label="Home" path={path} exact />
           {nav.map((n) => (
             <BottomItem key={n.to} to={n.to} icon={n.icon} label={n.label} path={path} />
           ))}
+          {role === "buyer" && (
+            <BottomItemCart to="/cart" path={path} count={cartCount} />
+          )}
           <BottomItem to="/auth" icon={User} label="Me" path={path} />
         </div>
       </nav>
@@ -106,6 +125,36 @@ function BottomItem({
     >
       <Icon className="h-5 w-5" />
       {label}
+    </Link>
+  );
+}
+
+function BottomItemCart({
+  to,
+  path,
+  count,
+}: {
+  to: string;
+  path: string;
+  count: number;
+}) {
+  const active = path.startsWith(to);
+  return (
+    <Link
+      to={to}
+      className={`flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
+        active ? "text-primary" : "text-muted-foreground"
+      }`}
+    >
+      <span className="relative">
+        <ShoppingCart className="h-5 w-5" />
+        {count > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+            {count > 9 ? "9+" : count}
+          </span>
+        )}
+      </span>
+      Cart
     </Link>
   );
 }

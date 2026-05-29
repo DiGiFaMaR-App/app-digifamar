@@ -1,8 +1,10 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, BadgeCheck, Lock, MapPin, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { getFarm, getProduct } from "@/lib/mock-data";
+import { useCart } from "@/hooks/use-cart";
 
 export const Route = createFileRoute("/product/$id")({
   head: ({ params }) => {
@@ -59,6 +61,21 @@ function ProductPage() {
   const { product } = Route.useLoaderData() as { product: NonNullable<ReturnType<typeof getProduct>> };
   const farm = getFarm(product.farmId);
   const navigate = useNavigate();
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      farmName: farm?.name ?? "Unknown Farm",
+      price: product.price,
+      unit: product.unit,
+      imageUrl: product.image,
+    });
+    toast.success(`${product.name} added to cart`, {
+      action: { label: "View cart", onClick: () => navigate({ to: "/cart" }) },
+    });
+  };
 
   return (
     <AppShell>
@@ -144,7 +161,12 @@ function ProductPage() {
               >
                 Buy now · ${product.price.toFixed(2)}
               </Button>
-              <Button size="lg" variant="outline" className="h-12">
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-12"
+                onClick={handleAddToCart}
+              >
                 Add to cart
               </Button>
             </div>
