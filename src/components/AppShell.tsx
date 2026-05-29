@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, Package, User, Tractor, MessageCircle, ShoppingCart } from "lucide-react";
+import { Home, Search, Package, User, Tractor, MessageCircle, ShoppingCart, MessageSquare } from "lucide-react";
 import { type ReactNode } from "react";
 import { Logo } from "./Logo";
 import { useCart } from "@/hooks/use-cart";
@@ -9,6 +9,7 @@ type NavItem = { to: string; label: string; icon: React.ElementType };
 const buyerNav: NavItem[] = [
   { to: "/market", label: "Shop", icon: Search },
   { to: "/dashboard/buyer", label: "Orders", icon: Package },
+  { to: "/chat", label: "Messages", icon: MessageSquare },
 ];
 
 const farmerNav: NavItem[] = [

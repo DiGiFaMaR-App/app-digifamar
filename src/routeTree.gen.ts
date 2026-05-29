@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -38,6 +39,11 @@ import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -163,6 +169,7 @@ const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
+  '/chat/': typeof ChatIndexRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/cart': typeof CartRoute
+  '/chat': typeof ChatIndexRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -218,6 +226,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/cart': typeof CartRoute
+  '/chat/': typeof ChatIndexRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/cart'
+    | '/chat/'
     | '/'
     | '/about'
     | '/auth'
@@ -274,6 +284,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/cart'
+    | '/chat'
     | '/'
     | '/about'
     | '/auth'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/cart'
+    | '/chat/'
     | '/'
     | '/about'
     | '/auth'
@@ -329,6 +341,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   CartRoute: typeof CartRoute
+  ChatIndexRoute: typeof ChatIndexRoute
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
@@ -361,6 +374,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat/'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -548,6 +568,7 @@ const ApiOrdersRouteWithChildren = ApiOrdersRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
+  ChatIndexRoute: ChatIndexRoute,
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
