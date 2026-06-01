@@ -9,8 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as CartRouteImport } from './routes/cart'
-import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -27,6 +25,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignupIndexRouteImport } from './routes/signup.index'
+import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
@@ -43,16 +42,6 @@ import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
-const CartRoute = CartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatIndexRoute = ChatIndexRouteImport.update({
-  id: '/chat/',
-  path: '/chat/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -133,6 +122,11 @@ const SignupIndexRoute = SignupIndexRouteImport.update({
   path: '/signup/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupFarmerRoute = SignupFarmerRouteImport.update({
   id: '/signup/farmer',
   path: '/signup/farmer',
@@ -210,8 +204,6 @@ const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/cart': typeof CartRoute
-  '/chat/': typeof ChatIndexRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -240,13 +232,12 @@ export interface FileRoutesByFullPath {
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
+  '/chat/': typeof ChatIndexRoute
   '/signup/': typeof SignupIndexRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRoutesByTo {
-  '/cart': typeof CartRoute
-  '/chat': typeof ChatIndexRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -275,14 +266,13 @@ export interface FileRoutesByTo {
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
+  '/chat': typeof ChatIndexRoute
   '/signup': typeof SignupIndexRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/cart': typeof CartRoute
-  '/chat/': typeof ChatIndexRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
@@ -311,6 +301,7 @@ export interface FileRoutesById {
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
+  '/chat/': typeof ChatIndexRoute
   '/signup/': typeof SignupIndexRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
@@ -318,8 +309,6 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/cart'
-    | '/chat/'
     | '/'
     | '/about'
     | '/auth'
@@ -348,13 +337,12 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
+    | '/chat/'
     | '/signup/'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/cart'
-    | '/chat'
     | '/'
     | '/about'
     | '/auth'
@@ -383,13 +371,12 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
+    | '/chat'
     | '/signup'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   id:
     | '__root__'
-    | '/cart'
-    | '/chat/'
     | '/'
     | '/about'
     | '/auth'
@@ -418,14 +405,13 @@ export interface FileRouteTypes {
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
+    | '/chat/'
     | '/signup/'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  CartRoute: typeof CartRoute
-  ChatIndexRoute: typeof ChatIndexRoute
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
@@ -454,26 +440,13 @@ export interface RootRouteChildren {
   ProductIdRoute: typeof ProductIdRoute
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
+  ChatIndexRoute: typeof ChatIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/cart': {
-      id: '/cart'
-      path: '/cart'
-      fullPath: '/cart'
-      preLoaderRoute: typeof CartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat/': {
-      id: '/chat/'
-      path: '/chat/'
-      fullPath: '/chat/'
-      preLoaderRoute: typeof ChatIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -584,6 +557,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup/'
       preLoaderRoute: typeof SignupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup/farmer': {
@@ -707,8 +687,6 @@ const ApiOrdersRouteWithChildren = ApiOrdersRoute._addFileChildren(
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  CartRoute: CartRoute,
-  ChatIndexRoute: ChatIndexRoute,
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
@@ -737,6 +715,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductIdRoute: ProductIdRoute,
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
+  ChatIndexRoute: ChatIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
 }
