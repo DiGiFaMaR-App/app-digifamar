@@ -35,6 +35,8 @@ export type Farm = {
   rating: number;
   reviews: number;
   distance: number;
+  lat: number;
+  lng: number;
   verified: boolean;
   topSeller?: boolean;
   image: string;
@@ -53,6 +55,8 @@ export const farms: Farm[] = [
     rating: 4.9,
     reviews: 312,
     distance: 8.2,
+    lat: 35.5951,
+    lng: -82.5515,
     verified: true,
     topSeller: true,
     image: heroFarm,
@@ -70,6 +74,8 @@ export const farms: Farm[] = [
     rating: 4.8,
     reviews: 187,
     distance: 14.6,
+    lat: 46.0646,
+    lng: -118.3430,
     verified: true,
     topSeller: true,
     image: fruitStand,
@@ -87,6 +93,8 @@ export const farms: Farm[] = [
     rating: 4.9,
     reviews: 426,
     distance: 22.1,
+    lat: 43.0731,
+    lng: -89.4012,
     verified: true,
     topSeller: true,
     image: dairyEggs,
@@ -104,6 +112,8 @@ export const farms: Farm[] = [
     rating: 4.7,
     reviews: 142,
     distance: 31.4,
+    lat: 45.6769,
+    lng: -111.0429,
     verified: true,
     image: honeyJars,
     description:
@@ -120,6 +130,8 @@ export const farms: Farm[] = [
     rating: 4.8,
     reviews: 264,
     distance: 5.7,
+    lat: 40.0379,
+    lng: -76.3055,
     verified: true,
     image: produceCrate,
     description:
@@ -136,6 +148,8 @@ export const farms: Farm[] = [
     rating: 4.9,
     reviews: 198,
     distance: 12.9,
+    lat: 30.2672,
+    lng: -97.7431,
     verified: true,
     topSeller: true,
     image: farmerPortrait,

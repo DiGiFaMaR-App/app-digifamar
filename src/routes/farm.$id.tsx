@@ -1,15 +1,19 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import {
   BadgeCheck,
   Heart,
   MapPin,
   MessageSquare,
   Star,
+  Loader2,
 } from "lucide-react";
+import { useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/Cards";
 import { farms, getFarm, getProductsByFarm, products } from "@/lib/mock-data";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/farm/$id")({
   loader: ({ params }) => {
@@ -39,6 +43,50 @@ function FarmPage() {
   const farmProducts = getProductsByFarm(farm.id);
   const fallback = farmProducts.length ? farmProducts : products.slice(0, 3);
   const nearby = farms.filter((f) => f.id !== farm.id).slice(0, 3);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [messaging, setMessaging] = useState(false);
+
+  const handleMessageFarmer = async () => {
+    if (!user) {
+      navigate({ to: "/auth", search: { tab: "signin" } });
+      return;
+    }
+    setMessaging(true);
+    try {
+      const sb = supabase as any;
+      const { data: existing } = await sb
+        .from("conversations")
+        .select("id")
+        .eq("buyer_id", user.id)
+        .eq("farmer_id", farm.id)
+        .maybeSingle();
+
+      if (existing?.id) {
+        navigate({ to: "/chat/$productId", params: { productId: existing.id } });
+        return;
+      }
+
+      const { data: created } = await sb
+        .from("conversations")
+        .insert({
+          buyer_id: user.id,
+          farmer_id: farm.id,
+          farm_name: farm.name,
+        })
+        .select("id")
+        .single();
+
+      if (created?.id) {
+        navigate({ to: "/chat/$productId", params: { productId: created.id } });
+      }
+    } catch {
+      // table may not exist yet — still navigate to chat list
+      navigate({ to: "/chat" });
+    } finally {
+      setMessaging(false);
+    }
+  };
 
   return (
     <SiteLayout>
@@ -84,8 +132,17 @@ function FarmPage() {
               <Button>
                 <Heart className="mr-1 h-4 w-4" /> Follow farm
               </Button>
-              <Button variant="outline">
-                <MessageSquare className="mr-1 h-4 w-4" /> Message
+              <Button
+                variant="outline"
+                onClick={handleMessageFarmer}
+                disabled={messaging}
+              >
+                {messaging ? (
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                ) : (
+                  <MessageSquare className="mr-1 h-4 w-4" />
+                )}
+                Message Farmer
               </Button>
             </div>
           </div>
