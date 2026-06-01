@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { User, Tractor } from "lucide-react";
-import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/signup/")({
@@ -17,18 +16,10 @@ function RoleSelection() {
   const navigate = useNavigate();
 
   const handleRoleSelect = (role: "farmer" | "buyer") => {
-    localStorage.setItem("userRole", role);
-    localStorage.setItem("isAuthenticated", "true");
-
-    toast.success(
-      `${role === "farmer" ? "Farmer" : "Buyer"} account verification started`,
-      { description: "Redirecting you to your space…" },
-    );
-
     if (role === "farmer") {
-      navigate({ to: "/dashboard/farmer" });
+      navigate({ to: "/signup/farmer" });
     } else {
-      navigate({ to: "/market" });
+      navigate({ to: "/signup/buyer" });
     }
   };
 

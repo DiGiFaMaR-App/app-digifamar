@@ -1,13 +1,22 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Tractor, Loader2, Upload } from "lucide-react";
-import { SiteLayout } from "@/components/SiteLayout";
+import {
+  Tractor,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Loader2,
+  ArrowLeft,
+  Shield,
+  Clock,
+  Phone,
+  Star,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -16,436 +25,929 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { categories, certifications } from "@/lib/mock-data";
+import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/signup/farmer")({
   head: () => ({
     meta: [
-      { title: "List your farm on DiGiFaMaR" },
+      { title: "Farmer Registration — DiGiFaMaR" },
       {
         name: "description",
         content:
-          "Apply to sell direct to American buyers. Verification takes 24-48 hours.",
+          "Register as a farmer on DiGiFaMaR. Sell direct to buyers and keep 92% of every sale.",
       },
     ],
   }),
   component: FarmerSignup,
 });
 
+// ─────────────────────────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────────────────────────
+
 const US_STATES = [
-  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
-  "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
-  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
-  "VA","WA","WV","WI","WY",
+  { code: "AL", name: "Alabama" },
+  { code: "AK", name: "Alaska" },
+  { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" },
+  { code: "CA", name: "California" },
+  { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" },
+  { code: "DE", name: "Delaware" },
+  { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" },
+  { code: "HI", name: "Hawaii" },
+  { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" },
+  { code: "IN", name: "Indiana" },
+  { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" },
+  { code: "KY", name: "Kentucky" },
+  { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" },
+  { code: "MD", name: "Maryland" },
+  { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" },
+  { code: "MN", name: "Minnesota" },
+  { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" },
+  { code: "MT", name: "Montana" },
+  { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" },
+  { code: "NH", name: "New Hampshire" },
+  { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" },
+  { code: "NY", name: "New York" },
+  { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" },
+  { code: "OH", name: "Ohio" },
+  { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" },
+  { code: "PA", name: "Pennsylvania" },
+  { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" },
+  { code: "SD", name: "South Dakota" },
+  { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" },
+  { code: "UT", name: "Utah" },
+  { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" },
+  { code: "WA", name: "Washington" },
+  { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" },
+  { code: "WY", name: "Wyoming" },
 ];
 
-const farmerSchema = z
-  .object({
-    fullName: z.string().trim().min(2, "Enter your full name").max(100),
-    email: z.string().trim().email("Enter a valid email").max(255),
-    phone: z
-      .string()
-      .trim()
-      .min(7, "Enter a valid phone number")
-      .max(20)
-      .regex(/^[0-9+()\-\s]+$/, "Digits, spaces, () + - only"),
-    password: z.string().min(8, "At least 8 characters").max(128),
-    confirm: z.string(),
-    farmName: z.string().trim().min(2, "Enter your farm name").max(120),
-    description: z
-      .string()
-      .trim()
-      .min(20, "Tell buyers a bit more (20+ chars)")
-      .max(600),
-    address: z.string().trim().min(5, "Enter your farm address").max(200),
-    city: z.string().trim().min(2, "Required").max(80),
-    state: z.string().length(2, "Pick a state"),
-    zip: z
-      .string()
-      .trim()
-      .regex(/^\d{5}(-\d{4})?$/, "Enter a valid US ZIP"),
-    acres: z.coerce.number().min(0).max(1_000_000).optional(),
-    years: z.coerce.number().min(0).max(150).optional(),
-    products: z.array(z.string()).min(1, "Pick at least one product category"),
-    certifications: z.array(z.string()),
-    terms: z.literal(true, { errorMap: () => ({ message: "Required" }) }),
-  })
-  .refine((d) => d.password === d.confirm, {
-    path: ["confirm"],
-    message: "Passwords don't match",
-  });
+const FARM_TYPES = [
+  "Vegetables & Produce",
+  "Fruits & Orchards",
+  "Grains & Cereals",
+  "Livestock & Cattle",
+  "Poultry",
+  "Dairy",
+  "Organic Farm",
+  "Greenhouse/Hydroponic",
+  "Mixed",
+  "Other",
+];
 
-type FarmerForm = z.infer<typeof farmerSchema>;
-type FieldErrors = Partial<Record<keyof FarmerForm, string>>;
+// ─────────────────────────────────────────────────────────────────
+// VALIDATION SCHEMAS
+// ─────────────────────────────────────────────────────────────────
+
+const step1Schema = z.object({
+  firstName: z.string().trim().min(1, "First name is required").max(60),
+  lastName: z.string().trim().min(1, "Last name is required").max(60),
+  email: z.string().trim().email("Enter a valid email address").max(255),
+  phone: z
+    .string()
+    .trim()
+    .regex(
+      /^\(\d{3}\) \d{3}-\d{4}$/,
+      "Enter a valid US phone number, e.g. (555) 123-4567",
+    ),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128),
+});
+
+const step2Schema = z.object({
+  farmName: z.string().trim().min(2, "Farm name is required").max(120),
+  state: z.string().min(2, "Please select a state"),
+  farmType: z.string().min(1, "Please select a farm type"),
+  acreage: z.string().optional(),
+  yearsActive: z.coerce
+    .number({ invalid_type_error: "Enter a number" })
+    .min(0, "Cannot be negative")
+    .max(150, "Enter a realistic value"),
+  usdaNumber: z.string().optional(),
+});
+
+type Step1Data = z.infer<typeof step1Schema>;
+type Step2Data = z.infer<typeof step2Schema>;
+type Step1Errors = Partial<Record<keyof Step1Data, string>>;
+type Step2Errors = Partial<Record<keyof Step2Data, string>>;
+
+// ─────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────
+
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 10);
+  if (digits.length <= 3) return digits.length ? `(${digits}` : "";
+  if (digits.length <= 6)
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────────
 
 function FarmerSignup() {
   const navigate = useNavigate();
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    fullName: "",
+  const [step, setStep] = useState(1);
+
+  // Step 1 data
+  const [step1, setStep1] = useState({
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     password: "",
-    confirm: "",
-    farmName: "",
-    description: "",
-    address: "",
-    city: "",
-    state: "",
-    zip: "",
-    acres: "",
-    years: "",
-    products: [] as string[],
-    certifications: [] as string[],
-    terms: false,
   });
+  const [step1Errors, setStep1Errors] = useState<Step1Errors>({});
+  const [showPassword, setShowPassword] = useState(false);
 
-  const update = <K extends keyof typeof form>(
+  // Step 2 data
+  const [step2, setStep2] = useState({
+    farmName: "",
+    state: "",
+    farmType: "",
+    acreage: "",
+    yearsActive: "",
+    usdaNumber: "",
+  });
+  const [step2Errors, setStep2Errors] = useState<Step2Errors>({});
+
+  // Step 3 data
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [escrowChecked, setEscrowChecked] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const otpComplete = otp.every((d) => d.length === 1);
+  const canSubmit = otpComplete && termsChecked && escrowChecked && !submitting;
+
+  const updateStep1 = <K extends keyof typeof step1>(
     key: K,
-    value: (typeof form)[K],
+    value: (typeof step1)[K],
   ) => {
-    setForm((f) => ({ ...f, [key]: value }));
-    setErrors((e) => ({ ...e, [key]: undefined }));
+    setStep1((p) => ({ ...p, [key]: value }));
+    setStep1Errors((e) => ({ ...e, [key]: undefined }));
   };
 
-  const toggle = (key: "products" | "certifications", value: string) => {
-    setForm((f) => {
-      const has = f[key].includes(value);
-      return {
-        ...f,
-        [key]: has ? f[key].filter((v) => v !== value) : [...f[key], value],
-      };
-    });
-    setErrors((e) => ({ ...e, [key]: undefined }));
+  const updateStep2 = <K extends keyof typeof step2>(
+    key: K,
+    value: (typeof step2)[K],
+  ) => {
+    setStep2((p) => ({ ...p, [key]: value }));
+    setStep2Errors((e) => ({ ...e, [key]: undefined }));
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const handleOtpChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/, "").slice(-1);
+    const next = [...otp];
+    next[index] = digit;
+    setOtp(next);
+    if (digit && index < 5) otpRefs.current[index + 1]?.focus();
+  };
+
+  const handleOtpKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const parsed = farmerSchema.safeParse({
-      ...form,
-      acres: form.acres === "" ? undefined : form.acres,
-      years: form.years === "" ? undefined : form.years,
-    });
-    if (!parsed.success) {
-      const fe: FieldErrors = {};
-      for (const issue of parsed.error.issues) {
-        const k = issue.path[0] as keyof FarmerForm;
-        if (!fe[k]) fe[k] = issue.message;
+    const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (paste.length === 6) {
+      setOtp(paste.split(""));
+      otpRefs.current[5]?.focus();
+    }
+  };
+
+  const validateStep1 = () => {
+    const result = step1Schema.safeParse(step1);
+    if (!result.success) {
+      const errs: Step1Errors = {};
+      for (const issue of result.error.issues) {
+        const k = issue.path[0] as keyof Step1Data;
+        if (!errs[k]) errs[k] = issue.message;
       }
-      setErrors(fe);
+      setStep1Errors(errs);
+      return false;
+    }
+    setStep1Errors({});
+    return true;
+  };
+
+  const validateStep2 = () => {
+    const result = step2Schema.safeParse({
+      ...step2,
+      yearsActive: step2.yearsActive === "" ? undefined : step2.yearsActive,
+    });
+    if (!result.success) {
+      const errs: Step2Errors = {};
+      for (const issue of result.error.issues) {
+        const k = issue.path[0] as keyof Step2Data;
+        if (!errs[k]) errs[k] = issue.message;
+      }
+      setStep2Errors(errs);
+      return false;
+    }
+    setStep2Errors({});
+    return true;
+  };
+
+  const handleNext = () => {
+    if (step === 1 && !validateStep1()) {
       toast.error("Please fix the highlighted fields");
       return;
     }
+    if (step === 2 && !validateStep2()) {
+      toast.error("Please fix the highlighted fields");
+      return;
+    }
+    setStep((s) => s + 1);
+  };
+
+  const handleSubmit = async () => {
+    if (!canSubmit) return;
     setSubmitting(true);
-    localStorage.setItem("userRole", "farmer");
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem(
-      "farmerProfile",
-      JSON.stringify({
-        fullName: parsed.data.fullName,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        farmName: parsed.data.farmName,
-        description: parsed.data.description,
-        location: {
-          address: parsed.data.address,
-          city: parsed.data.city,
-          state: parsed.data.state,
-          zip: parsed.data.zip,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: step1.email,
+        password: step1.password,
+        options: {
+          data: {
+            full_name: `${step1.firstName} ${step1.lastName}`,
+            phone: step1.phone,
+          },
         },
-        acres: parsed.data.acres ?? null,
-        yearsFarming: parsed.data.years ?? null,
-        products: parsed.data.products,
-        certifications: parsed.data.certifications,
-        verificationStatus: "pending",
-      }),
-    );
-    setTimeout(() => {
-      toast.success("Application submitted!", {
-        description: "We'll verify your farm in 24-48 hours.",
       });
-      navigate({ to: "/dashboard/farmer" });
-    }, 700);
+      if (error) throw error;
+
+      const userId = data.user?.id;
+      if (!userId) throw new Error("Signup failed — please try again.");
+
+      // Store farmer profile data
+      const profileInsert = {
+        user_id: userId,
+        farm_name: step2.farmName,
+        state: step2.state,
+        acres: step2.acreage ? parseFloat(step2.acreage) : null,
+        years_farming: step2.yearsActive ? parseInt(step2.yearsActive) : null,
+        verification_status: "pending",
+      };
+      await supabase
+        .from("farmer_profiles")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .insert({ ...profileInsert, farm_type: step2.farmType, usda_number: step2.usdaNumber || null } as any);
+
+      // Assign farmer role
+      await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: "farmer" as const,
+      });
+
+      setStep(4);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Registration failed. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <SiteLayout>
-      <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
-        <div className="mb-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <Tractor className="h-3.5 w-3.5" /> Farmer onboarding
-          </span>
-          <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">
-            List your farm on DiGiFaMaR
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Keep 80–92% of every sale. Verification takes 24–48 hours.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F0A] via-[#121A12] to-[#0A0F0A] text-white flex flex-col items-center justify-center p-6">
+      {step < 4 && (
+        <StepIndicator current={step} />
+      )}
+
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-8">
+          <Logo size="md" glow />
         </div>
 
-        <form className="space-y-6" onSubmit={onSubmit} noValidate>
-          <Fieldset legend="About you">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Full name" error={errors.fullName}>
-                <Input
-                  value={form.fullName}
-                  onChange={(e) => update("fullName", e.target.value)}
-                  autoComplete="name"
-                  maxLength={100}
-                />
-              </Field>
-              <Field label="Email" error={errors.email}>
-                <Input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => update("email", e.target.value)}
-                  autoComplete="email"
-                  maxLength={255}
-                />
-              </Field>
-              <Field label="Phone" error={errors.phone}>
-                <Input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => update("phone", e.target.value)}
-                  autoComplete="tel"
-                  maxLength={20}
-                />
-              </Field>
-              <Field label="Password" error={errors.password}>
-                <Input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => update("password", e.target.value)}
-                  autoComplete="new-password"
-                />
-              </Field>
-              <Field label="Confirm password" error={errors.confirm}>
-                <Input
-                  type="password"
-                  value={form.confirm}
-                  onChange={(e) => update("confirm", e.target.value)}
-                  autoComplete="new-password"
-                />
-              </Field>
-            </div>
-          </Fieldset>
-
-          <Fieldset legend="Your farm">
-            <Field label="Farm name" error={errors.farmName}>
-              <Input
-                value={form.farmName}
-                onChange={(e) => update("farmName", e.target.value)}
-                placeholder="Green Acres Family Farm"
-                maxLength={120}
-              />
-            </Field>
-            <Field label="Farm description" error={errors.description}>
-              <Textarea
-                value={form.description}
-                onChange={(e) => update("description", e.target.value)}
-                rows={3}
-                maxLength={600}
-                placeholder="Tell buyers about your farm, practices, and what makes you unique…"
-              />
-            </Field>
-            <Field label="Farm address" error={errors.address}>
-              <Input
-                value={form.address}
-                onChange={(e) => update("address", e.target.value)}
-                placeholder="123 Country Rd"
-                autoComplete="street-address"
-                maxLength={200}
-              />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Field label="City" error={errors.city}>
-                <Input
-                  value={form.city}
-                  onChange={(e) => update("city", e.target.value)}
-                  autoComplete="address-level2"
-                  maxLength={80}
-                />
-              </Field>
-              <Field label="State" error={errors.state}>
-                <Select
-                  value={form.state}
-                  onValueChange={(v) => update("state", v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="State" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-64">
-                    {US_STATES.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field label="ZIP" error={errors.zip}>
-                <Input
-                  value={form.zip}
-                  onChange={(e) => update("zip", e.target.value)}
-                  autoComplete="postal-code"
-                  inputMode="numeric"
-                  maxLength={10}
-                />
-              </Field>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Farm size (acres)" error={errors.acres}>
-                <Input
-                  type="number"
-                  min={0}
-                  value={form.acres}
-                  onChange={(e) => update("acres", e.target.value)}
-                />
-              </Field>
-              <Field label="Years farming" error={errors.years}>
-                <Input
-                  type="number"
-                  min={0}
-                  value={form.years}
-                  onChange={(e) => update("years", e.target.value)}
-                />
-              </Field>
-            </div>
-          </Fieldset>
-
-          <Fieldset legend="Products & certifications">
-            <div>
-              <Label>Products offered</Label>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                Pick every category your farm sells.
-              </p>
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {categories.map((c) => {
-                  const checked = form.products.includes(c.slug);
-                  return (
-                    <label
-                      key={c.slug}
-                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
-                        checked
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-card hover:border-primary/40"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={() => toggle("products", c.slug)}
-                      />
-                      <span>{c.emoji} {c.name}</span>
-                    </label>
-                  );
-                })}
-              </div>
-              {errors.products ? (
-                <p className="mt-2 text-xs font-medium text-destructive">
-                  {errors.products}
-                </p>
-              ) : null}
-            </div>
-
-            <div>
-              <Label>Certifications (optional)</Label>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                {certifications.map((c) => {
-                  const checked = form.certifications.includes(c);
-                  return (
-                    <label
-                      key={c}
-                      className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
-                        checked
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-card hover:border-primary/40"
-                      }`}
-                    >
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={() => toggle("certifications", c)}
-                      />
-                      <span>{c}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          </Fieldset>
-
-          <Fieldset legend="Verification">
-            <div className="rounded-lg border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
-              <Upload className="mx-auto mb-2 h-5 w-5 text-primary" />
-              Farm photos & government ID upload available after submission.
-            </div>
-          </Fieldset>
-
-          <label className="flex items-start gap-2 text-xs text-muted-foreground">
-            <Checkbox
-              checked={form.terms}
-              onCheckedChange={(c) => update("terms", c === true)}
-              className="mt-0.5"
-            />
-            <span>
-              I agree to the Terms, Privacy Policy, and USDA compliance
-              requirements.
-            </span>
-          </label>
-          {errors.terms ? (
-            <p className="-mt-3 text-xs font-medium text-destructive">
-              {errors.terms}
-            </p>
-          ) : null}
-
-          <Button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {submitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting…
-              </>
-            ) : (
-              "Submit farm application"
-            )}
-          </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            Verification takes 24–48 hours.
-          </p>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link to="/signin" className="font-semibold text-primary">
-            Sign in
-          </Link>
-        </p>
+        {step === 1 && (
+          <Step1
+            data={step1}
+            errors={step1Errors}
+            showPassword={showPassword}
+            onTogglePassword={() => setShowPassword((v) => !v)}
+            onUpdate={updateStep1}
+            onNext={handleNext}
+          />
+        )}
+        {step === 2 && (
+          <Step2
+            data={step2}
+            errors={step2Errors}
+            onUpdate={updateStep2}
+            onNext={handleNext}
+            onBack={() => setStep(1)}
+          />
+        )}
+        {step === 3 && (
+          <Step3
+            email={step1.email}
+            otp={otp}
+            otpRefs={otpRefs}
+            onOtpChange={handleOtpChange}
+            onOtpKeyDown={handleOtpKeyDown}
+            onOtpPaste={handleOtpPaste}
+            termsChecked={termsChecked}
+            escrowChecked={escrowChecked}
+            onTermsChange={setTermsChecked}
+            onEscrowChange={setEscrowChecked}
+            canSubmit={canSubmit}
+            submitting={submitting}
+            onSubmit={handleSubmit}
+            onBack={() => setStep(2)}
+          />
+        )}
+        {step === 4 && (
+          <Step4
+            farmName={step2.farmName}
+            email={step1.email}
+            onGoToSignIn={() => navigate({ to: "/auth", search: { tab: "signin" } })}
+          />
+        )}
       </div>
-    </SiteLayout>
+    </div>
   );
 }
 
-function Fieldset({
-  legend,
-  children,
+// ─────────────────────────────────────────────────────────────────
+// STEP INDICATOR
+// ─────────────────────────────────────────────────────────────────
+
+function StepIndicator({ current }: { current: number }) {
+  const labels = ["Personal Info", "Farm Details", "Verify"];
+  return (
+    <div className="w-full max-w-md mb-8">
+      <div className="flex items-center">
+        {labels.map((label, i) => {
+          const idx = i + 1;
+          const done = current > idx;
+          const active = current === idx;
+          return (
+            <div key={label} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    done
+                      ? "bg-[#22C55E] text-black"
+                      : active
+                        ? "bg-white text-black"
+                        : "bg-white/10 text-white/40"
+                  }`}
+                >
+                  {done ? <CheckCircle2 className="w-4 h-4" /> : idx}
+                </div>
+                <span
+                  className={`mt-1 text-[10px] whitespace-nowrap ${
+                    active ? "text-white" : done ? "text-[#22C55E]" : "text-white/30"
+                  }`}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < labels.length - 1 && (
+                <div
+                  className="flex-1 h-px mx-2 mb-4 transition-all"
+                  style={{
+                    background: done ? "#22C55E" : "rgba(255,255,255,0.1)",
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 1 — Personal Info
+// ─────────────────────────────────────────────────────────────────
+
+function Step1({
+  data,
+  errors,
+  showPassword,
+  onTogglePassword,
+  onUpdate,
+  onNext,
 }: {
-  legend: string;
-  children: React.ReactNode;
+  data: { firstName: string; lastName: string; email: string; phone: string; password: string };
+  errors: Step1Errors;
+  showPassword: boolean;
+  onTogglePassword: () => void;
+  onUpdate: <K extends "firstName" | "lastName" | "email" | "phone" | "password">(
+    key: K,
+    value: string,
+  ) => void;
+  onNext: () => void;
 }) {
   return (
-    <fieldset className="space-y-4 rounded-2xl border border-border bg-card/40 p-5">
-      <legend className="px-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-        {legend}
-      </legend>
-      {children}
-    </fieldset>
+    <div>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
+          <Tractor className="h-3 w-3" /> Step 1 of 3
+        </div>
+        <h1 className="text-2xl font-bold">Personal Information</h1>
+        <p className="text-sm text-white/50 mt-1">Tell us about yourself</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="First Name" error={errors.firstName}>
+            <Input
+              value={data.firstName}
+              onChange={(e) => onUpdate("firstName", e.target.value)}
+              placeholder="John"
+              autoComplete="given-name"
+              maxLength={60}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+          <FormField label="Last Name" error={errors.lastName}>
+            <Input
+              value={data.lastName}
+              onChange={(e) => onUpdate("lastName", e.target.value)}
+              placeholder="Smith"
+              autoComplete="family-name"
+              maxLength={60}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+        </div>
+
+        <FormField label="Email Address" error={errors.email}>
+          <Input
+            type="email"
+            value={data.email}
+            onChange={(e) => onUpdate("email", e.target.value)}
+            placeholder="you@example.com"
+            autoComplete="email"
+            maxLength={255}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+
+        <FormField label="Phone Number" error={errors.phone}>
+          <Input
+            type="tel"
+            value={data.phone}
+            onChange={(e) => onUpdate("phone", formatPhone(e.target.value))}
+            placeholder="(555) 123-4567"
+            autoComplete="tel"
+            inputMode="numeric"
+            maxLength={14}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+
+        <FormField label="Password" error={errors.password}>
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              value={data.password}
+              onChange={(e) => onUpdate("password", e.target.value)}
+              placeholder="Min. 8 characters"
+              autoComplete="new-password"
+              maxLength={128}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20 pr-10"
+            />
+            <button
+              type="button"
+              onClick={onTogglePassword}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </FormField>
+      </div>
+
+      <Button
+        onClick={onNext}
+        className="w-full mt-8 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold h-12 rounded-2xl"
+      >
+        Continue
+      </Button>
+
+      <p className="text-center text-xs text-white/30 mt-4">
+        Already have an account?{" "}
+        <Link to="/auth" search={{ tab: "signin" }} className="text-[#22C55E] hover:underline">
+          Sign in
+        </Link>
+      </p>
+    </div>
   );
 }
 
-function Field({
+// ─────────────────────────────────────────────────────────────────
+// STEP 2 — Farm Details
+// ─────────────────────────────────────────────────────────────────
+
+function Step2({
+  data,
+  errors,
+  onUpdate,
+  onNext,
+  onBack,
+}: {
+  data: {
+    farmName: string;
+    state: string;
+    farmType: string;
+    acreage: string;
+    yearsActive: string;
+    usdaNumber: string;
+  };
+  errors: Step2Errors;
+  onUpdate: <K extends "farmName" | "state" | "farmType" | "acreage" | "yearsActive" | "usdaNumber">(
+    key: K,
+    value: string,
+  ) => void;
+  onNext: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
+          <Tractor className="h-3 w-3" /> Step 2 of 3
+        </div>
+        <h1 className="text-2xl font-bold">Farm Details</h1>
+        <p className="text-sm text-white/50 mt-1">Tell buyers about your farm</p>
+      </div>
+
+      <div className="space-y-4">
+        <FormField label="Farm Name" error={errors.farmName}>
+          <Input
+            value={data.farmName}
+            onChange={(e) => onUpdate("farmName", e.target.value)}
+            placeholder="Green Acres Family Farm"
+            maxLength={120}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+
+        <FormField label="State" error={errors.state}>
+          <Select value={data.state} onValueChange={(v) => onUpdate("state", v)}>
+            <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#22C55E]/20">
+              <SelectValue placeholder="Select your state" />
+            </SelectTrigger>
+            <SelectContent className="max-h-64 bg-[#1a2a1a] border-white/10">
+              {US_STATES.map((s) => (
+                <SelectItem
+                  key={s.code}
+                  value={s.code}
+                  className="text-white focus:bg-white/10 focus:text-white"
+                >
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormField>
+
+        <FormField label="Farm Type" error={errors.farmType}>
+          <Select value={data.farmType} onValueChange={(v) => onUpdate("farmType", v)}>
+            <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#22C55E]/20">
+              <SelectValue placeholder="Select farm type" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#1a2a1a] border-white/10">
+              {FARM_TYPES.map((t) => (
+                <SelectItem
+                  key={t}
+                  value={t}
+                  className="text-white focus:bg-white/10 focus:text-white"
+                >
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormField>
+
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Acreage (optional)" error={errors.acreage}>
+            <Input
+              type="number"
+              min={0}
+              value={data.acreage}
+              onChange={(e) => onUpdate("acreage", e.target.value)}
+              placeholder="e.g. 50"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+          <FormField label="Years Farming" error={errors.yearsActive}>
+            <Input
+              type="number"
+              min={0}
+              max={150}
+              value={data.yearsActive}
+              onChange={(e) => onUpdate("yearsActive", e.target.value)}
+              placeholder="e.g. 12"
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+        </div>
+
+        <FormField label="USDA Farm Number (optional)" error={errors.usdaNumber}>
+          <Input
+            value={data.usdaNumber}
+            onChange={(e) => onUpdate("usdaNumber", e.target.value)}
+            placeholder="e.g. 1234567"
+            maxLength={20}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+      </div>
+
+      <div className="flex gap-3 mt-8">
+        <Button
+          onClick={onBack}
+          variant="outline"
+          className="flex-1 h-12 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+        <Button
+          onClick={onNext}
+          className="flex-[2] h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl"
+        >
+          Continue
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 3 — Phone Verification
+// ─────────────────────────────────────────────────────────────────
+
+const VERIFICATION_ITEMS = [
+  { icon: Phone, text: "Phone number linked to your account" },
+  { icon: Shield, text: "Farm location validated against USDA records" },
+  { icon: Star, text: "Identity verified for buyer trust" },
+  { icon: Clock, text: "Review completed within 24–48 hours" },
+];
+
+function Step3({
+  email,
+  otp,
+  otpRefs,
+  onOtpChange,
+  onOtpKeyDown,
+  onOtpPaste,
+  termsChecked,
+  escrowChecked,
+  onTermsChange,
+  onEscrowChange,
+  canSubmit,
+  submitting,
+  onSubmit,
+  onBack,
+}: {
+  email: string;
+  otp: string[];
+  otpRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
+  onOtpChange: (index: number, value: string) => void;
+  onOtpKeyDown: (index: number, e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onOtpPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
+  termsChecked: boolean;
+  escrowChecked: boolean;
+  onTermsChange: (v: boolean) => void;
+  onEscrowChange: (v: boolean) => void;
+  canSubmit: boolean;
+  submitting: boolean;
+  onSubmit: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
+          <Phone className="h-3 w-3" /> Step 3 of 3
+        </div>
+        <h1 className="text-2xl font-bold">Phone Verification</h1>
+        <p className="text-sm text-white/50 mt-1">
+          Enter the 6-digit code sent to your phone
+        </p>
+      </div>
+
+      {/* OTP boxes */}
+      <div className="flex gap-2 justify-center mb-6">
+        {otp.map((digit, i) => (
+          <input
+            key={i}
+            ref={(el) => {
+              otpRefs.current[i] = el;
+            }}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => onOtpChange(i, e.target.value)}
+            onKeyDown={(e) => onOtpKeyDown(i, e)}
+            onPaste={i === 0 ? onOtpPaste : undefined}
+            className={`w-12 h-14 text-center text-xl font-bold rounded-xl border bg-white/5 text-white outline-none transition-all caret-transparent ${
+              digit
+                ? "border-[#22C55E] bg-[#22C55E]/10"
+                : "border-white/10 focus:border-white/30"
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Verification checklist */}
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 mb-5 space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-1">
+          Verification includes
+        </p>
+        {VERIFICATION_ITEMS.map(({ icon: Icon, text }) => (
+          <div key={text} className="flex items-center gap-3 text-sm text-white/70">
+            <div className="w-6 h-6 rounded-full bg-[#22C55E]/15 flex items-center justify-center shrink-0">
+              <Icon className="h-3 w-3 text-[#22C55E]" />
+            </div>
+            {text}
+          </div>
+        ))}
+      </div>
+
+      {/* Required checkboxes */}
+      <div className="space-y-3 mb-6">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <Checkbox
+            checked={termsChecked}
+            onCheckedChange={(c) => onTermsChange(c === true)}
+            className="mt-0.5 border-white/20 data-[state=checked]:bg-[#22C55E] data-[state=checked]:border-[#22C55E]"
+          />
+          <span className="text-sm text-white/70 leading-snug">
+            I agree to the{" "}
+            <span className="text-[#22C55E]">Terms of Service</span> and{" "}
+            <span className="text-[#22C55E]">Farmer Agreement</span>, including
+            product listing standards and platform commission rates.
+          </span>
+        </label>
+
+        <label className="flex items-start gap-3 cursor-pointer">
+          <Checkbox
+            checked={escrowChecked}
+            onCheckedChange={(c) => onEscrowChange(c === true)}
+            className="mt-0.5 border-white/20 data-[state=checked]:bg-[#22C55E] data-[state=checked]:border-[#22C55E]"
+          />
+          <span className="text-sm text-white/70 leading-snug">
+            I understand the{" "}
+            <span className="text-[#22C55E]">Escrow Release Process</span> —
+            funds are held until buyers confirm receipt and are released within
+            48 hours of delivery.
+          </span>
+        </label>
+      </div>
+
+      <div className="flex gap-3">
+        <Button
+          onClick={onBack}
+          variant="outline"
+          className="flex-1 h-12 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+        <Button
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          className="flex-[2] h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {submitting ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            "Complete Registration"
+          )}
+        </Button>
+      </div>
+
+      <p className="text-center text-xs text-white/30 mt-3">
+        Registered to {email}
+      </p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 4 — Success
+// ─────────────────────────────────────────────────────────────────
+
+const NEXT_STEPS = [
+  {
+    n: "1",
+    title: "Application Review",
+    body: "Our team reviews your farm details within 24–48 hours.",
+  },
+  {
+    n: "2",
+    title: "Verification Call",
+    body: "We'll call you to confirm your farm location and produce.",
+  },
+  {
+    n: "3",
+    title: "Profile Goes Live",
+    body: "Your farm listing becomes visible to buyers across the platform.",
+  },
+  {
+    n: "4",
+    title: "Start Receiving Orders",
+    body: "Accept orders, set your prices, and keep up to 92% of every sale.",
+  },
+];
+
+function Step4({
+  farmName,
+  email,
+  onGoToSignIn,
+}: {
+  farmName: string;
+  email: string;
+  onGoToSignIn: () => void;
+}) {
+  return (
+    <div className="text-center">
+      <div className="w-20 h-20 rounded-full bg-[#22C55E]/15 flex items-center justify-center mx-auto mb-5">
+        <CheckCircle2 className="h-10 w-10 text-[#22C55E]" />
+      </div>
+
+      <h1 className="text-2xl font-bold mb-1">You're registered!</h1>
+      <p className="text-white/50 text-sm mb-2">
+        <span className="text-white font-medium">{farmName}</span> is now in review
+      </p>
+      <p className="text-white/40 text-xs mb-8">
+        Confirmation sent to <span className="text-white/60">{email}</span>
+      </p>
+
+      <div className="text-left space-y-3 mb-8">
+        {NEXT_STEPS.map(({ n, title, body }) => (
+          <div
+            key={n}
+            className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4"
+          >
+            <div className="w-8 h-8 rounded-full bg-[#22C55E]/20 flex items-center justify-center shrink-0 font-bold text-[#22C55E] text-sm">
+              {n}
+            </div>
+            <div>
+              <p className="font-semibold text-sm">{title}</p>
+              <p className="text-xs text-white/50 mt-0.5">{body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Button
+        onClick={onGoToSignIn}
+        className="w-full h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl"
+      >
+        Go to Sign In
+      </Button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SHARED PRIMITIVES
+// ─────────────────────────────────────────────────────────────────
+
+function FormField({
   label,
   error,
   children,
@@ -456,11 +958,13 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label>{label}</Label>
+      <Label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
+        {label}
+      </Label>
       {children}
-      {error ? (
-        <p className="text-xs font-medium text-destructive">{error}</p>
-      ) : null}
+      {error && (
+        <p className="text-xs font-medium text-red-400">{error}</p>
+      )}
     </div>
   );
 }
