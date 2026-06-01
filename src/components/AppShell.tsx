@@ -1,8 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Search, Package, User, Tractor, MessageCircle, ShoppingCart, MessageSquare } from "lucide-react";
 import { type ReactNode } from "react";
-import { Logo } from "./Logo";
 import { useCart } from "@/hooks/use-cart";
+import { Logo } from "./Logo";
 
 type NavItem = { to: string; label: string; icon: React.ElementType };
 
@@ -26,7 +26,7 @@ export function AppShell({
 }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const nav = role === "farmer" ? farmerNav : buyerNav;
-  const { cartCount } = useCart();
+  const { count } = useCart();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -50,18 +50,7 @@ export function AppShell({
             })}
           </nav>
           <div className="flex items-center gap-2">
-            <Link
-              to="/cart"
-              className="relative flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-card/60 hover:bg-card transition-colors"
-              aria-label="Cart"
-            >
-              <ShoppingCart className="h-4 w-4" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {cartCount > 9 ? "9+" : cartCount}
-                </span>
-              )}
-            </Link>
+            <CartButton path={path} />
             <Link
               to="/auth"
               search={{ tab: "signin" }}
@@ -83,7 +72,7 @@ export function AppShell({
             <BottomItem key={n.to} to={n.to} icon={n.icon} label={n.label} path={path} />
           ))}
           {role === "buyer" && (
-            <BottomItemCart to="/cart" path={path} count={cartCount} />
+            <BottomItemCart to="/cart" path={path} count={count} />
           )}
           <BottomItem to="/auth" icon={User} label="Me" path={path} />
         </div>
@@ -99,6 +88,27 @@ export function AppShell({
         <MessageCircle className="h-6 w-6" />
       </a>
     </div>
+  );
+}
+
+function CartButton({ path }: { path: string }) {
+  const { count } = useCart();
+  const active = path.startsWith("/cart");
+  return (
+    <Link
+      to="/cart"
+      aria-label={`Cart${count ? `, ${count} item${count === 1 ? "" : "s"}` : ""}`}
+      className={`relative grid h-9 w-9 place-items-center rounded-lg border border-border transition hover:bg-card ${
+        active ? "bg-primary/15 text-primary" : "bg-card/60 text-foreground"
+      }`}
+    >
+      <ShoppingCart className="h-4 w-4" />
+      {count > 0 && (
+        <span className="absolute -right-1.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
+    </Link>
   );
 }
 

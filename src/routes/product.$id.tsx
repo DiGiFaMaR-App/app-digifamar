@@ -1,10 +1,11 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, Lock, MapPin, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Lock, MapPin, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { getFarm, getProduct } from "@/lib/mock-data";
 import { useCart } from "@/hooks/use-cart";
+import { getFarm, getProduct } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/product/$id")({
   head: ({ params }) => {
@@ -61,20 +62,21 @@ function ProductPage() {
   const { product } = Route.useLoaderData() as { product: NonNullable<ReturnType<typeof getProduct>> };
   const farm = getFarm(product.farmId);
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { add } = useCart();
+  const [added, setAdded] = useState(false);
 
-  const handleAddToCart = () => {
-    addToCart({
+  const addToCart = () => {
+    add({
       productId: product.id,
       name: product.name,
-      farmName: farm?.name ?? "Unknown Farm",
-      price: product.price,
+      unitPrice: product.price,
       unit: product.unit,
-      imageUrl: product.image,
+      image: product.image,
+      farmId: product.farmId,
     });
-    toast.success(`${product.name} added to cart`, {
-      action: { label: "View cart", onClick: () => navigate({ to: "/cart" }) },
-    });
+    setAdded(true);
+    toast.success(`${product.name} added to cart`);
+    setTimeout(() => setAdded(false), 1800);
   };
 
   return (
@@ -161,13 +163,14 @@ function ProductPage() {
               >
                 Buy now · ${product.price.toFixed(2)}
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-12"
-                onClick={handleAddToCart}
-              >
-                Add to cart
+              <Button size="lg" variant="outline" className="h-12" onClick={addToCart}>
+                {added ? (
+                  <>
+                    <Check className="mr-1 h-5 w-5" /> Added
+                  </>
+                ) : (
+                  "Add to cart"
+                )}
               </Button>
             </div>
           </div>
