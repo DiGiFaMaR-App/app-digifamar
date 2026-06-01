@@ -18,7 +18,6 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     // Use imperative navigation so the URL doesn't flash the protected page.
     navigate({
       to: "/auth",
-      // @ts-expect-error — `next` is added to auth search schema below
       search: { tab: "signin", next },
       replace: true,
     });
