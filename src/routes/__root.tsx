@@ -9,6 +9,7 @@ import {
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { SmoothScroll } from "@/components/SmoothScroll";
+import { SplashScreen } from "@/components/SplashScreen";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import appCss from "../styles.css?url";
@@ -90,6 +91,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <SplashScreen />
       <AuthSync />
       <SmoothScroll>
         <Outlet />

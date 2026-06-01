@@ -15,6 +15,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -111,6 +112,7 @@ function OrderTracking() {
   };
 
   return (
+    <RequireAuth>
     <AppShell role="buyer">
       <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
         <Link
@@ -330,5 +332,6 @@ function OrderTracking() {
         </DialogContent>
       </Dialog>
     </AppShell>
+    </RequireAuth>
   );
 }

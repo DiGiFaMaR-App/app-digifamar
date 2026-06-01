@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { AppShell } from "@/components/AppShell";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { useReveal } from "@/hooks/use-reveal";
 import { products, farms, getFarm } from "@/lib/mock-data";
@@ -66,6 +67,7 @@ function BuyerDashboard() {
   })();
 
   return (
+    <RequireAuth>
     <AppShell role="buyer">
       <div ref={ref} className="mx-auto max-w-5xl px-4 pt-6 sm:px-6">
         <div data-reveal className="overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-card to-card p-5 sm:p-6">
@@ -148,6 +150,7 @@ function BuyerDashboard() {
         </div>
       </div>
     </AppShell>
+    </RequireAuth>
   );
 }
 
