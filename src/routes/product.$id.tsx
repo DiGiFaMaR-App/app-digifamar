@@ -1,7 +1,10 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, Lock, MapPin, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Check, Lock, MapPin, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/hooks/use-cart";
 import { getFarm, getProduct } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/product/$id")({
@@ -59,6 +62,22 @@ function ProductPage() {
   const { product } = Route.useLoaderData() as { product: NonNullable<ReturnType<typeof getProduct>> };
   const farm = getFarm(product.farmId);
   const navigate = useNavigate();
+  const { add } = useCart();
+  const [added, setAdded] = useState(false);
+
+  const addToCart = () => {
+    add({
+      productId: product.id,
+      name: product.name,
+      unitPrice: product.price,
+      unit: product.unit,
+      image: product.image,
+      farmId: product.farmId,
+    });
+    setAdded(true);
+    toast.success(`${product.name} added to cart`);
+    setTimeout(() => setAdded(false), 1800);
+  };
 
   return (
     <AppShell>
@@ -144,8 +163,14 @@ function ProductPage() {
               >
                 Buy now · ${product.price.toFixed(2)}
               </Button>
-              <Button size="lg" variant="outline" className="h-12">
-                Add to cart
+              <Button size="lg" variant="outline" className="h-12" onClick={addToCart}>
+                {added ? (
+                  <>
+                    <Check className="mr-1 h-5 w-5" /> Added
+                  </>
+                ) : (
+                  "Add to cart"
+                )}
               </Button>
             </div>
           </div>
