@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, Package, User, Tractor, MessageCircle } from "lucide-react";
+import { Home, Search, Package, User, Tractor, MessageCircle, ShoppingCart } from "lucide-react";
 import { type ReactNode } from "react";
+import { useCart } from "@/hooks/use-cart";
 import { Logo } from "./Logo";
 
 type NavItem = { to: string; label: string; icon: React.ElementType };
@@ -46,13 +47,16 @@ export function AppShell({
               );
             })}
           </nav>
-          <Link
-            to="/auth"
-            search={{ tab: "signin" }}
-            className="rounded-lg border border-border bg-card/60 px-3 py-1.5 text-xs font-semibold hover:bg-card"
-          >
-            Account
-          </Link>
+          <div className="flex items-center gap-2">
+            <CartButton path={path} />
+            <Link
+              to="/auth"
+              search={{ tab: "signin" }}
+              className="rounded-lg border border-border bg-card/60 px-3 py-1.5 text-xs font-semibold hover:bg-card"
+            >
+              Account
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -79,6 +83,27 @@ export function AppShell({
         <MessageCircle className="h-6 w-6" />
       </a>
     </div>
+  );
+}
+
+function CartButton({ path }: { path: string }) {
+  const { count } = useCart();
+  const active = path.startsWith("/cart");
+  return (
+    <Link
+      to="/cart"
+      aria-label={`Cart${count ? `, ${count} item${count === 1 ? "" : "s"}` : ""}`}
+      className={`relative grid h-9 w-9 place-items-center rounded-lg border border-border transition hover:bg-card ${
+        active ? "bg-primary/15 text-primary" : "bg-card/60 text-foreground"
+      }`}
+    >
+      <ShoppingCart className="h-4 w-4" />
+      {count > 0 && (
+        <span className="absolute -right-1.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
+    </Link>
   );
 }
 
