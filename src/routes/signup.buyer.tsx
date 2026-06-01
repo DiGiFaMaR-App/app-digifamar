@@ -1,14 +1,27 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ShoppingBag, Loader2 } from "lucide-react";
-import { SiteLayout } from "@/components/SiteLayout";
+import {
+  ShoppingCart,
+  UtensilsCrossed,
+  Store,
+  Truck,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Loader2,
+  ArrowLeft,
+  Shield,
+  Phone,
+  Leaf,
+  RotateCcw,
+  Lock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -16,330 +29,879 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/signup/buyer")({
   head: () => ({
     meta: [
-      { title: "Create your buyer account | DiGiFaMaR" },
-      { name: "description", content: "Sign up to shop from American farms." },
+      { title: "Buyer Registration — DiGiFaMaR" },
+      {
+        name: "description",
+        content:
+          "Register as a buyer on DiGiFaMaR. Shop direct from local farms with escrow protection.",
+      },
     ],
   }),
   component: BuyerSignup,
 });
 
-const buyerSchema = z
-  .object({
-    name: z.string().trim().min(2, "Enter your full name").max(100),
-    email: z.string().trim().email("Enter a valid email").max(255),
-    phone: z
-      .string()
-      .trim()
-      .min(7, "Enter a valid phone number")
-      .max(20)
-      .regex(/^[0-9+()\-\s]+$/, "Digits, spaces, () + - only"),
-    password: z.string().min(8, "At least 8 characters").max(128),
-    confirm: z.string(),
-    address: z.string().trim().min(5, "Enter your delivery address").max(200),
-    zip: z
-      .string()
-      .trim()
-      .regex(/^\d{5}(-\d{4})?$/, "Enter a valid US ZIP"),
-    window: z.enum(["morning", "afternoon", "evening", "anytime"]),
-    frequency: z.enum(["one-time", "weekly", "biweekly", "monthly"]),
-    contactless: z.boolean(),
-    sms: z.boolean(),
-    notes: z.string().max(500).optional(),
-    terms: z.literal(true, { errorMap: () => ({ message: "Required" }) }),
-  })
-  .refine((d) => d.password === d.confirm, {
-    path: ["confirm"],
-    message: "Passwords don't match",
-  });
+// ─────────────────────────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────────────────────────
 
-type BuyerForm = z.infer<typeof buyerSchema>;
-type FieldErrors = Partial<Record<keyof BuyerForm, string>>;
+const BUYER_TYPES = [
+  {
+    id: "individual",
+    emoji: "🛒",
+    label: "Individual / Family",
+    description: "Personal household grocery shopping",
+    Icon: ShoppingCart,
+  },
+  {
+    id: "restaurant",
+    emoji: "🍽️",
+    label: "Restaurant / Food Service",
+    description: "Restaurants, cafes & caterers",
+    Icon: UtensilsCrossed,
+  },
+  {
+    id: "retailer",
+    emoji: "🏪",
+    label: "Retailer / Grocery Store",
+    description: "Supermarkets, co-ops & specialty stores",
+    Icon: Store,
+  },
+  {
+    id: "distributor",
+    emoji: "🚚",
+    label: "Distributor / Wholesaler",
+    description: "Wholesale buyers & regional distributors",
+    Icon: Truck,
+  },
+] as const;
+
+type BuyerTypeId = (typeof BUYER_TYPES)[number]["id"];
+
+const US_STATES = [
+  { code: "AL", name: "Alabama" },
+  { code: "AK", name: "Alaska" },
+  { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" },
+  { code: "CA", name: "California" },
+  { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" },
+  { code: "DE", name: "Delaware" },
+  { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" },
+  { code: "HI", name: "Hawaii" },
+  { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" },
+  { code: "IN", name: "Indiana" },
+  { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" },
+  { code: "KY", name: "Kentucky" },
+  { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" },
+  { code: "MD", name: "Maryland" },
+  { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" },
+  { code: "MN", name: "Minnesota" },
+  { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" },
+  { code: "MT", name: "Montana" },
+  { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" },
+  { code: "NH", name: "New Hampshire" },
+  { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" },
+  { code: "NY", name: "New York" },
+  { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" },
+  { code: "OH", name: "Ohio" },
+  { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" },
+  { code: "PA", name: "Pennsylvania" },
+  { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" },
+  { code: "SD", name: "South Dakota" },
+  { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" },
+  { code: "UT", name: "Utah" },
+  { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" },
+  { code: "WA", name: "Washington" },
+  { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" },
+  { code: "WY", name: "Wyoming" },
+];
+
+// ─────────────────────────────────────────────────────────────────
+// VALIDATION SCHEMAS
+// ─────────────────────────────────────────────────────────────────
+
+const step2Schema = z.object({
+  firstName: z.string().trim().min(1, "First name is required").max(60),
+  lastName: z.string().trim().min(1, "Last name is required").max(60),
+  businessName: z.string().trim().max(120).optional(),
+  email: z.string().trim().email("Enter a valid email address").max(255),
+  phone: z
+    .string()
+    .trim()
+    .regex(
+      /^\(\d{3}\) \d{3}-\d{4}$/,
+      "Enter a valid US phone number, e.g. (555) 123-4567",
+    ),
+  city: z.string().trim().min(1, "City is required").max(100),
+  state: z.string().min(2, "Please select a state"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128),
+});
+
+type Step2Data = z.infer<typeof step2Schema>;
+type Step2Errors = Partial<Record<keyof Step2Data, string>>;
+
+// ─────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────
+
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 10);
+  if (digits.length <= 3) return digits.length ? `(${digits}` : "";
+  if (digits.length <= 6)
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────────
 
 function BuyerSignup() {
   const navigate = useNavigate();
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
+  const [step, setStep] = useState(1);
+
+  // Step 1
+  const [buyerType, setBuyerType] = useState<BuyerTypeId | "">("");
+
+  // Step 2
+  const [step2, setStep2] = useState({
+    firstName: "",
+    lastName: "",
+    businessName: "",
     email: "",
     phone: "",
+    city: "",
+    state: "",
     password: "",
-    confirm: "",
-    address: "",
-    zip: "",
-    window: "anytime" as BuyerForm["window"],
-    frequency: "one-time" as BuyerForm["frequency"],
-    contactless: false,
-    sms: true,
-    notes: "",
-    terms: false,
   });
+  const [step2Errors, setStep2Errors] = useState<Step2Errors>({});
+  const [showPassword, setShowPassword] = useState(false);
 
-  const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
-    setForm((f) => ({ ...f, [key]: value }));
-    setErrors((e) => ({ ...e, [key]: undefined }));
+  // Step 3
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const otpComplete = otp.every((d) => d.length === 1);
+  const canSubmit = otpComplete && termsChecked && !submitting;
+  const isIndividual = buyerType === "individual";
+
+  const updateStep2 = <K extends keyof typeof step2>(
+    key: K,
+    value: (typeof step2)[K],
+  ) => {
+    setStep2((p) => ({ ...p, [key]: value }));
+    setStep2Errors((e) => ({ ...e, [key]: undefined }));
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const handleOtpChange = (index: number, value: string) => {
+    const digit = value.replace(/\D/, "").slice(-1);
+    const next = [...otp];
+    next[index] = digit;
+    setOtp(next);
+    if (digit && index < 5) otpRefs.current[index + 1]?.focus();
+  };
+
+  const handleOtpKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const parsed = buyerSchema.safeParse(form);
-    if (!parsed.success) {
-      const fe: FieldErrors = {};
-      for (const issue of parsed.error.issues) {
-        const k = issue.path[0] as keyof BuyerForm;
-        if (!fe[k]) fe[k] = issue.message;
+    const paste = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+    if (paste.length === 6) {
+      setOtp(paste.split(""));
+      otpRefs.current[5]?.focus();
+    }
+  };
+
+  const validateStep1 = () => {
+    if (!buyerType) {
+      toast.error("Please select a buyer type to continue");
+      return false;
+    }
+    return true;
+  };
+
+  const validateStep2 = () => {
+    const result = step2Schema.safeParse(step2);
+    const errs: Step2Errors = {};
+    if (!result.success) {
+      for (const issue of result.error.issues) {
+        const k = issue.path[0] as keyof Step2Data;
+        if (!errs[k]) errs[k] = issue.message;
       }
-      setErrors(fe);
+    }
+    if (!isIndividual && !step2.businessName.trim()) {
+      errs.businessName = "Business name is required";
+    }
+    if (Object.keys(errs).length > 0) {
+      setStep2Errors(errs);
+      return false;
+    }
+    setStep2Errors({});
+    return true;
+  };
+
+  const handleNext = () => {
+    if (step === 1 && !validateStep1()) return;
+    if (step === 2 && !validateStep2()) {
       toast.error("Please fix the highlighted fields");
       return;
     }
+    setStep((s) => s + 1);
+  };
+
+  const handleSubmit = async () => {
+    if (!canSubmit) return;
     setSubmitting(true);
-    localStorage.setItem("userRole", "buyer");
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem(
-      "buyerProfile",
-      JSON.stringify({
-        name: parsed.data.name,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        address: parsed.data.address,
-        zip: parsed.data.zip,
-        deliveryWindow: parsed.data.window,
-        deliveryFrequency: parsed.data.frequency,
-        contactless: parsed.data.contactless,
-        smsUpdates: parsed.data.sms,
-        notes: parsed.data.notes ?? "",
-      }),
-    );
-    setTimeout(() => {
-      toast.success("Welcome to DiGiFaMaR!", {
-        description: "Your buyer account is ready.",
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: step2.email,
+        password: step2.password,
+        options: {
+          data: {
+            full_name: `${step2.firstName} ${step2.lastName}`,
+            phone: step2.phone,
+          },
+        },
       });
-      navigate({ to: "/market" });
-    }, 600);
+      if (error) throw error;
+
+      const userId = data.user?.id;
+      if (!userId) throw new Error("Signup failed — please try again.");
+
+      await supabase
+        .from("buyer_profiles")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .insert({
+          user_id: userId,
+          buyer_type: buyerType,
+          business_name: !isIndividual ? step2.businessName || null : null,
+          city: step2.city,
+          state: step2.state,
+        } as any);
+
+      await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: "buyer" as const,
+      });
+
+      setStep(4);
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Registration failed. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <SiteLayout>
-      <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
-        <div className="mb-8">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <ShoppingBag className="h-3.5 w-3.5" /> Buyer onboarding
-          </span>
-          <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">
-            Create your buyer account
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Tell us where to deliver and how you like to shop.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F0A] via-[#121A12] to-[#0A0F0A] text-white flex flex-col items-center justify-center p-6">
+      {step < 4 && <StepIndicator current={step} />}
+
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-8">
+          <Logo size="md" glow />
         </div>
 
-        <form className="space-y-6" onSubmit={onSubmit} noValidate>
-          <Fieldset legend="About you">
-            <Field label="Full name" error={errors.name}>
-              <Input
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-                placeholder="Jane Doe"
-                autoComplete="name"
-                maxLength={100}
-              />
-            </Field>
-            <Field label="Email" error={errors.email}>
-              <Input
-                type="email"
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                maxLength={255}
-              />
-            </Field>
-            <Field label="Phone" error={errors.phone}>
-              <Input
-                type="tel"
-                value={form.phone}
-                onChange={(e) => update("phone", e.target.value)}
-                placeholder="(555) 123-4567"
-                autoComplete="tel"
-                maxLength={20}
-              />
-            </Field>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Password" error={errors.password}>
-                <Input
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => update("password", e.target.value)}
-                  autoComplete="new-password"
-                />
-              </Field>
-              <Field label="Confirm" error={errors.confirm}>
-                <Input
-                  type="password"
-                  value={form.confirm}
-                  onChange={(e) => update("confirm", e.target.value)}
-                  autoComplete="new-password"
-                />
-              </Field>
-            </div>
-          </Fieldset>
-
-          <Fieldset legend="Delivery preferences">
-            <Field label="Delivery address" error={errors.address}>
-              <Input
-                value={form.address}
-                onChange={(e) => update("address", e.target.value)}
-                placeholder="123 Main St, Apt 4"
-                autoComplete="street-address"
-                maxLength={200}
-              />
-            </Field>
-            <Field label="ZIP code" error={errors.zip}>
-              <Input
-                value={form.zip}
-                onChange={(e) => update("zip", e.target.value)}
-                placeholder="94110"
-                autoComplete="postal-code"
-                inputMode="numeric"
-                maxLength={10}
-              />
-            </Field>
-
-            <Field label="Preferred delivery window">
-              <Select
-                value={form.window}
-                onValueChange={(v) => update("window", v as BuyerForm["window"])}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="morning">Morning (8am – 12pm)</SelectItem>
-                  <SelectItem value="afternoon">Afternoon (12pm – 5pm)</SelectItem>
-                  <SelectItem value="evening">Evening (5pm – 9pm)</SelectItem>
-                  <SelectItem value="anytime">Anytime</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-
-            <Field label="Order frequency">
-              <RadioGroup
-                value={form.frequency}
-                onValueChange={(v) =>
-                  update("frequency", v as BuyerForm["frequency"])
-                }
-                className="grid grid-cols-2 gap-2"
-              >
-                {[
-                  { v: "one-time", l: "One-time" },
-                  { v: "weekly", l: "Weekly" },
-                  { v: "biweekly", l: "Every 2 weeks" },
-                  { v: "monthly", l: "Monthly" },
-                ].map((o) => (
-                  <label
-                    key={o.v}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/10"
-                  >
-                    <RadioGroupItem value={o.v} /> {o.l}
-                  </label>
-                ))}
-              </RadioGroup>
-            </Field>
-
-            <label className="flex items-start gap-2 text-sm">
-              <Checkbox
-                checked={form.contactless}
-                onCheckedChange={(c) => update("contactless", c === true)}
-                className="mt-0.5"
-              />
-              <span>Leave at door — contactless delivery</span>
-            </label>
-            <label className="flex items-start gap-2 text-sm">
-              <Checkbox
-                checked={form.sms}
-                onCheckedChange={(c) => update("sms", c === true)}
-                className="mt-0.5"
-              />
-              <span>Send SMS updates when my order is on the way</span>
-            </label>
-
-            <Field label="Delivery notes (optional)" error={errors.notes}>
-              <Textarea
-                value={form.notes}
-                onChange={(e) => update("notes", e.target.value)}
-                placeholder="Gate code, allergies, preferred farms…"
-                maxLength={500}
-                rows={3}
-              />
-            </Field>
-          </Fieldset>
-
-          <label className="flex items-start gap-2 text-xs text-muted-foreground">
-            <Checkbox
-              checked={form.terms}
-              onCheckedChange={(c) => update("terms", c === true)}
-              className="mt-0.5"
-            />
-            <span>
-              I agree to the{" "}
-              <Link to="/buyer-protection" className="text-primary underline">
-                Terms and Buyer Protection
-              </Link>
-              .
-            </span>
-          </label>
-          {errors.terms ? (
-            <p className="-mt-3 text-xs font-medium text-destructive">
-              {errors.terms}
-            </p>
-          ) : null}
-
-          <Button type="submit" className="w-full" disabled={submitting}>
-            {submitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account…
-              </>
-            ) : (
-              "Create buyer account"
-            )}
-          </Button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link to="/signin" className="font-semibold text-primary">
-            Sign in
-          </Link>
-        </p>
+        {step === 1 && (
+          <Step1
+            selected={buyerType}
+            onSelect={(id) => setBuyerType(id)}
+            onNext={handleNext}
+          />
+        )}
+        {step === 2 && (
+          <Step2
+            data={step2}
+            errors={step2Errors}
+            showPassword={showPassword}
+            isIndividual={isIndividual}
+            onTogglePassword={() => setShowPassword((v) => !v)}
+            onUpdate={updateStep2}
+            onNext={handleNext}
+            onBack={() => setStep(1)}
+          />
+        )}
+        {step === 3 && (
+          <Step3
+            email={step2.email}
+            otp={otp}
+            otpRefs={otpRefs}
+            onOtpChange={handleOtpChange}
+            onOtpKeyDown={handleOtpKeyDown}
+            onOtpPaste={handleOtpPaste}
+            termsChecked={termsChecked}
+            onTermsChange={setTermsChecked}
+            canSubmit={canSubmit}
+            submitting={submitting}
+            onSubmit={handleSubmit}
+            onBack={() => setStep(2)}
+          />
+        )}
+        {step === 4 && (
+          <Step4
+            firstName={step2.firstName}
+            onBrowse={() => navigate({ to: "/market" })}
+          />
+        )}
       </div>
-    </SiteLayout>
+    </div>
   );
 }
 
-function Fieldset({
-  legend,
-  children,
+// ─────────────────────────────────────────────────────────────────
+// STEP INDICATOR
+// ─────────────────────────────────────────────────────────────────
+
+function StepIndicator({ current }: { current: number }) {
+  const labels = ["Buyer Type", "Your Details", "Verify"];
+  return (
+    <div className="w-full max-w-md mb-8">
+      <div className="flex items-center">
+        {labels.map((label, i) => {
+          const idx = i + 1;
+          const done = current > idx;
+          const active = current === idx;
+          return (
+            <div key={label} className="flex items-center flex-1 last:flex-none">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                    done
+                      ? "bg-[#22C55E] text-black"
+                      : active
+                        ? "bg-white text-black"
+                        : "bg-white/10 text-white/40"
+                  }`}
+                >
+                  {done ? <CheckCircle2 className="w-4 h-4" /> : idx}
+                </div>
+                <span
+                  className={`mt-1 text-[10px] whitespace-nowrap ${
+                    active ? "text-white" : done ? "text-[#22C55E]" : "text-white/30"
+                  }`}
+                >
+                  {label}
+                </span>
+              </div>
+              {i < labels.length - 1 && (
+                <div
+                  className="flex-1 h-px mx-2 mb-4 transition-all"
+                  style={{
+                    background: done ? "#22C55E" : "rgba(255,255,255,0.1)",
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 1 — Buyer Type
+// ─────────────────────────────────────────────────────────────────
+
+function Step1({
+  selected,
+  onSelect,
+  onNext,
 }: {
-  legend: string;
-  children: React.ReactNode;
+  selected: BuyerTypeId | "";
+  onSelect: (id: BuyerTypeId) => void;
+  onNext: () => void;
 }) {
   return (
-    <fieldset className="space-y-4 rounded-2xl border border-border bg-card/40 p-5">
-      <legend className="px-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-        {legend}
-      </legend>
-      {children}
-    </fieldset>
+    <div>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
+          <ShoppingCart className="h-3 w-3" /> Step 1 of 3
+        </div>
+        <h1 className="text-2xl font-bold">I'm buying as a…</h1>
+        <p className="text-sm text-white/50 mt-1">
+          Select the option that best describes you
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-2">
+        {BUYER_TYPES.map((type) => {
+          const isSelected = selected === type.id;
+          return (
+            <button
+              key={type.id}
+              type="button"
+              onClick={() => onSelect(type.id)}
+              className={`relative flex flex-col items-start gap-2 rounded-2xl border-2 p-4 text-left transition-all ${
+                isSelected
+                  ? "border-[#22C55E] bg-[#22C55E]/10"
+                  : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/[0.08]"
+              }`}
+            >
+              {isSelected && (
+                <CheckCircle2 className="absolute top-3 right-3 h-4 w-4 text-[#22C55E]" />
+              )}
+              <span className="text-2xl leading-none">{type.emoji}</span>
+              <span className="font-semibold text-sm leading-tight">
+                {type.label}
+              </span>
+              <span className="text-xs text-white/50 leading-snug">
+                {type.description}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <Button
+        onClick={onNext}
+        className="w-full mt-6 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold h-12 rounded-2xl"
+      >
+        Continue
+      </Button>
+
+      <p className="text-center text-xs text-white/30 mt-4">
+        Already have an account?{" "}
+        <Link
+          to="/auth"
+          search={{ tab: "signin" }}
+          className="text-[#22C55E] hover:underline"
+        >
+          Sign in
+        </Link>
+      </p>
+    </div>
   );
 }
 
-function Field({
+// ─────────────────────────────────────────────────────────────────
+// STEP 2 — Your Details
+// ─────────────────────────────────────────────────────────────────
+
+function Step2({
+  data,
+  errors,
+  showPassword,
+  isIndividual,
+  onTogglePassword,
+  onUpdate,
+  onNext,
+  onBack,
+}: {
+  data: {
+    firstName: string;
+    lastName: string;
+    businessName: string;
+    email: string;
+    phone: string;
+    city: string;
+    state: string;
+    password: string;
+  };
+  errors: Step2Errors;
+  showPassword: boolean;
+  isIndividual: boolean;
+  onTogglePassword: () => void;
+  onUpdate: <
+    K extends
+      | "firstName"
+      | "lastName"
+      | "businessName"
+      | "email"
+      | "phone"
+      | "city"
+      | "state"
+      | "password",
+  >(
+    key: K,
+    value: string,
+  ) => void;
+  onNext: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
+          <ShoppingCart className="h-3 w-3" /> Step 2 of 3
+        </div>
+        <h1 className="text-2xl font-bold">Your Details</h1>
+        <p className="text-sm text-white/50 mt-1">Tell us about yourself</p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="First Name" error={errors.firstName}>
+            <Input
+              value={data.firstName}
+              onChange={(e) => onUpdate("firstName", e.target.value)}
+              placeholder="Jane"
+              autoComplete="given-name"
+              maxLength={60}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+          <FormField label="Last Name" error={errors.lastName}>
+            <Input
+              value={data.lastName}
+              onChange={(e) => onUpdate("lastName", e.target.value)}
+              placeholder="Doe"
+              autoComplete="family-name"
+              maxLength={60}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+        </div>
+
+        {!isIndividual && (
+          <FormField label="Business Name" error={errors.businessName}>
+            <Input
+              value={data.businessName}
+              onChange={(e) => onUpdate("businessName", e.target.value)}
+              placeholder="Sunrise Restaurant Group"
+              autoComplete="organization"
+              maxLength={120}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+        )}
+
+        <FormField label="Email Address" error={errors.email}>
+          <Input
+            type="email"
+            value={data.email}
+            onChange={(e) => onUpdate("email", e.target.value)}
+            placeholder="you@example.com"
+            autoComplete="email"
+            maxLength={255}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+
+        <FormField label="Phone Number" error={errors.phone}>
+          <Input
+            type="tel"
+            value={data.phone}
+            onChange={(e) => onUpdate("phone", formatPhone(e.target.value))}
+            placeholder="(555) 123-4567"
+            autoComplete="tel"
+            inputMode="numeric"
+            maxLength={14}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="City" error={errors.city}>
+            <Input
+              value={data.city}
+              onChange={(e) => onUpdate("city", e.target.value)}
+              placeholder="Chicago"
+              autoComplete="address-level2"
+              maxLength={100}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+          <FormField label="State" error={errors.state}>
+            <Select
+              value={data.state}
+              onValueChange={(v) => onUpdate("state", v)}
+            >
+              <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#22C55E]/20">
+                <SelectValue placeholder="State" />
+              </SelectTrigger>
+              <SelectContent className="max-h-64 bg-[#1a2a1a] border-white/10">
+                {US_STATES.map((s) => (
+                  <SelectItem
+                    key={s.code}
+                    value={s.code}
+                    className="text-white focus:bg-white/10 focus:text-white"
+                  >
+                    {s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
+        </div>
+
+        <FormField label="Password" error={errors.password}>
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              value={data.password}
+              onChange={(e) => onUpdate("password", e.target.value)}
+              placeholder="Min. 8 characters"
+              autoComplete="new-password"
+              maxLength={128}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20 pr-10"
+            />
+            <button
+              type="button"
+              onClick={onTogglePassword}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+        </FormField>
+
+        {/* Escrow info box */}
+        <div className="flex items-start gap-3 rounded-2xl border border-[#22C55E]/20 bg-[#22C55E]/5 p-4">
+          <Shield className="h-4 w-4 text-[#22C55E] mt-0.5 shrink-0" />
+          <p className="text-xs text-white/70 leading-relaxed">
+            Every purchase held in escrow — funds release only after you confirm
+            delivery with a 6-digit code.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-3 mt-8">
+        <Button
+          onClick={onBack}
+          variant="outline"
+          className="flex-1 h-12 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+        <Button
+          onClick={onNext}
+          className="flex-[2] h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl"
+        >
+          Continue
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 3 — Phone Verification
+// ─────────────────────────────────────────────────────────────────
+
+function Step3({
+  email,
+  otp,
+  otpRefs,
+  onOtpChange,
+  onOtpKeyDown,
+  onOtpPaste,
+  termsChecked,
+  onTermsChange,
+  canSubmit,
+  submitting,
+  onSubmit,
+  onBack,
+}: {
+  email: string;
+  otp: string[];
+  otpRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
+  onOtpChange: (index: number, value: string) => void;
+  onOtpKeyDown: (index: number, e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onOtpPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
+  termsChecked: boolean;
+  onTermsChange: (v: boolean) => void;
+  canSubmit: boolean;
+  submitting: boolean;
+  onSubmit: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
+          <Phone className="h-3 w-3" /> Step 3 of 3
+        </div>
+        <h1 className="text-2xl font-bold">Phone Verification</h1>
+        <p className="text-sm text-white/50 mt-1">
+          Enter the 6-digit code sent to your phone
+        </p>
+      </div>
+
+      {/* OTP boxes */}
+      <div className="flex gap-2 justify-center mb-6">
+        {otp.map((digit, i) => (
+          <input
+            key={i}
+            ref={(el) => {
+              otpRefs.current[i] = el;
+            }}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => onOtpChange(i, e.target.value)}
+            onKeyDown={(e) => onOtpKeyDown(i, e)}
+            onPaste={i === 0 ? onOtpPaste : undefined}
+            className={`w-12 h-14 text-center text-xl font-bold rounded-xl border bg-white/5 text-white outline-none transition-all caret-transparent ${
+              digit
+                ? "border-[#22C55E] bg-[#22C55E]/10"
+                : "border-white/10 focus:border-white/30"
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Resend link */}
+      <p className="text-center text-xs text-white/40 mb-5">
+        Didn't receive a code?{" "}
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-[#22C55E] hover:underline"
+          onClick={() => toast.info("Code resent to your phone")}
+        >
+          <RotateCcw className="h-3 w-3" /> Resend code
+        </button>
+      </p>
+
+      {/* Single checkbox */}
+      <div className="mb-6">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <Checkbox
+            checked={termsChecked}
+            onCheckedChange={(c) => onTermsChange(c === true)}
+            className="mt-0.5 border-white/20 data-[state=checked]:bg-[#22C55E] data-[state=checked]:border-[#22C55E]"
+          />
+          <span className="text-sm text-white/70 leading-snug">
+            I agree to the{" "}
+            <span className="text-[#22C55E]">Terms of Service</span>,{" "}
+            <span className="text-[#22C55E]">Buyer Protection Policy</span>{" "}
+            &amp;{" "}
+            <span className="text-[#22C55E]">Refund Policy</span>.
+          </span>
+        </label>
+      </div>
+
+      <div className="flex gap-3">
+        <Button
+          onClick={onBack}
+          variant="outline"
+          className="flex-1 h-12 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+        <Button
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          className="flex-[2] h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {submitting ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            "Create Buyer Account"
+          )}
+        </Button>
+      </div>
+
+      <p className="text-center text-xs text-white/30 mt-3">
+        Registered to {email}
+      </p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 4 — Success
+// ─────────────────────────────────────────────────────────────────
+
+const BUYER_BENEFITS = [
+  { Icon: Shield, text: "Escrow-protected purchases on every order" },
+  { Icon: Leaf, text: "Shop from verified farms across the US" },
+  { Icon: Lock, text: "Funds only release after you confirm delivery" },
+  { Icon: Phone, text: "Real-time order updates & buyer support" },
+];
+
+function Step4({
+  firstName,
+  onBrowse,
+}: {
+  firstName: string;
+  onBrowse: () => void;
+}) {
+  return (
+    <div className="text-center">
+      <div className="w-20 h-20 rounded-full bg-[#22C55E]/15 flex items-center justify-center mx-auto mb-5">
+        <CheckCircle2 className="h-10 w-10 text-[#22C55E]" />
+      </div>
+
+      <h1 className="text-2xl font-bold mb-1">You're In! ✅</h1>
+      <p className="text-white/60 text-sm mb-8">
+        Welcome, <span className="text-white font-semibold">{firstName}</span>!
+        Your buyer account is ready to use.
+      </p>
+
+      <div className="text-left space-y-3 mb-8">
+        {BUYER_BENEFITS.map(({ Icon, text }) => (
+          <div
+            key={text}
+            className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4"
+          >
+            <div className="w-8 h-8 rounded-full bg-[#22C55E]/20 flex items-center justify-center shrink-0">
+              <Icon className="h-4 w-4 text-[#22C55E]" />
+            </div>
+            <p className="text-sm text-white/80">{text}</p>
+          </div>
+        ))}
+      </div>
+
+      <Button
+        onClick={onBrowse}
+        className="w-full h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl"
+      >
+        Browse the Marketplace
+      </Button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SHARED PRIMITIVES
+// ─────────────────────────────────────────────────────────────────
+
+function FormField({
   label,
   error,
   children,
@@ -350,11 +912,11 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label>{label}</Label>
+      <Label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
+        {label}
+      </Label>
       {children}
-      {error ? (
-        <p className="text-xs font-medium text-destructive">{error}</p>
-      ) : null}
+      {error && <p className="text-xs font-medium text-red-400">{error}</p>}
     </div>
   );
 }
