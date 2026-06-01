@@ -31,11 +31,16 @@ import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
+import { Route as LendersLoginRouteImport } from './routes/lenders/login'
+import { Route as LendersDashboardRouteImport } from './routes/lenders/dashboard'
+import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
+import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
+import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
 const CartRoute = CartRouteImport.update({
@@ -148,6 +153,26 @@ const OrdersIdRoute = OrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LendersLoginRoute = LendersLoginRouteImport.update({
+  id: '/lenders/login',
+  path: '/lenders/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersDashboardRoute = LendersDashboardRouteImport.update({
+  id: '/lenders/dashboard',
+  path: '/lenders/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersApplyRoute = LendersApplyRouteImport.update({
+  id: '/lenders/apply',
+  path: '/lenders/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersAdminRoute = LendersAdminRouteImport.update({
+  id: '/lenders/admin',
+  path: '/lenders/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FarmIdRoute = FarmIdRouteImport.update({
   id: '/farm/$id',
   path: '/farm/$id',
@@ -171,6 +196,11 @@ const ChatProductIdRoute = ChatProductIdRouteImport.update({
 const ApiOrdersRoute = ApiOrdersRouteImport.update({
   id: '/api/orders',
   path: '/api/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
+  id: '/lenders/farmer/$id',
+  path: '/lenders/farmer/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
@@ -202,11 +232,16 @@ export interface FileRoutesByFullPath {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/lenders/admin': typeof LendersAdminRoute
+  '/lenders/apply': typeof LendersApplyRoute
+  '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/signup/': typeof SignupIndexRoute
+  '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRoutesByTo {
@@ -232,11 +267,16 @@ export interface FileRoutesByTo {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/lenders/admin': typeof LendersAdminRoute
+  '/lenders/apply': typeof LendersApplyRoute
+  '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/signup': typeof SignupIndexRoute
+  '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRoutesById {
@@ -263,11 +303,16 @@ export interface FileRoutesById {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/lenders/admin': typeof LendersAdminRoute
+  '/lenders/apply': typeof LendersApplyRoute
+  '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/signup/': typeof SignupIndexRoute
+  '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
 export interface FileRouteTypes {
@@ -295,11 +340,16 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/lenders/admin'
+    | '/lenders/apply'
+    | '/lenders/dashboard'
+    | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
     | '/signup/'
+    | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -325,11 +375,16 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/lenders/admin'
+    | '/lenders/apply'
+    | '/lenders/dashboard'
+    | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
     | '/signup'
+    | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   id:
     | '__root__'
@@ -355,11 +410,16 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/lenders/admin'
+    | '/lenders/apply'
+    | '/lenders/dashboard'
+    | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
     | '/signup/buyer'
     | '/signup/farmer'
     | '/signup/'
+    | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   fileRoutesById: FileRoutesById
 }
@@ -386,11 +446,16 @@ export interface RootRouteChildren {
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
   FarmIdRoute: typeof FarmIdRoute
+  LendersAdminRoute: typeof LendersAdminRoute
+  LendersApplyRoute: typeof LendersApplyRoute
+  LendersDashboardRoute: typeof LendersDashboardRoute
+  LendersLoginRoute: typeof LendersLoginRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
   SignupIndexRoute: typeof SignupIndexRoute
+  LendersFarmerIdRoute: typeof LendersFarmerIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -549,6 +614,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrdersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lenders/login': {
+      id: '/lenders/login'
+      path: '/lenders/login'
+      fullPath: '/lenders/login'
+      preLoaderRoute: typeof LendersLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/dashboard': {
+      id: '/lenders/dashboard'
+      path: '/lenders/dashboard'
+      fullPath: '/lenders/dashboard'
+      preLoaderRoute: typeof LendersDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/apply': {
+      id: '/lenders/apply'
+      path: '/lenders/apply'
+      fullPath: '/lenders/apply'
+      preLoaderRoute: typeof LendersApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/admin': {
+      id: '/lenders/admin'
+      path: '/lenders/admin'
+      fullPath: '/lenders/admin'
+      preLoaderRoute: typeof LendersAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/farm/$id': {
       id: '/farm/$id'
       path: '/farm/$id'
@@ -582,6 +675,13 @@ declare module '@tanstack/react-router' {
       path: '/api/orders'
       fullPath: '/api/orders'
       preLoaderRoute: typeof ApiOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/farmer/$id': {
+      id: '/lenders/farmer/$id'
+      path: '/lenders/farmer/$id'
+      fullPath: '/lenders/farmer/$id'
+      preLoaderRoute: typeof LendersFarmerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/orders/$id/release': {
@@ -629,11 +729,16 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
   FarmIdRoute: FarmIdRoute,
+  LendersAdminRoute: LendersAdminRoute,
+  LendersApplyRoute: LendersApplyRoute,
+  LendersDashboardRoute: LendersDashboardRoute,
+  LendersLoginRoute: LendersLoginRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
   SignupIndexRoute: SignupIndexRoute,
+  LendersFarmerIdRoute: LendersFarmerIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
