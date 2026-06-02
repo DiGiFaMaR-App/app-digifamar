@@ -29,6 +29,9 @@ vi.mock("@tanstack/react-router", () => {
   const useRouter = () => ({
     invalidate: vi.fn(),
     navigate: routerMockState.navigate,
+    state: {
+      location: { pathname: routerMockState.pathname, search: routerMockState.search },
+    },
   });
   const useRouterState = (opts?: { select?: (s: unknown) => unknown }) => {
     const snapshot = { location: { pathname: routerMockState.pathname, search: routerMockState.search } };
