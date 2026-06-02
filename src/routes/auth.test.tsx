@@ -1,54 +1,40 @@
 import * as React from "react";
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { Route } from "./auth";
 import { setRouterMockState } from "@/test/router-state";
 
 const Page = (Route as unknown as { component: () => React.ReactElement }).component;
 
 describe("Auth route", () => {
-  it("defaults to the Sign Up tab and shows the role picker", () => {
+  it("shows the two role cards on the Sign Up tab", () => {
     setRouterMockState({ search: { tab: "signup" } });
     render(<Page />);
-    expect(screen.getByText(/^i am a$/i)).toBeInTheDocument();
-    // Both tabs render "Sign Up" / "Sign In"; pick the submit button by its full label.
-    expect(screen.getByRole("button", { name: /create account/i })).toBeInTheDocument();
+    expect(screen.getByText(/i'm a farmer/i)).toBeInTheDocument();
+    expect(screen.getByText(/i'm a buyer/i)).toBeInTheDocument();
   });
 
-  it("hides the role picker on the Sign In tab", () => {
+  it("links the Sign Up role cards to the dedicated signup flows", () => {
+    setRouterMockState({ search: { tab: "signup" } });
+    render(<Page />);
+    expect(screen.getByRole("link", { name: /i'm a farmer/i })).toHaveAttribute(
+      "href",
+      "/signup/farmer",
+    );
+    expect(screen.getByRole("link", { name: /i'm a buyer/i })).toHaveAttribute(
+      "href",
+      "/signup/buyer",
+    );
+  });
+
+  it("renders email + password fields on the Sign In tab and hides the role cards", () => {
     setRouterMockState({ search: { tab: "signin" } });
     render(<Page />);
-    expect(screen.queryByText(/^i am a$/i)).not.toBeInTheDocument();
-    // "Sign in" matches both the tab and the submit; ensure at least one submit exists.
-    expect(screen.getAllByRole("button", { name: /sign in/i }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByPlaceholderText(/123-4567/)).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/you@example\.com/i)).toBeInTheDocument();
+    expect(screen.queryByText(/i'm a farmer/i)).not.toBeInTheDocument();
   });
 
-
-  it("renders email + password fields on sign-in; adds phone on sign-up", () => {
-    setRouterMockState({ search: { tab: "signin" } });
-    const { unmount } = render(<Page />);
-    expect(screen.getByPlaceholderText(/you@farm.com/i)).toBeInTheDocument();
-    expect(screen.queryByPlaceholderText(/123-4567/)).not.toBeInTheDocument();
-    unmount();
-
-    setRouterMockState({ search: { tab: "signup" } });
-    render(<Page />);
-    expect(screen.getByPlaceholderText(/123-4567/)).toBeInTheDocument();
-  });
-
-  it("lets users toggle role pills", async () => {
-    setRouterMockState({ search: { tab: "signup" } });
-    const user = userEvent.setup();
-    render(<Page />);
-    const farmer = screen.getByRole("button", { name: /farmer/i });
-    await user.click(farmer);
-    // active state adds glow-ring class to the picked pill
-    expect(farmer.className).toContain("glow-ring");
-  });
-
-  it("renders Google sign-in entry", () => {
+  it("renders a Google sign-in entry", () => {
     setRouterMockState({ search: { tab: "signup" } });
     render(<Page />);
     expect(
@@ -56,9 +42,12 @@ describe("Auth route", () => {
     ).toBeInTheDocument();
   });
 
-  it("exposes a back link to the splash", () => {
+  it("exposes a back link to home", () => {
     setRouterMockState({ search: { tab: "signup" } });
     render(<Page />);
-    expect(screen.getByRole("link", { name: /back to splash/i })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: /back to home/i })).toHaveAttribute(
+      "href",
+      "/",
+    );
   });
 });
