@@ -100,6 +100,21 @@ vi.mock("@/integrations/lovable/index", () => ({
   },
 }));
 
+// ---------- Auth ----------
+// Default to a signed-in buyer so RequireAuth-wrapped pages (dashboards,
+// orders, chat) render their content in tests. Individual tests can override
+// this with their own vi.mock("@/hooks/use-auth", ...) when they need a
+// different auth state.
+vi.mock("@/hooks/use-auth", () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    loading: false,
+    user: null,
+    session: null,
+    role: "buyer",
+  }),
+}));
+
 // ---------- Supabase client (avoid env reads in tests) ----------
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
@@ -111,6 +126,14 @@ vi.mock("@/integrations/supabase/client", () => ({
       }),
     },
     from: vi.fn(),
+    // Realtime: chat.$productId subscribes via supabase.channel(...).on(...).subscribe().
+    channel: vi.fn(() => {
+      const ch: Record<string, unknown> = {};
+      ch.on = vi.fn(() => ch);
+      ch.subscribe = vi.fn(() => ch);
+      return ch;
+    }),
+    removeChannel: vi.fn(),
   },
 }));
 
