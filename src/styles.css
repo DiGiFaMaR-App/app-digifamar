@@ -4,8 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-
 /*
  * DiGiFaMaR — premium dark agri-tech theme.
  * Deep greens (#0A0F0A bg, #121A12 surfaces) with #22C55E accents.
