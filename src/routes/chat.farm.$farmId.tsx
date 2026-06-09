@@ -276,13 +276,70 @@ function FarmChatPage() {
     return farm ? { lat: farm.lat, lng: farm.lng, label: farm.name } : null;
   }, [geo.lat, geo.lng, farm]);
 
-  // Live ETA from farmer's last reported coords to destination (avg 30 mph).
-  const eta = useMemo(() => {
+  // Live ETA derived from real GPS history: compute moving speed (mph) over
+  // the last ~60s of fixes, smooth it with an EMA, and project an ETA that
+  // doesn't jitter wildly between updates.
+  const locHistoryRef = useRef<Array<{ lat: number; lng: number; ts: number }>>([]);
+  const smoothedSpeedRef = useRef<number | null>(null); // mph
+  const smoothedEtaRef = useRef<number | null>(null);   // minutes
+  const [eta, setEta] = useState<{ miles: number; minutes: number; mph: number } | null>(null);
+
+  useEffect(() => {
     const loc = deliveryState.farmerLocation;
-    if (!loc || !destination) return null;
+    if (!loc || !destination) {
+      locHistoryRef.current = [];
+      smoothedSpeedRef.current = null;
+      smoothedEtaRef.current = null;
+      setEta(null);
+      return;
+    }
+
+    // Append to history (drop duplicates + entries older than 60s).
+    const hist = locHistoryRef.current;
+    const last = hist[hist.length - 1];
+    if (!last || last.ts !== loc.ts) {
+      hist.push(loc);
+    }
+    const cutoff = loc.ts - 60_000;
+    while (hist.length && hist[0].ts < cutoff) hist.shift();
+    // Keep at most ~12 fixes
+    if (hist.length > 12) hist.splice(0, hist.length - 12);
+
+    // Instantaneous speed from oldest retained fix to newest (mph).
+    let instMph: number | null = null;
+    if (hist.length >= 2) {
+      const a = hist[0];
+      const b = hist[hist.length - 1];
+      const dtHours = (b.ts - a.ts) / 3_600_000;
+      if (dtHours > 0) {
+        const dMiles = haversineDistance(a.lat, a.lng, b.lat, b.lng);
+        instMph = dMiles / dtHours;
+      }
+    }
+
+    // EMA smoothing on speed (α=0.35). Fall back to 20 mph until we have data.
+    const FALLBACK_MPH = 20;
+    if (instMph != null && Number.isFinite(instMph)) {
+      // Clamp to a plausible delivery range so a stray GPS jump can't blow it up.
+      const clamped = Math.min(60, Math.max(2, instMph));
+      smoothedSpeedRef.current =
+        smoothedSpeedRef.current == null
+          ? clamped
+          : smoothedSpeedRef.current * 0.65 + clamped * 0.35;
+    }
+    const mph = smoothedSpeedRef.current ?? FALLBACK_MPH;
+
     const miles = haversineDistance(loc.lat, loc.lng, destination.lat, destination.lng);
-    const minutes = Math.max(1, Math.round((miles / 30) * 60));
-    return { miles, minutes };
+    const rawMinutes = (miles / mph) * 60;
+
+    // Smooth the ETA itself so the displayed number eases between updates.
+    smoothedEtaRef.current =
+      smoothedEtaRef.current == null
+        ? rawMinutes
+        : smoothedEtaRef.current * 0.6 + rawMinutes * 0.4;
+
+    const minutes = Math.max(1, Math.round(smoothedEtaRef.current));
+    setEta({ miles, minutes, mph });
   }, [deliveryState.farmerLocation, destination]);
 
   const pushSystem = useCallback(
