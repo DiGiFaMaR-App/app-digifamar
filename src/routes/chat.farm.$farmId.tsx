@@ -93,7 +93,12 @@ interface DeliveryState {
   arrivedAt?: number;
   releasedAt?: number;
   farmerLocation?: { lat: number; lng: number; ts: number };
+  /** Distance (miles) at the very first GPS fix — used for progress bar. */
+  initialDistance?: number;
 }
+
+/** Auto-mark "arrived" when farmer is within ~130m of the buyer. */
+const ARRIVAL_RADIUS_MI = 0.08;
 
 const storageKey = (farmId: string, productId?: string) =>
   `digifamar.chat.${farmId}.${productId ?? "general"}`;
