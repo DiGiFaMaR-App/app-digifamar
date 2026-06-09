@@ -1,19 +1,26 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { WhatsAppFab } from "./WhatsAppFab";
 
 describe("WhatsAppFab", () => {
-  it("renders a WhatsApp link with the support number and prefilled message", () => {
+  it("renders a WhatsApp button", () => {
     render(<WhatsAppFab />);
-    const link = screen.getByRole("link", { name: /whatsapp/i });
-    expect(link).toHaveAttribute("href", expect.stringContaining("https://wa.me/19294919491"));
-    expect(link.getAttribute("href")).toContain(encodeURIComponent("Hi, I'd like help with DiGiFaMaR"));
+    expect(
+      screen.getByRole("button", { name: /whatsapp/i }),
+    ).toBeInTheDocument();
   });
 
-  it("opens in a new tab", () => {
+  it("opens WhatsApp when clicked", async () => {
+    const openSpy = vi
+      .spyOn(window, "open")
+      .mockReturnValue({} as unknown as Window);
     render(<WhatsAppFab />);
-    const link = screen.getByRole("link", { name: /whatsapp/i });
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noreferrer");
+    await userEvent.click(screen.getByRole("button", { name: /whatsapp/i }));
+    // On desktop user agent (jsdom), it should call window.open with wa.me.
+    const calledWith = openSpy.mock.calls.map((c) => c[0]).join(" ");
+    expect(calledWith).toContain("wa.me/19294919491");
+    expect(calledWith).toContain(encodeURIComponent("Hi, I'd like help with DiGiFaMaR"));
+    openSpy.mockRestore();
   });
 });
