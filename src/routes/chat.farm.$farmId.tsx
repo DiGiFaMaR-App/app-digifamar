@@ -688,8 +688,9 @@ function FarmChatPage() {
                     <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-leaf animate-pulse" />
                   </div>
                   {eta && deliveryState.status === "in_transit" && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground tabular-nums">
                       {eta.miles.toFixed(1)} mi · ~{eta.minutes} min
+                      <span className="ml-1 opacity-70">· {Math.round(eta.mph)} mph</span>
                     </span>
                   )}
                 </div>
