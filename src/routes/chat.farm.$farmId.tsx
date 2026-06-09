@@ -230,9 +230,44 @@ function FarmChatPage() {
   const [payMethod, setPayMethod] = useState<"card" | "bank">("card");
   const [paying, setPaying] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
+  const [delivery, setDelivery] = useState<DeliveryState>(() =>
+    loadDelivery(farmId, productId),
+  );
+  const [otpInput, setOtpInput] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const watchIdRef = useRef<number | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Persist delivery changes
+  useEffect(() => {
+    saveDelivery(farmId, productId, delivery);
+  }, [delivery, farmId, productId]);
+
+  // Cross-tab sync: pick up delivery + escrow updates from the other role.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === deliveryKey(farmId, productId) && e.newValue) {
+        try {
+          setDelivery(JSON.parse(e.newValue) as DeliveryState);
+        } catch { /* ignore */ }
+      }
+      if (e.key === escrowKey(farmId, productId) && e.newValue) {
+        try {
+          setEscrow(JSON.parse(e.newValue) as EscrowState);
+        } catch { /* ignore */ }
+      }
+      if (e.key === storageKey(farmId, productId) && e.newValue) {
+        try {
+          setMessages(JSON.parse(e.newValue) as ChatMsg[]);
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [farmId, productId]);
+
 
   // Pre-fill the very first message when a product context is present
   useEffect(() => {
