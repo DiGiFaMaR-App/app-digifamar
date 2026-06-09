@@ -9,6 +9,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { Logo } from "./Logo";
+import { getWhatsAppWebUrl } from "./WhatsAppFab";
 
 const buyerLinks = [
   { to: "/browse", label: "Browse Farms" },
@@ -64,7 +65,7 @@ export function Footer() {
               <Lock className="h-4 w-4" /> SSL Secure
             </span>
             <a
-              href="https://wa.me/19294919491"
+              href={getWhatsAppWebUrl()}
               target="_blank"
               rel="noreferrer"
               className="hover:text-primary"
