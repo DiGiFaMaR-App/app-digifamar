@@ -623,7 +623,134 @@ function FarmChatPage() {
         </SheetContent>
       </Sheet>
 
+      {/* Pay into Escrow sheet */}
+      <Sheet open={showPay} onOpenChange={(o) => !paying && setShowPay(o)}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader className="text-left">
+            <SheetTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-primary" />
+              Escrow payment
+            </SheetTitle>
+            <SheetDescription>
+              Choose a payment method. Funds are held by DiGiFaMaR until you confirm delivery.
+            </SheetDescription>
+          </SheetHeader>
 
+          <div className="mt-5 space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPayMethod("card")}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  payMethod === "card"
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-card hover:border-primary/40"
+                }`}
+              >
+                <CreditCard className="h-5 w-5 text-primary mb-2" />
+                <p className="text-sm font-semibold">Pay with Card</p>
+                <p className="text-[11px] text-muted-foreground">Visa, Mastercard, Verve</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayMethod("bank")}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  payMethod === "bank"
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-card hover:border-primary/40"
+                }`}
+              >
+                <Building2 className="h-5 w-5 text-primary mb-2" />
+                <p className="text-sm font-semibold">Bank Transfer</p>
+                <p className="text-[11px] text-muted-foreground">Direct bank deposit</p>
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4 space-y-1.5 text-sm">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Delivery</span>
+                <span>${delivery.fee.toFixed(2)}</span>
+              </div>
+              <div className="border-t border-border pt-2 mt-1 flex justify-between font-bold text-base">
+                <span>Held in escrow</span>
+                <span className="text-primary">${total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-center text-muted-foreground">
+              A 6-digit release code will be sent to your phone after payment. Demo only — no real charge.
+            </p>
+          </div>
+
+          <SheetFooter className="mt-5 flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowPay(false)}
+              disabled={paying}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={paying}
+              onClick={async () => {
+                setPaying(true);
+                await new Promise((r) => setTimeout(r, 1200));
+                const otp = generateOtp();
+                const orderId = `DFM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+                const next: EscrowState = {
+                  status: "held",
+                  orderId,
+                  total,
+                  method: payMethod,
+                  otp,
+                  paidAt: Date.now(),
+                };
+                setEscrow(next);
+                saveEscrow(farmId, productId, next);
+                const now = Date.now();
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: `sys-paid-${now}`,
+                    role: "buyer",
+                    kind: "system",
+                    text: `🔒 Payment has been received into escrow ($${total.toFixed(2)}). Waiting for farmer to start delivery.`,
+                    ts: now,
+                  },
+                  {
+                    id: `sys-farmer-${now + 1}`,
+                    role: "farmer",
+                    kind: "system",
+                    text: `💰 Payment received into escrow. Ready to start delivery. Order #${orderId}.`,
+                    ts: now + 1,
+                  },
+                ]);
+                setPaying(false);
+                setShowPay(false);
+                setShowOtp(true);
+                toast.success("Payment held in escrow", {
+                  description: `SMS sent to your phone with release code ${otp}.`,
+                });
+              }}
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary-hover"
+            >
+              {paying ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing…
+                </>
+              ) : (
+                <>Pay ${total.toFixed(2)}</>
+              )}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
     </AppShell>
   );
