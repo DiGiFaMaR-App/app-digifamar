@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
+import { getWhatsAppWebUrl } from "@/components/WhatsAppFab";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,7 +44,7 @@ function Contact() {
           </form>
 
           <div className="space-y-3">
-            <a href="https://wa.me/19294919491" target="_blank" rel="noreferrer" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+            <a href={getWhatsAppWebUrl()} target="_blank" rel="noreferrer" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
               <MessageCircle className="h-6 w-6 text-primary" />
               <div>
                 <p className="font-semibold">WhatsApp</p>
