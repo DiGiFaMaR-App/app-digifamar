@@ -43,7 +43,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "twitter:description", content: "Skip the middleman. Farmers keep 80-92% of every sale. Verified farms, escrow checkout, all 50 states." },
         { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b" },
       ],
-      links: [{ rel: "stylesheet", href: appCss }],
+      links: [
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" },
+        { rel: "stylesheet", href: appCss },
+      ],
       scripts: [
         {
           type: "application/ld+json",
