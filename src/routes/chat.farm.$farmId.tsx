@@ -180,6 +180,13 @@ function FarmChatPage() {
   const [role, setRole] = useState<Role>("buyer");
   const [showAccept, setShowAccept] = useState(false);
   const [accepted, setAccepted] = useState(false);
+  const [escrow, setEscrow] = useState<EscrowState | null>(() =>
+    loadEscrow(farmId, productId),
+  );
+  const [showPay, setShowPay] = useState(false);
+  const [payMethod, setPayMethod] = useState<"card" | "bank">("card");
+  const [paying, setPaying] = useState(false);
+  const [showOtp, setShowOtp] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
