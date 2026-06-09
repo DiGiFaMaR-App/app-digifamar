@@ -268,6 +268,118 @@ function FarmChatPage() {
     return () => window.removeEventListener("storage", onStorage);
   }, [farmId, productId]);
 
+  // Buyer's delivery destination — their geolocation if available, else farm.
+  const destination = useMemo(() => {
+    if (geo.lat != null && geo.lng != null) {
+      return { lat: geo.lat, lng: geo.lng, label: "You" };
+    }
+    return farm ? { lat: farm.lat, lng: farm.lng, label: farm.name } : null;
+  }, [geo.lat, geo.lng, farm]);
+
+  // Live ETA from farmer's last reported coords to destination (avg 30 mph).
+  const eta = useMemo(() => {
+    const loc = deliveryState.farmerLocation;
+    if (!loc || !destination) return null;
+    const miles = haversineDistance(loc.lat, loc.lng, destination.lat, destination.lng);
+    const minutes = Math.max(1, Math.round((miles / 30) * 60));
+    return { miles, minutes };
+  }, [deliveryState.farmerLocation, destination]);
+
+  const pushSystem = useCallback(
+    (text: string, who: Role = "buyer") => {
+      setMessages((prev) => [
+        ...prev,
+        { id: `sys-${who}-${Date.now()}-${Math.random()}`, role: who, kind: "system", text, ts: Date.now() },
+      ]);
+    },
+    [],
+  );
+
+  // Stop GPS watch helper
+  const stopWatch = useCallback(() => {
+    if (watchIdRef.current != null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => stopWatch, [stopWatch]);
+
+  // Auto-stop watch when delivery completes
+  useEffect(() => {
+    if (deliveryState.status === "released" || deliveryState.status === "idle") {
+      stopWatch();
+    }
+  }, [deliveryState.status, stopWatch]);
+
+  const handleStartDelivery = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      toast.error("Live tracking unavailable", {
+        description: "Your browser does not support geolocation.",
+      });
+      return;
+    }
+    const startedAt = Date.now();
+    setDeliveryState((d) => ({ ...d, status: "in_transit", startedAt }));
+    pushSystem("🚚 Delivery started — farmer is on the way.", "farmer");
+    toast.success("Delivery started", {
+      description: "Sharing your live location with the buyer.",
+    });
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setDeliveryState((d) => ({
+          ...d,
+          status: d.status === "released" ? d.status : "in_transit",
+          farmerLocation: {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            ts: Date.now(),
+          },
+        }));
+      },
+      (err) => {
+        toast.error("Location error", { description: err.message });
+      },
+      { enableHighAccuracy: true, maximumAge: 5_000, timeout: 20_000 },
+    );
+  }, [pushSystem]);
+
+  const handleMarkArrived = useCallback(() => {
+    setDeliveryState((d) => ({ ...d, status: "arrived", arrivedAt: Date.now() }));
+    pushSystem("📍 Farmer has arrived. Please inspect the goods and enter the release code.", "farmer");
+  }, [pushSystem]);
+
+  const handleVerifyOtp = useCallback(async () => {
+    if (!escrow) return;
+    const clean = otpInput.replace(/\D/g, "");
+    if (clean.length !== 6) {
+      toast.error("Enter all 6 digits");
+      return;
+    }
+    setVerifying(true);
+    await new Promise((r) => setTimeout(r, 600));
+    if (clean !== escrow.otp) {
+      setVerifying(false);
+      toast.error("Incorrect code", { description: "Double-check the 6-digit code from the buyer." });
+      return;
+    }
+    const releasedAt = Date.now();
+    const nextEscrow: EscrowState = { ...escrow, status: "released", releasedAt };
+    setEscrow(nextEscrow);
+    saveEscrow(farmId, productId, nextEscrow);
+    setDeliveryState((d) => ({ ...d, status: "released", releasedAt }));
+    pushSystem("✅ Delivery completed.", "buyer");
+    pushSystem(`🎉 Payment Released — $${escrow.total.toFixed(2)} sent to the farmer.`, "buyer");
+    setVerifying(false);
+    setOtpInput("");
+    stopWatch();
+    toast.success("Payment Released", {
+      description: `$${escrow.total.toFixed(2)} released from escrow to the farmer.`,
+    });
+  }, [escrow, otpInput, farmId, productId, pushSystem, stopWatch]);
+
+
+
 
   // Pre-fill the very first message when a product context is present
   useEffect(() => {
