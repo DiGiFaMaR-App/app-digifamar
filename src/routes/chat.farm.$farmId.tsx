@@ -73,7 +73,7 @@ interface ChatMsg {
   meta?: { productId?: string; qty?: number; productName?: string; unitPrice?: number };
 }
 
-type EscrowStatus = "none" | "held";
+type EscrowStatus = "none" | "held" | "released";
 
 interface EscrowState {
   status: EscrowStatus;
@@ -82,12 +82,26 @@ interface EscrowState {
   method: "card" | "bank";
   otp: string; // visible to buyer only
   paidAt: number;
+  releasedAt?: number;
+}
+
+type DeliveryStatus = "idle" | "in_transit" | "arrived" | "released";
+
+interface DeliveryState {
+  status: DeliveryStatus;
+  startedAt?: number;
+  arrivedAt?: number;
+  releasedAt?: number;
+  farmerLocation?: { lat: number; lng: number; ts: number };
 }
 
 const storageKey = (farmId: string, productId?: string) =>
   `digifamar.chat.${farmId}.${productId ?? "general"}`;
 const escrowKey = (farmId: string, productId?: string) =>
   `digifamar.escrow.${farmId}.${productId ?? "general"}`;
+const deliveryKey = (farmId: string, productId?: string) =>
+  `digifamar.delivery.${farmId}.${productId ?? "general"}`;
+
 
 function loadMessages(farmId: string, productId?: string): ChatMsg[] {
   if (typeof window === "undefined") return [];
