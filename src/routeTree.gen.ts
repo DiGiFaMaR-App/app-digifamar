@@ -40,6 +40,7 @@ import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
+import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -197,6 +198,11 @@ const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
   path: '/lenders/farmer/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatFarmFarmIdRoute = ChatFarmFarmIdRouteImport.update({
+  id: '/chat/farm/$farmId',
+  path: '/chat/farm/$farmId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
   id: '/$id/release',
   path: '/$id/release',
@@ -234,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat/': typeof ChatIndexRoute
   '/signup/': typeof SignupIndexRoute
+  '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
@@ -268,6 +275,7 @@ export interface FileRoutesByTo {
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat': typeof ChatIndexRoute
   '/signup': typeof SignupIndexRoute
+  '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
@@ -303,6 +311,7 @@ export interface FileRoutesById {
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat/': typeof ChatIndexRoute
   '/signup/': typeof SignupIndexRoute
+  '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
 }
@@ -339,6 +348,7 @@ export interface FileRouteTypes {
     | '/signup/farmer'
     | '/chat/'
     | '/signup/'
+    | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   fileRoutesByTo: FileRoutesByTo
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/signup/farmer'
     | '/chat'
     | '/signup'
+    | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   id:
@@ -407,6 +418,7 @@ export interface FileRouteTypes {
     | '/signup/farmer'
     | '/chat/'
     | '/signup/'
+    | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
   fileRoutesById: FileRoutesById
@@ -442,6 +454,7 @@ export interface RootRouteChildren {
   SignupFarmerRoute: typeof SignupFarmerRoute
   ChatIndexRoute: typeof ChatIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
+  ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
 }
 
@@ -664,6 +677,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LendersFarmerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/farm/$farmId': {
+      id: '/chat/farm/$farmId'
+      path: '/chat/farm/$farmId'
+      fullPath: '/chat/farm/$farmId'
+      preLoaderRoute: typeof ChatFarmFarmIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/orders/$id/release': {
       id: '/api/orders/$id/release'
       path: '/$id/release'
@@ -717,18 +737,9 @@ const rootRouteChildren: RootRouteChildren = {
   SignupFarmerRoute: SignupFarmerRoute,
   ChatIndexRoute: ChatIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
+  ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

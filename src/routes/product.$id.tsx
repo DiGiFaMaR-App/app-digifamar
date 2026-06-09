@@ -158,10 +158,16 @@ function ProductPage() {
             <div className="mt-5 flex gap-2">
               <Button
                 size="lg"
-                onClick={() => navigate({ to: "/payment-success", search: { id: product.id } })}
+                onClick={() =>
+                  navigate({
+                    to: "/chat/farm/$farmId",
+                    params: { farmId: product.farmId },
+                    search: { productId: product.id, qty: 1 },
+                  })
+                }
                 className="flex-1 h-12 bg-primary text-primary-foreground hover:bg-primary-hover shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--primary)_60%,transparent)]"
               >
-                Buy now · ${product.price.toFixed(2)}
+                Chat farmer · negotiate price
               </Button>
               <Button size="lg" variant="outline" className="h-12" onClick={addToCart}>
                 {added ? (
@@ -173,6 +179,7 @@ function ProductPage() {
                 )}
               </Button>
             </div>
+
           </div>
         </div>
       </div>
