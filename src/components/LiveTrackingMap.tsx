@@ -1,6 +1,5 @@
-import { useEffect, useRef } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+/// <reference types="google.maps" />
+import { useEffect, useRef, useState } from "react";
 
 interface LiveTrackingMapProps {
   farmer: { lat: number; lng: number } | null;
@@ -8,105 +7,178 @@ interface LiveTrackingMapProps {
   farmerLabel?: string;
 }
 
-/**
- * Lightweight Leaflet map that auto-fits to the farmer's pin and the
- * destination, and smoothly animates the farmer marker as new coordinates
- * arrive. Tiles come from OpenStreetMap (no API key required).
- */
+// ─────────────────────────────────────────────────────────────────
+// Google Maps JS API loader (singleton, async)
+// ─────────────────────────────────────────────────────────────────
+
+const BROWSER_KEY = import.meta.env
+  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+const TRACKING_ID = import.meta.env
+  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
+
+declare global {
+  interface Window {
+    google?: typeof google;
+    __dfmGmapsLoader?: Promise<typeof google>;
+    __dfmGmapsInit?: () => void;
+  }
+}
+
+function loadGoogleMaps(): Promise<typeof google> {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("SSR — no window"));
+  }
+  if (window.google?.maps) return Promise.resolve(window.google);
+  if (window.__dfmGmapsLoader) return window.__dfmGmapsLoader;
+  if (!BROWSER_KEY) {
+    return Promise.reject(new Error("Google Maps browser key missing"));
+  }
+
+  window.__dfmGmapsLoader = new Promise((resolve, reject) => {
+    window.__dfmGmapsInit = () => {
+      if (window.google?.maps) resolve(window.google);
+      else reject(new Error("Google Maps failed to initialise"));
+    };
+    const channel = TRACKING_ID ? `&channel=${TRACKING_ID}` : "";
+    const s = document.createElement("script");
+    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__dfmGmapsInit${channel}`;
+    s.async = true;
+    s.defer = true;
+    s.onerror = () => reject(new Error("Failed to load Google Maps script"));
+    document.head.appendChild(s);
+  });
+  return window.__dfmGmapsLoader;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────────────────────────
+
 export function LiveTrackingMap({
   farmer,
   destination,
   farmerLabel = "Farmer",
 }: LiveTrackingMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const farmerMarkerRef = useRef<L.Marker | null>(null);
-  const routeRef = useRef<L.Polyline | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const farmerMarkerRef = useRef<google.maps.Marker | null>(null);
+  const destMarkerRef = useRef<google.maps.Marker | null>(null);
+  const routeRef = useRef<google.maps.Polyline | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [ready, setReady] = useState(false);
 
-  // Initial map setup (runs once)
+  // One-time init
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+    let cancelled = false;
+    loadGoogleMaps()
+      .then((g) => {
+        if (cancelled || !containerRef.current) return;
+        const map = new g.maps.Map(containerRef.current, {
+          center: { lat: destination.lat, lng: destination.lng },
+          zoom: 13,
+          disableDefaultUI: true,
+          zoomControl: true,
+          gestureHandling: "greedy",
+          clickableIcons: false,
+          styles: [
+            { featureType: "poi", stylers: [{ visibility: "off" }] },
+            { featureType: "transit", stylers: [{ visibility: "off" }] },
+          ],
+        });
 
-    const map = L.map(containerRef.current, {
-      zoomControl: false,
-      attributionControl: false,
-    }).setView([destination.lat, destination.lng], 12);
+        destMarkerRef.current = new g.maps.Marker({
+          map,
+          position: { lat: destination.lat, lng: destination.lng },
+          title: destination.label ?? "You",
+          icon: {
+            path: g.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: "#1d4ed8",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 3,
+          },
+        });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-    }).addTo(map);
-
-    // Destination (buyer) pin
-    const destIcon = L.divIcon({
-      className: "",
-      html: `<div style="background:hsl(var(--primary));width:14px;height:14px;border-radius:9999px;border:3px solid white;box-shadow:0 0 0 2px hsl(var(--primary));"></div>`,
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-    });
-    L.marker([destination.lat, destination.lng], { icon: destIcon })
-      .addTo(map)
-      .bindTooltip(destination.label ?? "You", {
-        permanent: false,
-        direction: "top",
+        mapRef.current = map;
+        setReady(true);
+      })
+      .catch((e: Error) => {
+        if (!cancelled) setError(e.message);
       });
-
-    mapRef.current = map;
-
     return () => {
-      map.remove();
-      mapRef.current = null;
-      farmerMarkerRef.current = null;
-      routeRef.current = null;
+      cancelled = true;
     };
   }, [destination.lat, destination.lng, destination.label]);
 
-  // Farmer marker + auto-fit on each update
+  // Farmer marker + route + auto-fit on each update
   useEffect(() => {
+    const g = window.google;
     const map = mapRef.current;
-    if (!map || !farmer) return;
+    if (!ready || !g || !map || !farmer) return;
 
-    const pos: L.LatLngExpression = [farmer.lat, farmer.lng];
+    const pos = { lat: farmer.lat, lng: farmer.lng };
 
     if (!farmerMarkerRef.current) {
-      const farmerIcon = L.divIcon({
-        className: "",
-        html: `
-          <div style="position:relative;">
-            <div style="position:absolute;inset:-10px;background:hsl(142 70% 45% / 0.25);border-radius:9999px;animation:dfm-pulse 1.6s ease-out infinite;"></div>
-            <div style="position:relative;background:hsl(142 70% 35%);width:18px;height:18px;border-radius:9999px;border:3px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>
-          </div>
-          <style>@keyframes dfm-pulse{0%{transform:scale(0.6);opacity:0.9}100%{transform:scale(1.8);opacity:0}}</style>
-        `,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
+      farmerMarkerRef.current = new g.maps.Marker({
+        map,
+        position: pos,
+        title: farmerLabel,
+        icon: {
+          path: g.maps.SymbolPath.CIRCLE,
+          scale: 9,
+          fillColor: "#16a34a",
+          fillOpacity: 1,
+          strokeColor: "#ffffff",
+          strokeWeight: 3,
+        },
+        zIndex: 10,
       });
-      farmerMarkerRef.current = L.marker(pos, { icon: farmerIcon })
-        .addTo(map)
-        .bindTooltip(farmerLabel, { permanent: false, direction: "top" });
     } else {
-      farmerMarkerRef.current.setLatLng(pos);
+      farmerMarkerRef.current.setPosition(pos);
     }
 
-    // Draw / update straight-line route preview
-    const route: L.LatLngExpression[] = [
-      pos,
-      [destination.lat, destination.lng],
-    ];
+    const path = [pos, { lat: destination.lat, lng: destination.lng }];
     if (!routeRef.current) {
-      routeRef.current = L.polyline(route, {
-        color: "hsl(142 70% 35%)",
-        weight: 3,
-        opacity: 0.6,
-        dashArray: "6 8",
-      }).addTo(map);
+      routeRef.current = new g.maps.Polyline({
+        map,
+        path,
+        geodesic: true,
+        strokeOpacity: 0,
+        icons: [
+          {
+            icon: {
+              path: "M 0,-1 0,1",
+              strokeOpacity: 0.9,
+              strokeColor: "#16a34a",
+              scale: 3,
+            },
+            offset: "0",
+            repeat: "12px",
+          },
+        ],
+      });
     } else {
-      routeRef.current.setLatLngs(route);
+      routeRef.current.setPath(path);
     }
 
-    // Fit both points in view with a little padding
-    const bounds = L.latLngBounds([pos, [destination.lat, destination.lng]]);
-    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14, animate: true });
-  }, [farmer, destination.lat, destination.lng, farmerLabel]);
+    const bounds = new g.maps.LatLngBounds();
+    bounds.extend(pos);
+    bounds.extend({ lat: destination.lat, lng: destination.lng });
+    map.fitBounds(bounds, 48);
+  }, [farmer, destination.lat, destination.lng, farmerLabel, ready]);
+
+  if (error) {
+    return (
+      <div
+        className="h-56 w-full rounded-xl border border-border bg-muted/40 flex items-center justify-center px-4 text-center text-xs text-muted-foreground"
+        role="img"
+        aria-label="Live tracking map unavailable"
+      >
+        Live map unavailable — {error}
+      </div>
+    );
+  }
 
   return (
     <div
