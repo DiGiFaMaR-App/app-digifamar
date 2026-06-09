@@ -230,7 +230,7 @@ function FarmChatPage() {
   const [payMethod, setPayMethod] = useState<"card" | "bank">("card");
   const [paying, setPaying] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
-  const [delivery, setDelivery] = useState<DeliveryState>(() =>
+  const [deliveryState, setDeliveryState] = useState<DeliveryState>(() =>
     loadDelivery(farmId, productId),
   );
   const [otpInput, setOtpInput] = useState("");
@@ -242,15 +242,15 @@ function FarmChatPage() {
 
   // Persist delivery changes
   useEffect(() => {
-    saveDelivery(farmId, productId, delivery);
-  }, [delivery, farmId, productId]);
+    saveDelivery(farmId, productId, deliveryState);
+  }, [deliveryState, farmId, productId]);
 
   // Cross-tab sync: pick up delivery + escrow updates from the other role.
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === deliveryKey(farmId, productId) && e.newValue) {
         try {
-          setDelivery(JSON.parse(e.newValue) as DeliveryState);
+          setDeliveryState(JSON.parse(e.newValue) as DeliveryState);
         } catch { /* ignore */ }
       }
       if (e.key === escrowKey(farmId, productId) && e.newValue) {
