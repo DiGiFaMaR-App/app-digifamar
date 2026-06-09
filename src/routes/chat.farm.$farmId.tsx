@@ -449,10 +449,49 @@ function FarmChatPage() {
             </div>
           )}
 
-          {role === "buyer" && accepted && (
-            <div className="shrink-0 border-t border-primary/30 bg-primary/10 px-4 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-primary">
-              <Check className="h-4 w-4" />
-              Price accepted · awaiting escrow (Phase 2)
+          {/* Escrow status banner — visible to both roles once funds are held */}
+          {escrow?.status === "held" && (
+            <div className="shrink-0 border-t border-primary/30 bg-primary/10 px-4 py-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <Lock className="h-4 w-4" />
+                  Funds Secured in Escrow
+                  <span className="text-xs text-muted-foreground font-normal">
+                    · ${escrow.total.toFixed(2)} · {escrow.method === "card" ? "Card" : "Bank transfer"}
+                  </span>
+                </div>
+                {role === "buyer" && (
+                  <button
+                    onClick={() => setShowOtp((v) => !v)}
+                    className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-background px-3 py-1 text-xs font-mono font-bold text-primary hover:bg-primary/5"
+                    aria-label={showOtp ? "Hide release code" : "Reveal release code"}
+                  >
+                    {showOtp ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    {showOtp ? escrow.otp : "•• •• ••"}
+                  </button>
+                )}
+              </div>
+              {role === "buyer" && showOtp && (
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Share this 6-digit code with the farmer ONLY when your order is delivered. This releases the funds.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Pay into escrow CTA (buyer only, post price-accept, pre-payment) */}
+          {role === "buyer" && accepted && !escrow && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+              <Button
+                onClick={() => setShowPay(true)}
+                className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary-hover font-semibold"
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                Pay into Escrow · ${total.toFixed(2)}
+              </Button>
+              <p className="mt-1.5 text-[11px] text-center text-muted-foreground">
+                Funds are held safely until you confirm delivery.
+              </p>
             </div>
           )}
 
