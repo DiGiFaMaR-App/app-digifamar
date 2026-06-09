@@ -312,12 +312,18 @@ function Browse() {
         )}
 
         <section className="flex-1 min-w-0">
+          <GeoBanner geo={geo} />
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted-foreground">
               <strong className="text-foreground">{filtered.length}</strong>{" "}
               farms found
               {maxDistance < 100 ? ` within ${maxDistance} mi` : ""}
-              {selectedStates.length === 1 ? ` in ${selectedStates[0]}` : ""}
+              {hasCoords && (geo.city || geo.state)
+                ? ` of ${[geo.city, geo.state].filter(Boolean).join(", ")}`
+                : ""}
+              {selectedStates.length === 1 && !hasCoords
+                ? ` in ${selectedStates[0]}`
+                : ""}
             </p>
             {activeFilterCount > 0 && (
               <button
@@ -328,6 +334,7 @@ function Browse() {
               </button>
             )}
           </div>
+
 
           {view === "map" ? (
             <MapPlaceholder farms={filtered} />
