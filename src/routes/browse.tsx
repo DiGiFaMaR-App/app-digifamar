@@ -188,7 +188,7 @@ function Browse() {
 
   const filterProps = {
     maxDistance,
-    setMaxDistance,
+    setMaxDistance: handleDistanceChange,
     verifiedOnly,
     setVerifiedOnly,
     topSellersOnly,
