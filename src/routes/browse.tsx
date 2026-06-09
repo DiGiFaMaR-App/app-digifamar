@@ -551,3 +551,50 @@ function MapPlaceholder({ farms: list }: { farms: Farm[] }) {
     </div>
   );
 }
+
+function GeoBanner({
+  geo,
+}: {
+  geo: ReturnType<typeof useGeolocation>;
+}) {
+  if (geo.loading) {
+    return (
+      <div className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+        Detecting your location to find the nearest verified farms…
+      </div>
+    );
+  }
+
+  if (geo.lat !== null && geo.lng !== null) {
+    const label = [geo.city, geo.state].filter(Boolean).join(", ");
+    return (
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-leaf-soft/40 px-3 py-2 text-xs">
+        <Navigation className="h-3.5 w-3.5 text-primary" />
+        <span className="text-foreground">
+          Showing farms nearest to{" "}
+          <strong>{label || "your location"}</strong> — sorted by distance.
+        </span>
+      </div>
+    );
+  }
+
+  const reasons: Record<NonNullable<typeof geo.error>, string> = {
+    permission_denied: "Location access was blocked.",
+    http_blocked: "Location needs a secure (https) connection.",
+    not_supported: "Your browser doesn't support geolocation.",
+    unavailable: "We couldn't read your location right now.",
+    timeout: "Locating you took too long.",
+  };
+
+  return (
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+      <span className="flex items-center gap-2">
+        <MapPin className="h-3.5 w-3.5 text-primary" />
+        {geo.error ? reasons[geo.error] : "Location unknown."} Showing all
+        verified farms instead.
+      </span>
+    </div>
+  );
+}
+
