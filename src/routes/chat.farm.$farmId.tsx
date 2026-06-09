@@ -751,6 +751,24 @@ function FarmChatPage() {
                   destination={destination}
                   farmerLabel={farm.name}
                 />
+                {progress != null && (
+                  <div className="mt-3">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-leaf transition-all duration-700 ease-out"
+                        style={{ width: `${Math.round(progress * 100)}%` }}
+                      />
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+                      <span>
+                        {deliveryState.initialDistance
+                          ? `${(deliveryState.initialDistance - (eta?.miles ?? 0)).toFixed(1)} mi travelled`
+                          : "Tracking…"}
+                      </span>
+                      <span>{Math.round(progress * 100)}% to destination</span>
+                    </div>
+                  </div>
+                )}
                 {!deliveryState.farmerLocation && (
                   <p className="mt-2 text-[11px] text-muted-foreground text-center">
                     Waiting for farmer's first location update…
