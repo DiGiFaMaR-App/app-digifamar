@@ -789,6 +789,19 @@ function FarmChatPage() {
 
           {/* Messages */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+            {/* Delivery timeline — visible to both once delivery begins */}
+            {deliveryState.status !== "idle" && (
+              <div className="flex justify-center">
+                <div className="w-full max-w-lg">
+                  <DeliveryTimeline
+                    status={deliveryState.status}
+                    startedAt={deliveryState.startedAt}
+                    arrivedAt={deliveryState.arrivedAt}
+                    releasedAt={deliveryState.releasedAt}
+                  />
+                </div>
+              </div>
+            )}
             {messages.map((m) => {
               const mine = m.role === role;
               if (m.kind === "prefill" && m.meta?.productName) {
