@@ -345,7 +345,54 @@ function FarmChatPage() {
 
     const minutes = Math.max(1, Math.round(smoothedEtaRef.current));
     setEta({ miles, minutes, mph });
+
+    // Capture the very first measured distance as the baseline for the
+    // progress bar, and auto-mark "arrived" when the farmer is inside the
+    // geofence around the buyer's destination.
+    setDeliveryState((d) => {
+      const next: DeliveryState = { ...d };
+      let changed = false;
+      if (next.initialDistance == null || next.initialDistance < miles) {
+        next.initialDistance = Math.max(miles, next.initialDistance ?? 0);
+        changed = true;
+      }
+      if (next.status === "in_transit" && miles <= ARRIVAL_RADIUS_MI) {
+        next.status = "arrived";
+        next.arrivedAt = Date.now();
+        changed = true;
+      }
+      return changed ? next : d;
+    });
   }, [deliveryState.farmerLocation, destination]);
+
+  // System message + toast when auto-arrival fires.
+  const prevStatusRef = useRef<DeliveryStatus>(deliveryState.status);
+  useEffect(() => {
+    if (prevStatusRef.current === "in_transit" && deliveryState.status === "arrived") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `sys-arrive-${Date.now()}`,
+          role: "farmer",
+          kind: "system",
+          text: "📍 Farmer has arrived. Please inspect the goods and enter the release code.",
+          ts: Date.now(),
+        },
+      ]);
+      toast.success("Farmer has arrived", {
+        description: "Enter the 6-digit release code to complete delivery.",
+      });
+    }
+    prevStatusRef.current = deliveryState.status;
+  }, [deliveryState.status]);
+
+  // Progress along the route (0..1).
+  const progress = useMemo(() => {
+    const init = deliveryState.initialDistance;
+    if (!init || init <= 0 || !eta) return null;
+    if (deliveryState.status === "arrived" || deliveryState.status === "released") return 1;
+    return Math.min(1, Math.max(0, 1 - eta.miles / init));
+  }, [deliveryState.initialDistance, deliveryState.status, eta]);
 
   const pushSystem = useCallback(
     (text: string, who: Role = "buyer") => {
