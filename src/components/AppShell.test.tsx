@@ -28,14 +28,14 @@ describe("AppShell", () => {
     expect(screen.getAllByText(/dashboard/i).length).toBeGreaterThan(0);
   });
 
-  it("exposes a WhatsApp support link", () => {
+  it("exposes a WhatsApp support button", () => {
     setRouterMockState({ pathname: "/" });
     render(
       <AppShell>
         <div />
       </AppShell>,
     );
-    const link = screen.getByLabelText(/whatsapp support/i) as HTMLAnchorElement;
-    expect(link.href).toContain("wa.me");
+    const btn = screen.getByLabelText(/whatsapp support/i);
+    expect(btn.tagName).toBe("BUTTON");
   });
 });
