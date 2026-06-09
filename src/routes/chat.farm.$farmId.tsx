@@ -708,6 +708,96 @@ function FarmChatPage() {
             </div>
           )}
 
+          {/* PHASE 3 — Delivery action panel */}
+          {escrow?.status === "held" && deliveryState.status === "idle" && role === "farmer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+              <Button
+                onClick={handleStartDelivery}
+                className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary-hover font-semibold"
+              >
+                <Truck className="h-4 w-4 mr-2" />
+                Start Delivery
+              </Button>
+              <p className="mt-1.5 text-[11px] text-center text-muted-foreground">
+                Your live location will be shared with the buyer.
+              </p>
+            </div>
+          )}
+          {escrow?.status === "held" && deliveryState.status === "idle" && role === "buyer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3 text-center text-xs text-muted-foreground">
+              <Loader2 className="inline h-3.5 w-3.5 mr-1 animate-spin" />
+              Waiting for farmer to start delivery…
+            </div>
+          )}
+
+          {deliveryState.status === "in_transit" && role === "farmer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+              <Button
+                onClick={handleMarkArrived}
+                variant="outline"
+                className="w-full h-11 font-semibold border-primary/40 text-primary hover:bg-primary/5"
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                I've Arrived
+              </Button>
+            </div>
+          )}
+
+          {/* Buyer OTP entry — once farmer has arrived */}
+          {deliveryState.status === "arrived" && escrow?.status === "held" && role === "buyer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3 space-y-2">
+              <div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+                <KeyRound className="h-4 w-4" />
+                Enter 6-digit release code
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Inspect the goods, then enter the code to release ${escrow.total.toFixed(2)} from escrow.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="••••••"
+                  className="flex-1 h-11 text-center font-mono text-lg tracking-[0.4em]"
+                />
+                <Button
+                  onClick={handleVerifyOtp}
+                  disabled={otpInput.length !== 6 || verifying}
+                  className="h-11 bg-primary text-primary-foreground hover:bg-primary-hover font-semibold"
+                >
+                  {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Release"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {deliveryState.status === "arrived" && role === "farmer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3 text-center text-xs text-muted-foreground">
+              Waiting for buyer to enter the 6-digit release code…
+            </div>
+          )}
+
+          {/* Released — final celebratory state */}
+          {(escrow?.status === "released" || deliveryState.status === "released") && (
+            <div className="shrink-0 border-t border-leaf/40 bg-leaf-soft px-4 py-3">
+              <div className="flex items-center justify-center gap-2 text-sm font-semibold text-primary">
+                <CheckCircle2 className="h-4 w-4" />
+                Payment Released
+                <PartyPopper className="h-4 w-4" />
+              </div>
+              {escrow && (
+                <p className="mt-1 text-[11px] text-center text-muted-foreground">
+                  ${escrow.total.toFixed(2)} released to the farmer · Order #{escrow.orderId}
+                </p>
+              )}
+            </div>
+          )}
+
+
+
           {/* Pay into escrow CTA (buyer only, post price-accept, pre-payment) */}
           {role === "buyer" && accepted && !escrow && (
             <div className="shrink-0 border-t border-border bg-card px-4 py-3">
