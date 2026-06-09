@@ -3,6 +3,7 @@ import { Home, Search, Package, User, Tractor, MessageCircle, ShoppingCart, Mess
 import { type ReactNode } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { Logo } from "./Logo";
+import { openWhatsApp } from "./WhatsAppFab";
 
 type NavItem = { to: string; label: string; icon: React.ElementType };
 
