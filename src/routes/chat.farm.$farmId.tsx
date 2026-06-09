@@ -209,6 +209,117 @@ const initials = (name: string) =>
   name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
 
 // ─────────────────────────────────────────────────────────────────
+// DELIVERY TIMELINE
+// ─────────────────────────────────────────────────────────────────
+
+function DeliveryTimeline({
+  status,
+  startedAt,
+  arrivedAt,
+  releasedAt,
+}: {
+  status: DeliveryStatus;
+  startedAt?: number;
+  arrivedAt?: number;
+  releasedAt?: number;
+}) {
+  const steps: {
+    key: string;
+    label: string;
+    icon: typeof Circle;
+    done: boolean;
+    active: boolean;
+    ts?: number;
+  }[] = [
+    {
+      key: "started",
+      label: "Delivery Started",
+      icon: Truck,
+      done: status !== "idle",
+      active: status === "in_transit",
+      ts: startedAt,
+    },
+    {
+      key: "enroute",
+      label: "Farmer En Route",
+      icon: Navigation,
+      done: status === "arrived" || status === "released",
+      active: status === "in_transit",
+      ts: startedAt,
+    },
+    {
+      key: "arrival",
+      label: "Arrival Confirmed",
+      icon: MapPin,
+      done: status === "released",
+      active: status === "arrived",
+      ts: arrivedAt,
+    },
+    {
+      key: "released",
+      label: "Payment Released",
+      icon: PartyPopper,
+      done: status === "released",
+      active: status === "released",
+      ts: releasedAt,
+    },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-3 shadow-sm">
+      <div className="flex items-center justify-between">
+        {steps.map((s, i) => {
+          const isLast = i === steps.length - 1;
+          const Icon = s.done || s.active ? s.icon : Circle;
+          const iconColor = s.done
+            ? "text-leaf"
+            : s.active
+              ? "text-primary"
+              : "text-muted-foreground";
+          const labelColor = s.done
+            ? "text-leaf"
+            : s.active
+              ? "text-primary"
+              : "text-muted-foreground";
+          return (
+            <div key={s.key} className="flex items-center gap-1.5 flex-1">
+              <div className="flex flex-col items-center gap-1 min-w-0 flex-1">
+                <div
+                  className={`flex h-7 w-7 items-center justify-center rounded-full border ${
+                    s.done
+                      ? "border-leaf bg-leaf/10"
+                      : s.active
+                        ? "border-primary bg-primary/10"
+                        : "border-muted bg-muted/30"
+                  }`}
+                >
+                  <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
+                </div>
+                <span className={`text-[10px] font-medium leading-tight text-center ${labelColor}`}>
+                  {s.label}
+                </span>
+                {s.ts && (
+                  <span className="text-[9px] text-muted-foreground tabular-nums">
+                    {formatTime(s.ts)}
+                  </span>
+                )}
+              </div>
+              {!isLast && (
+                <div
+                  className={`h-px w-full max-w-6 mx-0.5 ${
+                    s.done ? "bg-leaf/60" : "bg-border"
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
 // COMPONENT
 // ─────────────────────────────────────────────────────────────────
 
