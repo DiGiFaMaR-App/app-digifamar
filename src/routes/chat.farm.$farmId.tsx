@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   BadgeCheck,
   Building2,
-  Check,
+  CheckCircle2,
   CreditCard,
   Eye,
   EyeOff,
+  KeyRound,
   Loader2,
   Lock,
   MapPin,
+  Navigation,
+  PartyPopper,
   Send,
   ShieldCheck,
   Truck,
@@ -31,6 +34,8 @@ import {
 } from "@/components/ui/sheet";
 import { getFarm, getProduct } from "@/lib/mock-data";
 import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
+import { LiveTrackingMap } from "@/components/LiveTrackingMap";
+
 
 // ─────────────────────────────────────────────────────────────────
 // ROUTE
