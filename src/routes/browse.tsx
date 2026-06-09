@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BadgeCheck,
   Filter,
   Grid3x3,
+  Loader2,
   Map as MapIcon,
+  MapPin,
+  Navigation,
   Search,
   SlidersHorizontal,
   Sparkles,
@@ -18,6 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { FarmCard } from "@/components/Cards";
 import { farms, images, type Farm } from "@/lib/mock-data";
+import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
 
 type SortKey = "relevance" | "distance" | "rating" | "newest" | "popular";
 
@@ -26,6 +30,7 @@ const allCertifications = Array.from(
 ).sort();
 
 const allStates = Array.from(new Set(farms.map((f) => f.state))).sort();
+
 
 export const Route = createFileRoute("/browse")({
   head: () => ({
@@ -58,6 +63,48 @@ function Browse() {
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState<SortKey>("relevance");
+  const sortTouched = useRef(false);
+  const distanceTouched = useRef(false);
+
+  const geo = useGeolocation();
+  const hasCoords = geo.lat !== null && geo.lng !== null;
+
+  // Re-score farm distances from the user's coordinates when we have them.
+  const geoFarms = useMemo<Farm[]>(() => {
+    if (!hasCoords) return farms;
+    return farms.map((f) => ({
+      ...f,
+      distance: haversineDistance(geo.lat!, geo.lng!, f.lat, f.lng),
+    }));
+  }, [hasCoords, geo.lat, geo.lng]);
+
+  // Once we know where the buyer is, default sort to "distance" and widen the
+  // radius to cover the nearest verified farms — unless they've changed it.
+  useEffect(() => {
+    if (!hasCoords) return;
+    if (!sortTouched.current) setSort("distance");
+    if (!distanceTouched.current) {
+      const nearest = geoFarms
+        .filter((f) => (verifiedOnly ? f.verified : true))
+        .map((f) => f.distance)
+        .sort((a, b) => a - b);
+      const target = nearest[Math.min(5, nearest.length - 1)] ?? 50;
+      // Round up to nearest 25-mile step, clamped to slider range.
+      const stepped = Math.min(100, Math.max(25, Math.ceil(target / 25) * 25));
+      setMaxDistance(stepped);
+    }
+    // We only want this to react to coords arriving.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasCoords]);
+
+  const handleSortChange = (next: SortKey) => {
+    sortTouched.current = true;
+    setSort(next);
+  };
+  const handleDistanceChange = (n: number) => {
+    distanceTouched.current = true;
+    setMaxDistance(n);
+  };
 
   const toggle = (
     value: string,
@@ -69,7 +116,8 @@ function Browse() {
 
   const clearAll = () => {
     setQuery("");
-    setMaxDistance(50);
+    setMaxDistance(hasCoords ? 50 : 100);
+    distanceTouched.current = false;
     setVerifiedOnly(false);
     setTopSellersOnly(false);
     setSelectedCerts([]);
@@ -79,7 +127,7 @@ function Browse() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = farms.filter((f) => {
+    let list = geoFarms.filter((f) => {
       if (verifiedOnly && !f.verified) return false;
       if (topSellersOnly && !f.topSeller) return false;
       if (f.distance > maxDistance) return false;
@@ -118,6 +166,7 @@ function Browse() {
 
     return list;
   }, [
+    geoFarms,
     query,
     maxDistance,
     verifiedOnly,
@@ -134,11 +183,12 @@ function Browse() {
     selectedCerts.length +
     selectedStates.length +
     (minRating > 0 ? 1 : 0) +
-    (maxDistance !== 50 ? 1 : 0);
+    (distanceTouched.current ? 1 : 0);
+
 
   const filterProps = {
     maxDistance,
-    setMaxDistance,
+    setMaxDistance: handleDistanceChange,
     verifiedOnly,
     setVerifiedOnly,
     topSellersOnly,
@@ -214,7 +264,7 @@ function Browse() {
             </div>
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
+              onChange={(e) => handleSortChange(e.target.value as SortKey)}
               className="h-9 rounded-md border border-border bg-background px-2 text-sm"
             >
               <option value="relevance">Sort: Relevance</option>
@@ -262,12 +312,18 @@ function Browse() {
         )}
 
         <section className="flex-1 min-w-0">
+          <GeoBanner geo={geo} />
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <p className="text-sm text-muted-foreground">
               <strong className="text-foreground">{filtered.length}</strong>{" "}
               farms found
               {maxDistance < 100 ? ` within ${maxDistance} mi` : ""}
-              {selectedStates.length === 1 ? ` in ${selectedStates[0]}` : ""}
+              {hasCoords && (geo.city || geo.state)
+                ? ` of ${[geo.city, geo.state].filter(Boolean).join(", ")}`
+                : ""}
+              {selectedStates.length === 1 && !hasCoords
+                ? ` in ${selectedStates[0]}`
+                : ""}
             </p>
             {activeFilterCount > 0 && (
               <button
@@ -278,6 +334,7 @@ function Browse() {
               </button>
             )}
           </div>
+
 
           {view === "map" ? (
             <MapPlaceholder farms={filtered} />
@@ -494,3 +551,50 @@ function MapPlaceholder({ farms: list }: { farms: Farm[] }) {
     </div>
   );
 }
+
+function GeoBanner({
+  geo,
+}: {
+  geo: ReturnType<typeof useGeolocation>;
+}) {
+  if (geo.loading) {
+    return (
+      <div className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+        Detecting your location to find the nearest verified farms…
+      </div>
+    );
+  }
+
+  if (geo.lat !== null && geo.lng !== null) {
+    const label = [geo.city, geo.state].filter(Boolean).join(", ");
+    return (
+      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-leaf-soft/40 px-3 py-2 text-xs">
+        <Navigation className="h-3.5 w-3.5 text-primary" />
+        <span className="text-foreground">
+          Showing farms nearest to{" "}
+          <strong>{label || "your location"}</strong> — sorted by distance.
+        </span>
+      </div>
+    );
+  }
+
+  const reasons: Record<NonNullable<typeof geo.error>, string> = {
+    permission_denied: "Location access was blocked.",
+    http_blocked: "Location needs a secure (https) connection.",
+    not_supported: "Your browser doesn't support geolocation.",
+    unavailable: "We couldn't read your location right now.",
+    timeout: "Locating you took too long.",
+  };
+
+  return (
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+      <span className="flex items-center gap-2">
+        <MapPin className="h-3.5 w-3.5 text-primary" />
+        {geo.error ? reasons[geo.error] : "Location unknown."} Showing all
+        verified farms instead.
+      </span>
+    </div>
+  );
+}
+
