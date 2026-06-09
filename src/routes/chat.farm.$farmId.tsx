@@ -620,7 +620,36 @@ function FarmChatPage() {
                 </div>
               );
             })}
+
+            {/* Live tracking map (rendered inline in chat) */}
+            {(deliveryState.status === "in_transit" || deliveryState.status === "arrived") && destination && (
+              <div className="rounded-2xl border border-primary/30 bg-card p-3 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                    <Navigation className="h-3.5 w-3.5" />
+                    {deliveryState.status === "arrived" ? "Farmer has arrived" : "Live tracking"}
+                    <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-leaf animate-pulse" />
+                  </div>
+                  {eta && deliveryState.status === "in_transit" && (
+                    <span className="text-xs text-muted-foreground">
+                      {eta.miles.toFixed(1)} mi · ~{eta.minutes} min
+                    </span>
+                  )}
+                </div>
+                <LiveTrackingMap
+                  farmer={deliveryState.farmerLocation ?? null}
+                  destination={destination}
+                  farmerLabel={farm.name}
+                />
+                {!deliveryState.farmerLocation && (
+                  <p className="mt-2 text-[11px] text-muted-foreground text-center">
+                    Waiting for farmer's first location update…
+                  </p>
+                )}
+              </div>
+            )}
           </div>
+
 
 
           {/* Quick replies */}
