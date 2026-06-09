@@ -63,6 +63,48 @@ function Browse() {
   const [selectedStates, setSelectedStates] = useState<string[]>([]);
   const [minRating, setMinRating] = useState(0);
   const [sort, setSort] = useState<SortKey>("relevance");
+  const sortTouched = useRef(false);
+  const distanceTouched = useRef(false);
+
+  const geo = useGeolocation();
+  const hasCoords = geo.lat !== null && geo.lng !== null;
+
+  // Re-score farm distances from the user's coordinates when we have them.
+  const geoFarms = useMemo<Farm[]>(() => {
+    if (!hasCoords) return farms;
+    return farms.map((f) => ({
+      ...f,
+      distance: haversineDistance(geo.lat!, geo.lng!, f.lat, f.lng),
+    }));
+  }, [hasCoords, geo.lat, geo.lng]);
+
+  // Once we know where the buyer is, default sort to "distance" and widen the
+  // radius to cover the nearest verified farms — unless they've changed it.
+  useEffect(() => {
+    if (!hasCoords) return;
+    if (!sortTouched.current) setSort("distance");
+    if (!distanceTouched.current) {
+      const nearest = geoFarms
+        .filter((f) => (verifiedOnly ? f.verified : true))
+        .map((f) => f.distance)
+        .sort((a, b) => a - b);
+      const target = nearest[Math.min(5, nearest.length - 1)] ?? 50;
+      // Round up to nearest 25-mile step, clamped to slider range.
+      const stepped = Math.min(100, Math.max(25, Math.ceil(target / 25) * 25));
+      setMaxDistance(stepped);
+    }
+    // We only want this to react to coords arriving.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasCoords]);
+
+  const handleSortChange = (next: SortKey) => {
+    sortTouched.current = true;
+    setSort(next);
+  };
+  const handleDistanceChange = (n: number) => {
+    distanceTouched.current = true;
+    setMaxDistance(n);
+  };
 
   const toggle = (
     value: string,
@@ -74,7 +116,8 @@ function Browse() {
 
   const clearAll = () => {
     setQuery("");
-    setMaxDistance(50);
+    setMaxDistance(hasCoords ? 50 : 100);
+    distanceTouched.current = false;
     setVerifiedOnly(false);
     setTopSellersOnly(false);
     setSelectedCerts([]);
@@ -84,7 +127,7 @@ function Browse() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = farms.filter((f) => {
+    let list = geoFarms.filter((f) => {
       if (verifiedOnly && !f.verified) return false;
       if (topSellersOnly && !f.topSeller) return false;
       if (f.distance > maxDistance) return false;
@@ -123,6 +166,7 @@ function Browse() {
 
     return list;
   }, [
+    geoFarms,
     query,
     maxDistance,
     verifiedOnly,
@@ -139,7 +183,8 @@ function Browse() {
     selectedCerts.length +
     selectedStates.length +
     (minRating > 0 ? 1 : 0) +
-    (maxDistance !== 50 ? 1 : 0);
+    (distanceTouched.current ? 1 : 0);
+
 
   const filterProps = {
     maxDistance,
