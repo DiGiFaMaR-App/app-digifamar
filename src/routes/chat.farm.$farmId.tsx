@@ -400,6 +400,15 @@ function FarmChatPage() {
                   </div>
                 );
               }
+              if (m.kind === "system") {
+                return (
+                  <div key={m.id} className="flex justify-center">
+                    <div className="max-w-[90%] rounded-full border border-primary/25 bg-primary/5 px-3 py-1.5 text-center text-xs text-primary font-medium">
+                      {m.text}
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <div
                   key={m.id}
@@ -422,15 +431,7 @@ function FarmChatPage() {
               );
             })}
           </div>
-              if (m.kind === "system") {
-                return (
-                  <div key={m.id} className="flex justify-center">
-                    <div className="max-w-[90%] rounded-full border border-primary/25 bg-primary/5 px-3 py-1.5 text-center text-xs text-primary font-medium">
-                      {m.text}
-                    </div>
-                  </div>
-                );
-              }
+
 
           {/* Quick replies */}
           <div className="shrink-0 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none">
