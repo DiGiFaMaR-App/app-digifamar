@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BadgeCheck,
   Filter,
   Grid3x3,
+  Loader2,
   Map as MapIcon,
+  MapPin,
+  Navigation,
   Search,
   SlidersHorizontal,
   Sparkles,
@@ -18,6 +21,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { FarmCard } from "@/components/Cards";
 import { farms, images, type Farm } from "@/lib/mock-data";
+import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
 
 type SortKey = "relevance" | "distance" | "rating" | "newest" | "popular";
 
@@ -26,6 +30,7 @@ const allCertifications = Array.from(
 ).sort();
 
 const allStates = Array.from(new Set(farms.map((f) => f.state))).sort();
+
 
 export const Route = createFileRoute("/browse")({
   head: () => ({
