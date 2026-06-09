@@ -400,6 +400,15 @@ function FarmChatPage() {
                   </div>
                 );
               }
+              if (m.kind === "system") {
+                return (
+                  <div key={m.id} className="flex justify-center">
+                    <div className="max-w-[90%] rounded-full border border-primary/25 bg-primary/5 px-3 py-1.5 text-center text-xs text-primary font-medium">
+                      {m.text}
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <div
                   key={m.id}
@@ -422,6 +431,7 @@ function FarmChatPage() {
               );
             })}
           </div>
+
 
           {/* Quick replies */}
           <div className="shrink-0 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none">
@@ -449,10 +459,49 @@ function FarmChatPage() {
             </div>
           )}
 
-          {role === "buyer" && accepted && (
-            <div className="shrink-0 border-t border-primary/30 bg-primary/10 px-4 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-primary">
-              <Check className="h-4 w-4" />
-              Price accepted · awaiting escrow (Phase 2)
+          {/* Escrow status banner — visible to both roles once funds are held */}
+          {escrow?.status === "held" && (
+            <div className="shrink-0 border-t border-primary/30 bg-primary/10 px-4 py-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <Lock className="h-4 w-4" />
+                  Funds Secured in Escrow
+                  <span className="text-xs text-muted-foreground font-normal">
+                    · ${escrow.total.toFixed(2)} · {escrow.method === "card" ? "Card" : "Bank transfer"}
+                  </span>
+                </div>
+                {role === "buyer" && (
+                  <button
+                    onClick={() => setShowOtp((v) => !v)}
+                    className="flex items-center gap-1.5 rounded-full border border-primary/40 bg-background px-3 py-1 text-xs font-mono font-bold text-primary hover:bg-primary/5"
+                    aria-label={showOtp ? "Hide release code" : "Reveal release code"}
+                  >
+                    {showOtp ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    {showOtp ? escrow.otp : "•• •• ••"}
+                  </button>
+                )}
+              </div>
+              {role === "buyer" && showOtp && (
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Share this 6-digit code with the farmer ONLY when your order is delivered. This releases the funds.
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Pay into escrow CTA (buyer only, post price-accept, pre-payment) */}
+          {role === "buyer" && accepted && !escrow && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+              <Button
+                onClick={() => setShowPay(true)}
+                className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary-hover font-semibold"
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                Pay into Escrow · ${total.toFixed(2)}
+              </Button>
+              <p className="mt-1.5 text-[11px] text-center text-muted-foreground">
+                Funds are held safely until you confirm delivery.
+              </p>
             </div>
           )}
 
@@ -584,7 +633,134 @@ function FarmChatPage() {
         </SheetContent>
       </Sheet>
 
+      {/* Pay into Escrow sheet */}
+      <Sheet open={showPay} onOpenChange={(o) => !paying && setShowPay(o)}>
+        <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetHeader className="text-left">
+            <SheetTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-primary" />
+              Escrow payment
+            </SheetTitle>
+            <SheetDescription>
+              Choose a payment method. Funds are held by DiGiFaMaR until you confirm delivery.
+            </SheetDescription>
+          </SheetHeader>
 
+          <div className="mt-5 space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPayMethod("card")}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  payMethod === "card"
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-card hover:border-primary/40"
+                }`}
+              >
+                <CreditCard className="h-5 w-5 text-primary mb-2" />
+                <p className="text-sm font-semibold">Pay with Card</p>
+                <p className="text-[11px] text-muted-foreground">Visa, Mastercard, Verve</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPayMethod("bank")}
+                className={`rounded-xl border p-4 text-left transition-colors ${
+                  payMethod === "bank"
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-card hover:border-primary/40"
+                }`}
+              >
+                <Building2 className="h-5 w-5 text-primary mb-2" />
+                <p className="text-sm font-semibold">Bank Transfer</p>
+                <p className="text-[11px] text-muted-foreground">Direct bank deposit</p>
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card p-4 space-y-1.5 text-sm">
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span>${subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Delivery</span>
+                <span>${delivery.fee.toFixed(2)}</span>
+              </div>
+              <div className="border-t border-border pt-2 mt-1 flex justify-between font-bold text-base">
+                <span>Held in escrow</span>
+                <span className="text-primary">${total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-center text-muted-foreground">
+              A 6-digit release code will be sent to your phone after payment. Demo only — no real charge.
+            </p>
+          </div>
+
+          <SheetFooter className="mt-5 flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowPay(false)}
+              disabled={paying}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={paying}
+              onClick={async () => {
+                setPaying(true);
+                await new Promise((r) => setTimeout(r, 1200));
+                const otp = generateOtp();
+                const orderId = `DFM-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+                const next: EscrowState = {
+                  status: "held",
+                  orderId,
+                  total,
+                  method: payMethod,
+                  otp,
+                  paidAt: Date.now(),
+                };
+                setEscrow(next);
+                saveEscrow(farmId, productId, next);
+                const now = Date.now();
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    id: `sys-paid-${now}`,
+                    role: "buyer",
+                    kind: "system",
+                    text: `🔒 Payment has been received into escrow ($${total.toFixed(2)}). Waiting for farmer to start delivery.`,
+                    ts: now,
+                  },
+                  {
+                    id: `sys-farmer-${now + 1}`,
+                    role: "farmer",
+                    kind: "system",
+                    text: `💰 Payment received into escrow. Ready to start delivery. Order #${orderId}.`,
+                    ts: now + 1,
+                  },
+                ]);
+                setPaying(false);
+                setShowPay(false);
+                setShowOtp(true);
+                toast.success("Payment held in escrow", {
+                  description: `SMS sent to your phone with release code ${otp}.`,
+                });
+              }}
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary-hover"
+            >
+              {paying ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing…
+                </>
+              ) : (
+                <>Pay ${total.toFixed(2)}</>
+              )}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
     </AppShell>
   );
