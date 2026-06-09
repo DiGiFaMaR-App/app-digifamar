@@ -1,16 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   BadgeCheck,
   Building2,
-  Check,
+  CheckCircle2,
   CreditCard,
   Eye,
   EyeOff,
+  KeyRound,
   Loader2,
   Lock,
   MapPin,
+  Navigation,
+  PartyPopper,
   Send,
   ShieldCheck,
   Truck,
@@ -31,6 +34,8 @@ import {
 } from "@/components/ui/sheet";
 import { getFarm, getProduct } from "@/lib/mock-data";
 import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
+import { LiveTrackingMap } from "@/components/LiveTrackingMap";
+
 
 // ─────────────────────────────────────────────────────────────────
 // ROUTE
@@ -68,7 +73,7 @@ interface ChatMsg {
   meta?: { productId?: string; qty?: number; productName?: string; unitPrice?: number };
 }
 
-type EscrowStatus = "none" | "held";
+type EscrowStatus = "none" | "held" | "released";
 
 interface EscrowState {
   status: EscrowStatus;
@@ -77,12 +82,26 @@ interface EscrowState {
   method: "card" | "bank";
   otp: string; // visible to buyer only
   paidAt: number;
+  releasedAt?: number;
+}
+
+type DeliveryStatus = "idle" | "in_transit" | "arrived" | "released";
+
+interface DeliveryState {
+  status: DeliveryStatus;
+  startedAt?: number;
+  arrivedAt?: number;
+  releasedAt?: number;
+  farmerLocation?: { lat: number; lng: number; ts: number };
 }
 
 const storageKey = (farmId: string, productId?: string) =>
   `digifamar.chat.${farmId}.${productId ?? "general"}`;
 const escrowKey = (farmId: string, productId?: string) =>
   `digifamar.escrow.${farmId}.${productId ?? "general"}`;
+const deliveryKey = (farmId: string, productId?: string) =>
+  `digifamar.delivery.${farmId}.${productId ?? "general"}`;
+
 
 function loadMessages(farmId: string, productId?: string): ChatMsg[] {
   if (typeof window === "undefined") return [];
@@ -120,6 +139,30 @@ function saveEscrow(farmId: string, productId: string | undefined, e: EscrowStat
   try {
     if (e) window.localStorage.setItem(escrowKey(farmId, productId), JSON.stringify(e));
     else window.localStorage.removeItem(escrowKey(farmId, productId));
+  } catch {
+    /* ignore */
+  }
+}
+
+function loadDelivery(farmId: string, productId?: string): DeliveryState {
+  if (typeof window === "undefined") return { status: "idle" };
+  try {
+    const raw = window.localStorage.getItem(deliveryKey(farmId, productId));
+    return raw ? (JSON.parse(raw) as DeliveryState) : { status: "idle" };
+  } catch {
+    return { status: "idle" };
+  }
+}
+
+function saveDelivery(
+  farmId: string,
+  productId: string | undefined,
+  d: DeliveryState | null,
+) {
+  if (typeof window === "undefined") return;
+  try {
+    if (d) window.localStorage.setItem(deliveryKey(farmId, productId), JSON.stringify(d));
+    else window.localStorage.removeItem(deliveryKey(farmId, productId));
   } catch {
     /* ignore */
   }
@@ -187,9 +230,156 @@ function FarmChatPage() {
   const [payMethod, setPayMethod] = useState<"card" | "bank">("card");
   const [paying, setPaying] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
+  const [deliveryState, setDeliveryState] = useState<DeliveryState>(() =>
+    loadDelivery(farmId, productId),
+  );
+  const [otpInput, setOtpInput] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const watchIdRef = useRef<number | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Persist delivery changes
+  useEffect(() => {
+    saveDelivery(farmId, productId, deliveryState);
+  }, [deliveryState, farmId, productId]);
+
+  // Cross-tab sync: pick up delivery + escrow updates from the other role.
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === deliveryKey(farmId, productId) && e.newValue) {
+        try {
+          setDeliveryState(JSON.parse(e.newValue) as DeliveryState);
+        } catch { /* ignore */ }
+      }
+      if (e.key === escrowKey(farmId, productId) && e.newValue) {
+        try {
+          setEscrow(JSON.parse(e.newValue) as EscrowState);
+        } catch { /* ignore */ }
+      }
+      if (e.key === storageKey(farmId, productId) && e.newValue) {
+        try {
+          setMessages(JSON.parse(e.newValue) as ChatMsg[]);
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [farmId, productId]);
+
+  // Buyer's delivery destination — their geolocation if available, else farm.
+  const destination = useMemo(() => {
+    if (geo.lat != null && geo.lng != null) {
+      return { lat: geo.lat, lng: geo.lng, label: "You" };
+    }
+    return farm ? { lat: farm.lat, lng: farm.lng, label: farm.name } : null;
+  }, [geo.lat, geo.lng, farm]);
+
+  // Live ETA from farmer's last reported coords to destination (avg 30 mph).
+  const eta = useMemo(() => {
+    const loc = deliveryState.farmerLocation;
+    if (!loc || !destination) return null;
+    const miles = haversineDistance(loc.lat, loc.lng, destination.lat, destination.lng);
+    const minutes = Math.max(1, Math.round((miles / 30) * 60));
+    return { miles, minutes };
+  }, [deliveryState.farmerLocation, destination]);
+
+  const pushSystem = useCallback(
+    (text: string, who: Role = "buyer") => {
+      setMessages((prev) => [
+        ...prev,
+        { id: `sys-${who}-${Date.now()}-${Math.random()}`, role: who, kind: "system", text, ts: Date.now() },
+      ]);
+    },
+    [],
+  );
+
+  // Stop GPS watch helper
+  const stopWatch = useCallback(() => {
+    if (watchIdRef.current != null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => stopWatch, [stopWatch]);
+
+  // Auto-stop watch when delivery completes
+  useEffect(() => {
+    if (deliveryState.status === "released" || deliveryState.status === "idle") {
+      stopWatch();
+    }
+  }, [deliveryState.status, stopWatch]);
+
+  const handleStartDelivery = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      toast.error("Live tracking unavailable", {
+        description: "Your browser does not support geolocation.",
+      });
+      return;
+    }
+    const startedAt = Date.now();
+    setDeliveryState((d) => ({ ...d, status: "in_transit", startedAt }));
+    pushSystem("🚚 Delivery started — farmer is on the way.", "farmer");
+    toast.success("Delivery started", {
+      description: "Sharing your live location with the buyer.",
+    });
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setDeliveryState((d) => ({
+          ...d,
+          status: d.status === "released" ? d.status : "in_transit",
+          farmerLocation: {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            ts: Date.now(),
+          },
+        }));
+      },
+      (err) => {
+        toast.error("Location error", { description: err.message });
+      },
+      { enableHighAccuracy: true, maximumAge: 5_000, timeout: 20_000 },
+    );
+  }, [pushSystem]);
+
+  const handleMarkArrived = useCallback(() => {
+    setDeliveryState((d) => ({ ...d, status: "arrived", arrivedAt: Date.now() }));
+    pushSystem("📍 Farmer has arrived. Please inspect the goods and enter the release code.", "farmer");
+  }, [pushSystem]);
+
+  const handleVerifyOtp = useCallback(async () => {
+    if (!escrow) return;
+    const clean = otpInput.replace(/\D/g, "");
+    if (clean.length !== 6) {
+      toast.error("Enter all 6 digits");
+      return;
+    }
+    setVerifying(true);
+    await new Promise((r) => setTimeout(r, 600));
+    if (clean !== escrow.otp) {
+      setVerifying(false);
+      toast.error("Incorrect code", { description: "Double-check the 6-digit code from the buyer." });
+      return;
+    }
+    const releasedAt = Date.now();
+    const nextEscrow: EscrowState = { ...escrow, status: "released", releasedAt };
+    setEscrow(nextEscrow);
+    saveEscrow(farmId, productId, nextEscrow);
+    setDeliveryState((d) => ({ ...d, status: "released", releasedAt }));
+    pushSystem("✅ Delivery completed.", "buyer");
+    pushSystem(`🎉 Payment Released — $${escrow.total.toFixed(2)} sent to the farmer.`, "buyer");
+    setVerifying(false);
+    setOtpInput("");
+    stopWatch();
+    toast.success("Payment Released", {
+      description: `$${escrow.total.toFixed(2)} released from escrow to the farmer.`,
+    });
+  }, [escrow, otpInput, farmId, productId, pushSystem, stopWatch]);
+
+
+
 
   // Pre-fill the very first message when a product context is present
   useEffect(() => {
@@ -430,7 +620,36 @@ function FarmChatPage() {
                 </div>
               );
             })}
+
+            {/* Live tracking map (rendered inline in chat) */}
+            {(deliveryState.status === "in_transit" || deliveryState.status === "arrived") && destination && (
+              <div className="rounded-2xl border border-primary/30 bg-card p-3 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                    <Navigation className="h-3.5 w-3.5" />
+                    {deliveryState.status === "arrived" ? "Farmer has arrived" : "Live tracking"}
+                    <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-leaf animate-pulse" />
+                  </div>
+                  {eta && deliveryState.status === "in_transit" && (
+                    <span className="text-xs text-muted-foreground">
+                      {eta.miles.toFixed(1)} mi · ~{eta.minutes} min
+                    </span>
+                  )}
+                </div>
+                <LiveTrackingMap
+                  farmer={deliveryState.farmerLocation ?? null}
+                  destination={destination}
+                  farmerLabel={farm.name}
+                />
+                {!deliveryState.farmerLocation && (
+                  <p className="mt-2 text-[11px] text-muted-foreground text-center">
+                    Waiting for farmer's first location update…
+                  </p>
+                )}
+              </div>
+            )}
           </div>
+
 
 
           {/* Quick replies */}
@@ -488,6 +707,96 @@ function FarmChatPage() {
               )}
             </div>
           )}
+
+          {/* PHASE 3 — Delivery action panel */}
+          {escrow?.status === "held" && deliveryState.status === "idle" && role === "farmer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+              <Button
+                onClick={handleStartDelivery}
+                className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary-hover font-semibold"
+              >
+                <Truck className="h-4 w-4 mr-2" />
+                Start Delivery
+              </Button>
+              <p className="mt-1.5 text-[11px] text-center text-muted-foreground">
+                Your live location will be shared with the buyer.
+              </p>
+            </div>
+          )}
+          {escrow?.status === "held" && deliveryState.status === "idle" && role === "buyer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3 text-center text-xs text-muted-foreground">
+              <Loader2 className="inline h-3.5 w-3.5 mr-1 animate-spin" />
+              Waiting for farmer to start delivery…
+            </div>
+          )}
+
+          {deliveryState.status === "in_transit" && role === "farmer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3">
+              <Button
+                onClick={handleMarkArrived}
+                variant="outline"
+                className="w-full h-11 font-semibold border-primary/40 text-primary hover:bg-primary/5"
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                I've Arrived
+              </Button>
+            </div>
+          )}
+
+          {/* Buyer OTP entry — once farmer has arrived */}
+          {deliveryState.status === "arrived" && escrow?.status === "held" && role === "buyer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3 space-y-2">
+              <div className="flex items-center gap-1.5 text-sm font-semibold text-primary">
+                <KeyRound className="h-4 w-4" />
+                Enter 6-digit release code
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Inspect the goods, then enter the code to release ${escrow.total.toFixed(2)} from escrow.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  value={otpInput}
+                  onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  placeholder="••••••"
+                  className="flex-1 h-11 text-center font-mono text-lg tracking-[0.4em]"
+                />
+                <Button
+                  onClick={handleVerifyOtp}
+                  disabled={otpInput.length !== 6 || verifying}
+                  className="h-11 bg-primary text-primary-foreground hover:bg-primary-hover font-semibold"
+                >
+                  {verifying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Release"}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {deliveryState.status === "arrived" && role === "farmer" && (
+            <div className="shrink-0 border-t border-border bg-card px-4 py-3 text-center text-xs text-muted-foreground">
+              Waiting for buyer to enter the 6-digit release code…
+            </div>
+          )}
+
+          {/* Released — final celebratory state */}
+          {(escrow?.status === "released" || deliveryState.status === "released") && (
+            <div className="shrink-0 border-t border-leaf/40 bg-leaf-soft px-4 py-3">
+              <div className="flex items-center justify-center gap-2 text-sm font-semibold text-primary">
+                <CheckCircle2 className="h-4 w-4" />
+                Payment Released
+                <PartyPopper className="h-4 w-4" />
+              </div>
+              {escrow && (
+                <p className="mt-1 text-[11px] text-center text-muted-foreground">
+                  ${escrow.total.toFixed(2)} released to the farmer · Order #{escrow.orderId}
+                </p>
+              )}
+            </div>
+          )}
+
+
 
           {/* Pay into escrow CTA (buyer only, post price-accept, pre-payment) */}
           {role === "buyer" && accepted && !escrow && (
