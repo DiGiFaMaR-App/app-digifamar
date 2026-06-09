@@ -117,7 +117,7 @@ const initials = (name: string) =>
 function FarmChatPage() {
   const { farmId } = Route.useParams();
   const { productId, qty } = Route.useSearch();
-  const navigate = useNavigate();
+  
 
   const farm = getFarm(farmId);
   const product = productId ? getProduct(productId) : undefined;
@@ -528,8 +528,8 @@ function FarmChatPage() {
         </SheetContent>
       </Sheet>
 
-      {/* Suppress unused-navigate warning until Phase 2 wires checkout */}
-      <span hidden>{navigate.length}</span>
+
+
     </AppShell>
   );
 }
