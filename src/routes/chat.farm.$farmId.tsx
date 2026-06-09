@@ -144,6 +144,30 @@ function saveEscrow(farmId: string, productId: string | undefined, e: EscrowStat
   }
 }
 
+function loadDelivery(farmId: string, productId?: string): DeliveryState {
+  if (typeof window === "undefined") return { status: "idle" };
+  try {
+    const raw = window.localStorage.getItem(deliveryKey(farmId, productId));
+    return raw ? (JSON.parse(raw) as DeliveryState) : { status: "idle" };
+  } catch {
+    return { status: "idle" };
+  }
+}
+
+function saveDelivery(
+  farmId: string,
+  productId: string | undefined,
+  d: DeliveryState | null,
+) {
+  if (typeof window === "undefined") return;
+  try {
+    if (d) window.localStorage.setItem(deliveryKey(farmId, productId), JSON.stringify(d));
+    else window.localStorage.removeItem(deliveryKey(farmId, productId));
+  } catch {
+    /* ignore */
+  }
+}
+
 function generateOtp(): string {
   if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
     const buf = new Uint32Array(1);
