@@ -53,6 +53,33 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          farmer_id: string
+          id: string
+          last_message_at: string
+          product_id: string | null
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          farmer_id: string
+          id?: string
+          last_message_at?: string
+          product_id?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          farmer_id?: string
+          id?: string
+          last_message_at?: string
+          product_id?: string | null
+        }
+        Relationships: []
+      }
       farmer_profiles: {
         Row: {
           acres: number | null
@@ -104,6 +131,189 @@ export type Database = {
         }
         Relationships: []
       }
+      listings: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          farmer_id: string
+          id: string
+          images: string[]
+          lat: number | null
+          lng: number | null
+          price_cents: number
+          qty_available: number
+          slug: string
+          status: string
+          title: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          farmer_id: string
+          id?: string
+          images?: string[]
+          lat?: number | null
+          lng?: number | null
+          price_cents: number
+          qty_available?: number
+          slug: string
+          status?: string
+          title: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          farmer_id?: string
+          id?: string
+          images?: string[]
+          lat?: number | null
+          lng?: number | null
+          price_cents?: number
+          qty_available?: number
+          slug?: string
+          status?: string
+          title?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_events: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          payload: Json
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          payload?: Json
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          payload?: Json
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          delivery_deadline: string | null
+          escrow_fee_cents: number
+          farmer_id: string
+          id: string
+          listing_id: string
+          notes: string | null
+          platform_fee_cents: number
+          qty: number
+          release_code_hash: string | null
+          shipping_address: string | null
+          status: string
+          subtotal_cents: number
+          total_cents: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          delivery_deadline?: string | null
+          escrow_fee_cents?: number
+          farmer_id: string
+          id?: string
+          listing_id: string
+          notes?: string | null
+          platform_fee_cents?: number
+          qty: number
+          release_code_hash?: string | null
+          shipping_address?: string | null
+          status?: string
+          subtotal_cents: number
+          total_cents: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          delivery_deadline?: string | null
+          escrow_fee_cents?: number
+          farmer_id?: string
+          id?: string
+          listing_id?: string
+          notes?: string | null
+          platform_fee_cents?: number
+          qty?: number
+          release_code_hash?: string | null
+          shipping_address?: string | null
+          status?: string
+          subtotal_cents?: number
+          total_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -133,6 +343,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          body: string | null
+          buyer_id: string
+          created_at: string
+          farmer_id: string
+          id: string
+          order_id: string
+          rating: number
+        }
+        Insert: {
+          body?: string | null
+          buyer_id: string
+          created_at?: string
+          farmer_id: string
+          id?: string
+          order_id: string
+          rating: number
+        }
+        Update: {
+          body?: string | null
+          buyer_id?: string
+          created_at?: string
+          farmer_id?: string
+          id?: string
+          order_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
