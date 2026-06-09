@@ -264,7 +264,7 @@ function Browse() {
             </div>
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value as SortKey)}
+              onChange={(e) => handleSortChange(e.target.value as SortKey)}
               className="h-9 rounded-md border border-border bg-background px-2 text-sm"
             >
               <option value="relevance">Sort: Relevance</option>
