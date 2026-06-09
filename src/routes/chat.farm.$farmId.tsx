@@ -68,8 +68,21 @@ interface ChatMsg {
   meta?: { productId?: string; qty?: number; productName?: string; unitPrice?: number };
 }
 
+type EscrowStatus = "none" | "held";
+
+interface EscrowState {
+  status: EscrowStatus;
+  orderId: string;
+  total: number;
+  method: "card" | "bank";
+  otp: string; // visible to buyer only
+  paidAt: number;
+}
+
 const storageKey = (farmId: string, productId?: string) =>
   `digifamar.chat.${farmId}.${productId ?? "general"}`;
+const escrowKey = (farmId: string, productId?: string) =>
+  `digifamar.escrow.${farmId}.${productId ?? "general"}`;
 
 function loadMessages(farmId: string, productId?: string): ChatMsg[] {
   if (typeof window === "undefined") return [];
@@ -90,6 +103,35 @@ function saveMessages(farmId: string, productId: string | undefined, msgs: ChatM
   } catch {
     /* quota or private mode — ignore */
   }
+}
+
+function loadEscrow(farmId: string, productId?: string): EscrowState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(escrowKey(farmId, productId));
+    return raw ? (JSON.parse(raw) as EscrowState) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveEscrow(farmId: string, productId: string | undefined, e: EscrowState | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (e) window.localStorage.setItem(escrowKey(farmId, productId), JSON.stringify(e));
+    else window.localStorage.removeItem(escrowKey(farmId, productId));
+  } catch {
+    /* ignore */
+  }
+}
+
+function generateOtp(): string {
+  if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
+    const buf = new Uint32Array(1);
+    window.crypto.getRandomValues(buf);
+    return String(buf[0] % 1_000_000).padStart(6, "0");
+  }
+  return String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0");
 }
 
 // ─────────────────────────────────────────────────────────────────
