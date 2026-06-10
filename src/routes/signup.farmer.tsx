@@ -293,7 +293,8 @@ function FarmerSignup() {
         options: {
           data: {
             full_name: `${step1.firstName} ${step1.lastName}`,
-            phone: step1.phone,
+            phone: normalizeToE164(step1.phone) ?? step1.phone,
+          },
           },
         },
       });
