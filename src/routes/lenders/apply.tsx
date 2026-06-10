@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Building2, CheckCircle2, Landmark, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { formatUSInput, normalizeToE164 } from "@/lib/phone";
 import { LenderCard, LenderShell } from "./-ui";
 import { INSTITUTION_TYPES, NAVY, US_STATES } from "./-data";
 
@@ -75,6 +76,13 @@ function ApplyPage() {
       setError("Maximum loan amount must be greater than or equal to the minimum.");
       return;
     }
+    const normalizedPhone = form.contactPhone.trim()
+      ? normalizeToE164(form.contactPhone)
+      : null;
+    if (form.contactPhone.trim() && !normalizedPhone) {
+      setError("Enter a valid US phone number, e.g. (555) 123-4567.");
+      return;
+    }
     setSubmitting(true);
     try {
       // lender_applications is created by the lender-portal migrations; the generated
@@ -92,7 +100,7 @@ function ApplyPage() {
           max_loan_amount: maxNum,
           contact_name: form.contactName || null,
           contact_email: form.contactEmail,
-          contact_phone: form.contactPhone || null,
+          contact_phone: normalizedPhone,
           status: "pending",
         });
       if (insertError) throw new Error(insertError.message);
@@ -244,7 +252,9 @@ function ApplyPage() {
               <Field label="Contact phone" hint="Optional">
                 <input
                   value={form.contactPhone}
-                  onChange={(e) => set("contactPhone", e.target.value)}
+                  onChange={(e) => set("contactPhone", formatUSInput(e.target.value))}
+                  inputMode="tel"
+                  autoComplete="tel"
                   placeholder="(555) 123-4567"
                   className={inputCls}
                 />

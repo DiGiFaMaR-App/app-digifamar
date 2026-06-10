@@ -1,11 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
-import { getWhatsAppWebUrl } from "@/components/WhatsAppFab";
+import {
+  getWhatsAppWebUrl,
+  SUPPORT_PHONE_E164,
+} from "@/components/WhatsAppFab";
+import { formatE164Display, toTelHref } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+
+const SUPPORT_DISPLAY = formatE164Display(SUPPORT_PHONE_E164);
+const SUPPORT_TEL = toTelHref(SUPPORT_PHONE_E164) ?? "#";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -48,7 +55,7 @@ function Contact() {
               <MessageCircle className="h-6 w-6 text-primary" />
               <div>
                 <p className="font-semibold">WhatsApp</p>
-                <p className="text-xs text-muted-foreground">+1 (667) 361-9136</p>
+                <p className="text-xs text-muted-foreground">{SUPPORT_DISPLAY}</p>
               </div>
             </a>
             <a href="mailto:hello@digifamar.com" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
@@ -58,11 +65,11 @@ function Contact() {
                 <p className="text-xs text-muted-foreground">hello@digifamar.com</p>
               </div>
             </a>
-            <a href="tel:+16673619136" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+            <a href={SUPPORT_TEL} className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
               <Phone className="h-6 w-6 text-primary" />
               <div>
                 <p className="font-semibold">Phone</p>
-                <p className="text-xs text-muted-foreground">+1 (667) 361-9136</p>
+                <p className="text-xs text-muted-foreground">{SUPPORT_DISPLAY}</p>
               </div>
             </a>
           </div>
