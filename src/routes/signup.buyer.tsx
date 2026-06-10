@@ -148,10 +148,9 @@ const step2Schema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(
-      /^\(\d{3}\) \d{3}-\d{4}$/,
-      "Enter a valid US phone number, e.g. (555) 123-4567",
-    ),
+    .refine((v) => isValidPhone(v), {
+      message: "Enter a valid US phone number, e.g. (555) 123-4567",
+    }),
   city: z.string().trim().min(1, "City is required").max(100),
   state: z.string().min(2, "Please select a state"),
   password: z
@@ -167,13 +166,7 @@ type Step2Errors = Partial<Record<keyof Step2Data, string>>;
 // HELPERS
 // ─────────────────────────────────────────────────────────────────
 
-function formatPhone(raw: string): string {
-  const digits = raw.replace(/\D/g, "").slice(0, 10);
-  if (digits.length <= 3) return digits.length ? `(${digits}` : "";
-  if (digits.length <= 6)
-    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
+const formatPhone = formatUSInput;
 
 // ─────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
