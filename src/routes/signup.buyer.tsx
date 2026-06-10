@@ -288,7 +288,7 @@ function BuyerSignup() {
         options: {
           data: {
             full_name: `${step2.firstName} ${step2.lastName}`,
-            phone: step2.phone,
+            phone: normalizeToE164(step2.phone) ?? step2.phone,
           },
         },
       });
