@@ -154,13 +154,7 @@ type Step2Errors = Partial<Record<keyof Step2Data, string>>;
 // HELPERS
 // ─────────────────────────────────────────────────────────────────
 
-function formatPhone(raw: string): string {
-  const digits = raw.replace(/\D/g, "").slice(0, 10);
-  if (digits.length <= 3) return digits.length ? `(${digits}` : "";
-  if (digits.length <= 6)
-    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
+const formatPhone = formatUSInput;
 
 // ─────────────────────────────────────────────────────────────────
 // MAIN COMPONENT
