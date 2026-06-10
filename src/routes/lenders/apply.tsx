@@ -252,7 +252,9 @@ function ApplyPage() {
               <Field label="Contact phone" hint="Optional">
                 <input
                   value={form.contactPhone}
-                  onChange={(e) => set("contactPhone", e.target.value)}
+                  onChange={(e) => set("contactPhone", formatUSInput(e.target.value))}
+                  inputMode="tel"
+                  autoComplete="tel"
                   placeholder="(555) 123-4567"
                   className={inputCls}
                 />
