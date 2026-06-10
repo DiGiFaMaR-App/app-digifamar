@@ -28,6 +28,7 @@ import {
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { formatUSInput, isValidPhone, normalizeToE164 } from "@/lib/phone";
+import { geocodeAddress } from "@/lib/geocode.functions";
 
 export const Route = createFileRoute("/signup/farmer")({
   head: () => ({
@@ -135,7 +136,13 @@ const step1Schema = z.object({
 
 const step2Schema = z.object({
   farmName: z.string().trim().min(2, "Farm name is required").max(120),
+  address: z.string().trim().min(3, "Street address is required").max(200),
+  city: z.string().trim().min(2, "City is required").max(100),
   state: z.string().min(2, "Please select a state"),
+  zip: z
+    .string()
+    .trim()
+    .regex(/^\d{5}(-\d{4})?$/u, "Enter a valid US ZIP code"),
   farmType: z.string().min(1, "Please select a farm type"),
   acreage: z.string().optional(),
   yearsActive: z.coerce
@@ -178,7 +185,10 @@ function FarmerSignup() {
   // Step 2 data
   const [step2, setStep2] = useState({
     farmName: "",
+    address: "",
+    city: "",
     state: "",
+    zip: "",
     farmType: "",
     acreage: "",
     yearsActive: "",
@@ -287,6 +297,27 @@ function FarmerSignup() {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
+      // Geocode the farm location BEFORE creating the account so buyers can
+      // discover the farm by distance on /browse.
+      let coords: { lat: number | null; lng: number | null } = {
+        lat: null,
+        lng: null,
+      };
+      try {
+        const geo = await geocodeAddress({
+          data: {
+            address: step2.address,
+            city: step2.city,
+            state: step2.state,
+            zip: step2.zip,
+            country: "USA",
+          },
+        });
+        if (geo) coords = { lat: geo.lat, lng: geo.lng };
+      } catch {
+        // Non-fatal: profile still created without coordinates.
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: step1.email,
         password: step1.password,
@@ -302,19 +333,24 @@ function FarmerSignup() {
       const userId = data.user?.id;
       if (!userId) throw new Error("Signup failed — please try again.");
 
-      // Store farmer profile data
-      const profileInsert = {
+      // Store farmer profile data (types not regenerated yet for new cols).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const profileInsert: any = {
         user_id: userId,
         farm_name: step2.farmName,
+        address: step2.address,
+        city: step2.city,
         state: step2.state,
+        zip: step2.zip,
+        lat: coords.lat,
+        lng: coords.lng,
         acres: step2.acreage ? parseFloat(step2.acreage) : null,
         years_farming: step2.yearsActive ? parseInt(step2.yearsActive) : null,
         verification_status: "pending",
+        farm_type: step2.farmType,
+        usda_number: step2.usdaNumber || null,
       };
-      await supabase
-        .from("farmer_profiles")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .insert({ ...profileInsert, farm_type: step2.farmType, usda_number: step2.usdaNumber || null } as any);
+      await supabase.from("farmer_profiles").insert(profileInsert);
 
       // Assign farmer role
       await supabase.from("user_roles").insert({
@@ -581,14 +617,28 @@ function Step2({
 }: {
   data: {
     farmName: string;
+    address: string;
+    city: string;
     state: string;
+    zip: string;
     farmType: string;
     acreage: string;
     yearsActive: string;
     usdaNumber: string;
   };
   errors: Step2Errors;
-  onUpdate: <K extends "farmName" | "state" | "farmType" | "acreage" | "yearsActive" | "usdaNumber">(
+  onUpdate: <
+    K extends
+      | "farmName"
+      | "address"
+      | "city"
+      | "state"
+      | "zip"
+      | "farmType"
+      | "acreage"
+      | "yearsActive"
+      | "usdaNumber",
+  >(
     key: K,
     value: string,
   ) => void;
@@ -615,6 +665,41 @@ function Step2({
             className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
           />
         </FormField>
+
+        <FormField label="Street Address" error={errors.address}>
+          <Input
+            value={data.address}
+            onChange={(e) => onUpdate("address", e.target.value)}
+            placeholder="1234 County Road"
+            autoComplete="street-address"
+            maxLength={200}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="City" error={errors.city}>
+            <Input
+              value={data.city}
+              onChange={(e) => onUpdate("city", e.target.value)}
+              placeholder="Fresno"
+              autoComplete="address-level2"
+              maxLength={100}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+          <FormField label="ZIP Code" error={errors.zip}>
+            <Input
+              value={data.zip}
+              onChange={(e) => onUpdate("zip", e.target.value)}
+              placeholder="93721"
+              autoComplete="postal-code"
+              inputMode="numeric"
+              maxLength={10}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+        </div>
 
         <FormField label="State" error={errors.state}>
           <Select value={data.state} onValueChange={(v) => onUpdate("state", v)}>

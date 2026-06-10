@@ -89,6 +89,8 @@ export type Database = {
           created_at: string
           description: string | null
           farm_name: string
+          lat: number | null
+          lng: number | null
           products: string[]
           state: string | null
           updated_at: string
@@ -105,6 +107,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           farm_name: string
+          lat?: number | null
+          lng?: number | null
           products?: string[]
           state?: string | null
           updated_at?: string
@@ -121,6 +125,8 @@ export type Database = {
           created_at?: string
           description?: string | null
           farm_name?: string
+          lat?: number | null
+          lng?: number | null
           products?: string[]
           state?: string | null
           updated_at?: string
