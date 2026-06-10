@@ -55,7 +55,7 @@ function Contact() {
               <MessageCircle className="h-6 w-6 text-primary" />
               <div>
                 <p className="font-semibold">WhatsApp</p>
-                <p className="text-xs text-muted-foreground">+1 (667) 361-9136</p>
+                <p className="text-xs text-muted-foreground">{SUPPORT_DISPLAY}</p>
               </div>
             </a>
             <a href="mailto:hello@digifamar.com" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
@@ -65,11 +65,11 @@ function Contact() {
                 <p className="text-xs text-muted-foreground">hello@digifamar.com</p>
               </div>
             </a>
-            <a href="tel:+16673619136" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+            <a href={SUPPORT_TEL} className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
               <Phone className="h-6 w-6 text-primary" />
               <div>
                 <p className="font-semibold">Phone</p>
-                <p className="text-xs text-muted-foreground">+1 (667) 361-9136</p>
+                <p className="text-xs text-muted-foreground">{SUPPORT_DISPLAY}</p>
               </div>
             </a>
           </div>
