@@ -293,8 +293,8 @@ function FarmResultCard({
 }) {
   return (
     <Link
-      to="/farm/$farmId"
-      params={{ farmId: farm.user_id }}
+      to="/farm/$id"
+      params={{ id: farm.user_id }}
       className="block rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted/40"
     >
       <div className="flex items-start justify-between gap-2">
@@ -344,8 +344,8 @@ function ListingResultCard({
   });
   return (
     <Link
-      to="/listing/$slug"
-      params={{ slug: listing.slug }}
+      to="/farm/$id"
+      params={{ id: listing.farmer_id }}
       className="block overflow-hidden rounded-xl border border-border bg-card transition-colors hover:bg-muted/40"
     >
       {listing.images[0] ? (
