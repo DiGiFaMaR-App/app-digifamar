@@ -26,8 +26,8 @@ describe("Footer", () => {
   it("includes a WhatsApp contact link", () => {
     render(<Footer />);
     const wa = screen.getByRole("link", { name: /whatsapp/i });
-    expect(wa).toHaveAttribute("href", expect.stringContaining("web.whatsapp.com/send"));
-    expect(wa).toHaveAttribute("target", "_blank");
+    expect(wa).toHaveAttribute("href", expect.stringContaining("wa.me/19294919491"));
+    expect(wa).toHaveAttribute("target", "_top");
     expect(wa).toHaveAttribute("rel", "noreferrer");
   });
 

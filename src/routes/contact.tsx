@@ -44,7 +44,7 @@ function Contact() {
           </form>
 
           <div className="space-y-3">
-            <a href={getWhatsAppWebUrl()} target="_blank" rel="noreferrer" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+            <a href={getWhatsAppWebUrl()} target="_top" rel="noreferrer" className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4">
               <MessageCircle className="h-6 w-6 text-primary" />
               <div>
                 <p className="font-semibold">WhatsApp</p>
