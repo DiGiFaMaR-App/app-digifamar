@@ -1,11 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
-import { getWhatsAppWebUrl } from "@/components/WhatsAppFab";
+import {
+  getWhatsAppWebUrl,
+  SUPPORT_PHONE_E164,
+} from "@/components/WhatsAppFab";
+import { formatE164Display, toTelHref } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+
+const SUPPORT_DISPLAY = formatE164Display(SUPPORT_PHONE_E164);
+const SUPPORT_TEL = toTelHref(SUPPORT_PHONE_E164) ?? "#";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
