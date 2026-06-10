@@ -1,225 +1,156 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   BadgeCheck,
-  Filter,
-  Grid3x3,
+  ChevronLeft,
+  ChevronRight,
   Loader2,
-  Map as MapIcon,
   MapPin,
-  Navigation,
+  Package,
   Search,
-  SlidersHorizontal,
-  Sparkles,
+  Sprout,
   X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { FarmCard } from "@/components/Cards";
-import { farms, images, type Farm } from "@/lib/mock-data";
-import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
-
-type SortKey = "relevance" | "distance" | "rating" | "newest" | "popular";
-
-const allCertifications = Array.from(
-  new Set(farms.flatMap((f) => f.certifications)),
-).sort();
-
-const allStates = Array.from(new Set(farms.map((f) => f.state))).sort();
-
+import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
+import { geocodeAddress } from "@/lib/geocode.functions";
 
 export const Route = createFileRoute("/browse")({
   head: () => ({
     meta: [
-      { title: "Browse verified farms near you | DiGiFaMaR" },
+      { title: "Browse verified farms & fresh produce near you | DiGiFaMaR" },
       {
         name: "description",
         content:
-          "Search verified American farms by location, distance, certifications and rating. Find trusted farmers near you on DiGiFaMaR.",
+          "Search verified American farms and fresh listings by name, city, ZIP or state. Find trusted farmers within 50 miles on DiGiFaMaR.",
       },
       { property: "og:title", content: "Browse verified farms | DiGiFaMaR" },
       {
         property: "og:description",
-        content: "Find verified farmers near you on DiGiFaMaR.",
+        content:
+          "Search verified American farms and fresh listings within 50 miles of any ZIP.",
       },
     ],
   }),
   component: Browse,
+  errorComponent: ({ error, reset }) => (
+    <SiteLayout>
+      <div className="mx-auto max-w-2xl px-4 py-12 text-center">
+        <h1 className="text-2xl font-bold">Something went wrong</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        <Button className="mt-6" onClick={reset}>
+          Try again
+        </Button>
+      </div>
+    </SiteLayout>
+  ),
+  notFoundComponent: () => (
+    <SiteLayout>
+      <div className="mx-auto max-w-2xl px-4 py-12 text-center">
+        <h1 className="text-2xl font-bold">Page not found</h1>
+      </div>
+    </SiteLayout>
+  ),
 });
 
-function Browse() {
-  const [view, setView] = useState<"grid" | "map">("grid");
-  const [filtersOpen, setFiltersOpen] = useState(false);
+const DEBOUNCE_MS = 300;
+const ZIP_RE = /^\d{5}(-\d{4})?$/;
 
-  const [query, setQuery] = useState("");
-  const [maxDistance, setMaxDistance] = useState(50);
-  const [verifiedOnly, setVerifiedOnly] = useState(true);
-  const [topSellersOnly, setTopSellersOnly] = useState(false);
-  const [selectedCerts, setSelectedCerts] = useState<string[]>([]);
-  const [selectedStates, setSelectedStates] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState(0);
-  const [sort, setSort] = useState<SortKey>("relevance");
-  const sortTouched = useRef(false);
-  const distanceTouched = useRef(false);
-
-  const geo = useGeolocation();
-  const hasCoords = geo.lat !== null && geo.lng !== null;
-
-  // Re-score farm distances from the user's coordinates when we have them.
-  const geoFarms = useMemo<Farm[]>(() => {
-    if (!hasCoords) return farms;
-    return farms.map((f) => ({
-      ...f,
-      distance: haversineDistance(geo.lat!, geo.lng!, f.lat, f.lng),
-    }));
-  }, [hasCoords, geo.lat, geo.lng]);
-
-  // Once we know where the buyer is, default sort to "distance" and widen the
-  // radius to cover the nearest verified farms — unless they've changed it.
+function useDebounced<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
   useEffect(() => {
-    if (!hasCoords) return;
-    if (!sortTouched.current) setSort("distance");
-    if (!distanceTouched.current) {
-      const nearest = geoFarms
-        .filter((f) => (verifiedOnly ? f.verified : true))
-        .map((f) => f.distance)
-        .sort((a, b) => a - b);
-      const target = nearest[Math.min(5, nearest.length - 1)] ?? 50;
-      // Round up to nearest 25-mile step, clamped to slider range.
-      const stepped = Math.min(100, Math.max(25, Math.ceil(target / 25) * 25));
-      setMaxDistance(stepped);
-    }
-    // We only want this to react to coords arriving.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasCoords]);
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
 
-  const handleSortChange = (next: SortKey) => {
-    sortTouched.current = true;
-    setSort(next);
-  };
-  const handleDistanceChange = (n: number) => {
-    distanceTouched.current = true;
-    setMaxDistance(n);
-  };
+function Browse() {
+  const [input, setInput] = useState("");
+  const [page, setPage] = useState(1);
+  const debounced = useDebounced(input.trim(), DEBOUNCE_MS);
 
-  const toggle = (
-    value: string,
-    list: string[],
-    setter: (next: string[]) => void,
-  ) => {
-    setter(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
-  };
+  // Reset page whenever the query text changes.
+  useEffect(() => {
+    setPage(1);
+  }, [debounced]);
 
-  const clearAll = () => {
-    setQuery("");
-    setMaxDistance(hasCoords ? 50 : 100);
-    distanceTouched.current = false;
-    setVerifiedOnly(false);
-    setTopSellersOnly(false);
-    setSelectedCerts([]);
-    setSelectedStates([]);
-    setMinRating(0);
-  };
+  // If the input looks like a ZIP, geocode it for the 50-mile radius filter.
+  const zipMatch = useMemo(() => {
+    const m = debounced.match(ZIP_RE);
+    return m ? m[0] : null;
+  }, [debounced]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    let list = geoFarms.filter((f) => {
-      if (verifiedOnly && !f.verified) return false;
-      if (topSellersOnly && !f.topSeller) return false;
-      if (f.distance > maxDistance) return false;
-      if (f.rating < minRating) return false;
-      if (selectedStates.length && !selectedStates.includes(f.state)) return false;
-      if (
-        selectedCerts.length &&
-        !selectedCerts.every((c) => f.certifications.includes(c))
+  const originQuery = useQuery({
+    queryKey: ["browse-origin", zipMatch],
+    queryFn: () =>
+      zipMatch
+        ? geocodeAddress({ data: { zip: zipMatch, country: "USA" } })
+        : Promise.resolve(null),
+    enabled: !!zipMatch,
+    staleTime: 1000 * 60 * 60,
+  });
+
+  const origin = originQuery.data;
+  const hasOrigin = !!origin;
+
+  const results = useQuery<BrowseResults>({
+    queryKey: [
+      "browse-search",
+      debounced,
+      page,
+      origin?.lat ?? null,
+      origin?.lng ?? null,
+    ],
+    queryFn: () =>
+      searchBrowse({
+        data: {
+          q: debounced,
+          page,
+          originLat: origin?.lat ?? null,
+          originLng: origin?.lng ?? null,
+          maxMiles: 50,
+        },
+      }),
+    enabled: !zipMatch || !originQuery.isFetching,
+    placeholderData: keepPreviousData,
+  });
+
+  const data = results.data;
+  const totalPages = data
+    ? Math.max(
+        1,
+        Math.ceil(Math.max(data.totalFarms, data.totalListings) / data.pageSize),
       )
-        return false;
-      if (q) {
-        const hay = `${f.name} ${f.location} ${f.state} ${f.description}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
+    : 1;
 
-    list = [...list].sort((a, b) => {
-      switch (sort) {
-        case "distance":
-          return a.distance - b.distance;
-        case "rating":
-          return b.rating - a.rating;
-        case "newest":
-          return b.established - a.established;
-        case "popular":
-          return b.totalSales - a.totalSales;
-        default:
-          return (
-            Number(b.verified) - Number(a.verified) ||
-            Number(!!b.topSeller) - Number(!!a.topSeller) ||
-            b.rating - a.rating
-          );
-      }
-    });
-
-    return list;
-  }, [
-    geoFarms,
-    query,
-    maxDistance,
-    verifiedOnly,
-    topSellersOnly,
-    selectedCerts,
-    selectedStates,
-    minRating,
-    sort,
-  ]);
-
-  const activeFilterCount =
-    (verifiedOnly ? 1 : 0) +
-    (topSellersOnly ? 1 : 0) +
-    selectedCerts.length +
-    selectedStates.length +
-    (minRating > 0 ? 1 : 0) +
-    (distanceTouched.current ? 1 : 0);
-
-
-  const filterProps = {
-    maxDistance,
-    setMaxDistance: handleDistanceChange,
-    verifiedOnly,
-    setVerifiedOnly,
-    topSellersOnly,
-    setTopSellersOnly,
-    selectedCerts,
-    selectedStates,
-    minRating,
-    setMinRating,
-    toggle,
-    setSelectedCerts,
-    setSelectedStates,
-    clearAll,
-  };
+  const isEmpty =
+    !!data &&
+    data.farms.length === 0 &&
+    data.listings.length === 0 &&
+    !results.isFetching;
 
   return (
     <SiteLayout>
-      <h1 className="sr-only">Browse verified American farms near you</h1>
+      <h1 className="sr-only">Browse verified American farms and listings</h1>
 
       <div className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search farms by name, city or state..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Search by ZIP, city, farm or product name..."
+              aria-label="Search farms and listings"
               className="pl-9"
             />
-            {query && (
+            {input && (
               <button
-                onClick={() => setQuery("")}
+                onClick={() => setInput("")}
                 aria-label="Clear search"
                 className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
               >
@@ -227,374 +158,222 @@ function Browse() {
               </button>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="md:hidden"
-              onClick={() => setFiltersOpen(true)}
-            >
-              <SlidersHorizontal className="mr-1 h-4 w-4" /> Filters
-              {activeFilterCount > 0 && (
-                <span className="ml-1.5 rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
-                  {activeFilterCount}
-                </span>
-              )}
-            </Button>
-            <div className="flex rounded-md border border-border bg-background p-0.5">
-              {(
-                [
-                  { v: "grid", Icon: Grid3x3, label: "Grid view" },
-                  { v: "map", Icon: MapIcon, label: "Map view" },
-                ] as const
-              ).map(({ v, Icon, label }) => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={`flex h-8 w-9 items-center justify-center rounded transition-colors ${
-                    view === v
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                  aria-label={label}
-                >
-                  <Icon className="h-4 w-4" />
-                </button>
-              ))}
+          {results.isFetching && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
             </div>
-            <select
-              value={sort}
-              onChange={(e) => handleSortChange(e.target.value as SortKey)}
-              className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-            >
-              <option value="relevance">Sort: Relevance</option>
-              <option value="distance">Nearest first</option>
-              <option value="rating">Top rated</option>
-              <option value="popular">Most popular</option>
-              <option value="newest">Newest farms</option>
-            </select>
-          </div>
+          )}
         </div>
+        {hasOrigin && origin && (
+          <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-4 pb-3 text-xs text-muted-foreground sm:px-6">
+            <MapPin className="h-3 w-3" /> Showing results within 50 mi of{" "}
+            <strong className="text-foreground">{origin.formatted}</strong>
+          </div>
+        )}
       </div>
 
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
-        <aside className="hidden w-64 shrink-0 md:block">
-          <Filters {...filterProps} />
-        </aside>
-
-        {filtersOpen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/60 md:hidden"
-            onClick={() => setFiltersOpen(false)}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 top-0 h-full w-80 max-w-[85%] overflow-y-auto bg-background p-4"
-            >
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="font-bold">Filters</h2>
-                <button
-                  onClick={() => setFiltersOpen(false)}
-                  aria-label="Close filters"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <Filters {...filterProps} />
-              <Button
-                className="mt-4 w-full"
-                onClick={() => setFiltersOpen(false)}
-              >
-                Show {filtered.length} farms
-              </Button>
-            </div>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-10">
+        {!data && results.isLoading && (
+          <div className="flex items-center justify-center py-20 text-muted-foreground">
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading…
           </div>
         )}
 
-        <section className="flex-1 min-w-0">
-          <GeoBanner geo={geo} />
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-muted-foreground">
-              <strong className="text-foreground">{filtered.length}</strong>{" "}
-              farms found
-              {maxDistance < 100 ? ` within ${maxDistance} mi` : ""}
-              {hasCoords && (geo.city || geo.state)
-                ? ` of ${[geo.city, geo.state].filter(Boolean).join(", ")}`
-                : ""}
-              {selectedStates.length === 1 && !hasCoords
-                ? ` in ${selectedStates[0]}`
-                : ""}
-            </p>
-            {activeFilterCount > 0 && (
-              <button
-                onClick={clearAll}
-                className="text-xs font-semibold text-primary hover:underline"
-              >
-                Reset {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""}
-              </button>
+        {data && (
+          <>
+            <section>
+              <SectionHeader
+                icon={<Sprout className="h-4 w-4" />}
+                label="Farms"
+                count={data.totalFarms}
+              />
+              {data.farms.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  No farms match your search.
+                </p>
+              ) : (
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {data.farms.map((f) => (
+                    <FarmResultCard key={f.user_id} farm={f} />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section>
+              <SectionHeader
+                icon={<Package className="h-4 w-4" />}
+                label="Listings"
+                count={data.totalListings}
+              />
+              {data.listings.length === 0 ? (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  No listings match your search.
+                </p>
+              ) : (
+                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {data.listings.map((l) => (
+                    <ListingResultCard key={l.id} listing={l} />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {isEmpty && (
+              <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
+                <p className="font-semibold">No results found</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Try a different ZIP, city, farm or product name.
+                </p>
+              </div>
             )}
-          </div>
 
+            {totalPages > 1 && (
+              <nav className="flex items-center justify-center gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft className="h-4 w-4" /> Previous
+                </Button>
+                <span className="px-3 text-sm text-muted-foreground">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page >= totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next <ChevronRight className="h-4 w-4" />
+                </Button>
+              </nav>
+            )}
+          </>
+        )}
 
-          {view === "map" ? (
-            <MapPlaceholder farms={filtered} />
-          ) : filtered.length === 0 ? (
-            <EmptyState onReset={clearAll} />
-          ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((f) => (
-                <FarmCard key={f.id} farm={f} />
-              ))}
-            </div>
-          )}
-        </section>
+        {results.error && (
+          <p className="text-center text-sm text-destructive">
+            Search failed: {(results.error as Error).message}
+          </p>
+        )}
       </div>
     </SiteLayout>
   );
 }
 
-type FilterProps = {
-  maxDistance: number;
-  setMaxDistance: (n: number) => void;
-  verifiedOnly: boolean;
-  setVerifiedOnly: (v: boolean) => void;
-  topSellersOnly: boolean;
-  setTopSellersOnly: (v: boolean) => void;
-  selectedCerts: string[];
-  selectedStates: string[];
-  minRating: number;
-  setMinRating: (n: number) => void;
-  toggle: (value: string, list: string[], setter: (n: string[]) => void) => void;
-  setSelectedCerts: (n: string[]) => void;
-  setSelectedStates: (n: string[]) => void;
-  clearAll: () => void;
-};
-
-function Filters(props: FilterProps) {
-  const {
-    maxDistance,
-    setMaxDistance,
-    verifiedOnly,
-    setVerifiedOnly,
-    topSellersOnly,
-    setTopSellersOnly,
-    selectedCerts,
-    selectedStates,
-    minRating,
-    setMinRating,
-    toggle,
-    setSelectedCerts,
-    setSelectedStates,
-    clearAll,
-  } = props;
-
-  return (
-    <div className="space-y-6 rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-1.5 text-sm font-bold">
-          <Filter className="h-4 w-4" /> Filters
-        </h3>
-        <button
-          onClick={clearAll}
-          className="text-xs text-primary hover:underline"
-        >
-          Clear all
-        </button>
-      </div>
-
-      <Section label={`Distance: ${maxDistance} mi`}>
-        <Slider
-          value={[maxDistance]}
-          onValueChange={(v) => setMaxDistance(v[0])}
-          min={5}
-          max={100}
-          step={5}
-        />
-        <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-          <span>5 mi</span>
-          <span>100 mi</span>
-        </div>
-      </Section>
-
-      <Section label="Trust">
-        <div className="space-y-2 text-sm">
-          <label className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <BadgeCheck className="h-4 w-4 text-primary" /> Verified only
-            </span>
-            <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} />
-          </label>
-          <label className="flex items-center justify-between">
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="h-4 w-4 text-badge-gold" /> Top sellers
-            </span>
-            <Switch
-              checked={topSellersOnly}
-              onCheckedChange={setTopSellersOnly}
-            />
-          </label>
-        </div>
-      </Section>
-
-      <Section label={`Min rating: ${minRating > 0 ? `${minRating.toFixed(1)}★` : "any"}`}>
-        <Slider
-          value={[minRating]}
-          onValueChange={(v) => setMinRating(v[0])}
-          min={0}
-          max={5}
-          step={0.5}
-        />
-      </Section>
-
-      <Section label="State">
-        <div className="max-h-40 space-y-1.5 overflow-y-auto pr-1 text-sm">
-          {allStates.map((s) => (
-            <label key={s} className="flex items-center gap-2">
-              <Checkbox
-                checked={selectedStates.includes(s)}
-                onCheckedChange={() =>
-                  toggle(s, selectedStates, setSelectedStates)
-                }
-              />
-              {s}
-            </label>
-          ))}
-        </div>
-      </Section>
-
-      <Section label="Certifications">
-        <div className="space-y-1.5 text-sm">
-          {allCertifications.map((c) => (
-            <label key={c} className="flex items-center gap-2">
-              <Checkbox
-                checked={selectedCerts.includes(c)}
-                onCheckedChange={() =>
-                  toggle(c, selectedCerts, setSelectedCerts)
-                }
-              />
-              {c}
-            </label>
-          ))}
-        </div>
-      </Section>
-    </div>
-  );
-}
-
-function Section({
+function SectionHeader({
+  icon,
   label,
-  children,
+  count,
 }: {
+  icon: React.ReactNode;
   label: string;
-  children: React.ReactNode;
+  count: number;
 }) {
   return (
-    <div className="border-t border-border pt-4 first:border-t-0 first:pt-0">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
-      {children}
-    </div>
-  );
-}
-
-function EmptyState({ onReset }: { onReset: () => void }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center">
-      <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-leaf-soft text-primary">
-        <Search className="h-5 w-5" />
-      </div>
-      <h3 className="mt-3 font-bold">No farms match these filters</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Try widening the distance or removing a few certifications.
-      </p>
-      <Button onClick={onReset} variant="outline" className="mt-4">
-        Reset filters
-      </Button>
-    </div>
-  );
-}
-
-function MapPlaceholder({ farms: list }: { farms: Farm[] }) {
-  return (
-    <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-border bg-leaf-soft/50">
-      <img
-        src={images.heroFarm}
-        alt="Map view of verified farms"
-        loading="lazy"
-        className="h-full w-full object-cover opacity-25"
-      />
-      <div className="absolute inset-0 grid place-items-center p-4">
-        <div className="max-w-sm rounded-xl bg-card/95 px-6 py-5 text-center shadow-lg">
-          <MapIcon className="mx-auto h-8 w-8 text-primary" />
-          <p className="mt-2 font-semibold">
-            {list.length} farms ready to map
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Live Google Maps with farm pins, clustering, and "search this area"
-            ships in the next release.
-          </p>
-          <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-            {list.slice(0, 6).map((f) => (
-              <Link
-                key={f.id}
-                to="/farm/$id"
-                params={{ id: f.id }}
-                className="rounded-full bg-leaf-soft px-2.5 py-1 text-[11px] font-medium text-primary hover:bg-primary hover:text-primary-foreground"
-              >
-                📍 {f.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function GeoBanner({
-  geo,
-}: {
-  geo: ReturnType<typeof useGeolocation>;
-}) {
-  if (geo.loading) {
-    return (
-      <div className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
-        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-        Detecting your location to find the nearest verified farms…
-      </div>
-    );
-  }
-
-  if (geo.lat !== null && geo.lng !== null) {
-    const label = [geo.city, geo.state].filter(Boolean).join(", ");
-    return (
-      <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-primary/30 bg-leaf-soft/40 px-3 py-2 text-xs">
-        <Navigation className="h-3.5 w-3.5 text-primary" />
-        <span className="text-foreground">
-          Showing farms nearest to{" "}
-          <strong>{label || "your location"}</strong> — sorted by distance.
-        </span>
-      </div>
-    );
-  }
-
-  const reasons: Record<NonNullable<typeof geo.error>, string> = {
-    permission_denied: "Location access was blocked.",
-    http_blocked: "Location needs a secure (https) connection.",
-    not_supported: "Your browser doesn't support geolocation.",
-    unavailable: "We couldn't read your location right now.",
-    timeout: "Locating you took too long.",
-  };
-
-  return (
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
-      <span className="flex items-center gap-2">
-        <MapPin className="h-3.5 w-3.5 text-primary" />
-        {geo.error ? reasons[geo.error] : "Location unknown."} Showing all
-        verified farms instead.
+    <div className="flex items-baseline justify-between border-b border-border pb-2">
+      <h2 className="flex items-center gap-2 text-lg font-bold">
+        {icon} {label}
+      </h2>
+      <span className="text-xs text-muted-foreground">
+        <strong className="text-foreground">{count}</strong> result
+        {count === 1 ? "" : "s"}
       </span>
     </div>
   );
 }
 
+function FarmResultCard({
+  farm,
+}: {
+  farm: BrowseResults["farms"][number];
+}) {
+  return (
+    <Link
+      to="/farm/$farmId"
+      params={{ farmId: farm.user_id }}
+      className="block rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted/40"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="font-semibold leading-tight">{farm.farm_name}</h3>
+        {farm.verification_status === "verified" && (
+          <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
+        )}
+      </div>
+      {(farm.city || farm.state) && (
+        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+          <MapPin className="h-3 w-3" />
+          {[farm.city, farm.state].filter(Boolean).join(", ")}
+          {farm.distance_mi != null && (
+            <span className="ml-1">· {farm.distance_mi.toFixed(1)} mi</span>
+          )}
+        </p>
+      )}
+      {farm.description && (
+        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+          {farm.description}
+        </p>
+      )}
+      {farm.certifications.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1">
+          {farm.certifications.slice(0, 3).map((c) => (
+            <span
+              key={c}
+              className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
+    </Link>
+  );
+}
+
+function ListingResultCard({
+  listing,
+}: {
+  listing: BrowseResults["listings"][number];
+}) {
+  const price = (listing.price_cents / 100).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+  return (
+    <Link
+      to="/listing/$slug"
+      params={{ slug: listing.slug }}
+      className="block overflow-hidden rounded-xl border border-border bg-card transition-colors hover:bg-muted/40"
+    >
+      {listing.images[0] ? (
+        <img
+          src={listing.images[0]}
+          alt={listing.title}
+          loading="lazy"
+          className="aspect-[4/3] w-full object-cover"
+        />
+      ) : (
+        <div className="aspect-[4/3] w-full bg-muted" />
+      )}
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold leading-tight">{listing.title}</h3>
+          <span className="shrink-0 text-sm font-bold text-primary">
+            {price}
+            <span className="text-xs text-muted-foreground">/{listing.unit}</span>
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {listing.category}
+          {listing.farm_name ? ` · ${listing.farm_name}` : ""}
+          {listing.distance_mi != null
+            ? ` · ${listing.distance_mi.toFixed(1)} mi`
+            : ""}
+        </p>
+      </div>
+    </Link>
+  );
+}
