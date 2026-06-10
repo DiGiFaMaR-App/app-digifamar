@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowRight, Building2, CheckCircle2, Landmark, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { formatUSInput, isValidPhone, normalizeToE164 } from "@/lib/phone";
 import { LenderCard, LenderShell } from "./-ui";
 import { INSTITUTION_TYPES, NAVY, US_STATES } from "./-data";
 
