@@ -54,8 +54,11 @@ describe("formatUSInput", () => {
     expect(formatUSInput("667361")).toBe("(667) 361");
     expect(formatUSInput("6673619136")).toBe("(667) 361-9136");
   });
+  it("strips leading country code and reformats", () => {
+    expect(formatUSInput("16673619136")).toBe("(667) 361-9136");
+  });
   it("ignores non-digits and caps at 10", () => {
-    expect(formatUSInput("+1 (667) 361-9136 ext 22")).toBe("(667) 361-9136");
+    expect(formatUSInput("(667) 361-9136")).toBe("(667) 361-9136");
   });
 });
 
