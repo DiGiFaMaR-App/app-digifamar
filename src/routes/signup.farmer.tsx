@@ -295,7 +295,6 @@ function FarmerSignup() {
             full_name: `${step1.firstName} ${step1.lastName}`,
             phone: normalizeToE164(step1.phone) ?? step1.phone,
           },
-          },
         },
       });
       if (error) throw error;
