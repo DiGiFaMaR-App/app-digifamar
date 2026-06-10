@@ -1,9 +1,27 @@
 const PHONE = "19294919491";
 const MESSAGE = "Hi, I'd like help with DiGiFaMaR";
 
+export function getWhatsAppWebUrl() {
+  const text = encodeURIComponent(MESSAGE);
+  return `https://web.whatsapp.com/send?phone=${PHONE}&text=${text}`;
+}
+
+function openExternalUrl(url: string) {
+  const win = window.open(url, "_blank", "noopener,noreferrer");
+  if (win) return;
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
 export function openWhatsApp() {
   const text = encodeURIComponent(MESSAGE);
-  const webUrl = `https://wa.me/${PHONE}?text=${text}`;
+  const webUrl = getWhatsAppWebUrl();
   const appUrl = `whatsapp://send?phone=${PHONE}&text=${text}`;
 
   // Try to open the native WhatsApp app first on mobile, fall back to web.
@@ -15,8 +33,7 @@ export function openWhatsApp() {
     if (isMobile) {
       // Schedule the web fallback in case the app isn't installed.
       const fallback = window.setTimeout(() => {
-        window.open(webUrl, "_blank", "noopener,noreferrer") ||
-          (window.location.href = webUrl);
+        openExternalUrl(webUrl);
       }, 600);
       window.location.href = appUrl;
       // If the page becomes hidden the app opened — cancel fallback.
@@ -27,10 +44,9 @@ export function openWhatsApp() {
       document.addEventListener("visibilitychange", onHide);
       return;
     }
-    const win = window.open(webUrl, "_blank", "noopener,noreferrer");
-    if (!win) window.location.href = webUrl;
+    openExternalUrl(webUrl);
   } catch {
-    window.location.href = webUrl;
+    openExternalUrl(webUrl);
   }
 }
 
