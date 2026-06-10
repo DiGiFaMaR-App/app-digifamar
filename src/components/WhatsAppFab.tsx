@@ -1,4 +1,11 @@
-const PHONE = "16673619136";
+import { normalizeToE164, toWhatsAppNumber } from "@/lib/phone";
+
+// Canonical support number stored as raw input — normalized via the shared util
+// so we get one source of truth for every place WhatsApp/tel links are built.
+export const SUPPORT_PHONE_RAW = "+1 (667) 361-9136";
+export const SUPPORT_PHONE_E164 =
+  normalizeToE164(SUPPORT_PHONE_RAW) ?? "+16673619136";
+const PHONE = toWhatsAppNumber(SUPPORT_PHONE_RAW) ?? "16673619136";
 const MESSAGE = "Hi, I'd like help with DiGiFaMaR";
 
 export function getWhatsAppWebUrl() {
