@@ -9,7 +9,10 @@ import {
   Youtube,
 } from "lucide-react";
 import { Logo } from "./Logo";
-import { getWhatsAppWebUrl } from "./WhatsAppFab";
+import { getWhatsAppWebUrl, SUPPORT_PHONE_E164 } from "./WhatsAppFab";
+import { formatE164Display } from "@/lib/phone";
+
+const SUPPORT_DISPLAY = formatE164Display(SUPPORT_PHONE_E164);
 
 const buyerLinks = [
   { to: "/browse", label: "Browse Farms" },
