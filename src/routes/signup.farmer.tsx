@@ -123,10 +123,9 @@ const step1Schema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(
-      /^\(\d{3}\) \d{3}-\d{4}$/,
-      "Enter a valid US phone number, e.g. (555) 123-4567",
-    ),
+    .refine((v) => isValidPhone(v), {
+      message: "Enter a valid US phone number, e.g. (555) 123-4567",
+    }),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
