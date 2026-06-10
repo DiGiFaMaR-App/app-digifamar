@@ -1,4 +1,4 @@
-const PHONE = "19294919491";
+const PHONE = "16673619136";
 const MESSAGE = "Hi, I'd like help with DiGiFaMaR";
 
 export function getWhatsAppWebUrl() {
