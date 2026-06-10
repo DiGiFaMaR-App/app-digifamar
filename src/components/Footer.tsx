@@ -66,7 +66,7 @@ export function Footer() {
             </span>
             <a
               href={getWhatsAppWebUrl()}
-              target="_blank"
+              target="_top"
               rel="noreferrer"
               className="hover:text-primary"
             >
