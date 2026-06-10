@@ -3,16 +3,16 @@ const MESSAGE = "Hi, I'd like help with DiGiFaMaR";
 
 export function getWhatsAppWebUrl() {
   const text = encodeURIComponent(MESSAGE);
-  return `https://web.whatsapp.com/send?phone=${PHONE}&text=${text}`;
+  return `https://wa.me/${PHONE}?text=${text}`;
 }
 
-function openExternalUrl(url: string) {
-  const win = window.open(url, "_blank", "noopener,noreferrer");
+function openExternalUrl(url: string, target: "_top" | "_blank" = "_top") {
+  const win = window.open(url, target, "noopener,noreferrer");
   if (win) return;
 
   const link = document.createElement("a");
   link.href = url;
-  link.target = "_blank";
+  link.target = target;
   link.rel = "noopener noreferrer";
   document.body.appendChild(link);
   link.click();
@@ -44,6 +44,7 @@ export function openWhatsApp() {
       document.addEventListener("visibilitychange", onHide);
       return;
     }
+    // Use top-level navigation so WhatsApp is never loaded inside the app preview/webview iframe.
     openExternalUrl(webUrl);
   } catch {
     openExternalUrl(webUrl);
