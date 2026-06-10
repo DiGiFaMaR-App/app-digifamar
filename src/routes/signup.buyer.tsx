@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
+import { formatUSInput, isValidPhone, normalizeToE164 } from "@/lib/phone";
 
 export const Route = createFileRoute("/signup/buyer")({
   head: () => ({
