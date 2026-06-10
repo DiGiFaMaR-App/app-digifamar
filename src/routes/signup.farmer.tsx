@@ -617,14 +617,28 @@ function Step2({
 }: {
   data: {
     farmName: string;
+    address: string;
+    city: string;
     state: string;
+    zip: string;
     farmType: string;
     acreage: string;
     yearsActive: string;
     usdaNumber: string;
   };
   errors: Step2Errors;
-  onUpdate: <K extends "farmName" | "state" | "farmType" | "acreage" | "yearsActive" | "usdaNumber">(
+  onUpdate: <
+    K extends
+      | "farmName"
+      | "address"
+      | "city"
+      | "state"
+      | "zip"
+      | "farmType"
+      | "acreage"
+      | "yearsActive"
+      | "usdaNumber",
+  >(
     key: K,
     value: string,
   ) => void;
@@ -651,6 +665,41 @@ function Step2({
             className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
           />
         </FormField>
+
+        <FormField label="Street Address" error={errors.address}>
+          <Input
+            value={data.address}
+            onChange={(e) => onUpdate("address", e.target.value)}
+            placeholder="1234 County Road"
+            autoComplete="street-address"
+            maxLength={200}
+            className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+          />
+        </FormField>
+
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="City" error={errors.city}>
+            <Input
+              value={data.city}
+              onChange={(e) => onUpdate("city", e.target.value)}
+              placeholder="Fresno"
+              autoComplete="address-level2"
+              maxLength={100}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+          <FormField label="ZIP Code" error={errors.zip}>
+            <Input
+              value={data.zip}
+              onChange={(e) => onUpdate("zip", e.target.value)}
+              placeholder="93721"
+              autoComplete="postal-code"
+              inputMode="numeric"
+              maxLength={10}
+              className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#22C55E] focus:ring-[#22C55E]/20"
+            />
+          </FormField>
+        </div>
 
         <FormField label="State" error={errors.state}>
           <Select value={data.state} onValueChange={(v) => onUpdate("state", v)}>
