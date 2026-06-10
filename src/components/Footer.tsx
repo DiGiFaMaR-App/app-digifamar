@@ -73,7 +73,7 @@ export function Footer() {
               rel="noreferrer"
               className="hover:text-primary"
             >
-              WhatsApp: +1 (667) 361-9136
+              WhatsApp: {SUPPORT_DISPLAY}
             </a>
           </div>
         </div>
