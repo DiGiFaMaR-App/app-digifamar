@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { products, farms } from "@/lib/mock-data";
 
-const BASE_URL = "https://farmer-forward.lovable.app";
+const BASE_URL = "https://app.digifamar.com";
 
 interface SitemapEntry {
   path: string;

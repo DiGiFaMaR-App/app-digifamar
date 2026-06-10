@@ -1,0 +1,22 @@
+# DiGiFaMaR
+
+> Marketplace connecting buyers directly with local farmers — fresh produce, transparent pricing, escrow-protected orders, and live delivery tracking.
+
+DiGiFaMaR (Digital Farmers Market) is a farm-to-table marketplace. Buyers shop produce listings from verified farms, chat with farmers, pay through an escrow that releases funds only after delivery, and track orders in real time.
+
+## Pages
+
+- [Home](/): Overview of the marketplace and featured farms.
+- [Market](/market): Browse current produce listings.
+- [Browse](/browse): Search listings by category, farm, and location.
+- [How it works](/how-it-works): Buyer and farmer journey explained.
+- [Pricing](/pricing): Platform fees and escrow costs.
+- [Buyer protection](/buyer-protection): Escrow, delivery guarantees, and dispute policy.
+- [Lending](/lending): Working-capital lending program for farmers.
+- [About](/about): Company background and mission.
+- [Contact](/contact): Support email, WhatsApp, and contact form.
+
+## Optional
+
+- [Sign in](/signin): Account access for buyers and farmers.
+- [Sign up](/signup): Create a buyer or farmer account.
