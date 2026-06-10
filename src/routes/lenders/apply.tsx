@@ -100,7 +100,7 @@ function ApplyPage() {
           max_loan_amount: maxNum,
           contact_name: form.contactName || null,
           contact_email: form.contactEmail,
-          contact_phone: form.contactPhone || null,
+          contact_phone: normalizedPhone,
           status: "pending",
         });
       if (insertError) throw new Error(insertError.message);
