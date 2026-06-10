@@ -76,6 +76,13 @@ function ApplyPage() {
       setError("Maximum loan amount must be greater than or equal to the minimum.");
       return;
     }
+    const normalizedPhone = form.contactPhone.trim()
+      ? normalizeToE164(form.contactPhone)
+      : null;
+    if (form.contactPhone.trim() && !normalizedPhone) {
+      setError("Enter a valid US phone number, e.g. (555) 123-4567.");
+      return;
+    }
     setSubmitting(true);
     try {
       // lender_applications is created by the lender-portal migrations; the generated
