@@ -2,7 +2,7 @@
 // The portal is themed in isolation with arbitrary Tailwind values + inline
 // styles so it never depends on (or mutates) the app's global green theme.
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Building2, LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react";
 import { type ReactNode } from "react";
 import logoSrc from "@/assets/logo.png";
 import { NAVY, scoreTier, TIER_META } from "./-data";
