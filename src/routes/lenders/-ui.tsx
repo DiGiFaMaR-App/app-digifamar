@@ -30,9 +30,7 @@ export function LenderShell({
       >
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/lenders/dashboard" className="flex items-center gap-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1 ring-1 ring-black/5">
-              <img src={logoSrc} alt="DiGiFaMaR" className="h-full w-full object-contain" />
-            </span>
+            <img src={logoSrc} alt="DiGiFaMaR" className="h-9 w-auto object-contain" />
             <span className="text-sm font-extrabold tracking-tight">
               DiGiFaMaR <span className="text-slate-400 font-semibold">Lending</span>
             </span>
