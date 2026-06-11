@@ -161,27 +161,40 @@ function Marketplace() {
             )}
 
             {!geoLoading && geoError && (
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <MapPin className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={manualInput}
-                    onChange={(e) => setManualInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleManualSubmit();
-                    }}
-                    placeholder="Enter your city or ZIP code"
-                    className="h-9 w-56 pl-9 text-xs"
-                  />
+              <div className="flex w-full flex-col gap-2">
+                {errorMessage && (
+                  <p className="text-xs text-destructive">{errorMessage}</p>
+                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="relative">
+                    <MapPin className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={manualInput}
+                      onChange={(e) => setManualInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleManualSubmit();
+                      }}
+                      placeholder="Enter your city or ZIP code"
+                      className="h-9 w-56 pl-9 text-xs"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleManualSubmit}
+                    className="h-9 text-xs"
+                  >
+                    Set location
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={detect}
+                    className="h-9 text-xs"
+                  >
+                    Try detect again
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleManualSubmit}
-                  className="h-9 text-xs"
-                >
-                  Set location
-                </Button>
               </div>
             )}
           </div>
