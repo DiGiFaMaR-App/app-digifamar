@@ -119,13 +119,16 @@ export const searchBrowse = createServerFn({ method: "POST" })
       .range(farmsRangeStart, farmsRangeEnd);
     if (farmErr) throw new Error(farmErr.message);
 
-    let farms: BrowseFarm[] = ((farmRows ?? []) as FarmRow[]).map((r) => ({
-      ...r,
-      distance_mi:
+    let farms: BrowseFarm[] = ((farmRows ?? []) as FarmRow[]).map((r) => {
+      const distance_mi =
         hasOrigin && r.lat != null && r.lng != null
           ? haversineMiles(data.originLat!, data.originLng!, r.lat, r.lng)
-          : null,
-    }));
+          : null;
+      // Strip precise lat/lng from the public response; only distance leaks.
+      const { lat: _lat, lng: _lng, ...rest } = r;
+      void _lat; void _lng;
+      return { ...rest, distance_mi };
+    });
 
     let totalFarms = farmCount ?? farms.length;
     if (hasOrigin) {
