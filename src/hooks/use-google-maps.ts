@@ -21,7 +21,7 @@ declare global {
 /** Loads the Maps JS API (with places library) exactly once. */
 export function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
-  if (window.google?.maps?.importLibrary) return Promise.resolve();
+  if (window.google?.maps && typeof window.google.maps.importLibrary === "function") return Promise.resolve();
   if (window.__dgfMapsLoader) return window.__dgfMapsLoader;
   if (!BROWSER_KEY) {
     return Promise.reject(new Error("Google Maps browser key not configured"));
