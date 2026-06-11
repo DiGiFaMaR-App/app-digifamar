@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { reverseGeocode, geocodeAddress } from "@/lib/geocode.functions";
 
 // ─────────────────────────────────────────────────────────────────
-// HAVERSINE — exported so market page can use it too
+// HAVERSINE
 // ─────────────────────────────────────────────────────────────────
 
 export function haversineDistance(
@@ -30,7 +31,8 @@ export type GeoError =
   | "http_blocked"
   | "permission_denied"
   | "unavailable"
-  | "timeout";
+  | "timeout"
+  | "lookup_failed";
 
 export interface GeolocationState {
   lat: number | null;
@@ -39,7 +41,8 @@ export interface GeolocationState {
   state: string | null;
   loading: boolean;
   error: GeoError | null;
-  setManualLocation: (value: string) => void;
+  setManualLocation: (value: string) => Promise<void>;
+  detect: () => void;
 }
 
 export function useGeolocation(): GeolocationState {
@@ -51,10 +54,11 @@ export function useGeolocation(): GeolocationState {
   const [error, setError] = useState<GeoError | null>(null);
   const cancelled = useRef(false);
 
-  useEffect(() => {
+  const detect = useCallback(() => {
     cancelled.current = false;
+    setError(null);
+    setLoading(true);
 
-    // HTTPS check (geolocation is blocked on plain HTTP outside localhost)
     if (
       typeof window !== "undefined" &&
       window.location.protocol !== "https:" &&
@@ -71,49 +75,31 @@ export function useGeolocation(): GeolocationState {
       return;
     }
 
-    // Backup timeout — fires if the browser stalls without calling either
-    // success or error (happens on some mobile browsers when location is
-    // pending user decision for too long).
     const backupTimer = setTimeout(() => {
       if (!cancelled.current) {
         setError("timeout");
         setLoading(false);
       }
-    }, 10_000);
+    }, 12_000);
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         clearTimeout(backupTimer);
         if (cancelled.current) return;
-
         const { latitude, longitude } = pos.coords;
         setLat(latitude);
         setLng(longitude);
-
-        // Reverse-geocode via Nominatim (no API key required)
         try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
-            { headers: { "Accept-Language": "en", "User-Agent": "DiGiFaMaR/1.0" } },
-          );
-          if (!cancelled.current) {
-            const data: {
-              address?: {
-                city?: string;
-                town?: string;
-                village?: string;
-                county?: string;
-                state?: string;
-              };
-            } = await res.json();
-            const addr = data.address ?? {};
-            setCity(
-              addr.city ?? addr.town ?? addr.village ?? addr.county ?? null,
-            );
-            setGeoState(addr.state ?? null);
+          const res = await reverseGeocode({
+            data: { lat: latitude, lng: longitude },
+          });
+          if (cancelled.current) return;
+          if (res) {
+            setCity(res.city);
+            setGeoState(res.state);
           }
         } catch {
-          // Reverse geocode failed — we still have coordinates, just no label
+          // coords still usable for distance filtering
         } finally {
           if (!cancelled.current) setLoading(false);
         }
@@ -122,29 +108,51 @@ export function useGeolocation(): GeolocationState {
         clearTimeout(backupTimer);
         if (cancelled.current) return;
         setError(
-          err.code === err.PERMISSION_DENIED ? "permission_denied" : "unavailable",
+          err.code === err.PERMISSION_DENIED
+            ? "permission_denied"
+            : err.code === err.TIMEOUT
+              ? "timeout"
+              : "unavailable",
         );
         setLoading(false);
       },
-      { timeout: 9_500, enableHighAccuracy: false, maximumAge: 300_000 },
+      { timeout: 10_000, enableHighAccuracy: false, maximumAge: 300_000 },
     );
-
-    return () => {
-      cancelled.current = true;
-      clearTimeout(backupTimer);
-    };
   }, []);
 
-  const setManualLocation = (value: string) => {
-    // Cancel any in-flight geolocation request
+  useEffect(() => {
+    detect();
+    return () => {
+      cancelled.current = true;
+    };
+  }, [detect]);
+
+  const setManualLocation = useCallback(async (value: string) => {
     cancelled.current = true;
-    setLat(null);
-    setLng(null);
-    setCity(value.trim() || null);
-    setGeoState(null);
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    setLoading(true);
     setError(null);
-    setLoading(false);
-  };
+    try {
+      const isZip = /^\d{5}(-\d{4})?$/.test(trimmed);
+      const res = await geocodeAddress({
+        data: isZip ? { zip: trimmed } : { city: trimmed },
+      });
+      if (res) {
+        setLat(res.lat);
+        setLng(res.lng);
+        setCity(res.city ?? trimmed);
+        setGeoState(res.state);
+        setError(null);
+      } else {
+        setError("lookup_failed");
+      }
+    } catch {
+      setError("lookup_failed");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return {
     lat,
@@ -154,5 +162,6 @@ export function useGeolocation(): GeolocationState {
     loading,
     error,
     setManualLocation,
+    detect,
   };
 }
