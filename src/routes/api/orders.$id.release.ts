@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { releaseEscrow } from "@/lib/escrow-store.server";
+import { authenticateRequest } from "@/lib/route-auth.server";
 
 // Same-origin only — these endpoints are not meant to be called cross-origin.
 const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Vary": "Origin",
 } as const;
 
@@ -20,6 +21,13 @@ export const Route = createFileRoute("/api/orders/$id/release")({
         new Response(null, { status: 204, headers: CORS }),
 
       POST: async ({ request, params }) => {
+        const auth = await authenticateRequest(request);
+        if (!auth.ok) {
+          return new Response(JSON.stringify({ error: auth.error }), {
+            status: auth.status,
+            headers: { "Content-Type": "application/json", ...CORS },
+          });
+        }
         try {
           const raw = await request.json();
           const parsed = ReleaseSchema.safeParse(raw);
@@ -30,7 +38,7 @@ export const Route = createFileRoute("/api/orders/$id/release")({
             );
           }
 
-          const result = releaseEscrow(params.id, parsed.data.code);
+          const result = releaseEscrow(params.id, auth.user.userId, parsed.data.code);
           if (!result.ok) {
             return new Response(JSON.stringify({ error: result.error }), {
               status: result.status,

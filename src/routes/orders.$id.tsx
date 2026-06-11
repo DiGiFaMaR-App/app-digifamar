@@ -81,9 +81,19 @@ function OrderTracking() {
     if (enteredCode.length !== 6) return;
     setSubmitting(true);
     try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      if (!token) {
+        toast.error("Please sign in to release funds.");
+        return;
+      }
       const res = await fetch(`/api/orders/${encodeURIComponent(id)}/release`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ code: enteredCode }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };

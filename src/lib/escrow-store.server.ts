@@ -5,6 +5,7 @@ export type EscrowOrder = {
   id: string;
   productId?: string;
   amount: number;
+  buyerId: string;
   buyerPhone?: string;
   status: "held" | "released" | "refunded";
   releaseCode: string;
@@ -28,12 +29,14 @@ function generateReleaseCode(): string {
 export function createEscrowOrder(input: {
   productId?: string;
   amount: number;
+  buyerId: string;
   buyerPhone?: string;
 }): EscrowOrder {
   const order: EscrowOrder = {
     id: makeId(),
     productId: input.productId,
     amount: input.amount,
+    buyerId: input.buyerId,
     buyerPhone: input.buyerPhone,
     status: "held",
     releaseCode: generateReleaseCode(),
@@ -49,10 +52,15 @@ export function getEscrowOrder(id: string): EscrowOrder | undefined {
 
 export function releaseEscrow(
   id: string,
+  userId: string,
   code: string,
 ): { ok: true; order: EscrowOrder } | { ok: false; error: string; status: number } {
   const order = orders.get(id);
   if (!order) return { ok: false, error: "Order not found", status: 404 };
+  if (order.buyerId !== userId) {
+    // Do not leak that the order exists to non-buyers.
+    return { ok: false, error: "Order not found", status: 404 };
+  }
   if (order.status === "released") {
     return { ok: false, error: "Funds already released", status: 409 };
   }
