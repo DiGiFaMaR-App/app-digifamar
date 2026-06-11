@@ -30,11 +30,8 @@ export function LenderShell({
       >
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/lenders/dashboard" className="flex items-center gap-2">
-            <span
-              className="grid h-8 w-8 place-items-center rounded-lg text-white"
-              style={{ backgroundColor: NAVY.accent }}
-            >
-              <Building2 className="h-4 w-4" />
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1 ring-1 ring-black/5">
+              <img src={logoSrc} alt="DiGiFaMaR" className="h-full w-full object-contain" />
             </span>
             <span className="text-sm font-extrabold tracking-tight">
               DiGiFaMaR <span className="text-slate-400 font-semibold">Lending</span>
