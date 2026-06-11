@@ -3,6 +3,7 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/signin")({
   head: () => ({
@@ -18,6 +19,9 @@ function SignIn() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
+        <div className="mb-6 flex justify-center">
+          <Logo size="lg" />
+        </div>
         <h1 className="text-2xl font-extrabold">Welcome back</h1>
         <p className="mt-1 text-sm text-muted-foreground">Sign in to your DiGiFaMaR account.</p>
         <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>

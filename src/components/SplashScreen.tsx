@@ -155,15 +155,16 @@ export function SplashScreen() {
 
           {/* Logo image */}
           <div className="animate-splash-logo">
-            <img
-              src={logoSrc}
-              alt="DiGiFaMaR"
-              width={320}
-              height={320}
-              className="relative h-48 sm:h-60 w-auto object-contain"
-              style={{ mixBlendMode: "screen" }}
-              draggable={false}
-            />
+            <span className="relative inline-flex items-center justify-center rounded-3xl bg-white p-3 shadow-2xl ring-1 ring-white/10">
+              <img
+                src={logoSrc}
+                alt="DiGiFaMaR"
+                width={320}
+                height={320}
+                className="h-44 sm:h-56 w-auto object-contain"
+                draggable={false}
+              />
+            </span>
           </div>
         </div>
 
