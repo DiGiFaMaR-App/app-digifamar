@@ -26,12 +26,12 @@ export const updateListingFn = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z.object({ id: z.string().min(1), patch: UpdateListingDto }).parse(input),
   )
-  .handler(({ data }) => ListingsService.update(data.id, data.patch));
+  .handler(({ data, context }) => ListingsService.update(data.id, context.userId, data.patch));
 
 export const deleteListingFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ id: z.string().min(1) }).parse(input))
-  .handler(({ data }) => {
-    ListingsService.remove(data.id);
+  .handler(({ data, context }) => {
+    ListingsService.remove(data.id, context.userId);
     return { ok: true as const };
   });
