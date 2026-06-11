@@ -11,10 +11,13 @@ export function Logo({
   className?: string;
   size?: "sm" | "md" | "lg" | "xl" | "2xl";
   glow?: boolean;
-  /** Use mix-blend-mode: screen so a JPG logo blends seamlessly into a dark background. */
+  /** Deprecated — kept for API compatibility. The logo now always renders
+   * inside a subtle rounded white container so its white background blends
+   * cleanly into both light and dark surfaces. */
   blend?: boolean;
   linked?: boolean;
 }) {
+  void blend;
   const sizes = {
     sm: "h-8",
     md: "h-10 sm:h-12",
@@ -22,15 +25,17 @@ export function Logo({
     xl: "h-40 sm:h-48",
     "2xl": "h-52 sm:h-60",
   };
-  const fx = blend ? "logo-blend" : glow ? "glow-logo" : "";
+  const fx = glow ? "glow-logo" : "";
   const img = (
-    <img
-      src={logoSrc}
-      alt="DiGiFaMaR"
-      width={512}
-      height={512}
-      className={`${sizes[size]} w-auto object-contain ${fx}`}
-    />
+    <span className="inline-flex items-center justify-center rounded-2xl bg-white p-1.5 shadow-sm ring-1 ring-black/5">
+      <img
+        src={logoSrc}
+        alt="DiGiFaMaR"
+        width={512}
+        height={512}
+        className={`${sizes[size]} w-auto object-contain ${fx}`}
+      />
+    </span>
   );
   if (!linked) return <span className={`inline-flex items-center ${className}`}>{img}</span>;
   return (
