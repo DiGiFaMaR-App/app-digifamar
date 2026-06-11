@@ -1,13 +1,27 @@
-name: Build Android APK
+name: Build Android App
 
-# Build a debug APK on every push to main, or on demand from the Actions tab.
+# Builds:
+#   • Debug APK    — always, for sideloading + QA
+#   • Release AAB  — only when ANDROID_KEYSTORE_BASE64 secret is set
+#
+# To produce a Play-Store-ready signed .aab, add these 4 repo secrets:
+#   ANDROID_KEYSTORE_BASE64   base64-encoded contents of your release.keystore
+#   ANDROID_KEYSTORE_PASSWORD keystore password
+#   ANDROID_KEY_ALIAS         key alias inside the keystore (e.g. "digifamar")
+#   ANDROID_KEY_PASSWORD      key password
+#
+# Generate a keystore once on your machine:
+#   keytool -genkey -v -keystore release.keystore -alias digifamar \
+#           -keyalg RSA -keysize 2048 -validity 10000
+#   base64 -w0 release.keystore   # paste output into ANDROID_KEYSTORE_BASE64
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 jobs:
-  build-apk:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -43,15 +57,54 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      # ---------- Debug APK (always) ----------
       - name: Build debug APK
         working-directory: android
         run: |
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Upload APK artifact
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: digifamar-debug.apk
+          name: digifamar-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      # ---------- Signed release .aab (only if keystore secret exists) ----------
+      - name: Check for keystore secret
+        id: keystore_check
+        run: |
+          if [ -n "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ANDROID_KEYSTORE_BASE64 not set — skipping signed release .aab build."
+          fi
+
+      - name: Decode keystore
+        if: steps.keystore_check.outputs.present == 'true'
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+
+      - name: Build signed release AAB
+        if: steps.keystore_check.outputs.present == 'true'
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          ./gradlew bundleRelease --no-daemon --stacktrace \
+            -Pandroid.injected.signing.store.file=app/release.keystore \
+            -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
+
+      - name: Upload release AAB
+        if: steps.keystore_check.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: digifamar-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
