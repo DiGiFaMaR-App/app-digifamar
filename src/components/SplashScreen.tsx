@@ -168,9 +168,9 @@ export function SplashScreen() {
 
         {/* Tagline with shimmer */}
         <p
-          className="animate-splash-tagline animate-splash-shimmer mt-0 text-xl sm:text-2xl font-bold tracking-wide"
+          className="animate-splash-tagline animate-splash-shimmer mt-0 text-base sm:text-lg font-bold tracking-wide px-4"
         >
-          From American Farms, Direct To You
+          America's Farmers. Direct to Market. No Middlemen.
         </p>
 
         {/* Gradient divider */}
