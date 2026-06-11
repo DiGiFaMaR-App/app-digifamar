@@ -1,0 +1,1 @@
+REVOKE SELECT (lat, lng) ON public.listings FROM anon, authenticated;
