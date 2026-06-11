@@ -19,8 +19,6 @@ export type BrowseFarm = {
   city: string | null;
   state: string | null;
   zip: string | null;
-  lat: number | null;
-  lng: number | null;
   certifications: string[];
   verification_status: string;
   distance_mi: number | null;
@@ -35,8 +33,6 @@ export type BrowseListing = {
   price_cents: number;
   unit: string;
   images: string[];
-  lat: number | null;
-  lng: number | null;
   farm_name: string | null;
   distance_mi: number | null;
 };
