@@ -1,21 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { createEscrowOrder } from "@/lib/escrow-store.server";
+import { authenticateRequest } from "@/lib/route-auth.server";
 
 // Same-origin only — these endpoints are not meant to be called cross-origin.
 const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Vary": "Origin",
 } as const;
 
-// Mirrors the NestJS CreateOrderDto:
-//   buyerId: UUID
-//   listingId: UUID
-//   amount: number
-//   paymentMethodId: string
+// Mirrors the NestJS CreateOrderDto. The buyer's identity is taken from the
+// authenticated session, NEVER from the request body.
 const CreateOrderSchema = z.object({
-  buyerId: z.string().uuid(),
   listingId: z.string().uuid(),
   amount: z.number().positive().max(100_000),
   paymentMethodId: z.string().min(1).max(120),
@@ -28,6 +25,13 @@ export const Route = createFileRoute("/api/orders")({
         new Response(null, { status: 204, headers: CORS }),
 
       POST: async ({ request }) => {
+        const auth = await authenticateRequest(request);
+        if (!auth.ok) {
+          return new Response(JSON.stringify({ error: auth.error }), {
+            status: auth.status,
+            headers: { "Content-Type": "application/json", ...CORS },
+          });
+        }
         try {
           const raw = await request.json();
           const parsed = CreateOrderSchema.safeParse(raw);
@@ -37,11 +41,11 @@ export const Route = createFileRoute("/api/orders")({
               { status: 400, headers: { "Content-Type": "application/json", ...CORS } },
             );
           }
-          const { buyerId, listingId, amount, paymentMethodId } = parsed.data;
+          const { listingId, amount, paymentMethodId } = parsed.data;
           const order = createEscrowOrder({
             productId: listingId,
             amount,
-            buyerPhone: buyerId, // reuse buyer field on the mock store
+            buyerId: auth.user.userId,
           });
           return new Response(
             JSON.stringify({
@@ -49,7 +53,7 @@ export const Route = createFileRoute("/api/orders")({
               orderId: order.id,
               status: order.status,
               amount: order.amount,
-              buyerId,
+              buyerId: auth.user.userId,
               listingId,
               paymentMethodId,
             }),
