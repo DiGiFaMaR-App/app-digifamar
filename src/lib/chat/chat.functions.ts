@@ -15,4 +15,4 @@ export const sendMessageFn = createServerFn({ method: "POST" })
 export const listMessagesFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => ThreadQueryDto.parse(input))
-  .handler(({ data }) => ChatService.list(data));
+  .handler(({ data, context }) => ChatService.list(context.userId, data));
