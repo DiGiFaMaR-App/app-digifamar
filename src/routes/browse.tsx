@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
   BadgeCheck,
   ChevronLeft,
   ChevronRight,
+  Crosshair,
   Loader2,
   MapPin,
   Package,
@@ -15,8 +16,15 @@ import {
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
-import { geocodeAddress } from "@/lib/geocode.functions";
+import {
+  geocodeAddress,
+  geocodePlaceId,
+  reverseGeocode,
+  type GeocodeResult,
+} from "@/lib/geocode.functions";
+import { usePlacesAutocomplete } from "@/hooks/use-google-maps";
 
 export const Route = createFileRoute("/browse")({
   head: () => ({
@@ -57,7 +65,6 @@ export const Route = createFileRoute("/browse")({
 });
 
 const DEBOUNCE_MS = 300;
-const ZIP_RE = /^\d{5}(-\d{4})?$/;
 
 function useDebounced<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -73,29 +80,147 @@ function Browse() {
   const [page, setPage] = useState(1);
   const debounced = useDebounced(input.trim(), DEBOUNCE_MS);
 
-  // Reset page whenever the query text changes.
+  // Origin = the resolved coordinates we use to filter by distance.
+  const [origin, setOrigin] = useState<GeocodeResult>(null);
+
+  // Geolocation state
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState<string | null>(null);
+  const [showFallback, setShowFallback] = useState(false);
+
+  // Manual fallback fields
+  const [mCity, setMCity] = useState("");
+  const [mState, setMState] = useState("");
+  const [mZip, setMZip] = useState("");
+  const [manualBusy, setManualBusy] = useState(false);
+
+  // Autocomplete suggestions (only when user is typing a location-ish query)
+  const [showSuggest, setShowSuggest] = useState(false);
+  const { suggestions, loading: autoLoading } = usePlacesAutocomplete(
+    showSuggest ? input : "",
+  );
+  const suggestBoxRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setPage(1);
-  }, [debounced]);
+  }, [debounced, origin]);
 
-  // If the input looks like a ZIP, geocode it for the 50-mile radius filter.
-  const zipMatch = useMemo(() => {
-    const m = debounced.match(ZIP_RE);
-    return m ? m[0] : null;
-  }, [debounced]);
+  // Close suggestions on outside click
+  useEffect(() => {
+    function onDoc(e: MouseEvent) {
+      if (
+        suggestBoxRef.current &&
+        !suggestBoxRef.current.contains(e.target as Node)
+      ) {
+        setShowSuggest(false);
+      }
+    }
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
 
-  const originQuery = useQuery({
-    queryKey: ["browse-origin", zipMatch],
-    queryFn: () =>
-      zipMatch
-        ? geocodeAddress({ data: { zip: zipMatch, country: "USA" } })
-        : Promise.resolve(null),
-    enabled: !!zipMatch,
-    staleTime: 1000 * 60 * 60,
-  });
+  const handleDetect = () => {
+    setGeoError(null);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoError("Your browser does not support location detection.");
+      setShowFallback(true);
+      return;
+    }
+    if (
+      typeof window !== "undefined" &&
+      window.location.protocol !== "https:" &&
+      window.location.hostname !== "localhost"
+    ) {
+      setGeoError("Location requires a secure (HTTPS) connection.");
+      setShowFallback(true);
+      return;
+    }
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const result = await reverseGeocode({
+            data: { lat: pos.coords.latitude, lng: pos.coords.longitude },
+          });
+          if (result) {
+            setOrigin(result);
+            setShowFallback(false);
+          } else {
+            setOrigin({
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              formatted: "your location",
+              city: null,
+              state: null,
+              zip: null,
+            });
+          }
+        } catch (err) {
+          setGeoError(
+            err instanceof Error ? err.message : "Reverse lookup failed",
+          );
+        } finally {
+          setGeoLoading(false);
+        }
+      },
+      (err) => {
+        setGeoLoading(false);
+        const msg =
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission was denied. Enter your location below."
+            : err.code === err.POSITION_UNAVAILABLE
+              ? "Location is unavailable right now. Enter it manually below."
+              : err.code === err.TIMEOUT
+                ? "Location request timed out. Try again or enter it manually."
+                : "Could not detect your location.";
+        setGeoError(msg);
+        setShowFallback(true);
+      },
+      { timeout: 10_000, enableHighAccuracy: false, maximumAge: 300_000 },
+    );
+  };
 
-  const origin = originQuery.data;
-  const hasOrigin = !!origin;
+  const handleManualSubmit = async () => {
+    if (!mCity && !mState && !mZip) return;
+    setManualBusy(true);
+    setGeoError(null);
+    try {
+      const res = await geocodeAddress({
+        data: {
+          city: mCity || undefined,
+          state: mState || undefined,
+          zip: mZip || undefined,
+          country: "USA",
+        },
+      });
+      if (res) {
+        setOrigin(res);
+        setShowFallback(false);
+      } else {
+        setGeoError("We couldn't find that location. Double-check and retry.");
+      }
+    } catch (err) {
+      setGeoError(err instanceof Error ? err.message : "Lookup failed");
+    } finally {
+      setManualBusy(false);
+    }
+  };
+
+  const handleSuggestionPick = async (placeId: string, label: string) => {
+    setShowSuggest(false);
+    setInput(label);
+    try {
+      const res = await geocodePlaceId({ data: { placeId } });
+      if (res) {
+        setOrigin(res);
+        setShowFallback(false);
+      }
+    } catch {
+      // ignore — the text query still applies
+    }
+  };
+
+  const clearOrigin = () => setOrigin(null);
 
   const results = useQuery<BrowseResults>({
     queryKey: [
@@ -115,7 +240,6 @@ function Browse() {
           maxMiles: 50,
         },
       }),
-    enabled: !zipMatch || !originQuery.isFetching,
     placeholderData: keepPreviousData,
   });
 
@@ -138,38 +262,158 @@ function Browse() {
       <h1 className="sr-only">Browse verified American farms and listings</h1>
 
       <div className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:px-6">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Search by ZIP, city, farm or product name..."
-              aria-label="Search farms and listings"
-              className="pl-9"
-            />
-            {input && (
-              <button
-                onClick={() => setInput("")}
-                aria-label="Clear search"
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-4 w-4" />
-              </button>
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:px-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative flex-1" ref={suggestBoxRef}>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                  setShowSuggest(true);
+                }}
+                onFocus={() => setShowSuggest(true)}
+                placeholder="Search by city, ZIP, farm or product…"
+                aria-label="Search farms and listings"
+                className="pl-9"
+                autoComplete="off"
+              />
+              {input && (
+                <button
+                  onClick={() => {
+                    setInput("");
+                    setShowSuggest(false);
+                  }}
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+              {showSuggest && suggestions.length > 0 && (
+                <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border border-border bg-popover shadow-lg">
+                  {suggestions.slice(0, 6).map((s) => (
+                    <li key={s.placeId}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleSuggestionPick(
+                            s.placeId,
+                            `${s.primary}${s.secondary ? `, ${s.secondary}` : ""}`,
+                          )
+                        }
+                        className="flex w-full items-start gap-2 px-3 py-2 text-left text-sm hover:bg-accent"
+                      >
+                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <span>
+                          <span className="font-medium">{s.primary}</span>
+                          {s.secondary && (
+                            <span className="ml-1 text-xs text-muted-foreground">
+                              {s.secondary}
+                            </span>
+                          )}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDetect}
+              disabled={geoLoading}
+              className="shrink-0"
+            >
+              {geoLoading ? (
+                <>
+                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Detecting…
+                </>
+              ) : (
+                <>
+                  <Crosshair className="mr-1.5 h-4 w-4" /> Detect
+                </>
+              )}
+            </Button>
+
+            {(results.isFetching || autoLoading) && (
+              <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:inline-flex">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
+              </span>
             )}
           </div>
-          {results.isFetching && (
+
+          {origin && (
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
+              <MapPin className="h-3 w-3" /> Showing results within 50 mi of{" "}
+              <strong className="text-foreground">{origin.formatted}</strong>
+              <button
+                onClick={clearOrigin}
+                className="ml-2 rounded p-0.5 hover:text-foreground"
+                aria-label="Clear location"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+
+          {geoError && (
+            <div
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+            >
+              {geoError}
+            </div>
+          )}
+
+          {showFallback && !origin && (
+            <div className="rounded-md border border-border bg-background/60 p-3">
+              <p className="mb-2 text-xs font-semibold text-muted-foreground">
+                Enter your location manually
+              </p>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_120px_140px_auto]">
+                <div>
+                  <Label htmlFor="m-city" className="sr-only">City</Label>
+                  <Input
+                    id="m-city"
+                    value={mCity}
+                    onChange={(e) => setMCity(e.target.value)}
+                    placeholder="City"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="m-state" className="sr-only">State</Label>
+                  <Input
+                    id="m-state"
+                    value={mState}
+                    onChange={(e) => setMState(e.target.value)}
+                    placeholder="State"
+                    maxLength={2}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="m-zip" className="sr-only">ZIP</Label>
+                  <Input
+                    id="m-zip"
+                    value={mZip}
+                    onChange={(e) => setMZip(e.target.value)}
+                    placeholder="ZIP"
+                    inputMode="numeric"
+                  />
+                </div>
+                <Button onClick={handleManualSubmit} disabled={manualBusy}>
+                  {manualBusy ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Search this area"
+                  )}
+                </Button>
+              </div>
             </div>
           )}
         </div>
-        {hasOrigin && origin && (
-          <div className="mx-auto flex max-w-7xl items-center gap-1.5 px-4 pb-3 text-xs text-muted-foreground sm:px-6">
-            <MapPin className="h-3 w-3" /> Showing results within 50 mi of{" "}
-            <strong className="text-foreground">{origin.formatted}</strong>
-          </div>
-        )}
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-10">
