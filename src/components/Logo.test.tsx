@@ -29,8 +29,8 @@ describe("Logo", () => {
     expect(screen.getByAltText("DiGiFaMaR").className).toContain("glow-logo");
   });
 
-  it("applies blend class when blend=true (overrides glow)", () => {
+  it("still renders the image when blend=true (legacy prop, no-op)", () => {
     render(<Logo glow blend />);
-    expect(screen.getByAltText("DiGiFaMaR").className).toContain("logo-blend");
+    expect(screen.getByAltText("DiGiFaMaR")).toBeInTheDocument();
   });
 });
