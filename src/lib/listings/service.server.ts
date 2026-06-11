@@ -50,15 +50,23 @@ export class ListingsService {
     return listing;
   }
 
-  static update(id: string, patch: UpdateListingDto): ListingDto {
+  static update(id: string, farmerId: string, patch: UpdateListingDto): ListingDto {
     const existing = store.get(id);
     if (!existing) throw new Error(`Listing ${id} not found`);
+    if (existing.farmerId && existing.farmerId !== farmerId) {
+      throw new Error("Forbidden: you do not own this listing");
+    }
     const next: ListingDto = { ...existing, ...patch };
     store.set(id, next);
     return next;
   }
 
-  static remove(id: string): void {
+  static remove(id: string, farmerId: string): void {
+    const existing = store.get(id);
+    if (!existing) return;
+    if (existing.farmerId && existing.farmerId !== farmerId) {
+      throw new Error("Forbidden: you do not own this listing");
+    }
     store.delete(id);
   }
 }
