@@ -62,7 +62,7 @@ const HACKS = [
 
 function HacksPage() {
   return (
-    <AppShell title="Farm Hacks">
+    <AppShell>
       <div className="mx-auto w-full max-w-3xl px-4 py-6">
         <header className="mb-6">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
