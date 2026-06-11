@@ -1,52 +1,75 @@
-DiGiFaMaR is a large platform spec (40+ pages, escrow payments, Stripe Connect, SMS, AI vision, real Google Maps, admin tools). Building all of it in one shot would produce shallow, half-broken screens. I'll deliver it in clear phases — this plan covers **Phase 1: the public, design-defining surface** — and outlines later phases so we agree on sequencing.
+# DiGiFaMaR — Gap-fill build plan
 
-## Phase 1 — Public marketing site + design system + browse shell (this build)
+Your app already ships most of these phases. I'll audit each one against what exists and only build what's missing. I'll use sensible defaults for the open questions; tell me to change any of them.
 
-Sets the brand, design system, and the screens every visitor sees before signing up. Uses mock data; no backend yet.
+## Defaults I'll use (say "change X" to override)
 
-### Design system (`src/styles.css`)
-- Forest green primary `#2D6A4F`, harvest orange secondary `#F4A261`, off-white bg `#FAFAFA`, dark mode `#1A1A2E`, all defined as `oklch` tokens.
-- Semantic tokens for badges (verified-green, delivery-blue, organic-light-green, top-seller-gold, new-orange).
-- Inter font (Google Fonts), rounded-xl cards, soft shadows, green focus rings, subtle hover lift.
-- Reusable `Header` (sticky, logo + nav + auth CTAs), `Footer` (full link columns + WhatsApp + compliance badges), floating WhatsApp button on every page, mobile bottom nav.
+- **OTP delivery**: in-app + email (no Twilio cost). Real SMS can be added later by connecting Twilio.
+- **Payments**: keep the existing Escrow.com integration (already wired, simulates until `ESCROW_COM_API_KEY` is set). PayPal/Bank Transfer shown as "coming soon" — Lovable's built-in payments cover card only.
+- **Farmer onboarding submit**: save to `farmer_profiles` AND email summary to `support@digifamar.com` (I'll set up the email domain).
+- **Watermark removal**: requires Pro plan; I'll surface the publish-settings toggle.
 
-### Routes built
-- `/` Landing: hero with generated farm landscape, trust badges, How It Works (3 steps), stats bar, 10-category grid, 6 featured farms, featured products carousel, Why DiGiFaMaR (buyer + farmer columns), testimonials, "Farms Across America" map placeholder section, app download banner, footer.
-- `/browse` Browse shell: sidebar filters (location, distance, delivery speed, categories, price, certifications, rating, verified toggle), top bar (search, grid/list/map toggle, sort, count), product card grid with mock listings. Map view = styled placeholder.
-- `/product/$id` Product detail: gallery, AI freshness badge, price, delivery options, add-to-cart, farm info card, tabbed content (description/farm story/nutrition/reviews/shipping), similar products.
-- `/farm/$id` Farm profile: hero banner, verified + rating, story, certifications, gallery, products grid, farmer bio, reviews, map placeholder.
-- `/signup` Role selection (buyer card vs farmer card).
-- `/signup/buyer`, `/signup/farmer`, `/signin` — full form UI, client-side validation only.
-- `/pricing` Free / Pro / Elite tiers.
-- `/how-it-works`, `/about`, `/buyer-protection`, `/lending`, `/contact` — content pages.
-- Each route gets its own `head()` with unique title + description + og tags.
+## Phase-by-phase audit & gaps
 
-### Generated imagery
-~6 hero/landscape/category images via the image tool, stored in `src/assets/`. Farm/product cards use the same handful, varied — not stock placeholders.
+### Phase 1 — Foundation & Navigation
+- ✅ Splash (`SplashScreen.tsx`), logo, auth/role select, bottom nav (`MobileBottomNav`), brand colors in `styles.css`.
+- ⚠️ Add **Farm Hacks** tab to bottom nav (currently missing).
+- ⚠️ Verify tagline matches exactly: "America's Farmers. Direct to Market. No Middlemen."
 
-### Out of scope for Phase 1 (intentional, see phases below)
-- No real auth, no database, no Stripe, no SMS, no real Google Maps key, no AI calls, no real-time chat, no admin tools, no farmer dashboard internals, no order tracking, no escrow logic.
-- Cart/checkout/order screens deferred to Phase 2.
-- Farmer dashboard, listings wizard, earnings, analytics deferred to Phase 3.
+### Phase 2 — Farmer Onboarding
+- ✅ `signup.farmer.tsx` exists.
+- 🔨 Rebuild as a true **5-step wizard** (Personal → Farm → Products → Delivery zones → Review).
+- 🔨 On submit: insert into `farmer_profiles`, then call a server fn that emails `support@digifamar.com` via Lovable Emails.
 
-## Proposed later phases (not built yet — confirm sequencing before we start each)
+### Phase 3 — Marketplace & Chat
+- ✅ Browse/market with filters, distance via geolocation, chat threads, listing → chat flow.
+- ⚠️ Add explicit **"Accept Price"** action in chat that transitions the negotiation into a checkout intent (currently chat is freeform).
 
-- **Phase 2 — Auth + Cart + Orders:** Enable Lovable Cloud, real email/password + Google auth, `profiles` + `user_roles` (buyer/farmer/admin) tables, cart state, `/cart` + `/checkout` UI, `/order/confirmed`, `/orders/$id` tracking screen, buyer `/dashboard`. Stripe Payment Element for checkout (test mode). Escrow modeled as order status (held → released) without true Stripe Connect yet.
-- **Phase 3 — Farmer side:** Farmer signup verification flow, `/farmer/dashboard` with stats + revenue chart (Recharts), `/farmer/listings` + 5-step add-listing wizard, `/farmer/orders` with "mark shipped" + 6-digit code entry, `/farmer/earnings`, `/farmer/profile`, `/farmer/analytics`.
-- **Phase 4 — Real integrations:** Stripe Connect for farmer payouts + escrow capture/release, Twilio for SMS 6-digit codes, Google Maps Platform connector for real map/places autocomplete/geocoding, Lovable AI Gateway for freshness analyzer + smart search + auto-descriptions, in-app messaging (Supabase Realtime).
-- **Phase 5 — Admin + Trust & Safety:** `/admin` verification queue, dispute center, reporting tools, USDA compliance pages, refund automation.
+### Phase 4 — Distance, Escrow & Payment
+- ✅ Escrow.com checkout, server-side fee compute, RLS-locked orders, release-code hash in DB.
+- 🔨 Add **distance-based delivery fee** to `computeFees` (Google Maps Distance Matrix via gateway, farm coords stay server-side per security memory).
+- 🔨 Payment method picker UI (Card active, PayPal/Bank greyed "coming soon").
+- 🔨 On payment success: generate 6-digit OTP server-side, hash with bcrypt → `release_code_hash`, email plaintext to buyer, post system message "Payment held in Escrow" into the chat thread.
+
+### Phase 5 — Delivery & Live Tracking
+- ✅ `LiveTrackingMap.tsx` exists, Google Maps connector active.
+- 🔨 Farmer **"Start Delivery"** button on order detail → status transition `accepted` → `in_transit`, begins broadcasting GPS (Supabase Realtime channel keyed by order id; ephemeral, not persisted).
+- 🔨 Embed live map in the order's chat thread for the buyer.
+- ✅ OTP release endpoint already exists (`/api/orders/$id/release`).
+
+### Phase 6 — Post-Release
+- ✅ Fee split already computed (5% platform + 2.5% escrow). Per spec you want **10% platform** — I'll update `computeFees` constants.
+- 🔨 After OTP release: redirect to **Feedback page** (5-star + review) → insert into existing `reviews` table.
+
+### Phase 7 — Additional Features
+- ✅ Lending route exists (`/lending`, `/lenders/*`).
+- 🔨 Update lending policy copy: 30-tx threshold, continuous-trading clause, "facilitator only" disclaimer.
+- 🔨 **Admin dashboard**: new `_authenticated/_admin/*` subtree gated by `has_role(uid, 'admin')`, shows transactions / disputes / ratings tables.
+- 🔨 **Farm Hacks** blog: new `/hacks` route, markdown posts from a new `farm_hacks` table (admin-authored, public read).
+
+### Final
+- 🔨 Toggle Lovable badge off (Pro feature) via publish settings.
+- Smooth-scroll, page transitions, loading skeletons already present.
+
+## Order of execution
+
+I'll ship in this order over multiple turns; each turn = one phase you can review:
+
+1. **Phase 1 polish + Phase 7 Farm Hacks tab** (smallest, validates nav)
+2. **Phase 2 onboarding wizard + email**
+3. **Phase 4 fee update (10%), distance fee, OTP issuance, payment picker UI**
+4. **Phase 3 "Accept Price" → checkout handoff**
+5. **Phase 5 live tracking via Realtime + farmer Start Delivery**
+6. **Phase 6 feedback page after release**
+7. **Phase 7 admin dashboard + Farm Hacks blog + lending copy + badge toggle**
 
 ## Technical notes
 
-- Stack stays TanStack Start + Tailwind v4 + shadcn. File-based routes under `src/routes/` using flat dot-notation (`farm.$id.tsx`, `signup.buyer.tsx`, etc.).
-- All colors via semantic tokens — no raw hex in components.
-- Mobile bottom nav appears below `md` breakpoint; sticky header above.
-- WhatsApp FAB is a shared component included in `__root.tsx`.
-- Mock data lives in `src/lib/mock-data.ts` so Phase 2 can swap to server functions cleanly.
+- All payments / fee math stays server-side (existing `enforce_orders_update_restrictions` trigger + revoked column UPDATEs keep buyers/farmers from tampering).
+- GPS broadcasting uses Supabase Realtime **broadcast** channel (not persisted) so we don't store precise farmer coords — aligns with the resolved `listings_precise_coordinates_public` finding.
+- New `farm_hacks` table gets `SELECT TO anon`, write restricted to admin role.
+- Reviews already RLS-scoped; just need UI.
 
-## What I need from you
+---
 
-1. **Confirm Phase 1 scope** above (or tell me to shrink/expand it).
-2. **Confirm the phased rollout** — I'll stop after Phase 1 and wait for your go-ahead before each next phase, so we can review the design and adjust before piling on backend complexity.
-
-If you'd rather I jump straight into a specific later phase (e.g. "skip marketing polish, build farmer dashboard first"), say so and I'll re-plan.
+Approve to start with **Phase 1 + Farm Hacks tab**, or tell me to reorder / change defaults.
