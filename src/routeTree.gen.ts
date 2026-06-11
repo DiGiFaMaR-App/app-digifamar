@@ -16,6 +16,7 @@ import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as LendingRouteImport } from './routes/lending'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as HacksRouteImport } from './routes/hacks'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
@@ -25,6 +26,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignupIndexRouteImport } from './routes/signup.index'
+import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
@@ -78,6 +80,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
   path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HacksRoute = HacksRouteImport.update({
+  id: '/hacks',
+  path: '/hacks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -121,6 +128,11 @@ const IndexRoute = IndexRouteImport.update({
 const SignupIndexRoute = SignupIndexRouteImport.update({
   id: '/signup/',
   path: '/signup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersIndexRoute = OrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatIndexRoute = ChatIndexRouteImport.update({
@@ -218,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
@@ -239,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat/': typeof ChatIndexRoute
+  '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
@@ -253,6 +267,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
@@ -274,6 +289,7 @@ export interface FileRoutesByTo {
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat': typeof ChatIndexRoute
+  '/orders': typeof OrdersIndexRoute
   '/signup': typeof SignupIndexRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
@@ -289,6 +305,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
@@ -310,6 +327,7 @@ export interface FileRoutesById {
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
   '/chat/': typeof ChatIndexRoute
+  '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
@@ -326,6 +344,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/hacks'
     | '/how-it-works'
     | '/lending'
     | '/market'
@@ -347,6 +366,7 @@ export interface FileRouteTypes {
     | '/signup/buyer'
     | '/signup/farmer'
     | '/chat/'
+    | '/orders/'
     | '/signup/'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
@@ -361,6 +381,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/hacks'
     | '/how-it-works'
     | '/lending'
     | '/market'
@@ -382,6 +403,7 @@ export interface FileRouteTypes {
     | '/signup/buyer'
     | '/signup/farmer'
     | '/chat'
+    | '/orders'
     | '/signup'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
@@ -396,6 +418,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/hacks'
     | '/how-it-works'
     | '/lending'
     | '/market'
@@ -417,6 +440,7 @@ export interface FileRouteTypes {
     | '/signup/buyer'
     | '/signup/farmer'
     | '/chat/'
+    | '/orders/'
     | '/signup/'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
@@ -432,6 +456,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  HacksRoute: typeof HacksRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LendingRoute: typeof LendingRoute
   MarketRoute: typeof MarketRoute
@@ -453,6 +478,7 @@ export interface RootRouteChildren {
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
   ChatIndexRoute: typeof ChatIndexRoute
+  OrdersIndexRoute: typeof OrdersIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
@@ -507,6 +533,13 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hacks': {
+      id: '/hacks'
+      path: '/hacks'
+      fullPath: '/hacks'
+      preLoaderRoute: typeof HacksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -570,6 +603,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup/'
       preLoaderRoute: typeof SignupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/': {
+      id: '/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof OrdersIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat/': {
@@ -715,6 +755,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  HacksRoute: HacksRoute,
   HowItWorksRoute: HowItWorksRoute,
   LendingRoute: LendingRoute,
   MarketRoute: MarketRoute,
@@ -736,6 +777,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
   ChatIndexRoute: ChatIndexRoute,
+  OrdersIndexRoute: OrdersIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
