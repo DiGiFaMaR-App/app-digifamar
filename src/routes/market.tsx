@@ -60,6 +60,7 @@ function Marketplace() {
     loading: geoLoading,
     error: geoError,
     setManualLocation,
+    detect,
   } = useGeolocation();
 
   const [manualInput, setManualInput] = useState("");
@@ -69,7 +70,6 @@ function Marketplace() {
   const [maxDist, setMaxDist] = useState(100);
   const [active, setActive] = useState<Product | null>(null);
 
-  // Pre-compute distance from user to every farm (null when no coords)
   const farmDistances = useMemo<Map<string, number> | null>(() => {
     if (lat === null || lng === null) return null;
     const map = new Map<string, number>();
@@ -86,7 +86,6 @@ function Marketplace() {
         const f = getFarm(p.farmId);
         if (cat !== "all" && p.category !== cat) return false;
         if (p.price < t.min || p.price > t.max) return false;
-        // Use calculated distance if available, else fall back to mock static value
         const dist = farmDistances?.get(p.farmId) ?? f?.distance ?? 0;
         if (dist > maxDist) return false;
         if (
@@ -110,8 +109,27 @@ function Marketplace() {
 
   const handleManualSubmit = () => {
     const val = manualInput.trim();
-    if (val) setManualLocation(val);
+    if (val) void setManualLocation(val);
   };
+
+  const errorMessage = (() => {
+    switch (geoError) {
+      case "permission_denied":
+        return "Location permission denied. Enter your city or ZIP below.";
+      case "http_blocked":
+        return "Location requires a secure connection. Enter your city or ZIP.";
+      case "not_supported":
+        return "Your browser can't detect location. Enter your city or ZIP.";
+      case "timeout":
+        return "Location request timed out. Try again or enter manually.";
+      case "lookup_failed":
+        return "We couldn't find that place. Try a ZIP code or different city.";
+      case "unavailable":
+        return "Location unavailable. Enter your city or ZIP below.";
+      default:
+        return null;
+    }
+  })();
 
   // Compose location display label
   const locationLabel = (() => {
@@ -143,27 +161,40 @@ function Marketplace() {
             )}
 
             {!geoLoading && geoError && (
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <MapPin className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    value={manualInput}
-                    onChange={(e) => setManualInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleManualSubmit();
-                    }}
-                    placeholder="Enter your city or ZIP code"
-                    className="h-9 w-56 pl-9 text-xs"
-                  />
+              <div className="flex w-full flex-col gap-2">
+                {errorMessage && (
+                  <p className="text-xs text-destructive">{errorMessage}</p>
+                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="relative">
+                    <MapPin className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      value={manualInput}
+                      onChange={(e) => setManualInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleManualSubmit();
+                      }}
+                      placeholder="Enter your city or ZIP code"
+                      className="h-9 w-56 pl-9 text-xs"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleManualSubmit}
+                    className="h-9 text-xs"
+                  >
+                    Set location
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={detect}
+                    className="h-9 text-xs"
+                  >
+                    Try detect again
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleManualSubmit}
-                  className="h-9 text-xs"
-                >
-                  Set location
-                </Button>
               </div>
             )}
           </div>
