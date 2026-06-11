@@ -195,14 +195,19 @@ export const searchBrowse = createServerFn({ method: "POST" })
       );
     }
 
-    let listings: BrowseListing[] = rows.map((r) => ({
-      ...r,
-      farm_name: farmNameMap.get(r.farmer_id) ?? null,
-      distance_mi:
+    let listings: BrowseListing[] = rows.map((r) => {
+      const distance_mi =
         hasOrigin && r.lat != null && r.lng != null
           ? haversineMiles(data.originLat!, data.originLng!, r.lat, r.lng)
-          : null,
-    }));
+          : null;
+      const { lat: _lat, lng: _lng, ...rest } = r;
+      void _lat; void _lng;
+      return {
+        ...rest,
+        farm_name: farmNameMap.get(r.farmer_id) ?? null,
+        distance_mi,
+      };
+    });
 
     let totalListings = listingCount ?? listings.length;
     if (hasOrigin) {
