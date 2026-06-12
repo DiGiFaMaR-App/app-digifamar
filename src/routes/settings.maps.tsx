@@ -96,7 +96,7 @@ function MapsSettingsPage() {
     hostname !== "localhost";
 
   return (
-    <AppShell title="Maps Platform">
+    <AppShell>
       <div className="mx-auto max-w-2xl space-y-4 p-4">
         <header className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Maps Platform</h1>
