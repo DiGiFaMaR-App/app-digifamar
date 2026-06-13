@@ -64,7 +64,7 @@ type OrderRow = {
   delivery_deadline: string | null;
 };
 
-type ListingRow = { id: string; title: string; unit: string; image_url: string | null };
+type ListingRow = { id: string; title: string; unit: string; images: string[] };
 type InspectionRow = { auto_release_at: string; released_at: string | null };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -123,7 +123,7 @@ function OrderDetailPage() {
     }
     setOrder(o as OrderRow);
     const [{ data: l }, { data: w }] = await Promise.all([
-      supabase.from("listings").select("id,title,unit,image_url").eq("id", o.listing_id).maybeSingle(),
+      supabase.from("listings").select("id,title,unit,images").eq("id", o.listing_id).maybeSingle(),
       supabase
         .from("inspection_windows")
         .select("auto_release_at, released_at")
@@ -223,8 +223,8 @@ function OrderDetailPage() {
 
           {listing && (
             <div className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-background/40 p-3">
-              {listing.image_url && (
-                <img src={listing.image_url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              {listing.images?.[0] && (
+                <img src={listing.images[0]} alt="" className="h-16 w-16 rounded-lg object-cover" />
               )}
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-1 text-sm font-semibold">{listing.title}</p>
