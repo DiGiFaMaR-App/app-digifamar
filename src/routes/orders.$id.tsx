@@ -1,347 +1,469 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import {
-  CheckCircle2,
-  Package,
-  Truck,
-  Home,
-  MessageCircle,
-  Phone,
-  MapPin,
-  Send,
   ArrowLeft,
+  CheckCircle2,
   Clock,
-  ShieldCheck,
   KeyRound,
+  Package,
+  ShieldCheck,
+  AlertTriangle,
+  Copy,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { products, farms, getFarm } from "@/lib/mock-data";
-import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  confirmDeliveryFn,
+  fundEscrowFn,
+  generateDeliveryOtpFn,
+  raiseDisputeFn,
+  releaseEscrowFn,
+} from "@/lib/escrow-v2/escrow.functions";
 
 export const Route = createFileRoute("/orders/$id")({
   head: () => ({
     meta: [
       { title: "Track Order — DiGiFaMaR" },
-      { name: "description", content: "Real-time updates on your farm-fresh delivery." },
+      { name: "description", content: "Escrow-protected order tracking, delivery OTP, and release." },
     ],
   }),
-  component: OrderTracking,
+  component: () => (
+    <RequireAuth>
+      <OrderDetailPage />
+    </RequireAuth>
+  ),
 });
 
-type StageKey = "placed" | "confirmed" | "packed" | "shipped" | "out" | "delivered";
+type OrderRow = {
+  id: string;
+  buyer_id: string;
+  farmer_id: string;
+  listing_id: string;
+  qty: number;
+  total_cents: number;
+  subtotal_cents: number;
+  platform_fee_cents: number;
+  escrow_fee_cents: number;
+  status: string;
+  created_at: string;
+  delivery_deadline: string | null;
+};
 
-const STAGES: { key: StageKey; label: string; icon: React.ElementType; desc: string }[] = [
-  { key: "placed", label: "Order placed", icon: CheckCircle2, desc: "Payment confirmed and escrowed." },
-  { key: "confirmed", label: "Farmer confirmed", icon: CheckCircle2, desc: "Farmer accepted your order." },
-  { key: "packed", label: "Packed fresh", icon: Package, desc: "Harvested and packed this morning." },
-  { key: "shipped", label: "Shipped", icon: Truck, desc: "Picked up by our cold-chain courier." },
-  { key: "out", label: "Out for delivery", icon: Truck, desc: "Courier is on the way to you." },
-  { key: "delivered", label: "Delivered", icon: Home, desc: "Confirm receipt to release escrow." },
-];
+type ListingRow = { id: string; title: string; unit: string; image_url: string | null };
+type InspectionRow = { auto_release_at: string; released_at: string | null };
 
-function hashSeed(s: string) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return Math.abs(h);
+const STATUS_LABEL: Record<string, string> = {
+  pending: "Awaiting payment",
+  negotiating: "Negotiating",
+  escrow_funded: "Funds in escrow",
+  awaiting_delivery: "OTP issued — awaiting delivery",
+  shipped: "Shipped",
+  delivered: "Delivered",
+  inspection: "In inspection window",
+  released: "Released to farmer",
+  refunded: "Refunded",
+  disputed: "Disputed",
+  penalized: "Farmer penalized",
+  cancelled: "Cancelled",
+  paid: "Paid",
+};
+
+function dollars(cents: number) {
+  return `$${(cents / 100).toFixed(2)}`;
 }
 
-function OrderTracking() {
+function OrderDetailPage() {
   const { id } = Route.useParams();
-  const [contactOpen, setContactOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [enteredCode, setEnteredCode] = useState("");
-  const [released, setReleased] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const { user } = useAuth();
 
-  const { product, farm, currentStage, etaDate, placedDate, address } = useMemo(() => {
-    const seed = hashSeed(id);
-    const product = products[seed % products.length];
-    const farm = getFarm(product.farmId) ?? farms[0];
-    const currentStage = (seed % 5) + 1; // 1..5 (not auto-delivered)
-    const placedDate = new Date(Date.now() - (seed % 36) * 3600 * 1000);
-    const etaDate = new Date(Date.now() + ((seed % 30) + 6) * 3600 * 1000);
-    const address = "245 Cedar Ln, Brooklyn, NY 11215";
-    return { product, farm, currentStage, etaDate, placedDate, address };
+  const [order, setOrder] = useState<OrderRow | null>(null);
+  const [listing, setListing] = useState<ListingRow | null>(null);
+  const [inspection, setInspection] = useState<InspectionRow | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+
+  // OTP state
+  const [otpShown, setOtpShown] = useState<string | null>(null);
+  const [otpInput, setOtpInput] = useState("");
+  const [disputeOpen, setDisputeOpen] = useState(false);
+  const [disputeReason, setDisputeReason] = useState("");
+
+  const fund = useServerFn(fundEscrowFn);
+  const genOtp = useServerFn(generateDeliveryOtpFn);
+  const confirmDelivery = useServerFn(confirmDeliveryFn);
+  const release = useServerFn(releaseEscrowFn);
+  const dispute = useServerFn(raiseDisputeFn);
+
+  const load = async () => {
+    setLoading(true);
+    const { data: o, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error || !o) {
+      toast.error("Order not found");
+      setLoading(false);
+      return;
+    }
+    setOrder(o as OrderRow);
+    const [{ data: l }, { data: w }] = await Promise.all([
+      supabase.from("listings").select("id,title,unit,image_url").eq("id", o.listing_id).maybeSingle(),
+      supabase
+        .from("inspection_windows")
+        .select("auto_release_at, released_at")
+        .eq("order_id", id)
+        .maybeSingle(),
+    ]);
+    if (l) setListing(l as ListingRow);
+    if (w) setInspection(w as InspectionRow);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void load();
+    // realtime
+    const ch = supabase
+      .channel(`order-${id}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${id}` }, () => {
+        void load();
+      })
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(ch);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const progressPct = (currentStage / (STAGES.length - 1)) * 100;
-  const codeAvailable = currentStage >= 4; // Out for delivery or later
+  const role = useMemo(() => {
+    if (!order || !user) return null;
+    if (order.buyer_id === user.id) return "buyer" as const;
+    if (order.farmer_id === user.id) return "farmer" as const;
+    return null;
+  }, [order, user]);
 
-  const handleReleaseFunds = async () => {
-    if (enteredCode.length !== 6) return;
-    setSubmitting(true);
+  const wrap = async (fn: () => Promise<unknown>, success: string) => {
+    setBusy(true);
     try {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData.session?.access_token;
-      if (!token) {
-        toast.error("Please sign in to release funds.");
-        return;
-      }
-      const res = await fetch(`/api/orders/${encodeURIComponent(id)}/release`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ code: enteredCode }),
-      });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        toast.error(data.error ?? "Invalid release code", {
-          description: "Check the SMS sent to your phone.",
-        });
-        return;
-      }
-      setReleased(true);
-      toast.success("Funds released to farmer", { description: "Thanks for confirming delivery!" });
-    } catch {
-      toast.error("Network error", { description: "Please try again." });
+      await fn();
+      toast.success(success);
+      await load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Action failed");
     } finally {
-      setSubmitting(false);
+      setBusy(false);
     }
   };
 
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
-    toast.success(`Message sent to ${farm.name}`, {
-      description: "They typically reply within 2 hours.",
-    });
-    setMessage("");
-    setContactOpen(false);
-  };
+  if (loading) {
+    return (
+      <AppShell role="buyer">
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center text-muted-foreground">Loading order…</div>
+      </AppShell>
+    );
+  }
+  if (!order) {
+    return (
+      <AppShell role="buyer">
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center text-muted-foreground">
+          Order not found.
+        </div>
+      </AppShell>
+    );
+  }
+  if (!role) {
+    return (
+      <AppShell role="buyer">
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center text-muted-foreground">
+          You don't have access to this order.
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
-    <RequireAuth>
-    <AppShell role="buyer">
+    <AppShell role={role === "farmer" ? "farmer" : "buyer"}>
       <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
         <Link
-          to="/dashboard/buyer"
+          to={role === "farmer" ? "/dashboard/farmer" : "/dashboard/buyer"}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> Back to orders
         </Link>
 
-        {/* Header card */}
+        {/* Header */}
         <div className="mt-4 rounded-2xl border border-border bg-card p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wider text-muted-foreground">Order</p>
-              <h1 className="font-mono text-lg font-bold sm:text-xl">{id}</h1>
+              <h1 className="font-mono text-lg font-bold sm:text-xl">{order.id.slice(0, 8)}…</h1>
               <p className="mt-1 text-xs text-muted-foreground">
-                Placed {placedDate.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+                Placed {new Date(order.created_at).toLocaleString()}
               </p>
             </div>
             <span className="shrink-0 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
-              {STAGES[currentStage].label}
+              {STATUS_LABEL[order.status] ?? order.status}
             </span>
           </div>
 
-          {/* ETA */}
-          <div className="mt-4 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/10 p-3">
-            <Clock className="h-5 w-5 text-primary" />
-            <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Estimated delivery</p>
-              <p className="text-sm font-bold text-primary">
-                {etaDate.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })} ·{" "}
-                {etaDate.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
-              </p>
+          {listing && (
+            <div className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-background/40 p-3">
+              {listing.image_url && (
+                <img src={listing.image_url} alt="" className="h-16 w-16 rounded-lg object-cover" />
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="line-clamp-1 text-sm font-semibold">{listing.title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {order.qty} {listing.unit}
+                </p>
+              </div>
+              <div className="text-right text-sm font-bold text-primary">{dollars(order.total_cents)}</div>
             </div>
-          </div>
+          )}
 
-          {/* Product */}
-          <div className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-background/40 p-3">
-            <img src={product.image} alt="" className="h-16 w-16 rounded-lg object-cover" />
-            <div className="min-w-0 flex-1">
-              <p className="line-clamp-1 text-sm font-semibold">{product.name}</p>
-              <p className="text-xs text-muted-foreground">{farm.name}</p>
-              <p className="mt-0.5 text-sm font-bold text-primary">${product.price.toFixed(2)}</p>
-            </div>
-          </div>
-
-          <div className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
-            <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {address}
-          </div>
+          <dl className="mt-4 grid grid-cols-2 gap-2 text-xs">
+            <dt className="text-muted-foreground">Subtotal</dt>
+            <dd className="text-right">{dollars(order.subtotal_cents)}</dd>
+            <dt className="text-muted-foreground">Platform fee (5%)</dt>
+            <dd className="text-right">{dollars(order.platform_fee_cents)}</dd>
+            <dt className="text-muted-foreground">Escrow fee (2.5%)</dt>
+            <dd className="text-right">{dollars(order.escrow_fee_cents)}</dd>
+            <dt className="font-semibold">Total</dt>
+            <dd className="text-right font-semibold">{dollars(order.total_cents)}</dd>
+          </dl>
         </div>
 
-        {/* Timeline */}
-        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Delivery status</h2>
-
-          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full bg-primary transition-all duration-700"
-              style={{ width: `${progressPct}%` }}
-            />
-          </div>
-
-          <ol className="mt-5 space-y-4">
-            {STAGES.map((stage, i) => {
-              const done = i < currentStage;
-              const active = i === currentStage;
-              const Icon = stage.icon;
-              return (
-                <li key={stage.key} className="flex gap-3">
-                  <div
-                    className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 ${
-                      done
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : active
-                          ? "border-primary bg-primary/10 text-primary animate-pulse"
-                          : "border-border bg-background text-muted-foreground"
-                    }`}
-                  >
-                    {done ? <CheckCircle2 className="h-5 w-5" /> : <Icon className="h-4 w-4" />}
-                  </div>
-                  <div className="flex-1 pb-1">
-                    <div className="flex items-center justify-between">
-                      <p
-                        className={`text-sm font-semibold ${
-                          done || active ? "text-foreground" : "text-muted-foreground"
-                        }`}
-                      >
-                        {stage.label}
-                      </p>
-                      {active && (
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
-                          In progress
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">{stage.desc}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-
-        {/* Contact farmer */}
-        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-          <div className="flex items-center gap-3">
-            <img src={farm.image} alt="" className="h-12 w-12 rounded-full object-cover" />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold">{farm.name}</p>
-              <p className="text-xs text-muted-foreground">★ {farm.rating} · {farm.location}</p>
-            </div>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <Button
-              onClick={() => setContactOpen(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary-hover"
-            >
-              <MessageCircle className="mr-1 h-4 w-4" /> Message
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => toast.info("Calling farmer…", { description: "Mock call placed." })}
-            >
-              <Phone className="mr-1 h-4 w-4" /> Call
-            </Button>
-          </div>
-        </div>
-
-        {/* Escrow release */}
+        {/* Escrow actions */}
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
             <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-              Confirm delivery & release escrow
+              Escrow protection
             </h2>
           </div>
 
-          {released ? (
+          {/* BUYER · pending → fund */}
+          {role === "buyer" && ["pending", "negotiating"].includes(order.status) && (
+            <div className="mt-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Move {dollars(order.total_cents)} into escrow. The farmer cannot withdraw funds
+                until you confirm delivery — or 48h after delivery if you take no action.
+              </p>
+              <Button
+                disabled={busy}
+                onClick={() => wrap(() => fund({ data: { orderId: order.id } }), "Funds placed in escrow")}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+              >
+                <ShieldCheck className="mr-2 h-4 w-4" /> Fund escrow {dollars(order.total_cents)}
+              </Button>
+            </div>
+          )}
+
+          {/* FARMER · funded → request OTP */}
+          {role === "farmer" &&
+            ["escrow_funded", "awaiting_delivery", "shipped"].includes(order.status) && (
+              <div className="mt-4 space-y-3">
+                {!otpShown ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">
+                      Generate the 6-digit delivery code. The buyer enters it on handover, and you
+                      type it back into the app to confirm.
+                    </p>
+                    <Button
+                      disabled={busy}
+                      onClick={() =>
+                        wrap(async () => {
+                          const r = await genOtp({ data: { orderId: order.id } });
+                          setOtpShown(r.otp);
+                        }, "Delivery code issued")
+                      }
+                      className="w-full"
+                    >
+                      <KeyRound className="mr-2 h-4 w-4" /> Generate delivery code
+                    </Button>
+                  </>
+                ) : (
+                  <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 text-center">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                      Show this code to the buyer at delivery
+                    </p>
+                    <div className="my-2 font-mono text-3xl font-bold tracking-[0.4em] text-primary">
+                      {otpShown}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(otpShown);
+                        toast.success("Copied");
+                      }}
+                    >
+                      <Copy className="mr-1 h-3 w-3" /> Copy
+                    </Button>
+                    <div className="mt-4">
+                      <p className="mb-2 text-xs text-muted-foreground">Enter the code to confirm delivery</p>
+                      <div className="flex justify-center">
+                        <InputOTP maxLength={6} value={otpInput} onChange={setOtpInput}>
+                          <InputOTPGroup>
+                            {[0, 1, 2, 3, 4, 5].map((i) => (
+                              <InputOTPSlot key={i} index={i} className="h-11 w-11 text-base" />
+                            ))}
+                          </InputOTPGroup>
+                        </InputOTP>
+                      </div>
+                      <Button
+                        disabled={busy || otpInput.length !== 6}
+                        onClick={() =>
+                          wrap(
+                            () => confirmDelivery({ data: { orderId: order.id, otp: otpInput } }),
+                            "Delivery confirmed — inspection window open",
+                          )
+                        }
+                        className="mt-3 w-full"
+                      >
+                        Confirm delivery
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+          {/* BUYER · inspection → accept or dispute */}
+          {role === "buyer" && order.status === "inspection" && (
+            <div className="mt-4 space-y-3">
+              {inspection?.auto_release_at && (
+                <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
+                  <Clock className="h-4 w-4" />
+                  Funds auto-release {new Date(inspection.auto_release_at).toLocaleString()} if you take no action.
+                </div>
+              )}
+              <Button
+                disabled={busy}
+                onClick={() =>
+                  wrap(
+                    () => release({ data: { orderId: order.id } }),
+                    "Funds released to farmer",
+                  )
+                }
+                className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" /> Accept & release funds
+              </Button>
+              <Button
+                variant="destructive"
+                disabled={busy}
+                onClick={() => setDisputeOpen(true)}
+                className="w-full"
+              >
+                <AlertTriangle className="mr-2 h-4 w-4" /> Open dispute
+              </Button>
+            </div>
+          )}
+
+          {/* TERMINAL states */}
+          {order.status === "released" && (
             <div className="mt-4 flex items-start gap-3 rounded-xl border border-primary/30 bg-primary/10 p-4">
               <CheckCircle2 className="mt-0.5 h-5 w-5 text-primary" />
               <div>
                 <p className="text-sm font-semibold text-primary">Funds released</p>
                 <p className="text-xs text-muted-foreground">
-                  Payment has been transferred to {farm.name}. Thanks for shopping local!
+                  {dollars(order.total_cents)} has been credited to the farmer's wallet.
                 </p>
               </div>
             </div>
-          ) : codeAvailable ? (
-            <>
-              <p className="mt-2 text-xs text-muted-foreground">
-                We texted a 6-digit code to your phone. Enter it once your order arrives to release
-                payment to the farmer.
-              </p>
-              <div className="mt-4 flex justify-center">
-                <InputOTP maxLength={6} value={enteredCode} onChange={setEnteredCode}>
-                  <InputOTPGroup>
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
-                      <InputOTPSlot key={i} index={i} className="h-11 w-11 text-base" />
-                    ))}
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-              <Button
-                onClick={handleReleaseFunds}
-                disabled={enteredCode.length !== 6 || submitting}
-                className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
-              >
-                <KeyRound className="mr-1 h-4 w-4" /> {submitting ? "Releasing…" : "Release funds"}
-              </Button>
-              <p className="mt-2 text-center text-[11px] text-muted-foreground">
-                Didn't get the code? Check your SMS or contact support.
-              </p>
-            </>
-          ) : (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Your release code will be sent by SMS once the courier is out for delivery.
-            </p>
+          )}
+          {order.status === "refunded" && (
+            <div className="mt-4 rounded-xl border border-blue-500/30 bg-blue-500/10 p-4 text-sm">
+              Refunded to buyer wallet.
+            </div>
+          )}
+          {order.status === "disputed" && (
+            <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
+              Dispute under review by DiGiFaMaR admins.
+            </div>
+          )}
+          {order.status === "penalized" && (
+            <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
+              Farmer ghosted — buyer refunded, penalty applied to escrow.
+            </div>
           )}
         </div>
 
-
-
-        <div className="mt-6 flex justify-center">
+        {/* Chat link */}
+        <div className="mt-6 flex justify-center gap-2">
           <Button asChild variant="outline">
-            <Link to="/market">Continue shopping</Link>
+            <Link to="/chat">
+              <Package className="mr-1 h-4 w-4" /> Open chat
+            </Link>
           </Button>
         </div>
       </div>
 
-      <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent className="border-border bg-card">
+      <Dialog open={disputeOpen} onOpenChange={setDisputeOpen}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Message {farm.name}</DialogTitle>
+            <DialogTitle>Open dispute</DialogTitle>
             <DialogDescription>
-              About order <span className="font-mono">{id}</span>
+              Describe what's wrong. An admin will review and decide how the escrowed funds
+              are split.
             </DialogDescription>
           </DialogHeader>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={4}
-            placeholder="Hi! Quick question about my order…"
-            className="w-full resize-none rounded-lg border border-border bg-background p-3 text-sm focus:border-primary focus:outline-none"
+          <Textarea
+            value={disputeReason}
+            onChange={(e) => setDisputeReason(e.target.value)}
+            placeholder="What was wrong with the delivery? (min 10 characters)"
+            rows={5}
+          />
+          <Input
+            placeholder="Optional evidence URL (photo / video)"
+            id="evidence"
+            className="mt-2"
           />
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setContactOpen(false)}>
+            <Button variant="outline" onClick={() => setDisputeOpen(false)}>
               Cancel
             </Button>
             <Button
-              onClick={handleSendMessage}
-              disabled={!message.trim()}
-              className="bg-primary text-primary-foreground hover:bg-primary-hover"
+              variant="destructive"
+              disabled={busy || disputeReason.trim().length < 10}
+              onClick={async () => {
+                const ev = (document.getElementById("evidence") as HTMLInputElement | null)?.value?.trim();
+                await wrap(
+                  () =>
+                    dispute({
+                      data: {
+                        orderId: order.id,
+                        reason: disputeReason.trim(),
+                        evidenceUrls: ev ? [ev] : [],
+                      },
+                    }),
+                  "Dispute filed",
+                );
+                setDisputeOpen(false);
+                setDisputeReason("");
+              }}
             >
-              <Send className="mr-1 h-4 w-4" /> Send
+              File dispute
             </Button>
           </div>
         </DialogContent>
       </Dialog>
     </AppShell>
-    </RequireAuth>
   );
 }
