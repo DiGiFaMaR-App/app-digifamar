@@ -363,6 +363,7 @@ export type Database = {
           body: string
           conversation_id: string
           created_at: string
+          flagged: boolean
           id: string
           sender_id: string
         }
@@ -370,6 +371,7 @@ export type Database = {
           body: string
           conversation_id: string
           created_at?: string
+          flagged?: boolean
           id?: string
           sender_id: string
         }
@@ -377,6 +379,7 @@ export type Database = {
           body?: string
           conversation_id?: string
           created_at?: string
+          flagged?: boolean
           id?: string
           sender_id?: string
         }
