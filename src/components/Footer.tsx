@@ -30,7 +30,7 @@ const companyLinks = [
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
   { to: "/about", label: "Mission" },
-  { to: "/about", label: "Privacy" },
+  { to: "/privacy", label: "Privacy" },
   { to: "/about", label: "Terms" },
 ];
 
