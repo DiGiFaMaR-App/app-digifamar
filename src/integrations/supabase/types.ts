@@ -80,6 +80,135 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_confirmations: {
+        Row: {
+          attempts: number
+          confirmed_at: string | null
+          created_at: string
+          id: string
+          order_id: string
+          otp_expires_at: string
+          otp_hash: string
+        }
+        Insert: {
+          attempts?: number
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          order_id: string
+          otp_expires_at: string
+          otp_hash: string
+        }
+        Update: {
+          attempts?: number
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string
+          otp_expires_at?: string
+          otp_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_confirmations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          created_at: string
+          evidence_urls: string[]
+          id: string
+          order_id: string
+          raised_by: string
+          reason: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          evidence_urls?: string[]
+          id?: string
+          order_id: string
+          raised_by: string
+          reason: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          evidence_urls?: string[]
+          id?: string
+          order_id?: string
+          raised_by?: string
+          reason?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          state?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escrow_ledger: {
+        Row: {
+          amount_cents: number
+          balance_after_cents: number
+          created_at: string
+          entry_type: string
+          id: string
+          notes: string | null
+          order_id: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          balance_after_cents: number
+          created_at?: string
+          entry_type: string
+          id?: string
+          notes?: string | null
+          order_id: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          balance_after_cents?: number
+          created_at?: string
+          entry_type?: string
+          id?: string
+          notes?: string | null
+          order_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_ledger_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       farmer_profiles: {
         Row: {
           acres: number | null
@@ -136,6 +265,44 @@ export type Database = {
           zip?: string | null
         }
         Relationships: []
+      }
+      inspection_windows: {
+        Row: {
+          auto_release_at: string
+          closes_at: string
+          created_at: string
+          id: string
+          opens_at: string
+          order_id: string
+          released_at: string | null
+        }
+        Insert: {
+          auto_release_at: string
+          closes_at: string
+          created_at?: string
+          id?: string
+          opens_at?: string
+          order_id: string
+          released_at?: string | null
+        }
+        Update: {
+          auto_release_at?: string
+          closes_at?: string
+          created_at?: string
+          id?: string
+          opens_at?: string
+          order_id?: string
+          released_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_windows_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       listings: {
         Row: {
@@ -405,6 +572,33 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          available_balance_cents: number
+          created_at: string
+          held_balance_cents: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_balance_cents?: number
+          created_at?: string
+          held_balance_cents?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_balance_cents?: number
+          created_at?: string
+          held_balance_cents?: number
+          id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
