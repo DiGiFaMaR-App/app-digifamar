@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SigninRouteImport } from './routes/signin'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as MarketRouteImport } from './routes/market'
@@ -23,6 +24,7 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as BuyerProtectionRouteImport } from './routes/buyer-protection'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignupIndexRouteImport } from './routes/signup.index'
@@ -31,6 +33,7 @@ import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
 import { Route as SettingsMapsRouteImport } from './routes/settings.maps'
+import { Route as SettingsDeleteAccountRouteImport } from './routes/settings.delete-account'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as LendersLoginRouteImport } from './routes/lenders/login'
@@ -44,6 +47,7 @@ import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
+import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -54,6 +58,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
   path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -116,6 +125,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -154,6 +168,11 @@ const SignupBuyerRoute = SignupBuyerRouteImport.update({
 const SettingsMapsRoute = SettingsMapsRouteImport.update({
   id: '/settings/maps',
   path: '/settings/maps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsDeleteAccountRoute = SettingsDeleteAccountRouteImport.update({
+  id: '/settings/delete-account',
+  path: '/settings/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductIdRoute = ProductIdRouteImport.update({
@@ -221,6 +240,12 @@ const ChatFarmFarmIdRoute = ChatFarmFarmIdRouteImport.update({
   path: '/chat/farm/$farmId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCronAutoReleaseRoute =
+  ApiPublicCronAutoReleaseRouteImport.update({
+    id: '/api/public/cron/auto-release',
+    path: '/api/public/cron/auto-release',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
   id: '/$id/release',
   path: '/$id/release',
@@ -230,6 +255,7 @@ const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -242,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/market': typeof MarketRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
@@ -255,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/delete-account': typeof SettingsDeleteAccountRoute
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -264,10 +292,12 @@ export interface FileRoutesByFullPath {
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
+  '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -280,6 +310,7 @@ export interface FileRoutesByTo {
   '/market': typeof MarketRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
@@ -293,6 +324,7 @@ export interface FileRoutesByTo {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/delete-account': typeof SettingsDeleteAccountRoute
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -302,11 +334,13 @@ export interface FileRoutesByTo {
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
+  '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -319,6 +353,7 @@ export interface FileRoutesById {
   '/market': typeof MarketRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
@@ -332,6 +367,7 @@ export interface FileRoutesById {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/delete-account': typeof SettingsDeleteAccountRoute
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -341,12 +377,14 @@ export interface FileRoutesById {
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
+  '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/admin'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -359,6 +397,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/payment-success'
     | '/pricing'
+    | '/privacy'
     | '/signin'
     | '/sitemap.xml'
     | '/api/orders'
@@ -372,6 +411,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/delete-account'
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -381,10 +421,12 @@ export interface FileRouteTypes {
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
+    | '/api/public/cron/auto-release'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/admin'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -397,6 +439,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/payment-success'
     | '/pricing'
+    | '/privacy'
     | '/signin'
     | '/sitemap.xml'
     | '/api/orders'
@@ -410,6 +453,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/delete-account'
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -419,10 +463,12 @@ export interface FileRouteTypes {
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
+    | '/api/public/cron/auto-release'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/admin'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -435,6 +481,7 @@ export interface FileRouteTypes {
     | '/market'
     | '/payment-success'
     | '/pricing'
+    | '/privacy'
     | '/signin'
     | '/sitemap.xml'
     | '/api/orders'
@@ -448,6 +495,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/delete-account'
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -457,11 +505,13 @@ export interface FileRouteTypes {
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
+    | '/api/public/cron/auto-release'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
   BuyerProtectionRoute: typeof BuyerProtectionRoute
@@ -474,6 +524,7 @@ export interface RootRouteChildren {
   MarketRoute: typeof MarketRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
@@ -487,6 +538,7 @@ export interface RootRouteChildren {
   LendersLoginRoute: typeof LendersLoginRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
+  SettingsDeleteAccountRoute: typeof SettingsDeleteAccountRoute
   SettingsMapsRoute: typeof SettingsMapsRoute
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
@@ -495,6 +547,7 @@ export interface RootRouteChildren {
   SignupIndexRoute: typeof SignupIndexRoute
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
+  ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -511,6 +564,13 @@ declare module '@tanstack/react-router' {
       path: '/signin'
       fullPath: '/signin'
       preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -597,6 +657,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -651,6 +718,13 @@ declare module '@tanstack/react-router' {
       path: '/settings/maps'
       fullPath: '/settings/maps'
       preLoaderRoute: typeof SettingsMapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/delete-account': {
+      id: '/settings/delete-account'
+      path: '/settings/delete-account'
+      fullPath: '/settings/delete-account'
+      preLoaderRoute: typeof SettingsDeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/product/$id': {
@@ -744,6 +818,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatFarmFarmIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cron/auto-release': {
+      id: '/api/public/cron/auto-release'
+      path: '/api/public/cron/auto-release'
+      fullPath: '/api/public/cron/auto-release'
+      preLoaderRoute: typeof ApiPublicCronAutoReleaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/orders/$id/release': {
       id: '/api/orders/$id/release'
       path: '/$id/release'
@@ -769,6 +850,7 @@ const ApiOrdersRouteWithChildren = ApiOrdersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
   BuyerProtectionRoute: BuyerProtectionRoute,
@@ -781,6 +863,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketRoute: MarketRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
@@ -794,6 +877,7 @@ const rootRouteChildren: RootRouteChildren = {
   LendersLoginRoute: LendersLoginRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
+  SettingsDeleteAccountRoute: SettingsDeleteAccountRoute,
   SettingsMapsRoute: SettingsMapsRoute,
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
@@ -802,6 +886,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupIndexRoute: SignupIndexRoute,
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
+  ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
