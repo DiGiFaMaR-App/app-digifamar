@@ -49,6 +49,12 @@ function SignIn() {
           Don't have an account?{" "}
           <Link to="/signup" className="font-semibold text-primary">Sign up</Link>
         </p>
+        <p className="mt-3 text-center text-[11px] text-muted-foreground leading-relaxed">
+          By continuing, you agree to our{" "}
+          <Link to="/terms" className="underline hover:text-primary">Terms of Service</Link>{" "}
+          and{" "}
+          <Link to="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
+        </p>
       </div>
     </SiteLayout>
   );

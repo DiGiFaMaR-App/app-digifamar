@@ -801,10 +801,10 @@ function Step3({
           />
           <span className="text-sm text-white/70 leading-snug">
             I agree to the{" "}
-            <span className="text-[#22C55E]">Terms of Service</span>,{" "}
-            <span className="text-[#22C55E]">Buyer Protection Policy</span>{" "}
+            <Link to="/terms" target="_blank" className="text-[#22C55E] underline">Terms of Service</Link>,{" "}
+            <Link to="/buyer-protection" target="_blank" className="text-[#22C55E] underline">Buyer Protection Policy</Link>{" "}
             &amp;{" "}
-            <span className="text-[#22C55E]">Refund Policy</span>.
+            <Link to="/privacy" target="_blank" className="text-[#22C55E] underline">Privacy Policy</Link>.
           </span>
         </label>
       </div>
