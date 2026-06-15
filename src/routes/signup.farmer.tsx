@@ -896,8 +896,8 @@ function Step3({
           />
           <span className="text-sm text-white/70 leading-snug">
             I agree to the{" "}
-            <span className="text-[#22C55E]">Terms of Service</span> and{" "}
-            <span className="text-[#22C55E]">Farmer Agreement</span>, including
+            <Link to="/terms" target="_blank" className="text-[#22C55E] underline">Terms of Service</Link> and{" "}
+            <Link to="/privacy" target="_blank" className="text-[#22C55E] underline">Privacy Policy</Link>, including
             product listing standards and platform commission rates.
           </span>
         </label>
