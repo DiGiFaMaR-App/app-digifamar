@@ -31,7 +31,7 @@ const companyLinks = [
   { to: "/contact", label: "Contact" },
   { to: "/about", label: "Mission" },
   { to: "/privacy", label: "Privacy" },
-  { to: "/about", label: "Terms" },
+  { to: "/terms", label: "Terms of Service" },
 ];
 
 export function Footer() {
