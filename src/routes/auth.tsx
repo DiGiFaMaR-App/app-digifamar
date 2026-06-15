@@ -270,6 +270,13 @@ function SignInPanel({ next }: { next?: string }) {
           Create an account
         </Link>
       </p>
+
+      <p className="mt-3 text-center text-[11px] text-muted-foreground leading-relaxed">
+        By continuing, you agree to our{" "}
+        <Link to="/terms" className="underline hover:text-primary">Terms of Service</Link>{" "}
+        and{" "}
+        <Link to="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
+      </p>
     </form>
   );
 }
