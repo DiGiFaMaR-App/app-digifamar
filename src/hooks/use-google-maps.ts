@@ -2,27 +2,11 @@
 // Uses the Lovable-managed browser key (referrer-restricted, safe to embed).
 
 import { useEffect, useRef, useState } from "react";
+import { resolveGoogleMapsKey } from "@/lib/gmaps-key";
 
-const MANAGED_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
-  | string
-  | undefined;
 const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
   | string
   | undefined;
-const OVERRIDE_STORAGE_KEY = "dfm:gmaps_browser_key_override";
-// Hardcoded default key for app.digifamar.com (referrer-restricted in Google Cloud
-// to https://app.digifamar.com/* and https://*.digifamar.com/*).
-const CUSTOM_DOMAIN_KEY = "AIzaSyAsS-uzitVmw3ttfqL08peKCO6OuO-8gi4";
-
-function getBrowserKey(): string | undefined {
-  if (typeof window !== "undefined") {
-    const override = window.localStorage?.getItem(OVERRIDE_STORAGE_KEY);
-    if (override) return override;
-    const host = window.location?.hostname ?? "";
-    if (host.endsWith("digifamar.com")) return CUSTOM_DOMAIN_KEY;
-  }
-  return MANAGED_KEY;
-}
 
 declare global {
   interface Window {
@@ -37,27 +21,27 @@ export function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.google?.maps && typeof window.google.maps.importLibrary === "function") return Promise.resolve();
   if (window.__dgfMapsLoader) return window.__dgfMapsLoader;
-  const BROWSER_KEY = getBrowserKey();
-  if (!BROWSER_KEY) {
-    return Promise.reject(new Error("Google Maps browser key not configured"));
-  }
-  window.__dgfMapsLoader = new Promise<void>((resolve, reject) => {
-    window.__dgfMapsCallback = () => resolve();
-    const params = new URLSearchParams({
-      key: BROWSER_KEY,
-      v: "weekly",
-      libraries: "places",
-      loading: "async",
-      callback: "__dgfMapsCallback",
+  window.__dgfMapsLoader = (async () => {
+    const BROWSER_KEY = await resolveGoogleMapsKey();
+    if (!BROWSER_KEY) throw new Error("Google Maps browser key not configured");
+    await new Promise<void>((resolve, reject) => {
+      window.__dgfMapsCallback = () => resolve();
+      const params = new URLSearchParams({
+        key: BROWSER_KEY,
+        v: "weekly",
+        libraries: "places",
+        loading: "async",
+        callback: "__dgfMapsCallback",
+      });
+      if (TRACKING_ID) params.set("channel", TRACKING_ID);
+      const s = document.createElement("script");
+      s.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+      s.async = true;
+      s.defer = true;
+      s.onerror = () => reject(new Error("Failed to load Google Maps script"));
+      document.head.appendChild(s);
     });
-    if (TRACKING_ID) params.set("channel", TRACKING_ID);
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
-    s.async = true;
-    s.defer = true;
-    s.onerror = () => reject(new Error("Failed to load Google Maps script"));
-    document.head.appendChild(s);
-  });
+  })();
   return window.__dgfMapsLoader;
 }
 
