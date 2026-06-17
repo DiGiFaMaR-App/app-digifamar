@@ -6,6 +6,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdminRole } from "@/lib/admin/authorization";
 
 const KeyEnum = z.enum(["gmaps_browser_key"]);
 
@@ -43,13 +44,10 @@ export const setAppSettingFn = createServerFn({ method: "POST" })
     return { key: parsed.key, value };
   })
   .handler(async ({ data, context }) => {
+    await assertAdminRole(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: isAdmin, error: roleErr } = await supabaseAdmin.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (roleErr) throw new Error(roleErr.message);
-    if (!isAdmin) throw new Error("Forbidden");
+
+
 
     const { error } = await supabaseAdmin.from("app_settings").upsert(
       {
