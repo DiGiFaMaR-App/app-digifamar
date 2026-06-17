@@ -30,24 +30,24 @@ function loadGoogleMaps(): Promise<typeof google> {
   }
   if (window.google?.maps) return Promise.resolve(window.google);
   if (window.__dfmGmapsLoader) return window.__dfmGmapsLoader;
-  const BROWSER_KEY = getBrowserKey();
-  if (!BROWSER_KEY) {
-    return Promise.reject(new Error("Google Maps browser key missing"));
-  }
 
-  window.__dfmGmapsLoader = new Promise((resolve, reject) => {
-    window.__dfmGmapsInit = () => {
-      if (window.google?.maps) resolve(window.google);
-      else reject(new Error("Google Maps failed to initialise"));
-    };
-    const channel = TRACKING_ID ? `&channel=${TRACKING_ID}` : "";
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__dfmGmapsInit${channel}`;
-    s.async = true;
-    s.defer = true;
-    s.onerror = () => reject(new Error("Failed to load Google Maps script"));
-    document.head.appendChild(s);
-  });
+  window.__dfmGmapsLoader = (async () => {
+    const BROWSER_KEY = await resolveGoogleMapsKey();
+    if (!BROWSER_KEY) throw new Error("Google Maps browser key missing");
+    return new Promise<typeof google>((resolve, reject) => {
+      window.__dfmGmapsInit = () => {
+        if (window.google?.maps) resolve(window.google);
+        else reject(new Error("Google Maps failed to initialise"));
+      };
+      const channel = TRACKING_ID ? `&channel=${TRACKING_ID}` : "";
+      const s = document.createElement("script");
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__dfmGmapsInit${channel}`;
+      s.async = true;
+      s.defer = true;
+      s.onerror = () => reject(new Error("Failed to load Google Maps script"));
+      document.head.appendChild(s);
+    });
+  })();
   return window.__dfmGmapsLoader;
 }
 
