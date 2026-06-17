@@ -11,23 +11,10 @@ interface LiveTrackingMapProps {
 // Google Maps JS API loader (singleton, async)
 // ─────────────────────────────────────────────────────────────────
 
-const MANAGED_KEY = import.meta.env
-  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+import { resolveGoogleMapsKey } from "@/lib/gmaps-key";
+
 const TRACKING_ID = import.meta.env
   .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
-// Hardcoded default key for app.digifamar.com (referrer-restricted in Google Cloud
-// to https://app.digifamar.com/* and https://*.digifamar.com/*).
-const CUSTOM_DOMAIN_KEY = "AIzaSyAsS-uzitVmw3ttfqL08peKCO6OuO-8gi4";
-const OVERRIDE_STORAGE_KEY = "dfm:gmaps_browser_key_override";
-function getBrowserKey(): string | undefined {
-  if (typeof window !== "undefined") {
-    const o = window.localStorage?.getItem(OVERRIDE_STORAGE_KEY);
-    if (o) return o;
-    const host = window.location?.hostname ?? "";
-    if (host.endsWith("digifamar.com")) return CUSTOM_DOMAIN_KEY;
-  }
-  return MANAGED_KEY;
-}
 
 declare global {
   interface Window {
@@ -43,24 +30,24 @@ function loadGoogleMaps(): Promise<typeof google> {
   }
   if (window.google?.maps) return Promise.resolve(window.google);
   if (window.__dfmGmapsLoader) return window.__dfmGmapsLoader;
-  const BROWSER_KEY = getBrowserKey();
-  if (!BROWSER_KEY) {
-    return Promise.reject(new Error("Google Maps browser key missing"));
-  }
 
-  window.__dfmGmapsLoader = new Promise((resolve, reject) => {
-    window.__dfmGmapsInit = () => {
-      if (window.google?.maps) resolve(window.google);
-      else reject(new Error("Google Maps failed to initialise"));
-    };
-    const channel = TRACKING_ID ? `&channel=${TRACKING_ID}` : "";
-    const s = document.createElement("script");
-    s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__dfmGmapsInit${channel}`;
-    s.async = true;
-    s.defer = true;
-    s.onerror = () => reject(new Error("Failed to load Google Maps script"));
-    document.head.appendChild(s);
-  });
+  window.__dfmGmapsLoader = (async () => {
+    const BROWSER_KEY = await resolveGoogleMapsKey();
+    if (!BROWSER_KEY) throw new Error("Google Maps browser key missing");
+    return new Promise<typeof google>((resolve, reject) => {
+      window.__dfmGmapsInit = () => {
+        if (window.google?.maps) resolve(window.google);
+        else reject(new Error("Google Maps failed to initialise"));
+      };
+      const channel = TRACKING_ID ? `&channel=${TRACKING_ID}` : "";
+      const s = document.createElement("script");
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__dfmGmapsInit${channel}`;
+      s.async = true;
+      s.defer = true;
+      s.onerror = () => reject(new Error("Failed to load Google Maps script"));
+      document.head.appendChild(s);
+    });
+  })();
   return window.__dfmGmapsLoader;
 }
 
