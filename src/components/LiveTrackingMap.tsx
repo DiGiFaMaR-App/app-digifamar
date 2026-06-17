@@ -11,23 +11,10 @@ interface LiveTrackingMapProps {
 // Google Maps JS API loader (singleton, async)
 // ─────────────────────────────────────────────────────────────────
 
-const MANAGED_KEY = import.meta.env
-  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+import { resolveGoogleMapsKey } from "@/lib/gmaps-key";
+
 const TRACKING_ID = import.meta.env
   .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
-// Hardcoded default key for app.digifamar.com (referrer-restricted in Google Cloud
-// to https://app.digifamar.com/* and https://*.digifamar.com/*).
-const CUSTOM_DOMAIN_KEY = "AIzaSyAsS-uzitVmw3ttfqL08peKCO6OuO-8gi4";
-const OVERRIDE_STORAGE_KEY = "dfm:gmaps_browser_key_override";
-function getBrowserKey(): string | undefined {
-  if (typeof window !== "undefined") {
-    const o = window.localStorage?.getItem(OVERRIDE_STORAGE_KEY);
-    if (o) return o;
-    const host = window.location?.hostname ?? "";
-    if (host.endsWith("digifamar.com")) return CUSTOM_DOMAIN_KEY;
-  }
-  return MANAGED_KEY;
-}
 
 declare global {
   interface Window {
