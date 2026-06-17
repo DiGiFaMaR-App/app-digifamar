@@ -25,12 +25,12 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as BuyerProtectionRouteImport } from './routes/buyer-protection'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignupIndexRouteImport } from './routes/signup.index'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
 import { Route as SettingsMapsRouteImport } from './routes/settings.maps'
@@ -132,11 +132,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -160,6 +155,11 @@ const OrdersIndexRoute = OrdersIndexRouteImport.update({
 const ChatIndexRoute = ChatIndexRouteImport.update({
   id: '/chat/',
   path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupFarmerRoute = SignupFarmerRouteImport.update({
@@ -238,9 +238,9 @@ const ApiOrdersRoute = ApiOrdersRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminMapsRoute = AdminMapsRouteImport.update({
-  id: '/maps',
-  path: '/maps',
-  getParentRoute: () => AdminRoute,
+  id: '/admin/maps',
+  path: '/admin/maps',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
   id: '/lenders/farmer/$id',
@@ -267,7 +267,6 @@ const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -300,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
+  '/admin/': typeof AdminIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
@@ -311,7 +311,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -344,6 +343,7 @@ export interface FileRoutesByTo {
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
+  '/admin': typeof AdminIndexRoute
   '/chat': typeof ChatIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/signup': typeof SignupIndexRoute
@@ -356,7 +356,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -389,6 +388,7 @@ export interface FileRoutesById {
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
+  '/admin/': typeof AdminIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
@@ -402,7 +402,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
-    | '/admin'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -435,6 +434,7 @@ export interface FileRouteTypes {
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
+    | '/admin/'
     | '/chat/'
     | '/orders/'
     | '/signup/'
@@ -446,7 +446,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
-    | '/admin'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -479,6 +478,7 @@ export interface FileRouteTypes {
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
+    | '/admin'
     | '/chat'
     | '/orders'
     | '/signup'
@@ -490,7 +490,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
-    | '/admin'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -523,6 +522,7 @@ export interface FileRouteTypes {
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
+    | '/admin/'
     | '/chat/'
     | '/orders/'
     | '/signup/'
@@ -535,7 +535,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
   BuyerProtectionRoute: typeof BuyerProtectionRoute
@@ -552,6 +551,7 @@ export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  AdminMapsRoute: typeof AdminMapsRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
   ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
@@ -567,6 +567,7 @@ export interface RootRouteChildren {
   SettingsMapsRoute: typeof SettingsMapsRoute
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   ChatIndexRoute: typeof ChatIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
@@ -689,13 +690,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -729,6 +723,13 @@ declare module '@tanstack/react-router' {
       path: '/chat'
       fullPath: '/chat/'
       preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup/farmer': {
@@ -838,10 +839,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/maps': {
       id: '/admin/maps'
-      path: '/maps'
+      path: '/admin/maps'
       fullPath: '/admin/maps'
       preLoaderRoute: typeof AdminMapsRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof rootRouteImport
     }
     '/lenders/farmer/$id': {
       id: '/lenders/farmer/$id'
@@ -874,16 +875,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AdminRouteChildren {
-  AdminMapsRoute: typeof AdminMapsRoute
-}
-
-const AdminRouteChildren: AdminRouteChildren = {
-  AdminMapsRoute: AdminMapsRoute,
-}
-
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
-
 interface ApiOrdersRouteChildren {
   ApiOrdersIdReleaseRoute: typeof ApiOrdersIdReleaseRoute
 }
@@ -899,7 +890,6 @@ const ApiOrdersRouteWithChildren = ApiOrdersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
   BuyerProtectionRoute: BuyerProtectionRoute,
@@ -916,6 +906,7 @@ const rootRouteChildren: RootRouteChildren = {
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  AdminMapsRoute: AdminMapsRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
   ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
@@ -931,6 +922,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsMapsRoute: SettingsMapsRoute,
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
+  AdminIndexRoute: AdminIndexRoute,
   ChatIndexRoute: ChatIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
