@@ -20,7 +20,7 @@ import {
 } from "@/lib/admin/admin.functions";
 import { resolveDisputeFn } from "@/lib/escrow-v2/escrow.functions";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [{ title: "Admin — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
