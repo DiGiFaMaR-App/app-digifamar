@@ -5,14 +5,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { assertAdminRole } from "@/lib/admin/authorization";
 
 async function assertAdmin(context: { userId: string }) {
+  await assertAdminRole(context.userId);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (!data) throw new Error("Forbidden");
   return supabaseAdmin;
 }
 

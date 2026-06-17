@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { AdminGate } from "@/components/AdminGate";
 import { RequireAuth } from "@/components/RequireAuth";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/use-auth";
 import {
   getAppSettingFn,
   setAppSettingFn,
@@ -31,7 +31,9 @@ export const Route = createFileRoute("/admin/maps")({
   }),
   component: () => (
     <RequireAuth>
-      <Gate />
+      <AdminGate>
+        <MapsAdminBody />
+      </AdminGate>
     </RequireAuth>
   ),
 });
@@ -40,29 +42,6 @@ function mask(key: string | undefined | null) {
   if (!key) return "—";
   if (key.length <= 8) return "••••";
   return `${key.slice(0, 4)}••••${key.slice(-4)}`;
-}
-
-function Gate() {
-  const { role, loading } = useAuth();
-  if (loading)
-    return (
-      <SiteLayout>
-        <div className="p-8 text-[#F0FFF0]">Loading…</div>
-      </SiteLayout>
-    );
-  if (role !== "admin") {
-    return (
-      <SiteLayout>
-        <div className="mx-auto max-w-xl px-5 py-16 text-[#F0FFF0]">
-          <h1 className="text-2xl font-bold mb-2">Admin access required</h1>
-          <p className="text-[#F0FFF0]/70">
-            Your account does not have admin privileges.
-          </p>
-        </div>
-      </SiteLayout>
-    );
-  }
-  return <MapsAdminBody />;
 }
 
 function MapsAdminBody() {
