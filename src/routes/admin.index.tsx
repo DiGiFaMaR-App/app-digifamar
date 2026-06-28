@@ -46,15 +46,12 @@ function AdminBody() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <h1 className="text-3xl font-bold">Admin · Dispute queue</h1>
           <nav className="flex flex-wrap gap-2 text-sm">
-            <Link to="/admin/users" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">
-              Users & roles
-            </Link>
-            <Link to="/admin/audit" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">
-              Audit log
-            </Link>
-            <Link to="/admin/maps" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">
-              Maps key
-            </Link>
+            <Link to="/admin/users" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Users & roles</Link>
+            <Link to="/admin/orders" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Orders</Link>
+            <Link to="/admin/listings" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Listings</Link>
+            <Link to="/admin/chats" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Chats</Link>
+            <Link to="/admin/audit" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Audit log</Link>
+            <Link to="/admin/maps" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Maps key</Link>
           </nav>
         </div>
 
