@@ -65,19 +65,7 @@ export function AppShell({
 
       <main className="flex-1 pb-24 md:pb-10">{children}</main>
 
-      {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur md:hidden">
-        <div className={`mx-auto grid max-w-md ${role === "buyer" ? "grid-cols-5" : "grid-cols-4"}`}>
-          <BottomItem to="/" icon={Home} label="Home" path={path} exact />
-          {nav.map((n) => (
-            <BottomItem key={n.to} to={n.to} icon={n.icon} label={n.label} path={path} />
-          ))}
-          {role === "buyer" && (
-            <BottomItemCart to="/cart" path={path} count={count} />
-          )}
-          <BottomItem to="/auth" icon={User} label="Me" path={path} />
-        </div>
-      </nav>
+      {/* Global mobile bottom nav is mounted in __root.tsx */}
 
       <button
         type="button"
