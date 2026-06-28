@@ -210,10 +210,20 @@ export class EscrowV2Service {
       throw new Error("Too many failed attempts. Ask the buyer for a new code.");
     }
     if (hashOtp(otp) !== conf.otp_hash) {
+      const nextAttempts = Number(conf.attempts ?? 0) + 1;
       await sb
         .from("delivery_confirmations")
-        .update({ attempts: Number(conf.attempts ?? 0) + 1 })
+        .update({ attempts: nextAttempts })
         .eq("order_id", orderId);
+      await audit({
+        actorId: userId,
+        actorRole: "farmer",
+        action: "otp.verify_failure",
+        resourceType: "order",
+        resourceId: orderId,
+        outcome: "failure",
+        metadata: { attempts: nextAttempts, reason: "invalid_code" },
+      });
       throw new Error("Invalid delivery code");
     }
 
@@ -232,6 +242,15 @@ export class EscrowV2Service {
       { onConflict: "order_id" },
     );
     await sb.from("orders").update({ status: "inspection" }).eq("id", orderId);
+
+    await audit({
+      actorId: userId,
+      actorRole: "farmer",
+      action: "delivery.confirm",
+      resourceType: "order",
+      resourceId: orderId,
+      metadata: { auto_release_at: closesAt.toISOString() },
+    });
 
     return { orderId, status: "inspection" as const, autoReleaseAt: closesAt.toISOString() };
   }
@@ -263,6 +282,8 @@ export class EscrowV2Service {
 
     return { orderId: opts.orderId, status: "released" as const, releasedCents: held };
   }
+
+  // Tag a static helper that runs after release so audit lives outside the txn-ish flow.
 
   /** Buyer raises a dispute during the inspection window. */
   static async raiseDispute(
