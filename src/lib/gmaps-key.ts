@@ -7,7 +7,7 @@
  *
  * Cached for the page lifetime so multiple maps share a single fetch.
  */
-import { supabase } from "@/integrations/supabase/client";
+import { getPublicAppSettingFn } from "@/lib/admin/app-settings.functions";
 
 const MANAGED_KEY = import.meta.env
   .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
@@ -18,12 +18,8 @@ let cached: Promise<string | undefined> | null = null;
 
 async function fetchAdminKey(): Promise<string | undefined> {
   try {
-    const { data } = await supabase
-      .from("app_settings")
-      .select("value")
-      .eq("key", "gmaps_browser_key")
-      .maybeSingle();
-    return (data?.value as string | undefined) || undefined;
+    const row = await getPublicAppSettingFn({ data: { key: "gmaps_browser_key" } });
+    return (row?.value as string | undefined) || undefined;
   } catch {
     return undefined;
   }
