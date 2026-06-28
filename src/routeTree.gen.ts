@@ -50,6 +50,7 @@ import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
 import { Route as AdminMapsRouteImport } from './routes/admin.maps'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
@@ -261,6 +262,11 @@ const AdminMapsRoute = AdminMapsRouteImport.update({
   path: '/admin/maps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/admin/audit',
   path: '/admin/audit',
@@ -309,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
@@ -357,6 +364,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
@@ -406,6 +414,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
@@ -456,6 +465,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/audit'
+    | '/admin/login'
     | '/admin/maps'
     | '/admin/reveal-key'
     | '/admin/users'
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/audit'
+    | '/admin/login'
     | '/admin/maps'
     | '/admin/reveal-key'
     | '/admin/users'
@@ -552,6 +563,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/audit'
+    | '/admin/login'
     | '/admin/maps'
     | '/admin/reveal-key'
     | '/admin/users'
@@ -601,6 +613,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   AdminMapsRoute: typeof AdminMapsRoute
   AdminRevealKeyRoute: typeof AdminRevealKeyRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -917,6 +930,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMapsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/admin/audit'
@@ -988,6 +1008,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   AdminAuditRoute: AdminAuditRoute,
+  AdminLoginRoute: AdminLoginRoute,
   AdminMapsRoute: AdminMapsRoute,
   AdminRevealKeyRoute: AdminRevealKeyRoute,
   AdminUsersRoute: AdminUsersRoute,
