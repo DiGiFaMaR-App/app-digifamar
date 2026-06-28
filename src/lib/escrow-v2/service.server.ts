@@ -141,6 +141,14 @@ export class EscrowV2Service {
       .eq("id", orderId);
     if (error) throw new Error(error.message);
 
+    await audit({
+      actorId: userId,
+      actorRole: "buyer",
+      action: "escrow.fund",
+      resourceType: "order",
+      resourceId: orderId,
+      metadata: { amount_cents: order.total_cents },
+    });
     return { orderId, status: "escrow_funded" as const, heldCents: balanceAfter };
   }
 
@@ -164,6 +172,15 @@ export class EscrowV2Service {
     if (error) throw new Error(error.message);
 
     await sb.from("orders").update({ status: "awaiting_delivery" }).eq("id", orderId);
+
+    await audit({
+      actorId: userId,
+      actorRole: "farmer",
+      action: "otp.generate",
+      resourceType: "order",
+      resourceId: orderId,
+      metadata: { expires_at: expiresAt },
+    });
 
     return { orderId, otp, expiresAt };
   }
