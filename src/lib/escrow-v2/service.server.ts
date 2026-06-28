@@ -31,6 +31,11 @@ async function getAdmin() {
   return supabaseAdmin;
 }
 
+async function audit(entry: import("@/lib/audit/log.server").AuditEntry) {
+  const { logAudit } = await import("@/lib/audit/log.server");
+  await logAudit(entry);
+}
+
 function hashOtp(otp: string): string {
   return createHash("sha256").update(otp).digest("hex");
 }
