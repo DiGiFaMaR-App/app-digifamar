@@ -36,7 +36,7 @@ export async function logAudit(entry: AuditEntry): Promise<void> {
       resource_type: entry.resourceType,
       resource_id: entry.resourceId ?? null,
       outcome: entry.outcome ?? "success",
-      metadata: entry.metadata ?? {},
+      metadata: (entry.metadata ?? {}) as never,
       ip: entry.ip ?? null,
       user_agent: entry.userAgent ?? null,
     });
