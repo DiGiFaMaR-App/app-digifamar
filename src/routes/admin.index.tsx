@@ -45,7 +45,10 @@ function AdminBody() {
       <div className="mx-auto max-w-5xl px-5 py-10 text-[#F0FFF0]">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <h1 className="text-3xl font-bold">Admin · Dispute queue</h1>
-          <nav className="flex gap-2 text-sm">
+          <nav className="flex flex-wrap gap-2 text-sm">
+            <Link to="/admin/users" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">
+              Users & roles
+            </Link>
             <Link to="/admin/audit" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">
               Audit log
             </Link>
