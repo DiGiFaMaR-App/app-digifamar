@@ -3,7 +3,7 @@
  * Role check happens both in the server functions (defense in depth) and
  * here for UX (so non-admins see a clear message instead of an error toast).
  */
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -43,7 +43,17 @@ function AdminBody() {
   return (
     <SiteLayout>
       <div className="mx-auto max-w-5xl px-5 py-10 text-[#F0FFF0]">
-        <h1 className="text-3xl font-bold mb-6">Admin · Dispute queue</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <h1 className="text-3xl font-bold">Admin · Dispute queue</h1>
+          <nav className="flex gap-2 text-sm">
+            <Link to="/admin/audit" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">
+              Audit log
+            </Link>
+            <Link to="/admin/maps" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">
+              Maps key
+            </Link>
+          </nav>
+        </div>
 
         {(!disputes || disputes.length === 0) && (
           <p className="text-[#F0FFF0]/70">No open disputes.</p>
