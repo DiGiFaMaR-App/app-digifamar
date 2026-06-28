@@ -126,6 +126,12 @@ function AdminLogin() {
               </>
             )}
           </Button>
+
+          <div className="text-center">
+            <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+              Forgot password? Create or reset it
+            </Link>
+          </div>
         </form>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
