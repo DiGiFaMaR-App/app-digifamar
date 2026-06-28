@@ -10,6 +10,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/reac
 import { useEffect } from "react";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { SplashScreen } from "@/components/SplashScreen";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import appCss from "../styles.css?url";
@@ -99,8 +100,11 @@ function RootComponent() {
       <SplashScreen />
       <AuthSync />
       <SmoothScroll>
-        <Outlet />
+        <div className="pb-16 md:pb-0">
+          <Outlet />
+        </div>
       </SmoothScroll>
+      <MobileBottomNav />
       <Toaster />
     </QueryClientProvider>
   );
