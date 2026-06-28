@@ -280,10 +280,18 @@ export class EscrowV2Service {
       .update({ released_at: new Date().toISOString() })
       .eq("order_id", opts.orderId);
 
+    await audit({
+      actorId: opts.actorId,
+      actorRole: opts.auto ? "system" : "buyer",
+      action: opts.auto ? "escrow.release.auto" : "escrow.release.manual",
+      resourceType: "order",
+      resourceId: opts.orderId,
+      metadata: { released_cents: held },
+    });
+
     return { orderId: opts.orderId, status: "released" as const, releasedCents: held };
   }
 
-  // Tag a static helper that runs after release so audit lives outside the txn-ish flow.
 
   /** Buyer raises a dispute during the inspection window. */
   static async raiseDispute(
