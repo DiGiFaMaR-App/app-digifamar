@@ -46,8 +46,7 @@ export const setAppSettingFn = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdminRole(context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-
+    const { logAudit } = await import("@/lib/audit/log.server");
 
     const { error } = await supabaseAdmin.from("app_settings").upsert(
       {
@@ -58,6 +57,26 @@ export const setAppSettingFn = createServerFn({ method: "POST" })
       },
       { onConflict: "key" },
     );
-    if (error) throw new Error(error.message);
+    if (error) {
+      await logAudit({
+        actorId: context.userId,
+        actorRole: "admin",
+        action: "admin.app_setting.update",
+        resourceType: "app_setting",
+        resourceId: data.key,
+        outcome: "failure",
+        metadata: { error: error.message },
+      });
+      throw new Error(error.message);
+    }
+    await logAudit({
+      actorId: context.userId,
+      actorRole: "admin",
+      action: "admin.app_setting.update",
+      resourceType: "app_setting",
+      resourceId: data.key,
+      // Do not log the value (it's a secret-ish API key); just record length.
+      metadata: { value_length: data.value.length },
+    });
     return { ok: true };
   });

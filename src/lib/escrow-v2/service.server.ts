@@ -31,6 +31,11 @@ async function getAdmin() {
   return supabaseAdmin;
 }
 
+async function audit(entry: import("@/lib/audit/log.server").AuditEntry) {
+  const { logAudit } = await import("@/lib/audit/log.server");
+  await logAudit(entry);
+}
+
 function hashOtp(otp: string): string {
   return createHash("sha256").update(otp).digest("hex");
 }
@@ -136,6 +141,14 @@ export class EscrowV2Service {
       .eq("id", orderId);
     if (error) throw new Error(error.message);
 
+    await audit({
+      actorId: userId,
+      actorRole: "buyer",
+      action: "escrow.fund",
+      resourceType: "order",
+      resourceId: orderId,
+      metadata: { amount_cents: order.total_cents },
+    });
     return { orderId, status: "escrow_funded" as const, heldCents: balanceAfter };
   }
 
@@ -159,6 +172,15 @@ export class EscrowV2Service {
     if (error) throw new Error(error.message);
 
     await sb.from("orders").update({ status: "awaiting_delivery" }).eq("id", orderId);
+
+    await audit({
+      actorId: userId,
+      actorRole: "farmer",
+      action: "otp.generate",
+      resourceType: "order",
+      resourceId: orderId,
+      metadata: { expires_at: expiresAt },
+    });
 
     return { orderId, otp, expiresAt };
   }
@@ -188,10 +210,20 @@ export class EscrowV2Service {
       throw new Error("Too many failed attempts. Ask the buyer for a new code.");
     }
     if (hashOtp(otp) !== conf.otp_hash) {
+      const nextAttempts = Number(conf.attempts ?? 0) + 1;
       await sb
         .from("delivery_confirmations")
-        .update({ attempts: Number(conf.attempts ?? 0) + 1 })
+        .update({ attempts: nextAttempts })
         .eq("order_id", orderId);
+      await audit({
+        actorId: userId,
+        actorRole: "farmer",
+        action: "otp.verify_failure",
+        resourceType: "order",
+        resourceId: orderId,
+        outcome: "failure",
+        metadata: { attempts: nextAttempts, reason: "invalid_code" },
+      });
       throw new Error("Invalid delivery code");
     }
 
@@ -210,6 +242,15 @@ export class EscrowV2Service {
       { onConflict: "order_id" },
     );
     await sb.from("orders").update({ status: "inspection" }).eq("id", orderId);
+
+    await audit({
+      actorId: userId,
+      actorRole: "farmer",
+      action: "delivery.confirm",
+      resourceType: "order",
+      resourceId: orderId,
+      metadata: { auto_release_at: closesAt.toISOString() },
+    });
 
     return { orderId, status: "inspection" as const, autoReleaseAt: closesAt.toISOString() };
   }
@@ -239,8 +280,18 @@ export class EscrowV2Service {
       .update({ released_at: new Date().toISOString() })
       .eq("order_id", opts.orderId);
 
+    await audit({
+      actorId: opts.actorId,
+      actorRole: opts.auto ? "system" : "buyer",
+      action: opts.auto ? "escrow.release.auto" : "escrow.release.manual",
+      resourceType: "order",
+      resourceId: opts.orderId,
+      metadata: { released_cents: held },
+    });
+
     return { orderId: opts.orderId, status: "released" as const, releasedCents: held };
   }
+
 
   /** Buyer raises a dispute during the inspection window. */
   static async raiseDispute(
@@ -266,6 +317,18 @@ export class EscrowV2Service {
       .single();
     if (error) throw new Error(error.message);
     await sb.from("orders").update({ status: "disputed" }).eq("id", input.orderId);
+    await audit({
+      actorId: userId,
+      actorRole: order.buyer_id === userId ? "buyer" : "farmer",
+      action: "dispute.raise",
+      resourceType: "order",
+      resourceId: input.orderId,
+      metadata: {
+        dispute_id: data?.id,
+        reason_length: input.reason.length,
+        evidence_count: input.evidenceUrls.length,
+      },
+    });
     return data;
   }
 
@@ -328,6 +391,20 @@ export class EscrowV2Service {
       })
       .eq("id", input.disputeId);
 
+    await audit({
+      actorId: adminId,
+      actorRole: "admin",
+      action: "admin.dispute.resolve",
+      resourceType: "dispute",
+      resourceId: input.disputeId,
+      metadata: {
+        order_id: order.id,
+        outcome: input.outcome,
+        buyer_refund_cents: input.buyerRefundCents ?? null,
+        held_cents: held,
+      },
+    });
+
     return { ok: true };
   }
 
@@ -382,6 +459,19 @@ export class EscrowV2Service {
           await creditAvailable(o.buyer_id, refund);
         }
         await sb.from("orders").update({ status: "penalized" }).eq("id", o.id);
+        await audit({
+          actorId: null,
+          actorRole: "system",
+          action: "escrow.penalty.ghost",
+          resourceType: "order",
+          resourceId: o.id,
+          metadata: {
+            penalty_cents: penaltyCharged,
+            refund_cents: refund,
+            buyer_id: o.buyer_id,
+            farmer_id: o.farmer_id,
+          },
+        });
         penalized += 1;
       } catch (e) {
         console.error("ghost penalty failed for", o.id, e);
