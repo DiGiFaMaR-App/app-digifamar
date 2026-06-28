@@ -47,6 +47,7 @@ import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as AdminMapsRouteImport } from './routes/admin.maps'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
@@ -242,6 +243,11 @@ const AdminMapsRoute = AdminMapsRouteImport.update({
   path: '/admin/maps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAuditRoute = AdminAuditRouteImport.update({
+  id: '/admin/audit',
+  path: '/admin/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
   id: '/lenders/farmer/$id',
   path: '/lenders/farmer/$id',
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/maps': typeof AdminMapsRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
@@ -327,6 +334,7 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/maps': typeof AdminMapsRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
@@ -372,6 +380,7 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/admin/audit': typeof AdminAuditRoute
   '/admin/maps': typeof AdminMapsRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
@@ -418,6 +427,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/admin/audit'
     | '/admin/maps'
     | '/api/orders'
     | '/chat/$productId'
@@ -462,6 +472,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/admin/audit'
     | '/admin/maps'
     | '/api/orders'
     | '/chat/$productId'
@@ -506,6 +517,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/admin/audit'
     | '/admin/maps'
     | '/api/orders'
     | '/chat/$productId'
@@ -551,6 +563,7 @@ export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  AdminAuditRoute: typeof AdminAuditRoute
   AdminMapsRoute: typeof AdminMapsRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
   ChatProductIdRoute: typeof ChatProductIdRoute
@@ -844,6 +857,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMapsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lenders/farmer/$id': {
       id: '/lenders/farmer/$id'
       path: '/lenders/farmer/$id'
@@ -906,6 +926,7 @@ const rootRouteChildren: RootRouteChildren = {
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  AdminAuditRoute: AdminAuditRoute,
   AdminMapsRoute: AdminMapsRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
   ChatProductIdRoute: ChatProductIdRoute,
