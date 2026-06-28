@@ -1,6 +1,7 @@
 /**
  * Admin module — server functions for the internal admin panel.
  * All callers must be in the `admin` role (checked server-side).
+ * Every mutating action writes an audit_logs entry.
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
@@ -52,20 +53,49 @@ export const setUserRoleFn = createServerFn({ method: "POST" })
   .inputValidator((input) => RoleUpdateDto.parse(input))
   .handler(async ({ data, context }) => {
     const sb = await assertAdmin(context);
-    if (data.action === "grant") {
-      const { error } = await sb
-        .from("user_roles")
-        .insert({ user_id: data.userId, role: data.role });
-      if (error && !error.message.toLowerCase().includes("duplicate")) {
-        throw new Error(error.message);
+    const { logAudit } = await import("@/lib/audit/log.server");
+
+    let outcome: "success" | "failure" = "success";
+    let errorMsg: string | null = null;
+    try {
+      if (data.action === "grant") {
+        const { error } = await sb
+          .from("user_roles")
+          .insert({ user_id: data.userId, role: data.role });
+        if (error && !error.message.toLowerCase().includes("duplicate")) {
+          throw new Error(error.message);
+        }
+      } else {
+        const { error } = await sb
+          .from("user_roles")
+          .delete()
+          .eq("user_id", data.userId)
+          .eq("role", data.role);
+        if (error) throw new Error(error.message);
       }
-    } else {
-      const { error } = await sb
-        .from("user_roles")
-        .delete()
-        .eq("user_id", data.userId)
-        .eq("role", data.role);
-      if (error) throw new Error(error.message);
+    } catch (e) {
+      outcome = "failure";
+      errorMsg = e instanceof Error ? e.message : String(e);
+      await logAudit({
+        actorId: context.userId,
+        actorRole: "admin",
+        action: data.action === "grant" ? "admin.role.grant" : "admin.role.revoke",
+        resourceType: "user_role",
+        resourceId: data.userId,
+        outcome,
+        metadata: { role: data.role, error: errorMsg },
+      });
+      throw e;
     }
+
+    await logAudit({
+      actorId: context.userId,
+      actorRole: "admin",
+      action: data.action === "grant" ? "admin.role.grant" : "admin.role.revoke",
+      resourceType: "user_role",
+      resourceId: data.userId,
+      outcome,
+      metadata: { role: data.role },
+    });
     return { ok: true };
   });
