@@ -99,3 +99,30 @@ export const setUserRoleFn = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+export const listUsersFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ search: z.string().optional() }).parse(input ?? {}))
+  .handler(async ({ data, context }) => {
+    const sb = await assertAdmin(context);
+    let q = sb
+      .from("profiles")
+      .select("id, full_name, email, phone, created_at")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    const s = data.search?.trim();
+    if (s) q = q.or(`email.ilike.%${s}%,full_name.ilike.%${s}%`);
+    const { data: profiles, error } = await q;
+    if (error) throw new Error(error.message);
+    const ids = (profiles ?? []).map((p) => p.id);
+    const { data: roles } = ids.length
+      ? await sb.from("user_roles").select("user_id, role").in("user_id", ids)
+      : { data: [] as Array<{ user_id: string; role: string }> };
+    const roleMap = new Map<string, string[]>();
+    (roles ?? []).forEach((r) => {
+      const arr = roleMap.get(r.user_id) ?? [];
+      arr.push(r.role);
+      roleMap.set(r.user_id, arr);
+    });
+    return (profiles ?? []).map((p) => ({ ...p, roles: roleMap.get(p.id) ?? [] }));
+  });
