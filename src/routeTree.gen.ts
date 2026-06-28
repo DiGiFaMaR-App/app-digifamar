@@ -19,6 +19,7 @@ import { Route as MarketRouteImport } from './routes/market'
 import { Route as LendingRouteImport } from './routes/lending'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as HacksRouteImport } from './routes/hacks'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -108,6 +109,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
 const HacksRoute = HacksRouteImport.update({
   id: '/hacks',
   path: '/hacks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DownloadRoute = DownloadRouteImport.update({
@@ -322,6 +328,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
@@ -374,6 +381,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
@@ -427,6 +435,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
@@ -481,6 +490,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/download'
+    | '/forgot-password'
     | '/hacks'
     | '/how-it-works'
     | '/lending'
@@ -533,6 +543,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/download'
+    | '/forgot-password'
     | '/hacks'
     | '/how-it-works'
     | '/lending'
@@ -585,6 +596,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contact'
     | '/download'
+    | '/forgot-password'
     | '/hacks'
     | '/how-it-works'
     | '/lending'
@@ -638,6 +650,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
   DownloadRoute: typeof DownloadRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HacksRoute: typeof HacksRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LendingRoute: typeof LendingRoute
@@ -750,6 +763,13 @@ declare module '@tanstack/react-router' {
       path: '/hacks'
       fullPath: '/hacks'
       preLoaderRoute: typeof HacksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/download': {
@@ -1057,6 +1077,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
   DownloadRoute: DownloadRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HacksRoute: HacksRoute,
   HowItWorksRoute: HowItWorksRoute,
   LendingRoute: LendingRoute,
