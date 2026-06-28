@@ -138,6 +138,7 @@ export const reverseGeocode = createServerFn({ method: "POST" })
 const placeSchema = z.object({ placeId: z.string().trim().min(1).max(300) });
 
 export const geocodePlaceId = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => placeSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     const lovableKey = process.env.LOVABLE_API_KEY;
