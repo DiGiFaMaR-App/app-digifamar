@@ -100,8 +100,11 @@ function RootComponent() {
       <SplashScreen />
       <AuthSync />
       <SmoothScroll>
-        <Outlet />
+        <div className="pb-16 md:pb-0">
+          <Outlet />
+        </div>
       </SmoothScroll>
+      <MobileBottomNav />
       <Toaster />
     </QueryClientProvider>
   );
