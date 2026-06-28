@@ -22,6 +22,7 @@ export type GeocodeResult = {
 } | null;
 
 export const geocodeAddress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     const parts = [data.address, data.city, data.state, data.zip, data.country]
