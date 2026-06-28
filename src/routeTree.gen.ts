@@ -47,6 +47,7 @@ import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
+import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
 import { Route as AdminMapsRouteImport } from './routes/admin.maps'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
@@ -244,6 +245,11 @@ const ApiOrdersRoute = ApiOrdersRouteImport.update({
   path: '/api/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRevealKeyRoute = AdminRevealKeyRouteImport.update({
+  id: '/admin/reveal-key',
+  path: '/admin/reveal-key',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminMapsRoute = AdminMapsRouteImport.update({
   id: '/admin/maps',
   path: '/admin/maps',
@@ -298,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/maps': typeof AdminMapsRoute
+  '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
@@ -344,6 +351,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/maps': typeof AdminMapsRoute
+  '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
@@ -391,6 +399,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/maps': typeof AdminMapsRoute
+  '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
@@ -439,6 +448,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/audit'
     | '/admin/maps'
+    | '/admin/reveal-key'
     | '/api/orders'
     | '/chat/$productId'
     | '/dashboard/buyer'
@@ -485,6 +495,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/audit'
     | '/admin/maps'
+    | '/admin/reveal-key'
     | '/api/orders'
     | '/chat/$productId'
     | '/dashboard/buyer'
@@ -531,6 +542,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/audit'
     | '/admin/maps'
+    | '/admin/reveal-key'
     | '/api/orders'
     | '/chat/$productId'
     | '/dashboard/buyer'
@@ -578,6 +590,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminMapsRoute: typeof AdminMapsRoute
+  AdminRevealKeyRoute: typeof AdminRevealKeyRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
   ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
@@ -870,6 +883,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/reveal-key': {
+      id: '/admin/reveal-key'
+      path: '/admin/reveal-key'
+      fullPath: '/admin/reveal-key'
+      preLoaderRoute: typeof AdminRevealKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/maps': {
       id: '/admin/maps'
       path: '/admin/maps'
@@ -949,6 +969,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminMapsRoute: AdminMapsRoute,
+  AdminRevealKeyRoute: AdminRevealKeyRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
   ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
@@ -975,13 +996,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
