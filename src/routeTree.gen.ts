@@ -19,6 +19,7 @@ import { Route as MarketRouteImport } from './routes/market'
 import { Route as LendingRouteImport } from './routes/lending'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as HacksRouteImport } from './routes/hacks'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
@@ -101,6 +102,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
 const HacksRoute = HacksRouteImport.update({
   id: '/hacks',
   path: '/hacks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -279,6 +285,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
@@ -324,6 +331,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
@@ -370,6 +378,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/download': typeof DownloadRoute
   '/hacks': typeof HacksRoute
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
@@ -417,6 +426,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/download'
     | '/hacks'
     | '/how-it-works'
     | '/lending'
@@ -462,6 +472,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/download'
     | '/hacks'
     | '/how-it-works'
     | '/lending'
@@ -507,6 +518,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/download'
     | '/hacks'
     | '/how-it-works'
     | '/lending'
@@ -553,6 +565,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  DownloadRoute: typeof DownloadRoute
   HacksRoute: typeof HacksRoute
   HowItWorksRoute: typeof HowItWorksRoute
   LendingRoute: typeof LendingRoute
@@ -659,6 +672,13 @@ declare module '@tanstack/react-router' {
       path: '/hacks'
       fullPath: '/hacks'
       preLoaderRoute: typeof HacksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -916,6 +936,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  DownloadRoute: DownloadRoute,
   HacksRoute: HacksRoute,
   HowItWorksRoute: HowItWorksRoute,
   LendingRoute: LendingRoute,
