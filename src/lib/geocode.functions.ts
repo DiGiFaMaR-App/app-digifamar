@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
@@ -21,6 +22,7 @@ export type GeocodeResult = {
 } | null;
 
 export const geocodeAddress = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     const parts = [data.address, data.city, data.state, data.zip, data.country]
@@ -86,6 +88,7 @@ const reverseSchema = z.object({
 });
 
 export const reverseGeocode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => reverseSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     const lovableKey = process.env.LOVABLE_API_KEY;
@@ -135,6 +138,7 @@ export const reverseGeocode = createServerFn({ method: "POST" })
 const placeSchema = z.object({ placeId: z.string().trim().min(1).max(300) });
 
 export const geocodePlaceId = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => placeSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     const lovableKey = process.env.LOVABLE_API_KEY;
