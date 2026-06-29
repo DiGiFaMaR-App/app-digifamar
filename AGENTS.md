@@ -21,6 +21,7 @@
 - Always run `npm run lint` and `npm run typecheck` before committing
 - Escrow logic must follow state machine rules exactly
 - All user-facing text must support i18n (English/Swahili)
+- All geospatial data MUST use PostGIS GEOGRAPHY types with SRID 4326
 
 ## Communication Style
 - Be concise but complete
