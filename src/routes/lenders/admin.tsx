@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   Check,
@@ -9,7 +9,9 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
 import { LenderCard, LenderShell, SectionTitle } from "./-ui";
 import {
   fmtUSDFull,
@@ -21,8 +23,19 @@ import {
 
 export const Route = createFileRoute("/lenders/admin")({
   head: () => ({ meta: [{ title: "Lender Applications — Admin" }] }),
+  // Server-side admin gate. RLS already blocks non-admin writes, but this
+  // prevents non-admins from rendering the admin UI at all (no client-bypass
+  // via React DevTools / state mutation).
+  beforeLoad: async () => {
+    try {
+      await verifyAdminSessionFn();
+    } catch {
+      throw redirect({ to: "/lenders/login" });
+    }
+  },
   component: LenderAdmin,
 });
+
 
 type Access = "checking" | "admin" | "denied";
 
