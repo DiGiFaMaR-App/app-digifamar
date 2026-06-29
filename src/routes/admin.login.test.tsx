@@ -33,10 +33,10 @@ const navigate = vi.fn();
 beforeEach(() => {
   vi.clearAllMocks();
   // Ensure supabase.auth has the methods this route calls (setup.ts only stubs some).
-  // @ts-expect-error – test mock surface
-  supabase.auth.signInWithPassword = vi.fn();
-  // @ts-expect-error
-  supabase.auth.signOut = vi.fn().mockResolvedValue({ error: null });
+  (supabase.auth as unknown as Record<string, unknown>).signInWithPassword = vi.fn();
+  (supabase.auth as unknown as Record<string, unknown>).signOut = vi
+    .fn()
+    .mockResolvedValue({ error: null });
   getUser.mockResolvedValue({ data: { user: null }, error: null });
   setRouterMockState({ navigate });
 });
