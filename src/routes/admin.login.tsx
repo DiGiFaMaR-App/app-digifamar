@@ -75,8 +75,6 @@ function AdminLogin() {
 
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData.user) throw new Error("No session");
-      const userId = data.user?.id;
-      if (!userId) throw new Error("No session");
 
       try {
         await verifyAdminSession();
@@ -94,6 +92,7 @@ function AdminLogin() {
       toast.error("Sign in failed", {
         description: err instanceof Error ? err.message : "Check your credentials.",
       });
+    } finally {
       setLoading(false);
     }
   }
