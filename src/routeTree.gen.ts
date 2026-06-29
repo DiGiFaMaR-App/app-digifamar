@@ -56,6 +56,7 @@ import { Route as AdminMapsRouteImport } from './routes/admin.maps'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
 import { Route as AdminChatsRouteImport } from './routes/admin.chats'
+import { Route as AdminChangePasswordRouteImport } from './routes/admin.change-password'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
@@ -297,6 +298,11 @@ const AdminChatsRoute = AdminChatsRouteImport.update({
   path: '/admin/chats',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminChangePasswordRoute = AdminChangePasswordRouteImport.update({
+  id: '/admin/change-password',
+  path: '/admin/change-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/admin/audit',
   path: '/admin/audit',
@@ -347,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -401,6 +408,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -456,6 +464,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
@@ -512,6 +521,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/audit'
+    | '/admin/change-password'
     | '/admin/chats'
     | '/admin/listings'
     | '/admin/login'
@@ -566,6 +576,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/audit'
+    | '/admin/change-password'
     | '/admin/chats'
     | '/admin/listings'
     | '/admin/login'
@@ -620,6 +631,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin/audit'
+    | '/admin/change-password'
     | '/admin/chats'
     | '/admin/listings'
     | '/admin/login'
@@ -675,6 +687,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminChangePasswordRoute: typeof AdminChangePasswordRoute
   AdminChatsRoute: typeof AdminChatsRoute
   AdminListingsRoute: typeof AdminListingsRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -1037,6 +1050,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminChatsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/change-password': {
+      id: '/admin/change-password'
+      path: '/admin/change-password'
+      fullPath: '/admin/change-password'
+      preLoaderRoute: typeof AdminChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/admin/audit'
@@ -1110,6 +1130,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   AdminAuditRoute: AdminAuditRoute,
+  AdminChangePasswordRoute: AdminChangePasswordRoute,
   AdminChatsRoute: AdminChatsRoute,
   AdminListingsRoute: AdminListingsRoute,
   AdminLoginRoute: AdminLoginRoute,

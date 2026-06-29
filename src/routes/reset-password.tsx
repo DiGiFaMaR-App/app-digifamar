@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
+import { estimatePasswordStrength } from "@/lib/password-strength";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -40,6 +42,10 @@ function ResetPassword() {
     e.preventDefault();
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (estimatePasswordStrength(password).score < 2) {
+      toast.error("Choose a stronger password");
       return;
     }
     if (password !== confirm) {
@@ -90,6 +96,7 @@ function ResetPassword() {
                   className="pl-9"
                 />
               </div>
+              <PasswordStrengthMeter password={password} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="confirm">Confirm password</Label>
