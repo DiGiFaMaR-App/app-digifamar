@@ -1,11 +1,13 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Shield, Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({
@@ -20,34 +22,67 @@ export const Route = createFileRoute("/admin/login")({
 
 function AdminLogin() {
   const navigate = useNavigate();
+  const verifyAdminSession = useServerFn(verifyAdminSessionFn);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [hasSession, setHasSession] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (cancelled) return;
+      setHasSession(!!data.user);
+      setCheckingSession(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function continueWithCurrentSession() {
+    setLoading(true);
+    try {
+      await verifyAdminSession();
+      toast.success("Welcome, admin");
+      navigate({ to: "/admin" });
+    } catch {
+      toast.error("Admin access required", {
+        description: "The signed-in account is not an admin. Sign in with the admin account.",
+      });
+      await supabase.auth.signOut();
+      setHasSession(false);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      const userId = data.user?.id;
-      if (!userId) throw new Error("No session");
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) {
+        toast.error("Password sign in failed", {
+          description: "Check the admin email and password, or use the reset link below.",
+        });
+        return;
+      }
 
-      // Verify admin role
-      const { data: roleRow, error: roleErr } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId)
-        .eq("role", "admin")
-        .maybeSingle();
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData.user) throw new Error("No session");
 
-      if (roleErr) throw roleErr;
-      if (!roleRow) {
+      try {
+        await verifyAdminSession();
+      } catch {
         await supabase.auth.signOut();
         toast.error("Not an admin account", {
           description: "This account does not have admin privileges.",
         });
-        setLoading(false);
         return;
       }
 
@@ -57,6 +92,7 @@ function AdminLogin() {
       toast.error("Sign in failed", {
         description: err instanceof Error ? err.message : "Check your credentials.",
       });
+    } finally {
       setLoading(false);
     }
   }
@@ -77,6 +113,19 @@ function AdminLogin() {
             Restricted area. Staff accounts only.
           </p>
         </div>
+
+        {hasSession && (
+          <div className="mb-4 rounded-2xl border bg-card p-4 shadow-sm">
+            <Button
+              type="button"
+              className="w-full"
+              disabled={loading || checkingSession}
+              onClick={continueWithCurrentSession}
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue to admin dashboard"}
+            </Button>
+          </div>
+        )}
 
         <form
           onSubmit={onSubmit}
