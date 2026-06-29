@@ -58,6 +58,15 @@ function ForgotPassword() {
               If an account exists for <strong>{email}</strong>, a password link is on its way.
               Check your inbox (and spam folder).
             </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={loading}
+              onClick={() => onSubmit({ preventDefault() {} } as React.FormEvent)}
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Resend email"}
+            </Button>
             <Link to="/auth" className="inline-flex items-center text-sm text-primary hover:underline">
               <ArrowLeft className="mr-1 h-4 w-4" /> Back to sign in
             </Link>
