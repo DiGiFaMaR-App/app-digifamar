@@ -28,6 +28,13 @@ export const listOpenDisputesFn = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+export const verifyAdminSessionFn = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdminRole(context.userId);
+    return { ok: true };
+  });
+
 export const listLedgerForOrderFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ orderId: z.string().uuid() }).parse(input))
