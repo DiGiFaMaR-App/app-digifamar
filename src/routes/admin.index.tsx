@@ -52,6 +52,7 @@ function AdminBody() {
             <Link to="/admin/chats" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Chats</Link>
             <Link to="/admin/audit" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Audit log</Link>
             <Link to="/admin/maps" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Maps key</Link>
+            <Link to="/admin/change-password" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Change password</Link>
           </nav>
         </div>
 

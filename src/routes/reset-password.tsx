@@ -96,6 +96,7 @@ function ResetPassword() {
                   className="pl-9"
                 />
               </div>
+              <PasswordStrengthMeter password={password} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="confirm">Confirm password</Label>
