@@ -44,6 +44,10 @@ function ResetPassword() {
       toast.error("Password must be at least 8 characters");
       return;
     }
+    if (estimatePasswordStrength(password).score < 2) {
+      toast.error("Choose a stronger password");
+      return;
+    }
     if (password !== confirm) {
       toast.error("Passwords do not match");
       return;
