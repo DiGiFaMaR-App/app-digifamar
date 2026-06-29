@@ -138,21 +138,26 @@ function LenderAdmin() {
   const decide = async (id: string, status: "approved" | "rejected") => {
     setActing(id);
     try {
-      await (supabase as unknown as {
+      const { error } = await (supabase as unknown as {
         from: (t: string) => {
-          update: (v: unknown) => { eq: (k: string, val: string) => Promise<unknown> };
+          update: (v: unknown) => { eq: (k: string, val: string) => Promise<{ error: { message: string } | null }> };
         };
       })
         .from("lender_applications")
         .update({ status, reviewed_at: new Date().toISOString() })
         .eq("id", id);
-    } catch {
-      // Demo-tolerant: still remove from the queue locally.
-    } finally {
+      if (error) throw new Error(error.message);
       setApps((prev) => prev.filter((a) => a.id !== id));
+    } catch (err) {
+      // Surface failures so genuine admins notice when writes fail (no silent swallow).
+      toast.error("Decision failed", {
+        description: err instanceof Error ? err.message : "Database rejected the update.",
+      });
+    } finally {
       setActing(null);
     }
   };
+
 
   const pendingCount = apps.length;
   const totalCeiling = useMemo(() => apps.reduce((s, a) => s + a.maxLoanAmount, 0), [apps]);
