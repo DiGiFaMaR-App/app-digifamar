@@ -8,14 +8,23 @@ import { openWhatsApp } from "./WhatsAppFab";
 type NavItem = { to: string; label: string; icon: React.ElementType };
 
 const buyerNav: NavItem[] = [
+  { to: "/", label: "Home", icon: Home },
   { to: "/market", label: "Shop", icon: Search },
+  { to: "/browse", label: "Browse", icon: Search },
   { to: "/dashboard/buyer", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
+  { to: "/lending", label: "Lending", icon: Package },
+  { to: "/auth", label: "Account", icon: User },
 ];
 
 const farmerNav: NavItem[] = [
+  { to: "/", label: "Home", icon: Home },
   { to: "/market", label: "Browse", icon: Search },
   { to: "/dashboard/farmer", label: "Dashboard", icon: Tractor },
+  { to: "/orders", label: "Orders", icon: Package },
+  { to: "/chat", label: "Messages", icon: MessageSquare },
+  { to: "/lending", label: "Lending", icon: Package },
+  { to: "/auth", label: "Account", icon: User },
 ];
 
 export function AppShell({
