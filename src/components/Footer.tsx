@@ -59,7 +59,15 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex flex-col items-start gap-4 border-t border-border pt-6 text-xs text-muted-foreground md:flex-row md:items-center md:justify-between">
-          <p>© 2026 DiGiFaMaR. Empowering American Farmers.</p>
+          <p>
+            © 2026 DiGiFaMaR. Empowering American Farmers.{" "}
+            <Link
+              to="/admin/login"
+              className="ml-2 inline-flex items-center gap-1 text-muted-foreground hover:text-primary"
+            >
+              <Shield className="h-3.5 w-3.5" /> Admin
+            </Link>
+          </p>
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5">
               <Shield className="h-4 w-4" /> USDA Compliant
