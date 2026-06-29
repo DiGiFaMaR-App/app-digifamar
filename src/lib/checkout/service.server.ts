@@ -9,6 +9,7 @@
 import { computeFees } from "@/lib/cart/fees";
 import { createEscrowTransaction } from "./escrowcom.server";
 import type { CheckoutResultDto, CreateCheckoutDto } from "./dto";
+import { products as mockProducts } from "@/lib/mock-data";
 
 // The `orders` table post-dates the generated Supabase types, so we narrow the
 // client to just the insert shape we use (same pattern as the lender portal).
@@ -17,6 +18,53 @@ type OrdersInsertClient = {
     insert: (values: Record<string, unknown>) => Promise<{ error: { message: string } | null }>;
   };
 };
+
+type ListingsLookupClient = {
+  from: (table: "listings") => {
+    select: (cols: string) => {
+      or: (filter: string) => {
+        eq: (col: string, val: string) => {
+          maybeSingle: () => Promise<{ data: { id: string; price_cents: number; status: string } | null; error: unknown }>;
+        };
+      };
+    };
+  };
+};
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Resolve the authoritative unit price (in cents) for a product id/slug.
+ * Order of trust:
+ *   1. `listings` table (real marketplace data) — uuid or slug, must be active.
+ *   2. Server-side mock catalog (demo data not yet migrated to DB).
+ * Returns `null` when the product cannot be verified — checkout must reject.
+ *
+ * SECURITY: Never trust the client-submitted `unitPriceCents`; it is recomputed
+ * here so a buyer can't pass `unitPriceCents: 1` and pay a fraudulent amount.
+ */
+async function resolveAuthoritativePriceCents(
+  supabase: unknown,
+  productId: string,
+): Promise<number | null> {
+  try {
+    const db = supabase as ListingsLookupClient;
+    const id = productId.trim();
+    const filter = UUID_RE.test(id) ? `id.eq.${id},slug.eq.${id}` : `slug.eq.${id}`;
+    const { data } = await db
+      .from("listings")
+      .select("id, price_cents, status")
+      .or(filter)
+      .eq("status", "active")
+      .maybeSingle();
+    if (data && typeof data.price_cents === "number") return data.price_cents;
+  } catch {
+    // Fall through to mock catalog so the demo still completes.
+  }
+  const mock = mockProducts.find((p) => p.id === productId);
+  if (mock) return Math.round(mock.price * 100);
+  return null;
+}
 
 export type CheckoutContext = {
   supabase: unknown; // SupabaseClient scoped to the authenticated buyer (RLS)
@@ -29,12 +77,18 @@ export class CheckoutService {
     ctx: CheckoutContext,
     input: CreateCheckoutDto,
   ): Promise<CheckoutResultDto> {
-    // 1. Recompute money server-side from the submitted line items.
-    const subtotalCents = input.items.reduce(
-      (sum, i) => sum + i.unitPriceCents * i.quantity,
-      0,
-    );
+    // 1. Recompute money server-side using authoritative prices, never the
+    //    client-supplied `unitPriceCents`.
+    let subtotalCents = 0;
+    for (const item of input.items) {
+      const authoritative = await resolveAuthoritativePriceCents(ctx.supabase, item.productId);
+      if (authoritative === null) {
+        throw new Error(`Product not available for checkout: ${item.productId}`);
+      }
+      subtotalCents += authoritative * item.quantity;
+    }
     const breakdown = computeFees(subtotalCents);
+
 
     const orderId = crypto.randomUUID();
     const itemCount = input.items.reduce((n, i) => n + i.quantity, 0);
