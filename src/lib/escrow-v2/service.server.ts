@@ -164,8 +164,10 @@ export class EscrowV2Service {
     return { orderId, status: "escrow_funded" as const, heldCents: balanceAfter };
   }
 
-  /** Step 2 — Farmer requests an OTP for the buyer. Returns the plaintext
-   *  code ONCE (the buyer must capture it). */
+  /** Step 2 — Farmer requests an OTP. The code is texted to the BUYER; the
+   *  buyer relays it to the farmer at handover. The plaintext code is returned
+   *  to the caller only as a fallback when SMS could not be delivered (e.g. no
+   *  SMS provider config or no valid buyer phone), so the flow still works in dev. */
   static async generateOtp(userId: string, orderId: string) {
     const order = await loadOrder(orderId);
     if (order.farmer_id !== userId) throw new Error("Forbidden");
@@ -191,16 +193,41 @@ export class EscrowV2Service {
 
     await sb.from("orders").update({ status: "awaiting_delivery" }).eq("id", orderId);
 
+    // Deliver the code to the buyer by SMS.
+    const { sendSms, maskPhone } = await import("@/lib/notifications/sms.server");
+    const { data: buyer } = await sb
+      .from("profiles")
+      .select("phone")
+      .eq("id", order.buyer_id)
+      .maybeSingle();
+    const smsResult = await sendSms(
+      buyer?.phone,
+      `DiGiFaMaR: your delivery code for order ${orderId.slice(0, 8)} is ${otp}. ` +
+        `Share it with the farmer at handover. It expires in ${OTP_TTL_HOURS}h.`,
+    );
+    const smsDelivered = smsResult.sent;
+
     await audit({
       actorId: userId,
       actorRole: "farmer",
       action: "otp.generate",
       resourceType: "order",
       resourceId: orderId,
-      metadata: { expires_at: expiresAt },
+      metadata: {
+        expires_at: expiresAt,
+        sms_delivered: smsDelivered,
+        sms_reason: smsResult.sent ? "sent" : smsResult.reason,
+      },
     });
 
-    return { orderId, otp, expiresAt };
+    return {
+      orderId,
+      expiresAt,
+      smsDelivered,
+      maskedPhone: smsDelivered ? maskPhone(buyer?.phone) : null,
+      // Only expose the plaintext code when we could NOT text it to the buyer.
+      otp: smsDelivered ? null : otp,
+    };
   }
 
   /** Step 3 — At handover the farmer enters the OTP the buyer received.
