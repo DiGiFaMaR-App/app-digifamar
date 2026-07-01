@@ -16,9 +16,7 @@ describe("ChatRoom route", () => {
     render(<Page />);
 
     expect(screen.getByPlaceholderText(/type a message/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /back to messages/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /back to messages/i })).toBeInTheDocument();
     // One of the canned quick-reply chips.
     expect(screen.getByText(/minimum order/i)).toBeInTheDocument();
   });

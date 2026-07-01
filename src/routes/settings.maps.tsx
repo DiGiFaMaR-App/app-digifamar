@@ -12,7 +12,10 @@ export const Route = createFileRoute("/settings/maps")({
   head: () => ({
     meta: [
       { title: "Maps Platform Settings — DiGiFaMaR" },
-      { name: "description", content: "Manage the Google Maps Platform API key used on this domain." },
+      {
+        name: "description",
+        content: "Manage the Google Maps Platform API key used on this domain.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -149,8 +152,8 @@ function MapsSettingsPage() {
           <div className="space-y-1">
             <Label htmlFor="gmaps-key">Your Google Maps API key</Label>
             <p className="text-xs text-muted-foreground">
-              Paste a key from your own Google Cloud project. It's stored locally in this
-              browser and only used for the Maps JavaScript API.
+              Paste a key from your own Google Cloud project. It's stored locally in this browser
+              and only used for the Maps JavaScript API.
             </p>
           </div>
           <Input
@@ -174,7 +177,10 @@ function MapsSettingsPage() {
             <p className="text-xs text-muted-foreground">
               For <span className="font-mono">{hostname}</span> to work, add both
               <span className="font-mono"> https://{hostname}/*</span> and
-              <span className="font-mono"> https://*.{hostname.split(".").slice(-2).join(".")}/*</span>{" "}
+              <span className="font-mono">
+                {" "}
+                https://*.{hostname.split(".").slice(-2).join(".")}/*
+              </span>{" "}
               to your key's HTTP referrer allowlist in Google Cloud Console.
             </p>
           )}

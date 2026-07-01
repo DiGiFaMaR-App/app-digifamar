@@ -7,7 +7,11 @@ export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
       { title: "Farmer pricing plans | DiGiFaMaR" },
-      { name: "description", content: "Free, Pro, and Elite plans. Keep more of every sale, get featured placement, and access farm lending." },
+      {
+        name: "description",
+        content:
+          "Free, Pro, and Elite plans. Keep more of every sale, get featured placement, and access farm lending.",
+      },
       { property: "og:title", content: "Farmer pricing plans | DiGiFaMaR" },
       { property: "og:description", content: "Free, Pro, and Elite plans for American farmers." },
       { property: "og:url", content: "https://farmer-forward.lovable.app/pricing" },
@@ -99,7 +103,10 @@ function Pricing() {
                   </li>
                 ))}
               </ul>
-              <Button asChild className={`mt-6 w-full ${t.highlight ? "" : "bg-card text-foreground border border-border hover:bg-muted"}`}>
+              <Button
+                asChild
+                className={`mt-6 w-full ${t.highlight ? "" : "bg-card text-foreground border border-border hover:bg-muted"}`}
+              >
                 <Link to="/signup/farmer">Choose {t.name}</Link>
               </Button>
             </div>

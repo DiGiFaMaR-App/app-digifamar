@@ -9,9 +9,15 @@ export const Route = createFileRoute("/orders/")({
   head: () => ({
     meta: [
       { title: "My Orders — DiGiFaMaR" },
-      { name: "description", content: "Track your DiGiFaMaR farm orders, escrow status, and deliveries." },
+      {
+        name: "description",
+        content: "Track your DiGiFaMaR farm orders, escrow status, and deliveries.",
+      },
       { property: "og:title", content: "My Orders — DiGiFaMaR" },
-      { property: "og:description", content: "Track your DiGiFaMaR farm orders, escrow status, and deliveries." },
+      {
+        property: "og:description",
+        content: "Track your DiGiFaMaR farm orders, escrow status, and deliveries.",
+      },
     ],
   }),
   component: OrdersIndex,
@@ -34,9 +40,7 @@ function OrdersIndex() {
 
         {error && (
           <div className="rounded-lg border border-border bg-muted/30 p-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Sign in to see your orders.
-            </p>
+            <p className="text-sm text-muted-foreground">Sign in to see your orders.</p>
             <Link
               to="/signin"
               className="mt-3 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"

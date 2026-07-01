@@ -49,7 +49,11 @@ export function LenderShell({
                     className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
                       active ? "text-white" : "text-slate-400 hover:text-slate-200"
                     }`}
-                    style={active ? { backgroundColor: "rgba(29,78,216,0.18)", color: "#93B4FF" } : undefined}
+                    style={
+                      active
+                        ? { backgroundColor: "rgba(29,78,216,0.18)", color: "#93B4FF" }
+                        : undefined
+                    }
                   >
                     <n.icon className="h-4 w-4" /> {n.label}
                   </Link>
@@ -131,11 +135,20 @@ export function TradeScoreBadge({
   size?: "sm" | "md" | "lg";
 }) {
   const meta = TIER_META[scoreTier(score)];
-  const pad = size === "lg" ? "px-3 py-1.5 text-base" : size === "sm" ? "px-2 py-0.5 text-xs" : "px-2.5 py-1 text-sm";
+  const pad =
+    size === "lg"
+      ? "px-3 py-1.5 text-base"
+      : size === "sm"
+        ? "px-2 py-0.5 text-xs"
+        : "px-2.5 py-1 text-sm";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full font-bold ${pad}`}
-      style={{ color: meta.text, backgroundColor: meta.bg, boxShadow: `inset 0 0 0 1px ${meta.ring}` }}
+      style={{
+        color: meta.text,
+        backgroundColor: meta.bg,
+        boxShadow: `inset 0 0 0 1px ${meta.ring}`,
+      }}
     >
       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: meta.dot }} />
       {score}

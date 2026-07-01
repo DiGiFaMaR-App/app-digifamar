@@ -20,7 +20,9 @@ export const listOpenDisputesFn = createServerFn({ method: "GET" })
     const sb = await assertAdmin(context);
     const { data, error } = await sb
       .from("disputes")
-      .select("id, order_id, raised_by, reason, evidence_urls, state, resolution, created_at, resolved_at")
+      .select(
+        "id, order_id, raised_by, reason, evidence_urls, state, resolution, created_at, resolved_at",
+      )
       .in("state", ["open", "under_review"])
       .order("created_at", { ascending: false })
       .limit(100);
@@ -136,7 +138,11 @@ export const listUsersFn = createServerFn({ method: "GET" })
 
 export const listAllOrdersFn = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ status: z.string().optional(), limit: z.number().int().min(1).max(500).optional() }).parse(input ?? {}))
+  .inputValidator((input) =>
+    z
+      .object({ status: z.string().optional(), limit: z.number().int().min(1).max(500).optional() })
+      .parse(input ?? {}),
+  )
   .handler(async ({ data, context }) => {
     const sb = await assertAdmin(context);
     let q = sb
@@ -157,7 +163,9 @@ export const listAllListingsFn = createServerFn({ method: "GET" })
     const sb = await assertAdmin(context);
     let q = sb
       .from("listings")
-      .select("id, farmer_id, title, category, price_cents, unit, qty_available, status, created_at")
+      .select(
+        "id, farmer_id, title, category, price_cents, unit, qty_available, status, created_at",
+      )
       .order("created_at", { ascending: false })
       .limit(300);
     const s = data.search?.trim();
@@ -169,7 +177,11 @@ export const listAllListingsFn = createServerFn({ method: "GET" })
 
 export const setListingStatusFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ id: z.string().uuid(), status: z.enum(["active", "paused", "removed"]) }).parse(input))
+  .inputValidator((input) =>
+    z
+      .object({ id: z.string().uuid(), status: z.enum(["active", "paused", "removed"]) })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const sb = await assertAdmin(context);
     const { logAudit } = await import("@/lib/audit/log.server");

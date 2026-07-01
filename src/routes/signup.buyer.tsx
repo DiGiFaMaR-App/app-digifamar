@@ -154,10 +154,7 @@ const step2Schema = z.object({
     }),
   city: z.string().trim().min(1, "City is required").max(100),
   state: z.string().min(2, "Please select a state"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128),
+  password: z.string().min(8, "Password must be at least 8 characters").max(128),
 });
 
 type Step2Data = z.infer<typeof step2Schema>;
@@ -204,10 +201,7 @@ function BuyerSignup() {
   const canSubmit = otpComplete && termsChecked && !submitting;
   const isIndividual = buyerType === "individual";
 
-  const updateStep2 = <K extends keyof typeof step2>(
-    key: K,
-    value: (typeof step2)[K],
-  ) => {
+  const updateStep2 = <K extends keyof typeof step2>(key: K, value: (typeof step2)[K]) => {
     setStep2((p) => ({ ...p, [key]: value }));
     setStep2Errors((e) => ({ ...e, [key]: undefined }));
   };
@@ -220,10 +214,7 @@ function BuyerSignup() {
     if (digit && index < 5) otpRefs.current[index + 1]?.focus();
   };
 
-  const handleOtpKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
@@ -231,10 +222,7 @@ function BuyerSignup() {
 
   const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    const paste = e.clipboardData
-      .getData("text")
-      .replace(/\D/g, "")
-      .slice(0, 6);
+    const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     if (paste.length === 6) {
       setOtp(paste.split(""));
       otpRefs.current[5]?.focus();
@@ -297,16 +285,13 @@ function BuyerSignup() {
       const userId = data.user?.id;
       if (!userId) throw new Error("Signup failed — please try again.");
 
-      await supabase
-        .from("buyer_profiles")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .insert({
-          user_id: userId,
-          buyer_type: buyerType,
-          business_name: !isIndividual ? step2.businessName || null : null,
-          city: step2.city,
-          state: step2.state,
-        } as any);
+      await supabase.from("buyer_profiles").insert({
+        user_id: userId,
+        buyer_type: buyerType,
+        business_name: !isIndividual ? step2.businessName || null : null,
+        city: step2.city,
+        state: step2.state,
+      } as any);
 
       await supabase.from("user_roles").insert({
         user_id: userId,
@@ -315,11 +300,7 @@ function BuyerSignup() {
 
       setStep(4);
     } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "Registration failed. Please try again.",
-      );
+      toast.error(err instanceof Error ? err.message : "Registration failed. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -335,11 +316,7 @@ function BuyerSignup() {
         </div>
 
         {step === 1 && (
-          <Step1
-            selected={buyerType}
-            onSelect={(id) => setBuyerType(id)}
-            onNext={handleNext}
-          />
+          <Step1 selected={buyerType} onSelect={(id) => setBuyerType(id)} onNext={handleNext} />
         )}
         {step === 2 && (
           <Step2
@@ -370,10 +347,7 @@ function BuyerSignup() {
           />
         )}
         {step === 4 && (
-          <Step4
-            firstName={step2.firstName}
-            onBrowse={() => navigate({ to: "/market" })}
-          />
+          <Step4 firstName={step2.firstName} onBrowse={() => navigate({ to: "/market" })} />
         )}
       </div>
     </div>
@@ -451,9 +425,7 @@ function Step1({
           <ShoppingCart className="h-3 w-3" /> Step 1 of 3
         </div>
         <h1 className="text-2xl font-bold">I'm buying as a…</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Select the option that best describes you
-        </p>
+        <p className="text-sm text-white/50 mt-1">Select the option that best describes you</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-2">
@@ -474,12 +446,8 @@ function Step1({
                 <CheckCircle2 className="absolute top-3 right-3 h-4 w-4 text-[#22C55E]" />
               )}
               <span className="text-2xl leading-none">{type.emoji}</span>
-              <span className="font-semibold text-sm leading-tight">
-                {type.label}
-              </span>
-              <span className="text-xs text-white/50 leading-snug">
-                {type.description}
-              </span>
+              <span className="font-semibold text-sm leading-tight">{type.label}</span>
+              <span className="text-xs text-white/50 leading-snug">{type.description}</span>
             </button>
           );
         })}
@@ -494,11 +462,7 @@ function Step1({
 
       <p className="text-center text-xs text-white/30 mt-4">
         Already have an account?{" "}
-        <Link
-          to="/auth"
-          search={{ tab: "signin" }}
-          className="text-[#22C55E] hover:underline"
-        >
+        <Link to="/auth" search={{ tab: "signin" }} className="text-[#22C55E] hover:underline">
           Sign in
         </Link>
       </p>
@@ -635,10 +599,7 @@ function Step2({
             />
           </FormField>
           <FormField label="State" error={errors.state}>
-            <Select
-              value={data.state}
-              onValueChange={(v) => onUpdate("state", v)}
-            >
+            <Select value={data.state} onValueChange={(v) => onUpdate("state", v)}>
               <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-[#22C55E]/20">
                 <SelectValue placeholder="State" />
               </SelectTrigger>
@@ -674,11 +635,7 @@ function Step2({
               className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
               tabIndex={-1}
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
         </FormField>
@@ -687,8 +644,8 @@ function Step2({
         <div className="flex items-start gap-3 rounded-2xl border border-[#22C55E]/20 bg-[#22C55E]/5 p-4">
           <Shield className="h-4 w-4 text-[#22C55E] mt-0.5 shrink-0" />
           <p className="text-xs text-white/70 leading-relaxed">
-            Every purchase held in escrow — funds release only after you confirm
-            delivery with a 6-digit code.
+            Every purchase held in escrow — funds release only after you confirm delivery with a
+            6-digit code.
           </p>
         </div>
       </div>
@@ -750,9 +707,7 @@ function Step3({
           <Phone className="h-3 w-3" /> Step 3 of 3
         </div>
         <h1 className="text-2xl font-bold">Phone Verification</h1>
-        <p className="text-sm text-white/50 mt-1">
-          Enter the 6-digit code sent to your phone
-        </p>
+        <p className="text-sm text-white/50 mt-1">Enter the 6-digit code sent to your phone</p>
       </div>
 
       {/* OTP boxes */}
@@ -771,9 +726,7 @@ function Step3({
             onKeyDown={(e) => onOtpKeyDown(i, e)}
             onPaste={i === 0 ? onOtpPaste : undefined}
             className={`w-12 h-14 text-center text-xl font-bold rounded-xl border bg-white/5 text-white outline-none transition-all caret-transparent ${
-              digit
-                ? "border-[#22C55E] bg-[#22C55E]/10"
-                : "border-white/10 focus:border-white/30"
+              digit ? "border-[#22C55E] bg-[#22C55E]/10" : "border-white/10 focus:border-white/30"
             }`}
           />
         ))}
@@ -801,10 +754,18 @@ function Step3({
           />
           <span className="text-sm text-white/70 leading-snug">
             I agree to the{" "}
-            <Link to="/terms" target="_blank" className="text-[#22C55E] underline">Terms of Service</Link>,{" "}
-            <Link to="/buyer-protection" target="_blank" className="text-[#22C55E] underline">Buyer Protection Policy</Link>{" "}
+            <Link to="/terms" target="_blank" className="text-[#22C55E] underline">
+              Terms of Service
+            </Link>
+            ,{" "}
+            <Link to="/buyer-protection" target="_blank" className="text-[#22C55E] underline">
+              Buyer Protection Policy
+            </Link>{" "}
             &amp;{" "}
-            <Link to="/privacy" target="_blank" className="text-[#22C55E] underline">Privacy Policy</Link>.
+            <Link to="/privacy" target="_blank" className="text-[#22C55E] underline">
+              Privacy Policy
+            </Link>
+            .
           </span>
         </label>
       </div>
@@ -822,17 +783,11 @@ function Step3({
           disabled={!canSubmit}
           className="flex-[2] h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {submitting ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            "Create Buyer Account"
-          )}
+          {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Create Buyer Account"}
         </Button>
       </div>
 
-      <p className="text-center text-xs text-white/30 mt-3">
-        Registered to {email}
-      </p>
+      <p className="text-center text-xs text-white/30 mt-3">Registered to {email}</p>
     </div>
   );
 }
@@ -848,13 +803,7 @@ const BUYER_BENEFITS = [
   { Icon: Phone, text: "Real-time order updates & buyer support" },
 ];
 
-function Step4({
-  firstName,
-  onBrowse,
-}: {
-  firstName: string;
-  onBrowse: () => void;
-}) {
+function Step4({ firstName, onBrowse }: { firstName: string; onBrowse: () => void }) {
   return (
     <div className="text-center">
       <div className="w-20 h-20 rounded-full bg-[#22C55E]/15 flex items-center justify-center mx-auto mb-5">
@@ -863,8 +812,8 @@ function Step4({
 
       <h1 className="text-2xl font-bold mb-1">You're In! ✅</h1>
       <p className="text-white/60 text-sm mb-8">
-        Welcome, <span className="text-white font-semibold">{firstName}</span>!
-        Your buyer account is ready to use.
+        Welcome, <span className="text-white font-semibold">{firstName}</span>! Your buyer account
+        is ready to use.
       </p>
 
       <div className="text-left space-y-3 mb-8">
@@ -906,9 +855,7 @@ function FormField({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
-        {label}
-      </Label>
+      <Label className="text-xs font-semibold text-white/60 uppercase tracking-wide">{label}</Label>
       {children}
       {error && <p className="text-xs font-medium text-red-400">{error}</p>}
     </div>

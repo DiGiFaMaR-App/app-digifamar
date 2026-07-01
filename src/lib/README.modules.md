@@ -4,11 +4,11 @@ This project's "backend" is implemented as TanStack Start server functions
 (`createServerFn`) organized to mirror a NestJS module layout. Each module is a
 folder under `src/lib/` containing three files:
 
-| File                      | NestJS analogue            | Runs on |
-| ------------------------- | -------------------------- | ------- |
-| `dto.ts`                  | `*.dto.ts` (Zod schemas)   | client + server |
-| `service.server.ts`       | `*.service.ts`             | server only |
-| `<module>.functions.ts`   | `*.controller.ts`          | server (RPC entry) |
+| File                    | NestJS analogue          | Runs on            |
+| ----------------------- | ------------------------ | ------------------ |
+| `dto.ts`                | `*.dto.ts` (Zod schemas) | client + server    |
+| `service.server.ts`     | `*.service.ts`           | server only        |
+| `<module>.functions.ts` | `*.controller.ts`        | server (RPC entry) |
 
 Modules:
 

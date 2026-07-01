@@ -37,7 +37,6 @@ import { getFarm, getProduct } from "@/lib/mock-data";
 import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
 import { LiveTrackingMap } from "@/components/LiveTrackingMap";
 
-
 // ─────────────────────────────────────────────────────────────────
 // ROUTE
 // ─────────────────────────────────────────────────────────────────
@@ -50,10 +49,7 @@ const searchSchema = z.object({
 export const Route = createFileRoute("/chat/farm/$farmId")({
   validateSearch: searchSchema,
   head: () => ({
-    meta: [
-      { title: "Chat with farmer — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Chat with farmer — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: FarmChatPage,
 });
@@ -108,7 +104,6 @@ const escrowKey = (farmId: string, productId?: string) =>
 const deliveryKey = (farmId: string, productId?: string) =>
   `digifamar.delivery.${farmId}.${productId ?? "general"}`;
 
-
 function loadMessages(farmId: string, productId?: string): ChatMsg[] {
   if (typeof window === "undefined") return [];
   try {
@@ -160,11 +155,7 @@ function loadDelivery(farmId: string, productId?: string): DeliveryState {
   }
 }
 
-function saveDelivery(
-  farmId: string,
-  productId: string | undefined,
-  d: DeliveryState | null,
-) {
+function saveDelivery(farmId: string, productId: string | undefined, d: DeliveryState | null) {
   if (typeof window === "undefined") return;
   try {
     if (d) window.localStorage.setItem(deliveryKey(farmId, productId), JSON.stringify(d));
@@ -206,7 +197,11 @@ const formatTime = (ts: number) =>
   new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 const initials = (name: string) =>
-  name.split(" ").slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
+  name
+    .split(" ")
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? "")
+    .join("");
 
 // ─────────────────────────────────────────────────────────────────
 // DELIVERY TIMELINE
@@ -306,9 +301,7 @@ function DeliveryTimeline({
               </div>
               {!isLast && (
                 <div
-                  className={`h-px w-full max-w-6 mx-0.5 ${
-                    s.done ? "bg-leaf/60" : "bg-border"
-                  }`}
+                  className={`h-px w-full max-w-6 mx-0.5 ${s.done ? "bg-leaf/60" : "bg-border"}`}
                 />
               )}
             </div>
@@ -326,23 +319,18 @@ function DeliveryTimeline({
 function FarmChatPage() {
   const { farmId } = Route.useParams();
   const { productId, qty } = Route.useSearch();
-  
 
   const farm = getFarm(farmId);
   const product = productId ? getProduct(productId) : undefined;
   const quantity = qty ?? 1;
 
   const geo = useGeolocation();
-  const [messages, setMessages] = useState<ChatMsg[]>(() =>
-    loadMessages(farmId, productId),
-  );
+  const [messages, setMessages] = useState<ChatMsg[]>(() => loadMessages(farmId, productId));
   const [input, setInput] = useState("");
   const [role, setRole] = useState<Role>("buyer");
   const [showAccept, setShowAccept] = useState(false);
   const [accepted, setAccepted] = useState(false);
-  const [escrow, setEscrow] = useState<EscrowState | null>(() =>
-    loadEscrow(farmId, productId),
-  );
+  const [escrow, setEscrow] = useState<EscrowState | null>(() => loadEscrow(farmId, productId));
   const [showPay, setShowPay] = useState(false);
   const [payMethod, setPayMethod] = useState<"card" | "bank">("card");
   const [paying, setPaying] = useState(false);
@@ -368,17 +356,23 @@ function FarmChatPage() {
       if (e.key === deliveryKey(farmId, productId) && e.newValue) {
         try {
           setDeliveryState(JSON.parse(e.newValue) as DeliveryState);
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
       if (e.key === escrowKey(farmId, productId) && e.newValue) {
         try {
           setEscrow(JSON.parse(e.newValue) as EscrowState);
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
       if (e.key === storageKey(farmId, productId) && e.newValue) {
         try {
           setMessages(JSON.parse(e.newValue) as ChatMsg[]);
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
     };
     window.addEventListener("storage", onStorage);
@@ -398,7 +392,7 @@ function FarmChatPage() {
   // doesn't jitter wildly between updates.
   const locHistoryRef = useRef<Array<{ lat: number; lng: number; ts: number }>>([]);
   const smoothedSpeedRef = useRef<number | null>(null); // mph
-  const smoothedEtaRef = useRef<number | null>(null);   // minutes
+  const smoothedEtaRef = useRef<number | null>(null); // minutes
   const [eta, setEta] = useState<{ miles: number; minutes: number; mph: number } | null>(null);
 
   useEffect(() => {
@@ -451,9 +445,7 @@ function FarmChatPage() {
 
     // Smooth the ETA itself so the displayed number eases between updates.
     smoothedEtaRef.current =
-      smoothedEtaRef.current == null
-        ? rawMinutes
-        : smoothedEtaRef.current * 0.6 + rawMinutes * 0.4;
+      smoothedEtaRef.current == null ? rawMinutes : smoothedEtaRef.current * 0.6 + rawMinutes * 0.4;
 
     const minutes = Math.max(1, Math.round(smoothedEtaRef.current));
     setEta({ miles, minutes, mph });
@@ -506,15 +498,18 @@ function FarmChatPage() {
     return Math.min(1, Math.max(0, 1 - eta.miles / init));
   }, [deliveryState.initialDistance, deliveryState.status, eta]);
 
-  const pushSystem = useCallback(
-    (text: string, who: Role = "buyer") => {
-      setMessages((prev) => [
-        ...prev,
-        { id: `sys-${who}-${Date.now()}-${Math.random()}`, role: who, kind: "system", text, ts: Date.now() },
-      ]);
-    },
-    [],
-  );
+  const pushSystem = useCallback((text: string, who: Role = "buyer") => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `sys-${who}-${Date.now()}-${Math.random()}`,
+        role: who,
+        kind: "system",
+        text,
+        ts: Date.now(),
+      },
+    ]);
+  }, []);
 
   // Stop GPS watch helper
   const stopWatch = useCallback(() => {
@@ -567,7 +562,10 @@ function FarmChatPage() {
 
   const handleMarkArrived = useCallback(() => {
     setDeliveryState((d) => ({ ...d, status: "arrived", arrivedAt: Date.now() }));
-    pushSystem("📍 Farmer has arrived. Please inspect the goods and enter the release code.", "farmer");
+    pushSystem(
+      "📍 Farmer has arrived. Please inspect the goods and enter the release code.",
+      "farmer",
+    );
   }, [pushSystem]);
 
   const handleVerifyOtp = useCallback(async () => {
@@ -581,7 +579,9 @@ function FarmChatPage() {
     await new Promise((r) => setTimeout(r, 600));
     if (clean !== escrow.otp) {
       setVerifying(false);
-      toast.error("Incorrect code", { description: "Double-check the 6-digit code from the buyer." });
+      toast.error("Incorrect code", {
+        description: "Double-check the 6-digit code from the buyer.",
+      });
       return;
     }
     const releasedAt = Date.now();
@@ -598,9 +598,6 @@ function FarmChatPage() {
       description: `$${escrow.total.toFixed(2)} released from escrow to the farmer.`,
     });
   }, [escrow, otpInput, farmId, productId, pushSystem, stopWatch]);
-
-
-
 
   // Pre-fill the very first message when a product context is present
   useEffect(() => {
@@ -730,17 +727,13 @@ function FarmChatPage() {
             </Link>
 
             <div className="w-10 h-10 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
-              <span className="text-sm font-bold text-primary">
-                {initials(farm.name)}
-              </span>
+              <span className="text-sm font-bold text-primary">{initials(farm.name)}</span>
             </div>
 
             <div className="flex-1 min-w-0">
               <p className="font-semibold truncate flex items-center gap-1">
                 {farm.name}
-                {farm.verified && (
-                  <BadgeCheck className="h-3.5 w-3.5 text-primary shrink-0" />
-                )}
+                {farm.verified && <BadgeCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
               </p>
               <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                 <MapPin className="h-3 w-3" />
@@ -762,11 +755,7 @@ function FarmChatPage() {
           {/* Order context strip */}
           {product && (
             <div className="shrink-0 border-b border-border bg-leaf-soft/40 px-4 py-2.5 flex items-center gap-3">
-              <img
-                src={product.image}
-                alt=""
-                className="h-10 w-10 rounded-md object-cover"
-              />
+              <img src={product.image} alt="" className="h-10 w-10 rounded-md object-cover" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-muted-foreground">Negotiating</p>
                 <p className="text-sm font-semibold truncate">
@@ -780,9 +769,7 @@ function FarmChatPage() {
                 <p className="text-[10px] uppercase text-muted-foreground tracking-wide">
                   Subtotal
                 </p>
-                <p className="text-sm font-bold text-primary">
-                  ${subtotal.toFixed(2)}
-                </p>
+                <p className="text-sm font-bold text-primary">${subtotal.toFixed(2)}</p>
               </div>
             </div>
           )}
@@ -812,10 +799,13 @@ function FarmChatPage() {
                         Product inquiry
                       </p>
                       <p className="text-sm">
-                        <strong>{m.meta.qty} × {m.meta.productName}</strong>
+                        <strong>
+                          {m.meta.qty} × {m.meta.productName}
+                        </strong>
                         {m.meta.unitPrice != null && (
                           <span className="text-muted-foreground">
-                            {" "}· ${m.meta.unitPrice.toFixed(2)} ea
+                            {" "}
+                            · ${m.meta.unitPrice.toFixed(2)} ea
                           </span>
                         )}
                       </p>
@@ -834,10 +824,7 @@ function FarmChatPage() {
                 );
               }
               return (
-                <div
-                  key={m.id}
-                  className={`flex flex-col ${mine ? "items-end" : "items-start"}`}
-                >
+                <div key={m.id} className={`flex flex-col ${mine ? "items-end" : "items-start"}`}>
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
                       mine
@@ -848,62 +835,60 @@ function FarmChatPage() {
                     {m.text}
                   </div>
                   <span className="mt-0.5 text-[10px] text-muted-foreground px-1">
-                    {m.role === "farmer" ? farm.name.split(" ")[0] : "You"} ·{" "}
-                    {formatTime(m.ts)}
+                    {m.role === "farmer" ? farm.name.split(" ")[0] : "You"} · {formatTime(m.ts)}
                   </span>
                 </div>
               );
             })}
 
             {/* Live tracking map (rendered inline in chat) */}
-            {(deliveryState.status === "in_transit" || deliveryState.status === "arrived") && destination && (
-              <div className="rounded-2xl border border-primary/30 bg-card p-3 shadow-sm">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                    <Navigation className="h-3.5 w-3.5" />
-                    {deliveryState.status === "arrived" ? "Farmer has arrived" : "Live tracking"}
-                    <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-leaf animate-pulse" />
+            {(deliveryState.status === "in_transit" || deliveryState.status === "arrived") &&
+              destination && (
+                <div className="rounded-2xl border border-primary/30 bg-card p-3 shadow-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                      <Navigation className="h-3.5 w-3.5" />
+                      {deliveryState.status === "arrived" ? "Farmer has arrived" : "Live tracking"}
+                      <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-leaf animate-pulse" />
+                    </div>
+                    {eta && deliveryState.status === "in_transit" && (
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        {eta.miles.toFixed(1)} mi · ~{eta.minutes} min
+                        <span className="ml-1 opacity-70">· {Math.round(eta.mph)} mph</span>
+                      </span>
+                    )}
                   </div>
-                  {eta && deliveryState.status === "in_transit" && (
-                    <span className="text-xs text-muted-foreground tabular-nums">
-                      {eta.miles.toFixed(1)} mi · ~{eta.minutes} min
-                      <span className="ml-1 opacity-70">· {Math.round(eta.mph)} mph</span>
-                    </span>
+                  <LiveTrackingMap
+                    farmer={deliveryState.farmerLocation ?? null}
+                    destination={destination}
+                    farmerLabel={farm.name}
+                  />
+                  {progress != null && (
+                    <div className="mt-3">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-leaf transition-all duration-700 ease-out"
+                          style={{ width: `${Math.round(progress * 100)}%` }}
+                        />
+                      </div>
+                      <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
+                        <span>
+                          {deliveryState.initialDistance
+                            ? `${(deliveryState.initialDistance - (eta?.miles ?? 0)).toFixed(1)} mi travelled`
+                            : "Tracking…"}
+                        </span>
+                        <span>{Math.round(progress * 100)}% to destination</span>
+                      </div>
+                    </div>
+                  )}
+                  {!deliveryState.farmerLocation && (
+                    <p className="mt-2 text-[11px] text-muted-foreground text-center">
+                      Waiting for farmer's first location update…
+                    </p>
                   )}
                 </div>
-                <LiveTrackingMap
-                  farmer={deliveryState.farmerLocation ?? null}
-                  destination={destination}
-                  farmerLabel={farm.name}
-                />
-                {progress != null && (
-                  <div className="mt-3">
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full bg-leaf transition-all duration-700 ease-out"
-                        style={{ width: `${Math.round(progress * 100)}%` }}
-                      />
-                    </div>
-                    <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground tabular-nums">
-                      <span>
-                        {deliveryState.initialDistance
-                          ? `${(deliveryState.initialDistance - (eta?.miles ?? 0)).toFixed(1)} mi travelled`
-                          : "Tracking…"}
-                      </span>
-                      <span>{Math.round(progress * 100)}% to destination</span>
-                    </div>
-                  </div>
-                )}
-                {!deliveryState.farmerLocation && (
-                  <p className="mt-2 text-[11px] text-muted-foreground text-center">
-                    Waiting for farmer's first location update…
-                  </p>
-                )}
-              </div>
-            )}
+              )}
           </div>
-
-
 
           {/* Quick replies */}
           <div className="shrink-0 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none">
@@ -939,7 +924,8 @@ function FarmChatPage() {
                   <Lock className="h-4 w-4" />
                   Funds Secured in Escrow
                   <span className="text-xs text-muted-foreground font-normal">
-                    · ${escrow.total.toFixed(2)} · {escrow.method === "card" ? "Card" : "Bank transfer"}
+                    · ${escrow.total.toFixed(2)} ·{" "}
+                    {escrow.method === "card" ? "Card" : "Bank transfer"}
                   </span>
                 </div>
                 {role === "buyer" && (
@@ -955,7 +941,8 @@ function FarmChatPage() {
               </div>
               {role === "buyer" && showOtp && (
                 <p className="mt-2 text-[11px] text-muted-foreground">
-                  Share this 6-digit code with the farmer ONLY when your order is delivered. This releases the funds.
+                  Share this 6-digit code with the farmer ONLY when your order is delivered. This
+                  releases the funds.
                 </p>
               )}
             </div>
@@ -1004,7 +991,8 @@ function FarmChatPage() {
                 Enter 6-digit release code
               </div>
               <p className="text-[11px] text-muted-foreground">
-                Inspect the goods, then enter the code to release ${escrow.total.toFixed(2)} from escrow.
+                Inspect the goods, then enter the code to release ${escrow.total.toFixed(2)} from
+                escrow.
               </p>
               <div className="flex gap-2">
                 <Input
@@ -1048,8 +1036,6 @@ function FarmChatPage() {
               )}
             </div>
           )}
-
-
 
           {/* Pay into escrow CTA (buyer only, post price-accept, pre-payment) */}
           {role === "buyer" && accepted && !escrow && (
@@ -1113,16 +1099,12 @@ function FarmChatPage() {
                 Delivery distance
               </div>
               {geo.loading && (
-                <p className="text-sm text-muted-foreground">
-                  Detecting your location…
-                </p>
+                <p className="text-sm text-muted-foreground">Detecting your location…</p>
               )}
               {!geo.loading && distanceMi != null && (
                 <p className="text-sm">
                   <strong>{distanceMi.toFixed(1)} mi</strong>
-                  <span className="text-muted-foreground">
-                    {" "}from {farm.location} to you
-                  </span>
+                  <span className="text-muted-foreground"> from {farm.location} to you</span>
                 </p>
               )}
               {!geo.loading && distanceMi == null && (
@@ -1147,7 +1129,8 @@ function FarmChatPage() {
                   Delivery
                   {distanceMi != null && (
                     <span className="text-xs">
-                      {" "}({distanceMi.toFixed(1)} mi × ${DELIVERY_RATE_PER_MILE}/mi)
+                      {" "}
+                      ({distanceMi.toFixed(1)} mi × ${DELIVERY_RATE_PER_MILE}/mi)
                     </span>
                   )}
                 </span>
@@ -1165,11 +1148,7 @@ function FarmChatPage() {
           </div>
 
           <SheetFooter className="mt-5 flex-row gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowAccept(false)}
-              className="flex-1"
-            >
+            <Button variant="outline" onClick={() => setShowAccept(false)} className="flex-1">
               Keep negotiating
             </Button>
             <Button
@@ -1254,7 +1233,8 @@ function FarmChatPage() {
             </div>
 
             <p className="text-[11px] text-center text-muted-foreground">
-              A 6-digit release code will be sent to your phone after payment. Demo only — no real charge.
+              A 6-digit release code will be sent to your phone after payment. Demo only — no real
+              charge.
             </p>
           </div>
 
@@ -1323,7 +1303,6 @@ function FarmChatPage() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
-
     </AppShell>
   );
 }

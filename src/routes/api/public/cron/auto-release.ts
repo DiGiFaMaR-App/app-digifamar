@@ -23,7 +23,11 @@ export const Route = createFileRoute("/api/public/cron/auto-release")({
           EscrowV2Service.runAutoRelease(),
           EscrowV2Service.runFarmerGhostPenalty(),
         ]);
-        return Response.json({ ok: true, autoReleased: auto.released, ghostPenalized: ghost.penalized });
+        return Response.json({
+          ok: true,
+          autoReleased: auto.released,
+          ghostPenalized: ghost.penalized,
+        });
       },
     },
   },

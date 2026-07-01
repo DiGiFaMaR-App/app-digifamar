@@ -67,7 +67,10 @@ function ForgotPassword() {
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Resend email"}
             </Button>
-            <Link to="/auth" className="inline-flex items-center text-sm text-primary hover:underline">
+            <Link
+              to="/auth"
+              className="inline-flex items-center text-sm text-primary hover:underline"
+            >
               <ArrowLeft className="mr-1 h-4 w-4" /> Back to sign in
             </Link>
           </div>
@@ -92,7 +95,10 @@ function ForgotPassword() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send reset link"}
             </Button>
-            <Link to="/auth" className="block text-center text-xs text-muted-foreground hover:underline">
+            <Link
+              to="/auth"
+              className="block text-center text-xs text-muted-foreground hover:underline"
+            >
               Back to sign in
             </Link>
           </form>

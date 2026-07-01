@@ -77,7 +77,8 @@ function ResetPassword() {
 
         {!ready ? (
           <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
-            Open this page from the password link in your email. If the link expired, request a new one.
+            Open this page from the password link in your email. If the link expired, request a new
+            one.
           </div>
         ) : (
           <form onSubmit={onSubmit} className="rounded-2xl border bg-card p-6 shadow-sm space-y-4">

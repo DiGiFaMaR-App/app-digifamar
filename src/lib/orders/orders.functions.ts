@@ -24,9 +24,5 @@ export const getOrderFn = createServerFn({ method: "GET" })
 
 export const setOrderStatusFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ id: z.string().min(1), status: OrderStatus }).parse(input),
-  )
-  .handler(({ data, context }) =>
-    OrdersService.setStatus(context.userId, data.id, data.status),
-  );
+  .inputValidator((input) => z.object({ id: z.string().min(1), status: OrderStatus }).parse(input))
+  .handler(({ data, context }) => OrdersService.setStatus(context.userId, data.id, data.status));

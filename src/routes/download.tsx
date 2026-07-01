@@ -27,8 +27,7 @@ function DownloadPage() {
       </div>
       <h1 className="text-3xl font-bold tracking-tight">Get the DiGiFaMaR app</h1>
       <p className="text-muted-foreground">
-        Install the Android app directly. America's Farmers. Direct to Market. No
-        Middlemen.
+        Install the Android app directly. America's Farmers. Direct to Market. No Middlemen.
       </p>
 
       <Button asChild size="lg" className="gap-2">
@@ -43,10 +42,12 @@ function DownloadPage() {
         <ol className="list-decimal space-y-1 pl-5">
           <li>Tap the download button above on your Android device.</li>
           <li>
-            When prompted, allow installing apps from your browser (Settings →
-            Install unknown apps).
+            When prompted, allow installing apps from your browser (Settings → Install unknown
+            apps).
           </li>
-          <li>Open the downloaded file and tap <strong>Install</strong>.</li>
+          <li>
+            Open the downloaded file and tap <strong>Install</strong>.
+          </li>
         </ol>
         <p className="mt-3 text-xs">
           iOS app coming soon. Until then, use{" "}

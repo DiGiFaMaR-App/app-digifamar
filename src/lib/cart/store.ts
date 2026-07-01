@@ -108,9 +108,7 @@ export const cartStore = {
     const existing = items.find((i) => i.productId === item.productId);
     if (existing) {
       const next = items.map((i) =>
-        i.productId === item.productId
-          ? { ...i, quantity: clampQty(i.quantity + quantity) }
-          : i,
+        i.productId === item.productId ? { ...i, quantity: clampQty(i.quantity + quantity) } : i,
       );
       write(next);
     } else {

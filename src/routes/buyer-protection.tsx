@@ -6,7 +6,11 @@ export const Route = createFileRoute("/buyer-protection")({
   head: () => ({
     meta: [
       { title: "Buyer Protection & Escrow | DiGiFaMaR" },
-      { name: "description", content: "Every DiGiFaMaR order is escrow-protected. Funds release only after you confirm delivery, with a 72-hour refund guarantee." },
+      {
+        name: "description",
+        content:
+          "Every DiGiFaMaR order is escrow-protected. Funds release only after you confirm delivery, with a 72-hour refund guarantee.",
+      },
       { property: "og:url", content: "/buyer-protection" },
     ],
     links: [{ rel: "canonical", href: "/buyer-protection" }],
@@ -16,10 +20,26 @@ export const Route = createFileRoute("/buyer-protection")({
 
 function Protection() {
   const items = [
-    { icon: Lock, t: "Escrow at checkout", b: "Card payments are held safely until your order arrives. The farmer is never paid before you confirm." },
-    { icon: ShieldCheck, t: "6-digit confirmation", b: "You confirm delivery in the app. We text the farmer a single-use release code to receive funds." },
-    { icon: RefreshCw, t: "72-hour refund window", b: "Something wrong? Open a dispute within 72 hours of delivery for an automatic refund and review." },
-    { icon: Clock, t: "Real-time tracking", b: "Track every order from farm prep through delivery, with proactive SMS updates at each step." },
+    {
+      icon: Lock,
+      t: "Escrow at checkout",
+      b: "Card payments are held safely until your order arrives. The farmer is never paid before you confirm.",
+    },
+    {
+      icon: ShieldCheck,
+      t: "6-digit confirmation",
+      b: "You confirm delivery in the app. We text the farmer a single-use release code to receive funds.",
+    },
+    {
+      icon: RefreshCw,
+      t: "72-hour refund window",
+      b: "Something wrong? Open a dispute within 72 hours of delivery for an automatic refund and review.",
+    },
+    {
+      icon: Clock,
+      t: "Real-time tracking",
+      b: "Track every order from farm prep through delivery, with proactive SMS updates at each step.",
+    },
   ];
   return (
     <SiteLayout>

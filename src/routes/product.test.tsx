@@ -16,7 +16,9 @@ describe("Product detail route", () => {
     });
     render(<Page />);
     expect(screen.getByRole("heading", { level: 1, name: product.name })).toBeInTheDocument();
-    expect(screen.getAllByText(new RegExp(`\\$${product.price.toFixed(2)}`)).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText(new RegExp(`\\$${product.price.toFixed(2)}`)).length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText(/escrow-protected checkout/i)).toBeInTheDocument();
   });
 

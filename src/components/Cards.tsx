@@ -68,9 +68,7 @@ export function ProductCard({ product }: { product: Product }) {
           <div>
             <p className="text-lg font-bold text-foreground">
               ${product.price.toFixed(2)}
-              <span className="text-xs font-normal text-muted-foreground">
-                /{product.unit}
-              </span>
+              <span className="text-xs font-normal text-muted-foreground">/{product.unit}</span>
             </p>
             <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <Star className="h-3 w-3 fill-badge-gold text-badge-gold" />
@@ -113,21 +111,16 @@ export function FarmCard({ farm }: { farm: Farm }) {
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-bold text-foreground group-hover:text-primary">
-            {farm.name}
-          </h3>
+          <h3 className="font-bold text-foreground group-hover:text-primary">{farm.name}</h3>
           <span className="flex shrink-0 items-center gap-0.5 text-sm font-semibold">
             <Star className="h-4 w-4 fill-badge-gold text-badge-gold" />
             {farm.rating}
           </span>
         </div>
         <p className="flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5" /> {farm.location} ·{" "}
-          {farm.distance.toFixed(1)} mi
+          <MapPin className="h-3.5 w-3.5" /> {farm.location} · {farm.distance.toFixed(1)} mi
         </p>
-        <p className="line-clamp-2 text-sm text-muted-foreground">
-          {farm.description}
-        </p>
+        <p className="line-clamp-2 text-sm text-muted-foreground">{farm.description}</p>
         <div className="mt-1 flex flex-wrap gap-1">
           {farm.certifications.slice(0, 2).map((c) => (
             <span
@@ -140,8 +133,7 @@ export function FarmCard({ farm }: { farm: Farm }) {
         </div>
         <div className="mt-2 flex items-center justify-between border-t border-border pt-2">
           <span className="text-xs text-muted-foreground">
-            {farm.totalSales.toLocaleString()} sales · est.{" "}
-            {farm.established}
+            {farm.totalSales.toLocaleString()} sales · est. {farm.established}
           </span>
           <span className="text-xs font-semibold text-primary">Shop Now →</span>
         </div>

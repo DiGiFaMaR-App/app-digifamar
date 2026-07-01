@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import {
-  MapPin,
-  Search,
-  Star,
-  Sparkles,
-  BadgeCheck,
-  Filter,
-  Loader2,
-} from "lucide-react";
+import { MapPin, Search, Star, Sparkles, BadgeCheck, Filter, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -21,9 +13,16 @@ export const Route = createFileRoute("/market")({
   head: () => ({
     meta: [
       { title: "Marketplace — DiGiFaMaR" },
-      { name: "description", content: "Browse fresh produce from verified American farms near you, with escrow-protected checkout and 24-48 hour delivery." },
+      {
+        name: "description",
+        content:
+          "Browse fresh produce from verified American farms near you, with escrow-protected checkout and 24-48 hour delivery.",
+      },
       { property: "og:title", content: "Marketplace — DiGiFaMaR" },
-      { property: "og:description", content: "Browse fresh produce from verified American farms near you." },
+      {
+        property: "og:description",
+        content: "Browse fresh produce from verified American farms near you.",
+      },
       { property: "og:url", content: "https://farmer-forward.lovable.app/market" },
     ],
     links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/market" }],
@@ -162,9 +161,7 @@ function Marketplace() {
 
             {!geoLoading && geoError && (
               <div className="flex w-full flex-col gap-2">
-                {errorMessage && (
-                  <p className="text-xs text-destructive">{errorMessage}</p>
-                )}
+                {errorMessage && <p className="text-xs text-destructive">{errorMessage}</p>}
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="relative">
                     <MapPin className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
@@ -186,12 +183,7 @@ function Marketplace() {
                   >
                     Set location
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={detect}
-                    className="h-9 text-xs"
-                  >
+                  <Button size="sm" variant="ghost" onClick={detect} className="h-9 text-xs">
                     Try detect again
                   </Button>
                 </div>
@@ -213,7 +205,9 @@ function Marketplace() {
 
         {/* Category chips */}
         <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          <Chip active={cat === "all"} onClick={() => setCat("all")}>All</Chip>
+          <Chip active={cat === "all"} onClick={() => setCat("all")}>
+            All
+          </Chip>
           {categories.map((c) => (
             <Chip key={c.slug} active={cat === c.slug} onClick={() => setCat(c.slug)}>
               <span>{c.emoji}</span> {c.name}
@@ -245,7 +239,8 @@ function Marketplace() {
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="font-semibold text-primary">Fresh today</span>
             <span className="text-muted-foreground">
-              · {filtered.filter((p) => p.delivery === "24h").length} items harvested in the last 24h
+              · {filtered.filter((p) => p.delivery === "24h").length} items harvested in the last
+              24h
             </span>
           </div>
         </div>
@@ -333,11 +328,7 @@ function Marketplace() {
         )}
       </div>
 
-      <ProductSheet
-        product={active}
-        open={!!active}
-        onOpenChange={(v) => !v && setActive(null)}
-      />
+      <ProductSheet product={active} open={!!active} onOpenChange={(v) => !v && setActive(null)} />
     </AppShell>
   );
 }

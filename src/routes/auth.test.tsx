@@ -37,17 +37,12 @@ describe("Auth route", () => {
   it("renders a Google sign-in entry", () => {
     setRouterMockState({ search: { tab: "signup" } });
     render(<Page />);
-    expect(
-      screen.getByRole("button", { name: /continue with google/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
   });
 
   it("exposes a back link to home", () => {
     setRouterMockState({ search: { tab: "signup" } });
     render(<Page />);
-    expect(screen.getByRole("link", { name: /back to home/i })).toHaveAttribute(
-      "href",
-      "/",
-    );
+    expect(screen.getByRole("link", { name: /back to home/i })).toHaveAttribute("href", "/");
   });
 });

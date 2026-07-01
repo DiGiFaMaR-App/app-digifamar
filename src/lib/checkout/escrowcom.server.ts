@@ -87,9 +87,7 @@ export async function createEscrowTransaction(
 
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
-    throw new Error(
-      `Escrow.com transaction failed (${res.status}): ${detail.slice(0, 300)}`,
-    );
+    throw new Error(`Escrow.com transaction failed (${res.status}): ${detail.slice(0, 300)}`);
   }
 
   const data = (await res.json()) as { id?: number | string };

@@ -15,8 +15,7 @@ export const createEscrowCheckoutFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => CreateCheckoutDto.parse(input))
   .handler(({ data, context }) => {
-    const email =
-      typeof context.claims?.email === "string" ? context.claims.email : null;
+    const email = typeof context.claims?.email === "string" ? context.claims.email : null;
     return CheckoutService.create(
       { supabase: context.supabase, userId: context.userId, buyerEmail: email },
       data,
