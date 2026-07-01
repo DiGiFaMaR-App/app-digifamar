@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  createEscrowOrder,
-  getEscrowOrder,
-  releaseEscrow,
-} from "./escrow-store.server";
+import { createEscrowOrder, getEscrowOrder, releaseEscrow } from "./escrow-store.server";
 
 const BUYER = "buyer-test-id";
 

@@ -1,5 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Search, Package, User, Tractor, MessageCircle, ShoppingCart, MessageSquare } from "lucide-react";
+import {
+  Home,
+  Search,
+  Package,
+  User,
+  Tractor,
+  MessageCircle,
+  ShoppingCart,
+  MessageSquare,
+} from "lucide-react";
 import { type ReactNode } from "react";
 import { useCart } from "@/hooks/use-cart";
 import { Logo } from "./Logo";
@@ -51,7 +60,9 @@ export function AppShell({
                   key={n.to}
                   to={n.to}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                    active ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
+                    active
+                      ? "bg-primary/15 text-primary"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <n.icon className="h-4 w-4" /> {n.label}
@@ -137,15 +148,7 @@ function BottomItem({
   );
 }
 
-function BottomItemCart({
-  to,
-  path,
-  count,
-}: {
-  to: string;
-  path: string;
-  count: number;
-}) {
+function BottomItemCart({ to, path, count }: { to: string; path: string; count: number }) {
   const active = path.startsWith(to);
   return (
     <Link

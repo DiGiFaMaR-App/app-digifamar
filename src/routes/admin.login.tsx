@@ -122,15 +122,16 @@ function AdminLogin() {
               disabled={loading || checkingSession}
               onClick={continueWithCurrentSession}
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Continue to admin dashboard"}
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Continue to admin dashboard"
+              )}
             </Button>
           </div>
         )}
 
-        <form
-          onSubmit={onSubmit}
-          className="rounded-2xl border bg-card p-6 shadow-sm space-y-4"
-        >
+        <form onSubmit={onSubmit} className="rounded-2xl border bg-card p-6 shadow-sm space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <div className="relative">

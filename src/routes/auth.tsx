@@ -1,14 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import {
-  Tractor,
-  ShoppingBasket,
-  Mail,
-  Lock,
-  ArrowRight,
-  Loader2,
-} from "lucide-react";
+import { Tractor, ShoppingBasket, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
@@ -18,7 +11,7 @@ import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { supabase } from "@/integrations/supabase/client";
 
 const searchSchema = z.object({
-  tab:  z.enum(["signup", "signin"]).default("signin").catch("signin"),
+  tab: z.enum(["signup", "signin"]).default("signin").catch("signin"),
   next: z.string().optional().catch(undefined),
 });
 
@@ -28,8 +21,7 @@ export const Route = createFileRoute("/auth")({
       { title: "Sign in or join DiGiFaMaR" },
       {
         name: "description",
-        content:
-          "Sign up as a farmer or buyer, or log in to your DiGiFaMaR account.",
+        content: "Sign up as a farmer or buyer, or log in to your DiGiFaMaR account.",
       },
     ],
   }),
@@ -44,8 +36,7 @@ function Auth() {
   const { tab, next } = Route.useSearch();
   const navigate = useNavigate();
 
-  const setTab = (t: "signup" | "signin") =>
-    navigate({ to: "/auth", search: { tab: t, next } });
+  const setTab = (t: "signup" | "signin") => navigate({ to: "/auth", search: { tab: t, next } });
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-5 py-10">
@@ -76,11 +67,7 @@ function Auth() {
           ))}
         </div>
 
-        {tab === "signup" ? (
-          <SignUpPanel />
-        ) : (
-          <SignInPanel next={next} />
-        )}
+        {tab === "signup" ? <SignUpPanel /> : <SignInPanel next={next} />}
       </div>
 
       <Link
@@ -155,9 +142,14 @@ function SignUpPanel() {
 
       <p className="mt-3 text-center text-[11px] text-muted-foreground leading-relaxed">
         By creating an account, you agree to our{" "}
-        <Link to="/terms" className="underline hover:text-primary">Terms of Service</Link>{" "}
+        <Link to="/terms" className="underline hover:text-primary">
+          Terms of Service
+        </Link>{" "}
         and{" "}
-        <Link to="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
+        <Link to="/privacy" className="underline hover:text-primary">
+          Privacy Policy
+        </Link>
+        .
       </p>
     </div>
   );
@@ -175,7 +167,7 @@ function SignInPanel({ next }: { next?: string }) {
     setIsLoading(true);
 
     const form = e.currentTarget;
-    const email    = (form.elements.namedItem("email")    as HTMLInputElement).value;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
     const password = (form.elements.namedItem("password") as HTMLInputElement).value;
 
     try {
@@ -206,9 +198,7 @@ function SignInPanel({ next }: { next?: string }) {
         navigate({ to: "/dashboard/buyer" });
       }
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Sign in failed. Please try again.",
-      );
+      toast.error(err instanceof Error ? err.message : "Sign in failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -273,9 +263,14 @@ function SignInPanel({ next }: { next?: string }) {
 
       <p className="mt-3 text-center text-[11px] text-muted-foreground leading-relaxed">
         By continuing, you agree to our{" "}
-        <Link to="/terms" className="underline hover:text-primary">Terms of Service</Link>{" "}
+        <Link to="/terms" className="underline hover:text-primary">
+          Terms of Service
+        </Link>{" "}
         and{" "}
-        <Link to="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.
+        <Link to="/privacy" className="underline hover:text-primary">
+          Privacy Policy
+        </Link>
+        .
       </p>
     </form>
   );

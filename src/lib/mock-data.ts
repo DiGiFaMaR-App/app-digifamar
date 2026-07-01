@@ -75,7 +75,7 @@ export const farms: Farm[] = [
     reviews: 187,
     distance: 14.6,
     lat: 46.0646,
-    lng: -118.3430,
+    lng: -118.343,
     verified: true,
     topSeller: true,
     image: fruitStand,

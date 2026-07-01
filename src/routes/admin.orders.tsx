@@ -25,20 +25,31 @@ function Body() {
       <div className="mx-auto max-w-6xl px-5 py-10 text-[#F0FFF0]">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">All orders</h1>
-          <Link to="/admin" className="text-sm underline">← Admin hub</Link>
+          <Link to="/admin" className="text-sm underline">
+            ← Admin hub
+          </Link>
         </div>
         <div className="overflow-x-auto border border-white/10 rounded-lg">
           <table className="w-full text-sm">
             <thead className="bg-white/5 text-left">
               <tr>
-                <th className="p-2">Order</th><th className="p-2">Buyer</th><th className="p-2">Farmer</th>
-                <th className="p-2">Qty</th><th className="p-2">Total</th><th className="p-2">Status</th><th className="p-2">Created</th>
+                <th className="p-2">Order</th>
+                <th className="p-2">Buyer</th>
+                <th className="p-2">Farmer</th>
+                <th className="p-2">Qty</th>
+                <th className="p-2">Total</th>
+                <th className="p-2">Status</th>
+                <th className="p-2">Created</th>
               </tr>
             </thead>
             <tbody>
               {(data ?? []).map((o) => (
                 <tr key={o.id} className="border-t border-white/10">
-                  <td className="p-2"><Link to="/orders/$id" params={{ id: o.id }} className="underline">{o.id.slice(0, 8)}…</Link></td>
+                  <td className="p-2">
+                    <Link to="/orders/$id" params={{ id: o.id }} className="underline">
+                      {o.id.slice(0, 8)}…
+                    </Link>
+                  </td>
                   <td className="p-2">{o.buyer_id.slice(0, 8)}…</td>
                   <td className="p-2">{o.farmer_id.slice(0, 8)}…</td>
                   <td className="p-2">{o.qty}</td>

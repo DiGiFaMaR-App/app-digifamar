@@ -1,12 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import {
-  BadgeCheck,
-  Heart,
-  MapPin,
-  MessageSquare,
-  Star,
-  Loader2,
-} from "lucide-react";
+import { BadgeCheck, Heart, MapPin, MessageSquare, Star, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
@@ -91,11 +84,7 @@ function FarmPage() {
   return (
     <SiteLayout>
       <div className="relative h-64 sm:h-80">
-        <img
-          src={farm.image}
-          alt={farm.name}
-          className="h-full w-full object-cover"
-        />
+        <img src={farm.image} alt={farm.name} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
       </div>
 
@@ -104,9 +93,7 @@ function FarmPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-3xl font-extrabold sm:text-4xl">
-                  {farm.name}
-                </h1>
+                <h1 className="text-3xl font-extrabold sm:text-4xl">{farm.name}</h1>
                 {farm.verified && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-badge-verified px-2 py-0.5 text-xs font-semibold text-badge-verified-foreground">
                     <BadgeCheck className="h-3.5 w-3.5" /> Verified
@@ -132,11 +119,7 @@ function FarmPage() {
               <Button>
                 <Heart className="mr-1 h-4 w-4" /> Follow farm
               </Button>
-              <Button
-                variant="outline"
-                onClick={handleMessageFarmer}
-                disabled={messaging}
-              >
+              <Button variant="outline" onClick={handleMessageFarmer} disabled={messaging}>
                 {messaging ? (
                   <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                 ) : (
@@ -146,9 +129,7 @@ function FarmPage() {
               </Button>
             </div>
           </div>
-          <p className="mt-4 max-w-3xl text-sm text-muted-foreground">
-            {farm.description}
-          </p>
+          <p className="mt-4 max-w-3xl text-sm text-muted-foreground">{farm.description}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {farm.certifications.map((c: string) => (
               <span
@@ -164,9 +145,7 @@ function FarmPage() {
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <section>
-          <h2 className="text-2xl font-extrabold">
-            Products from {farm.name.split(" ")[0]}
-          </h2>
+          <h2 className="text-2xl font-extrabold">Products from {farm.name.split(" ")[0]}</h2>
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {fallback.map((p) => (
               <ProductCard key={p.id} product={p} />
@@ -185,10 +164,9 @@ function FarmPage() {
                 className="h-20 w-20 rounded-full object-cover"
               />
               <p className="text-sm text-muted-foreground">
-                Family-run for {2026 - farm.established} years. Our practices
-                center on soil health, animal welfare, and feeding our neighbors
-                better food. We're proud to ship across America through
-                DiGiFaMaR.
+                Family-run for {2026 - farm.established} years. Our practices center on soil health,
+                animal welfare, and feeding our neighbors better food. We're proud to ship across
+                America through DiGiFaMaR.
               </p>
             </div>
           </div>
@@ -199,9 +177,7 @@ function FarmPage() {
                 <div className="text-center">
                   <MapPin className="mx-auto h-8 w-8 text-primary" />
                   <p className="mt-2 text-sm font-semibold">{farm.location}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Interactive map next phase
-                  </p>
+                  <p className="text-xs text-muted-foreground">Interactive map next phase</p>
                 </div>
               </div>
             </div>

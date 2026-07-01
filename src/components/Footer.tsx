@@ -1,13 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  Lock,
-  Shield,
-  Twitter,
-  Youtube,
-} from "lucide-react";
+import { Facebook, Instagram, Linkedin, Lock, Shield, Twitter, Youtube } from "lucide-react";
 import { Logo } from "./Logo";
 import { getWhatsAppWebUrl, SUPPORT_PHONE_E164 } from "./WhatsAppFab";
 import { formatE164Display } from "@/lib/phone";
@@ -90,23 +82,14 @@ export function Footer() {
   );
 }
 
-function FooterCol({
-  title,
-  links,
-}: {
-  title: string;
-  links: { to: string; label: string }[];
-}) {
+function FooterCol({ title, links }: { title: string; links: { to: string; label: string }[] }) {
   return (
     <div>
       <h4 className="mb-3 text-sm font-semibold">{title}</h4>
       <ul className="space-y-2">
         {links.map((l, i) => (
           <li key={`${l.to}-${i}`}>
-            <Link
-              to={l.to}
-              className="text-sm text-muted-foreground hover:text-primary"
-            >
+            <Link to={l.to} className="text-sm text-muted-foreground hover:text-primary">
               {l.label}
             </Link>
           </li>

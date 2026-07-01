@@ -31,9 +31,7 @@ describe("Farmer dashboard", () => {
     render(<Page />);
     expect(screen.getByText(/farmer dashboard/i)).toBeInTheDocument();
     expect(screen.getByText(/active listings/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: /create new listing/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /create new listing/i })).toBeInTheDocument();
   });
 
   it("opens the create-listing form when the create button is clicked", () => {

@@ -9,7 +9,10 @@ const orders = new Map<string, OrderDto & { farmerId?: string }>();
 
 // Status transitions a given role is allowed to perform. Anything else is
 // rejected with `Forbidden`. Mirrors the database trigger rules.
-const ALLOWED_TRANSITIONS: Record<"buyer" | "farmer", Partial<Record<OrderStatus, OrderStatus[]>>> = {
+const ALLOWED_TRANSITIONS: Record<
+  "buyer" | "farmer",
+  Partial<Record<OrderStatus, OrderStatus[]>>
+> = {
   farmer: {
     pending: ["shipped", "cancelled"],
     paid: ["shipped", "cancelled"],

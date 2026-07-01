@@ -23,7 +23,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { chartTooltip, LenderCard, LenderShell, SectionTitle, StatCard, TradeScoreBadge } from "./-ui";
+import {
+  chartTooltip,
+  LenderCard,
+  LenderShell,
+  SectionTitle,
+  StatCard,
+  TradeScoreBadge,
+} from "./-ui";
 import {
   buyerBreakdown,
   fmtUSD,
@@ -86,7 +93,8 @@ function FarmerProfile() {
           </div>
           <p className="mt-1 text-sm text-slate-400">
             <MapPin className="mr-0.5 inline h-4 w-4" />
-            {farmer.location} · {farmer.primaryProduct} · {farmer.yearsOnPlatform} years on DiGiFaMaR
+            {farmer.location} · {farmer.primaryProduct} · {farmer.yearsOnPlatform} years on
+            DiGiFaMaR
           </p>
         </div>
         <Link
@@ -99,10 +107,30 @@ function FarmerProfile() {
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={TrendingUp} label="12-month sales" value={fmtUSDFull(farmer.twelveMonthSales)} accent />
-        <StatCard icon={Repeat} label="Repeat buyers" value={`${farmer.repeatBuyerPct}%`} sub="of revenue" />
-        <StatCard icon={Star} label="Avg rating" value={`${farmer.avgRating.toFixed(1)} ★`} sub="trailing 12 mo" />
-        <StatCard icon={Users} label="Suggested facility" value={fmtUSDFull(farmer.recommendedAmount)} sub="DiGiFaMaR estimate" />
+        <StatCard
+          icon={TrendingUp}
+          label="12-month sales"
+          value={fmtUSDFull(farmer.twelveMonthSales)}
+          accent
+        />
+        <StatCard
+          icon={Repeat}
+          label="Repeat buyers"
+          value={`${farmer.repeatBuyerPct}%`}
+          sub="of revenue"
+        />
+        <StatCard
+          icon={Star}
+          label="Avg rating"
+          value={`${farmer.avgRating.toFixed(1)} ★`}
+          sub="trailing 12 mo"
+        />
+        <StatCard
+          icon={Users}
+          label="Suggested facility"
+          value={fmtUSDFull(farmer.recommendedAmount)}
+          sub="DiGiFaMaR estimate"
+        />
       </div>
 
       {/* Trade Score breakdown */}
@@ -134,7 +162,10 @@ function FarmerProfile() {
                   <span className="font-bold text-slate-200">{fct.value}</span>
                 </div>
                 <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-white/10">
-                  <div className="h-full rounded-full" style={{ width: `${fct.value}%`, backgroundColor: NAVY.accent }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${fct.value}%`, backgroundColor: NAVY.accent }}
+                  />
                 </div>
               </div>
             ))}
@@ -148,7 +179,13 @@ function FarmerProfile() {
       {/* Charts */}
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
         <LenderCard className="p-4 lg:col-span-2">
-          <SectionTitle right={<span className="text-xs font-semibold" style={{ color: "#93B4FF" }}>{fmtUSD(farmer.twelveMonthSales)} total</span>}>
+          <SectionTitle
+            right={
+              <span className="text-xs font-semibold" style={{ color: "#93B4FF" }}>
+                {fmtUSD(farmer.twelveMonthSales)} total
+              </span>
+            }
+          >
             12-month sales
           </SectionTitle>
           <div className="mt-3 h-60">
@@ -161,7 +198,13 @@ function FarmerProfile() {
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-                <XAxis dataKey="month" stroke="#64748B" fontSize={11} tickLine={false} axisLine={false} />
+                <XAxis
+                  dataKey="month"
+                  stroke="#64748B"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
                 <YAxis
                   stroke="#64748B"
                   fontSize={11}
@@ -170,7 +213,13 @@ function FarmerProfile() {
                   tickFormatter={(v: number) => fmtUSD(v)}
                 />
                 <Tooltip {...chartTooltip} formatter={(v: number) => [fmtUSDFull(v), "Sales"]} />
-                <Area type="monotone" dataKey="sales" stroke={NAVY.accent} strokeWidth={2} fill="url(#lenderSales)" />
+                <Area
+                  type="monotone"
+                  dataKey="sales"
+                  stroke={NAVY.accent}
+                  strokeWidth={2}
+                  fill="url(#lenderSales)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -181,7 +230,15 @@ function FarmerProfile() {
           <div className="mt-3 h-44">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={buyers} dataKey="value" nameKey="name" innerRadius={42} outerRadius={68} paddingAngle={2} stroke="none">
+                <Pie
+                  data={buyers}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={42}
+                  outerRadius={68}
+                  paddingAngle={2}
+                  stroke="none"
+                >
                   {buyers.map((b) => (
                     <Cell key={b.name} fill={b.fill} />
                   ))}
@@ -215,8 +272,21 @@ function FarmerProfile() {
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={ratings} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
               <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis domain={[4, 5]} stroke="#64748B" fontSize={11} tickLine={false} axisLine={false} width={28} />
+              <XAxis
+                dataKey="month"
+                stroke="#64748B"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                domain={[4, 5]}
+                stroke="#64748B"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                width={28}
+              />
               <Tooltip {...chartTooltip} formatter={(v: number) => [`${v} ★`, "Rating"]} />
               <Line
                 type="monotone"

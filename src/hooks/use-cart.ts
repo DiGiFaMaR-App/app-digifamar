@@ -3,12 +3,7 @@
  * re-render whenever the cart changes — in this tab or another.
  */
 import { useSyncExternalStore } from "react";
-import {
-  cartCount,
-  cartStore,
-  cartSubtotalCents,
-  type CartItem,
-} from "@/lib/cart/store";
+import { cartCount, cartStore, cartSubtotalCents, type CartItem } from "@/lib/cart/store";
 import { computeFees, type FeeBreakdown } from "@/lib/cart/fees";
 
 const EMPTY: CartItem[] = [];

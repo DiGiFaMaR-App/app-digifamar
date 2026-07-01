@@ -46,35 +46,25 @@ export type BrowseResults = {
   pageSize: number;
 };
 
-function haversineMiles(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number,
-): number {
+function haversineMiles(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 3958.7613; // Earth radius in miles
   const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(lat1)) *
-      Math.cos(toRad(lat2)) *
-      Math.sin(dLng / 2) ** 2;
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
 export const searchBrowse = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<BrowseResults> => {
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const q = data.q.trim();
     const page = data.page;
     const offset = (page - 1) * PAGE_SIZE;
-    const hasOrigin =
-      typeof data.originLat === "number" && typeof data.originLng === "number";
+    const hasOrigin = typeof data.originLat === "number" && typeof data.originLng === "number";
 
     // Escape ILIKE wildcards.
     const safe = q.replace(/[%_\\]/g, (m) => `\\${m}`);
@@ -113,7 +103,11 @@ export const searchBrowse = createServerFn({ method: "POST" })
     const farmsRangeStart = hasOrigin ? 0 : offset;
     const farmsRangeEnd = hasOrigin ? farmsLimit - 1 : offset + PAGE_SIZE - 1;
 
-    const { data: farmRows, count: farmCount, error: farmErr } = await farmsQuery
+    const {
+      data: farmRows,
+      count: farmCount,
+      error: farmErr,
+    } = await farmsQuery
       .order("verification_status", { ascending: true })
       .order("farm_name", { ascending: true })
       .range(farmsRangeStart, farmsRangeEnd);
@@ -126,15 +120,14 @@ export const searchBrowse = createServerFn({ method: "POST" })
           : null;
       // Strip precise lat/lng from the public response; only distance leaks.
       const { lat: _lat, lng: _lng, ...rest } = r;
-      void _lat; void _lng;
+      void _lat;
+      void _lng;
       return { ...rest, distance_mi };
     });
 
     let totalFarms = farmCount ?? farms.length;
     if (hasOrigin) {
-      farms = farms.filter(
-        (f) => f.distance_mi != null && f.distance_mi <= data.maxMiles,
-      );
+      farms = farms.filter((f) => f.distance_mi != null && f.distance_mi <= data.maxMiles);
       totalFarms = farms.length;
       farms.sort((a, b) => (a.distance_mi ?? 999) - (b.distance_mi ?? 999));
       farms = farms.slice(offset, offset + PAGE_SIZE);
@@ -156,10 +149,9 @@ export const searchBrowse = createServerFn({ method: "POST" })
 
     const listingsBase = supabaseAdmin
       .from("listings")
-      .select(
-        "id, farmer_id, title, slug, category, price_cents, unit, images, lat, lng",
-        { count: "exact" },
-      )
+      .select("id, farmer_id, title, slug, category, price_cents, unit, images, lat, lng", {
+        count: "exact",
+      })
       .eq("status", "active");
     const listingsQuery = q
       ? listingsBase.or(`title.ilike.${like},category.ilike.${like}`)
@@ -167,14 +159,15 @@ export const searchBrowse = createServerFn({ method: "POST" })
 
     const listingsLimit = hasOrigin ? 500 : PAGE_SIZE;
     const listingsRangeStart = hasOrigin ? 0 : offset;
-    const listingsRangeEnd = hasOrigin
-      ? listingsLimit - 1
-      : offset + PAGE_SIZE - 1;
+    const listingsRangeEnd = hasOrigin ? listingsLimit - 1 : offset + PAGE_SIZE - 1;
 
-    const { data: listingRows, count: listingCount, error: listingErr } =
-      await listingsQuery
-        .order("created_at", { ascending: false })
-        .range(listingsRangeStart, listingsRangeEnd);
+    const {
+      data: listingRows,
+      count: listingCount,
+      error: listingErr,
+    } = await listingsQuery
+      .order("created_at", { ascending: false })
+      .range(listingsRangeStart, listingsRangeEnd);
     if (listingErr) throw new Error(listingErr.message);
 
     const rows = (listingRows ?? []) as ListingRow[];
@@ -201,7 +194,8 @@ export const searchBrowse = createServerFn({ method: "POST" })
           ? haversineMiles(data.originLat!, data.originLng!, r.lat, r.lng)
           : null;
       const { lat: _lat, lng: _lng, ...rest } = r;
-      void _lat; void _lng;
+      void _lat;
+      void _lng;
       return {
         ...rest,
         farm_name: farmNameMap.get(r.farmer_id) ?? null,
@@ -211,13 +205,9 @@ export const searchBrowse = createServerFn({ method: "POST" })
 
     let totalListings = listingCount ?? listings.length;
     if (hasOrigin) {
-      listings = listings.filter(
-        (l) => l.distance_mi != null && l.distance_mi <= data.maxMiles,
-      );
+      listings = listings.filter((l) => l.distance_mi != null && l.distance_mi <= data.maxMiles);
       totalListings = listings.length;
-      listings.sort(
-        (a, b) => (a.distance_mi ?? 999) - (b.distance_mi ?? 999),
-      );
+      listings.sort((a, b) => (a.distance_mi ?? 999) - (b.distance_mi ?? 999));
       listings = listings.slice(offset, offset + PAGE_SIZE);
     }
 

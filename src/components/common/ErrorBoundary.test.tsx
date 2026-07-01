@@ -46,7 +46,14 @@ describe("ErrorBoundary", () => {
     render(
       <ErrorBoundary
         fallback={(e, reset) => (
-          <button onClick={() => { throws = false; reset(); }}>retry: {e.message}</button>
+          <button
+            onClick={() => {
+              throws = false;
+              reset();
+            }}
+          >
+            retry: {e.message}
+          </button>
         )}
       >
         <Flaky />

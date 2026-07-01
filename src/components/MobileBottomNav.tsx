@@ -27,9 +27,10 @@ export function MobileBottomNav() {
     >
       <ul className="mx-auto grid max-w-md grid-cols-6">
         {items.map((it) => {
-          const active = ("exact" in it && it.exact)
-            ? path === it.to
-            : path === it.to || path.startsWith(it.to + "/");
+          const active =
+            "exact" in it && it.exact
+              ? path === it.to
+              : path === it.to || path.startsWith(it.to + "/");
           return (
             <li key={it.label}>
               <Link

@@ -12,42 +12,50 @@ Your app already ships most of these phases. I'll audit each one against what ex
 ## Phase-by-phase audit & gaps
 
 ### Phase 1 — Foundation & Navigation
+
 - ✅ Splash (`SplashScreen.tsx`), logo, auth/role select, bottom nav (`MobileBottomNav`), brand colors in `styles.css`.
 - ⚠️ Add **Farm Hacks** tab to bottom nav (currently missing).
 - ⚠️ Verify tagline matches exactly: "America's Farmers. Direct to Market. No Middlemen."
 
 ### Phase 2 — Farmer Onboarding
+
 - ✅ `signup.farmer.tsx` exists.
 - 🔨 Rebuild as a true **5-step wizard** (Personal → Farm → Products → Delivery zones → Review).
 - 🔨 On submit: insert into `farmer_profiles`, then call a server fn that emails `support@digifamar.com` via Lovable Emails.
 
 ### Phase 3 — Marketplace & Chat
+
 - ✅ Browse/market with filters, distance via geolocation, chat threads, listing → chat flow.
 - ⚠️ Add explicit **"Accept Price"** action in chat that transitions the negotiation into a checkout intent (currently chat is freeform).
 
 ### Phase 4 — Distance, Escrow & Payment
+
 - ✅ Escrow.com checkout, server-side fee compute, RLS-locked orders, release-code hash in DB.
 - 🔨 Add **distance-based delivery fee** to `computeFees` (Google Maps Distance Matrix via gateway, farm coords stay server-side per security memory).
 - 🔨 Payment method picker UI (Card active, PayPal/Bank greyed "coming soon").
 - 🔨 On payment success: generate 6-digit OTP server-side, hash with bcrypt → `release_code_hash`, email plaintext to buyer, post system message "Payment held in Escrow" into the chat thread.
 
 ### Phase 5 — Delivery & Live Tracking
+
 - ✅ `LiveTrackingMap.tsx` exists, Google Maps connector active.
 - 🔨 Farmer **"Start Delivery"** button on order detail → status transition `accepted` → `in_transit`, begins broadcasting GPS (Supabase Realtime channel keyed by order id; ephemeral, not persisted).
 - 🔨 Embed live map in the order's chat thread for the buyer.
 - ✅ OTP release endpoint already exists (`/api/orders/$id/release`).
 
 ### Phase 6 — Post-Release
+
 - ✅ Fee split already computed (5% platform + 2.5% escrow). Per spec you want **10% platform** — I'll update `computeFees` constants.
 - 🔨 After OTP release: redirect to **Feedback page** (5-star + review) → insert into existing `reviews` table.
 
 ### Phase 7 — Additional Features
+
 - ✅ Lending route exists (`/lending`, `/lenders/*`).
 - 🔨 Update lending policy copy: 30-tx threshold, continuous-trading clause, "facilitator only" disclaimer.
 - 🔨 **Admin dashboard**: new `_authenticated/_admin/*` subtree gated by `has_role(uid, 'admin')`, shows transactions / disputes / ratings tables.
 - 🔨 **Farm Hacks** blog: new `/hacks` route, markdown posts from a new `farm_hacks` table (admin-authored, public read).
 
 ### Final
+
 - 🔨 Toggle Lovable badge off (Pro feature) via publish settings.
 - Smooth-scroll, page transitions, loading skeletons already present.
 

@@ -5,7 +5,11 @@ export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "About DiGiFaMaR — Our mission" },
-      { name: "description", content: "DiGiFaMaR connects verified American farmers directly with buyers in all 50 states." },
+      {
+        name: "description",
+        content:
+          "DiGiFaMaR connects verified American farmers directly with buyers in all 50 states.",
+      },
       { property: "og:url", content: "/about" },
     ],
     links: [{ rel: "canonical", href: "/about" }],
@@ -19,9 +23,8 @@ function About() {
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
         <h1 className="text-4xl font-extrabold sm:text-5xl">Our mission</h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          American farmers feed the country. They should keep more of every sale,
-          reach buyers directly, and have the tools to grow their business.
-          DiGiFaMaR exists to make that real.
+          American farmers feed the country. They should keep more of every sale, reach buyers
+          directly, and have the tools to grow their business. DiGiFaMaR exists to make that real.
         </p>
         <h2 className="mt-10 text-2xl font-bold">What we believe</h2>
         <ul className="mt-4 space-y-3 text-sm text-muted-foreground">

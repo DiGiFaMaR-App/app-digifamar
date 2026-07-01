@@ -16,7 +16,13 @@ afterEach(() => {
 vi.mock("@tanstack/react-router", () => {
   type AnyProps = Record<string, unknown> & { children?: ReactNode };
 
-  const Link = ({ to, params: _p, search: _s, activeProps: _a, ...rest }: AnyProps & {
+  const Link = ({
+    to,
+    params: _p,
+    search: _s,
+    activeProps: _a,
+    ...rest
+  }: AnyProps & {
     to?: string;
     params?: unknown;
     search?: unknown;
@@ -34,7 +40,9 @@ vi.mock("@tanstack/react-router", () => {
     },
   });
   const useRouterState = (opts?: { select?: (s: unknown) => unknown }) => {
-    const snapshot = { location: { pathname: routerMockState.pathname, search: routerMockState.search } };
+    const snapshot = {
+      location: { pathname: routerMockState.pathname, search: routerMockState.search },
+    };
     return opts?.select ? opts.select(snapshot) : snapshot;
   };
 
@@ -51,7 +59,7 @@ vi.mock("@tanstack/react-router", () => {
     ...makeRouteApi(),
   });
   const createRootRoute = (opts: Record<string, unknown>) => ({ ...opts, ...makeRouteApi() });
-  const createRootRouteWithContext = <_C,>() => createRootRoute;
+  const createRootRouteWithContext = <_C>() => createRootRoute;
 
   class RedirectError extends Error {
     isRedirect = true;
@@ -75,7 +83,8 @@ vi.mock("@tanstack/react-router", () => {
     createRootRouteWithContext,
     redirect,
     isRedirect,
-    Navigate: ({ to }: { to: string }) => createElement("a", { href: to, "data-testid": "navigate" }),
+    Navigate: ({ to }: { to: string }) =>
+      createElement("a", { href: to, "data-testid": "navigate" }),
   };
 });
 
@@ -169,23 +178,28 @@ const g = globalThis as unknown as {
   IntersectionObserver?: unknown;
 };
 g.ResizeObserver = g.ResizeObserver ?? MockResizeObserver;
-g.IntersectionObserver = g.IntersectionObserver ?? class {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() { return []; }
-};
+g.IntersectionObserver =
+  g.IntersectionObserver ??
+  class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  };
 if (typeof window !== "undefined" && !window.matchMedia) {
-  window.matchMedia = (q: string) => ({
-    matches: false,
-    media: q,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  }) as unknown as MediaQueryList;
+  window.matchMedia = (q: string) =>
+    ({
+      matches: false,
+      media: q,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as unknown as MediaQueryList;
 }
 
 // jsdom doesn't implement Element.scrollTo

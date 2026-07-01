@@ -18,11 +18,56 @@ export const INSTITUTION_TYPES = [
 ] as const;
 
 export const US_STATES = [
-  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+  "AL",
+  "AK",
+  "AZ",
+  "AR",
+  "CA",
+  "CO",
+  "CT",
+  "DE",
+  "FL",
+  "GA",
+  "HI",
+  "ID",
+  "IL",
+  "IN",
+  "IA",
+  "KS",
+  "KY",
+  "LA",
+  "ME",
+  "MD",
+  "MA",
+  "MI",
+  "MN",
+  "MS",
+  "MO",
+  "MT",
+  "NE",
+  "NV",
+  "NH",
+  "NJ",
+  "NM",
+  "NY",
+  "NC",
+  "ND",
+  "OH",
+  "OK",
+  "OR",
+  "PA",
+  "RI",
+  "SC",
+  "SD",
+  "TN",
+  "TX",
+  "UT",
+  "VT",
+  "VA",
+  "WA",
+  "WV",
+  "WI",
+  "WY",
 ] as const;
 
 export type TradeScoreTier = "prime" | "strong" | "fair" | "watch";
@@ -38,10 +83,34 @@ export const TIER_META: Record<
   TradeScoreTier,
   { label: string; text: string; ring: string; bg: string; dot: string }
 > = {
-  prime: { label: "Prime", text: "#34D399", ring: "rgba(52,211,153,0.35)", bg: "rgba(52,211,153,0.10)", dot: "#34D399" },
-  strong: { label: "Strong", text: "#60A5FA", ring: "rgba(96,165,250,0.35)", bg: "rgba(96,165,250,0.10)", dot: "#60A5FA" },
-  fair: { label: "Fair", text: "#FBBF24", ring: "rgba(251,191,36,0.35)", bg: "rgba(251,191,36,0.10)", dot: "#FBBF24" },
-  watch: { label: "Watch", text: "#F87171", ring: "rgba(248,113,113,0.35)", bg: "rgba(248,113,113,0.10)", dot: "#F87171" },
+  prime: {
+    label: "Prime",
+    text: "#34D399",
+    ring: "rgba(52,211,153,0.35)",
+    bg: "rgba(52,211,153,0.10)",
+    dot: "#34D399",
+  },
+  strong: {
+    label: "Strong",
+    text: "#60A5FA",
+    ring: "rgba(96,165,250,0.35)",
+    bg: "rgba(96,165,250,0.10)",
+    dot: "#60A5FA",
+  },
+  fair: {
+    label: "Fair",
+    text: "#FBBF24",
+    ring: "rgba(251,191,36,0.35)",
+    bg: "rgba(251,191,36,0.10)",
+    dot: "#FBBF24",
+  },
+  watch: {
+    label: "Watch",
+    text: "#F87171",
+    ring: "rgba(248,113,113,0.35)",
+    bg: "rgba(248,113,113,0.10)",
+    dot: "#F87171",
+  },
 };
 
 export type RecommendedFarmer = {
@@ -256,9 +325,7 @@ export const institutionTypeLabel = (value: string) =>
   INSTITUTION_TYPES.find((t) => t.value === value)?.label ?? value;
 
 export const fmtUSD = (n: number) =>
-  n >= 1000
-    ? `$${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`
-    : `$${n.toLocaleString()}`;
+  n >= 1000 ? `$${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : `$${n.toLocaleString()}`;
 
 export const fmtUSDFull = (n: number) =>
   `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;

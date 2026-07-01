@@ -18,10 +18,7 @@ import { listUsersFn, setUserRoleFn } from "@/lib/admin/admin.functions";
 
 export const Route = createFileRoute("/admin/users")({
   head: () => ({
-    meta: [
-      { title: "Admin · Users — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Admin · Users — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: () => (
     <RequireAuth>
@@ -92,10 +89,18 @@ function Body() {
               </thead>
               <tbody>
                 {isLoading && (
-                  <tr><td colSpan={3} className="px-3 py-6 text-center text-[#F0FFF0]/60">Loading…</td></tr>
+                  <tr>
+                    <td colSpan={3} className="px-3 py-6 text-center text-[#F0FFF0]/60">
+                      Loading…
+                    </td>
+                  </tr>
                 )}
                 {!isLoading && (data?.length ?? 0) === 0 && (
-                  <tr><td colSpan={3} className="px-3 py-6 text-center text-[#F0FFF0]/60">No users.</td></tr>
+                  <tr>
+                    <td colSpan={3} className="px-3 py-6 text-center text-[#F0FFF0]/60">
+                      No users.
+                    </td>
+                  </tr>
                 )}
                 {data?.map((u) => {
                   const roles = u.roles as string[];
@@ -108,9 +113,13 @@ function Body() {
                       </td>
                       <td className="px-3 py-2">
                         <div className="flex flex-wrap gap-1">
-                          {roles.length === 0 && <span className="text-[#F0FFF0]/50 text-xs">none</span>}
+                          {roles.length === 0 && (
+                            <span className="text-[#F0FFF0]/50 text-xs">none</span>
+                          )}
                           {roles.map((r) => (
-                            <Badge key={r} variant={r === "admin" ? "default" : "secondary"}>{r}</Badge>
+                            <Badge key={r} variant={r === "admin" ? "default" : "secondary"}>
+                              {r}
+                            </Badge>
                           ))}
                         </div>
                       </td>

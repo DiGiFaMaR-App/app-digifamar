@@ -12,9 +12,7 @@ describe("GoogleAuthButton", () => {
 
   it("renders the default label and the Google logo", () => {
     render(<GoogleAuthButton />);
-    expect(
-      screen.getByRole("button", { name: /continue with google/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /continue with google/i })).toBeInTheDocument();
   });
 
   it("renders a custom label when provided", () => {
@@ -62,7 +60,9 @@ describe("GoogleAuthButton", () => {
   it("disables the button while loading", async () => {
     let resolve!: (v: unknown) => void;
     (lovable.auth.signInWithOAuth as ReturnType<typeof vi.fn>).mockReturnValueOnce(
-      new Promise((r) => { resolve = r; }),
+      new Promise((r) => {
+        resolve = r;
+      }),
     );
     const user = userEvent.setup();
     render(<GoogleAuthButton />);
