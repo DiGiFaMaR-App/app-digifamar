@@ -49,5 +49,11 @@ END $$;
 -- "Farmers read their own orders" RLS policy). Mirrors the existing
 -- orders_buyer_idx (buyer_id, created_at DESC). The buyer_id-only index from the
 -- spec is intentionally omitted as redundant with that composite.
-CREATE INDEX IF NOT EXISTS idx_orders_farmer_id
-  ON public.orders (farmer_id, created_at DESC);
+-- Guarded on table existence for the same fresh-reset reason as the policies
+-- above; IF NOT EXISTS alone only guards the index name, not a missing table.
+DO $$
+BEGIN
+  IF to_regclass('public.orders') IS NOT NULL THEN
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_orders_farmer_id ON public.orders (farmer_id, created_at DESC)';
+  END IF;
+END $$;
