@@ -11,10 +11,14 @@
 -- the tables before anything touches them. Every statement uses IF NOT EXISTS,
 -- so on the already-deployed database (where the tables exist) this is a no-op.
 --
--- Scope note: only the table STRUCTURE (columns, keys, grants, RLS enablement)
--- is backfilled here. The baseline participant RLS policies for these tables are
--- still managed outside migrations; reconstructing their exact original
--- definitions was out of scope and is unnecessary for the deployed DB.
+-- Baseline participant RLS policies are also recreated so a fresh reset yields
+-- functional (not access-blocked) tables. They are created ONLY when the table
+-- has no policies yet: on a fresh reset that is true at this point in history,
+-- so the baseline policies are installed; on the already-deployed DB the tables
+-- already have their (later, stricter) policies, so the guard skips creation and
+-- nothing is loosened. The conversations INSERT policy is named
+-- "Participants create conversations" to match the name that later migrations
+-- (20260614113626) drop and replace with the stricter verified-farmer version.
 --
 -- Reconstructed from types.ts rather than a live pg_dump because a database
 -- password was not available in this environment; columns/nullability/defaults
@@ -33,6 +37,26 @@ CREATE TABLE IF NOT EXISTS public.conversations (
 GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;
 GRANT ALL ON public.conversations TO service_role;
 ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
+
+-- Baseline conversations policies (only if none exist yet — i.e. fresh reset).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'conversations'
+  ) THEN
+    EXECUTE $p$
+      CREATE POLICY "Participants view their conversations"
+        ON public.conversations FOR SELECT TO authenticated
+        USING (auth.uid() = buyer_id OR auth.uid() = farmer_id)
+    $p$;
+    EXECUTE $p$
+      CREATE POLICY "Participants create conversations"
+        ON public.conversations FOR INSERT TO authenticated
+        WITH CHECK (auth.uid() = buyer_id OR auth.uid() = farmer_id)
+    $p$;
+  END IF;
+END $$;
 
 -- messages ------------------------------------------------------------------
 -- Note: the `flagged` column is intentionally omitted here; it is added by a
@@ -53,3 +77,37 @@ CREATE INDEX IF NOT EXISTS messages_conversation_id_idx
 GRANT SELECT, INSERT, UPDATE ON public.messages TO authenticated;
 GRANT ALL ON public.messages TO service_role;
 ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+
+-- Baseline messages policies (only if none exist yet — i.e. fresh reset).
+-- A user may read/send messages only in conversations they participate in.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public' AND tablename = 'messages'
+  ) THEN
+    EXECUTE $p$
+      CREATE POLICY "Participants view messages in their conversations"
+        ON public.messages FOR SELECT TO authenticated
+        USING (
+          EXISTS (
+            SELECT 1 FROM public.conversations c
+            WHERE c.id = messages.conversation_id
+              AND (c.buyer_id = auth.uid() OR c.farmer_id = auth.uid())
+          )
+        )
+    $p$;
+    EXECUTE $p$
+      CREATE POLICY "Participants send messages in their conversations"
+        ON public.messages FOR INSERT TO authenticated
+        WITH CHECK (
+          sender_id = auth.uid()
+          AND EXISTS (
+            SELECT 1 FROM public.conversations c
+            WHERE c.id = messages.conversation_id
+              AND (c.buyer_id = auth.uid() OR c.farmer_id = auth.uid())
+          )
+        )
+    $p$;
+  END IF;
+END $$;
