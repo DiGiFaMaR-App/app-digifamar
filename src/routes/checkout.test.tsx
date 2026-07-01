@@ -58,8 +58,18 @@ describe("Checkout route", () => {
     expect(screen.getByText("$0.88")).toBeInTheDocument(); // 8% of $11.00
     expect(screen.getByText("Escrow fee (3.25%)")).toBeInTheDocument();
     expect(screen.getByText("$0.36")).toBeInTheDocument(); // round(3.25% of $11.00)
+    // No geolocation in jsdom → standard delivery falls back to its flat fee.
+    expect(screen.getByText("Delivery (Standard delivery)")).toBeInTheDocument();
     expect(screen.getByText("Total due")).toBeInTheDocument();
-    expect(screen.getByText("$12.24")).toBeInTheDocument(); // 1100 + 88 + 36
+    expect(screen.getByText("$21.23")).toBeInTheDocument(); // 1100 + 88 + 36 + 899
+  });
+
+  it("recomputes the total when a different delivery method is chosen", () => {
+    seedCart();
+    render(<Page />);
+    // Switch to farm pickup → delivery is free.
+    fireEvent.click(screen.getByRole("button", { name: /farm pickup/i }));
+    expect(screen.getByText("$12.24")).toBeInTheDocument(); // 1100 + 88 + 36 + 0
   });
 
   it("submits line items in cents to Escrow.com and clears the cart on success", async () => {
@@ -95,6 +105,8 @@ describe("Checkout route", () => {
           },
         ],
         shippingAddress: "123 Market St, Austin, TX 78701",
+        deliveryMethod: "standard",
+        deliveryDistanceMiles: null,
       },
     });
     await waitFor(() => expect(cartStore.getItems()).toEqual([]));

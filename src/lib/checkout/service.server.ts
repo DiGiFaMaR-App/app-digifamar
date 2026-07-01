@@ -6,7 +6,7 @@
  * client total), open an Escrow.com transaction, then persist the order to the
  * Supabase `orders` table under the buyer's RLS context.
  */
-import { computeFees } from "@/lib/cart/fees";
+import { computeDeliveryFee, computeFees } from "@/lib/cart/fees";
 import { createEscrowTransaction } from "./escrowcom.server";
 import type { CheckoutResultDto, CreateCheckoutDto } from "./dto";
 import { products as mockProducts } from "@/lib/mock-data";
@@ -90,7 +90,13 @@ export class CheckoutService {
       }
       subtotalCents += authoritative * item.quantity;
     }
-    const breakdown = computeFees(subtotalCents);
+    // Delivery is priced server-side from the (validated) method + distance —
+    // never from a client-supplied fee — for the same reason as item prices.
+    const deliveryFeeCents = computeDeliveryFee(
+      input.deliveryDistanceMiles ?? null,
+      input.deliveryMethod,
+    );
+    const breakdown = computeFees(subtotalCents, deliveryFeeCents);
 
     const orderId = crypto.randomUUID();
     const itemCount = input.items.reduce((n, i) => n + i.quantity, 0);
@@ -120,6 +126,8 @@ export class CheckoutService {
         subtotal_cents: breakdown.subtotalCents,
         platform_fee_cents: breakdown.platformFeeCents,
         escrow_fee_cents: breakdown.escrowFeeCents,
+        delivery_fee_cents: breakdown.deliveryFeeCents,
+        delivery_method: input.deliveryMethod,
         total_cents: breakdown.totalCents,
         escrow_provider: escrow.provider,
         escrow_transaction_id: escrow.transactionId,
