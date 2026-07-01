@@ -1,23 +1,24 @@
 /**
  * SMS delivery — server-only.
  *
- * Thin wrapper over the Twilio REST API (no SDK dependency; uses `fetch`).
- * Credentials come from the environment:
- *   TWILIO_ACCOUNT_SID   – Twilio account SID (starts with "AC…")
- *   TWILIO_AUTH_TOKEN    – Twilio auth token
- *   TWILIO_FROM_NUMBER   – sending number in E.164 (e.g. "+14155550123")
+ * Thin wrapper over the Vonage (Nexmo) SMS API (no SDK dependency; uses
+ * `fetch`). Credentials come from the environment:
+ *   VONAGE_API_KEY      – Vonage API key
+ *   VONAGE_API_SECRET   – Vonage API secret
+ *   VONAGE_FROM         – sender ID or virtual number (e.g. "14155550123";
+ *                         US destinations require a number, not alphanumeric)
  *
  * Design notes:
  * - This module NEVER throws for a delivery problem. Callers (e.g. the escrow
  *   OTP flow) must not have money/state transitions fail just because SMS is
- *   unconfigured or Twilio is down — they inspect the returned result instead.
- * - When Twilio is not configured the send is skipped and reported as such, so
+ *   unconfigured or the provider is down — they inspect the returned result.
+ * - When Vonage is not configured the send is skipped and reported as such, so
  *   local/dev/test environments keep working without secrets.
  * - Numbers are normalized to E.164 before sending.
  */
 import { normalizeToE164 } from "@/lib/phone";
 
-const TWILIO_API_BASE = "https://api.twilio.com/2010-04-01";
+const VONAGE_SMS_ENDPOINT = "https://rest.nexmo.com/sms/json";
 
 export type SmsResult =
   | { sent: true; sid: string; to: string }
@@ -27,28 +28,36 @@ export type SmsResult =
       detail?: string;
     };
 
-type TwilioConfig = {
-  accountSid: string;
-  authToken: string;
-  fromNumber: string;
+type VonageConfig = {
+  apiKey: string;
+  apiSecret: string;
+  from: string;
 };
 
-function readConfig(): TwilioConfig | null {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const fromNumber = process.env.TWILIO_FROM_NUMBER;
-  if (!accountSid || !authToken || !fromNumber) return null;
-  return { accountSid, authToken, fromNumber };
+function readConfig(): VonageConfig | null {
+  const apiKey = process.env.VONAGE_API_KEY;
+  const apiSecret = process.env.VONAGE_API_SECRET;
+  const from = process.env.VONAGE_FROM;
+  if (!apiKey || !apiSecret || !from) return null;
+  return { apiKey, apiSecret, from };
 }
 
-/** True when Twilio credentials are present in the environment. */
+/** True when Vonage credentials are present in the environment. */
 export function isSmsConfigured(): boolean {
   return readConfig() !== null;
 }
 
+type VonageResponse = {
+  messages?: Array<{
+    status?: string;
+    "message-id"?: string;
+    "error-text"?: string;
+  }>;
+};
+
 /**
- * Send an SMS. Returns a result describing what happened; does not throw on
- * delivery failure. `fetchImpl` is injectable for testing.
+ * Send an SMS via Vonage. Returns a result describing what happened; does not
+ * throw on delivery failure. `fetchImpl` is injectable for testing.
  */
 export async function sendSms(
   to: string | null | undefined,
@@ -57,7 +66,7 @@ export async function sendSms(
 ): Promise<SmsResult> {
   const config = readConfig();
   if (!config) {
-    console.warn("[sms] Twilio not configured (TWILIO_* env vars missing); skipping send.");
+    console.warn("[sms] Vonage not configured (VONAGE_* env vars missing); skipping send.");
     return { sent: false, reason: "not_configured" };
   }
 
@@ -67,14 +76,20 @@ export async function sendSms(
     return { sent: false, reason: "invalid_number" };
   }
 
-  const params = new URLSearchParams({ To: e164, From: config.fromNumber, Body: body });
-  const auth = Buffer.from(`${config.accountSid}:${config.authToken}`).toString("base64");
+  // Vonage expects the destination in international format without the "+".
+  const params = new URLSearchParams({
+    api_key: config.apiKey,
+    api_secret: config.apiSecret,
+    from: config.from,
+    to: e164.slice(1),
+    text: body,
+  });
 
   try {
-    const res = await fetchImpl(`${TWILIO_API_BASE}/Accounts/${config.accountSid}/Messages.json`, {
+    const res = await fetchImpl(VONAGE_SMS_ENDPOINT, {
       method: "POST",
       headers: {
-        Authorization: `Basic ${auth}`,
+        Accept: "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: params.toString(),
@@ -82,12 +97,20 @@ export async function sendSms(
 
     if (!res.ok) {
       const detail = await res.text().catch(() => "");
-      console.error(`[sms] Twilio returned ${res.status}: ${detail}`);
+      console.error(`[sms] Vonage HTTP ${res.status}: ${detail}`);
       return { sent: false, reason: "provider_error", detail: `HTTP ${res.status}` };
     }
 
-    const payload = (await res.json().catch(() => ({}))) as { sid?: string };
-    return { sent: true, sid: payload.sid ?? "unknown", to: e164 };
+    // Vonage returns HTTP 200 even for logical failures; check message status.
+    const payload = (await res.json().catch(() => ({}))) as VonageResponse;
+    const message = payload.messages?.[0];
+    if (!message || message.status !== "0") {
+      const detail = message?.["error-text"] ?? "unknown Vonage error";
+      console.error(`[sms] Vonage delivery failed (status ${message?.status}): ${detail}`);
+      return { sent: false, reason: "provider_error", detail };
+    }
+
+    return { sent: true, sid: message["message-id"] ?? "unknown", to: e164 };
   } catch (err) {
     console.error("[sms] send failed:", err);
     return { sent: false, reason: "provider_error", detail: (err as Error)?.message };

@@ -167,7 +167,7 @@ export class EscrowV2Service {
   /** Step 2 — Farmer requests an OTP. The code is texted to the BUYER; the
    *  buyer relays it to the farmer at handover. The plaintext code is returned
    *  to the caller only as a fallback when SMS could not be delivered (e.g. no
-   *  Twilio config or no valid buyer phone), so the flow still works in dev. */
+   *  SMS provider config or no valid buyer phone), so the flow still works in dev. */
   static async generateOtp(userId: string, orderId: string) {
     const order = await loadOrder(orderId);
     if (order.farmer_id !== userId) throw new Error("Forbidden");
