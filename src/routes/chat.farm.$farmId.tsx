@@ -34,6 +34,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { getFarm, getProduct } from "@/lib/mock-data";
+import { computeDeliveryFee, FREE_DELIVERY_RADIUS_MILES } from "@/lib/cart/fees";
 import { haversineDistance, useGeolocation } from "@/hooks/use-geolocation";
 import { LiveTrackingMap } from "@/components/LiveTrackingMap";
 
@@ -177,17 +178,6 @@ function generateOtp(): string {
 // ─────────────────────────────────────────────────────────────────
 // FEE CALC
 // ─────────────────────────────────────────────────────────────────
-
-const DELIVERY_RATE_PER_MILE = 1.5;
-const DELIVERY_MIN = 5;
-const DELIVERY_BASE = 2.99;
-
-function computeDelivery(distanceMi: number | null) {
-  if (distanceMi == null || !Number.isFinite(distanceMi))
-    return { distance: null as number | null, fee: DELIVERY_MIN };
-  const fee = Math.max(DELIVERY_MIN, DELIVERY_BASE + distanceMi * DELIVERY_RATE_PER_MILE);
-  return { distance: distanceMi, fee: Math.round(fee * 100) / 100 };
-}
 
 // ─────────────────────────────────────────────────────────────────
 // FORMAT
@@ -664,8 +654,10 @@ function FarmChatPage() {
   }, [farm, geo.lat, geo.lng]);
 
   const subtotal = product ? product.price * quantity : 0;
-  const delivery = computeDelivery(distanceMi);
-  const total = subtotal + delivery.fee;
+  // Single source of truth for delivery pricing (shared with the cart checkout).
+  // Chat orders use standard delivery.
+  const deliveryFee = computeDeliveryFee(distanceMi, "standard") / 100;
+  const total = subtotal + deliveryFee;
 
   if (!farm) {
     return (
@@ -1127,14 +1119,14 @@ function FarmChatPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
                   Delivery
-                  {distanceMi != null && (
+                  {distanceMi != null && distanceMi > FREE_DELIVERY_RADIUS_MILES && (
                     <span className="text-xs">
                       {" "}
-                      ({distanceMi.toFixed(1)} mi × ${DELIVERY_RATE_PER_MILE}/mi)
+                      ({distanceMi.toFixed(1)} mi · first {FREE_DELIVERY_RADIUS_MILES} mi free)
                     </span>
                   )}
                 </span>
-                <span>${delivery.fee.toFixed(2)}</span>
+                <span>${deliveryFee.toFixed(2)}</span>
               </div>
               <div className="border-t border-border pt-2 mt-2 flex justify-between text-base font-bold">
                 <span>Total</span>
@@ -1224,7 +1216,7 @@ function FarmChatPage() {
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Delivery</span>
-                <span>${delivery.fee.toFixed(2)}</span>
+                <span>${deliveryFee.toFixed(2)}</span>
               </div>
               <div className="border-t border-border pt-2 mt-1 flex justify-between font-bold text-base">
                 <span>Held in escrow</span>
