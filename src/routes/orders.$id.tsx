@@ -101,7 +101,9 @@ function OrderDetailPage() {
   const [busy, setBusy] = useState(false);
 
   // OTP state
+  const [codeIssued, setCodeIssued] = useState(false);
   const [otpShown, setOtpShown] = useState<string | null>(null);
+  const [smsMasked, setSmsMasked] = useState<string | null>(null);
   const [otpInput, setOtpInput] = useState("");
   const [disputeOpen, setDisputeOpen] = useState(false);
   const [disputeReason, setDisputeReason] = useState("");
@@ -287,18 +289,20 @@ function OrderDetailPage() {
           {role === "farmer" &&
             ["escrow_funded", "awaiting_delivery", "shipped"].includes(order.status) && (
               <div className="mt-4 space-y-3">
-                {!otpShown ? (
+                {!codeIssued ? (
                   <>
                     <p className="text-sm text-muted-foreground">
-                      Generate the 6-digit delivery code. The buyer enters it on handover, and you
-                      type it back into the app to confirm.
+                      Generate the 6-digit delivery code. We text it to the buyer, who reads it back
+                      to you at handover so you can confirm delivery.
                     </p>
                     <Button
                       disabled={busy}
                       onClick={() =>
                         wrap(async () => {
                           const r = await genOtp({ data: { orderId: order.id } });
+                          setCodeIssued(true);
                           setOtpShown(r.otp);
+                          setSmsMasked(r.smsDelivered ? r.maskedPhone : null);
                         }, "Delivery code issued")
                       }
                       className="w-full"
@@ -308,22 +312,40 @@ function OrderDetailPage() {
                   </>
                 ) : (
                   <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 text-center">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                      Show this code to the buyer at delivery
-                    </p>
-                    <div className="my-2 font-mono text-3xl font-bold tracking-[0.4em] text-primary">
-                      {otpShown}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        navigator.clipboard.writeText(otpShown);
-                        toast.success("Copied");
-                      }}
-                    >
-                      <Copy className="mr-1 h-3 w-3" /> Copy
-                    </Button>
+                    {smsMasked ? (
+                      <>
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                          Delivery code texted to the buyer
+                        </p>
+                        <div className="my-2 font-mono text-lg font-semibold text-primary">
+                          {smsMasked}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Ask the buyer for the code at handover and enter it below.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                          SMS unavailable — show this code to the buyer at delivery
+                        </p>
+                        <div className="my-2 font-mono text-3xl font-bold tracking-[0.4em] text-primary">
+                          {otpShown}
+                        </div>
+                        {otpShown && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              navigator.clipboard.writeText(otpShown);
+                              toast.success("Copied");
+                            }}
+                          >
+                            <Copy className="mr-1 h-3 w-3" /> Copy
+                          </Button>
+                        )}
+                      </>
+                    )}
                     <div className="mt-4">
                       <p className="mb-2 text-xs text-muted-foreground">
                         Enter the code to confirm delivery
