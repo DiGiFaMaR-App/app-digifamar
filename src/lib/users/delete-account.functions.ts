@@ -23,7 +23,14 @@ export const deleteMyAccountFn = createServerFn({ method: "POST" })
       .from("orders")
       .select("id")
       .or(`buyer_id.eq.${context.userId},farmer_id.eq.${context.userId}`)
-      .in("status", ["escrow_funded", "awaiting_delivery", "shipped", "delivered", "inspection", "disputed"])
+      .in("status", [
+        "escrow_funded",
+        "awaiting_delivery",
+        "shipped",
+        "delivered",
+        "inspection",
+        "disputed",
+      ])
       .limit(1);
     if (openOrders && openOrders.length > 0) {
       throw new Error(

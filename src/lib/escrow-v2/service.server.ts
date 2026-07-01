@@ -90,8 +90,9 @@ async function escrowBalanceForOrder(orderId: string): Promise<number> {
     const t = row.entry_type as string;
     const a = Number(row.amount_cents);
     if (t === "fund") held += a;
-    else if (t === "hold") {/* book-keeping only */}
-    else if (t === "release" || t === "refund" || t === "penalty") held -= a;
+    else if (t === "hold") {
+      /* book-keeping only */
+    } else if (t === "release" || t === "refund" || t === "penalty") held -= a;
   }
   return held;
 }
@@ -131,14 +132,25 @@ export class EscrowV2Service {
     const sb = await getAdmin();
 
     // Simulated payment — in production wire to Stripe / Escrow.com here.
-    const balanceAfter = await escrowBalanceForOrder(orderId) + order.total_cents;
-    await appendLedger(orderId, "fund", order.total_cents, balanceAfter, userId, "buyer funded escrow");
-    await appendLedger(orderId, "hold", order.total_cents, balanceAfter, userId, "funds held in escrow");
+    const balanceAfter = (await escrowBalanceForOrder(orderId)) + order.total_cents;
+    await appendLedger(
+      orderId,
+      "fund",
+      order.total_cents,
+      balanceAfter,
+      userId,
+      "buyer funded escrow",
+    );
+    await appendLedger(
+      orderId,
+      "hold",
+      order.total_cents,
+      balanceAfter,
+      userId,
+      "funds held in escrow",
+    );
 
-    const { error } = await sb
-      .from("orders")
-      .update({ status: "escrow_funded" })
-      .eq("id", orderId);
+    const { error } = await sb.from("orders").update({ status: "escrow_funded" }).eq("id", orderId);
     if (error) throw new Error(error.message);
 
     await audit({
@@ -166,7 +178,13 @@ export class EscrowV2Service {
 
     // upsert by order_id
     const { error } = await sb.from("delivery_confirmations").upsert(
-      { order_id: orderId, otp_hash: hashOtp(otp), otp_expires_at: expiresAt, confirmed_at: null, attempts: 0 },
+      {
+        order_id: orderId,
+        otp_hash: hashOtp(otp),
+        otp_expires_at: expiresAt,
+        confirmed_at: null,
+        attempts: 0,
+      },
       { onConflict: "order_id" },
     );
     if (error) throw new Error(error.message);
@@ -229,7 +247,8 @@ export class EscrowV2Service {
 
     const now = new Date();
     const closesAt = new Date(now.getTime() + INSPECTION_WINDOW_HOURS * 3600 * 1000);
-    await sb.from("delivery_confirmations")
+    await sb
+      .from("delivery_confirmations")
       .update({ confirmed_at: now.toISOString() })
       .eq("order_id", orderId);
     await sb.from("inspection_windows").upsert(
@@ -276,7 +295,8 @@ export class EscrowV2Service {
     );
     await creditAvailable(order.farmer_id, held);
     await sb.from("orders").update({ status: "released" }).eq("id", opts.orderId);
-    await sb.from("inspection_windows")
+    await sb
+      .from("inspection_windows")
       .update({ released_at: new Date().toISOString() })
       .eq("order_id", opts.orderId);
 
@@ -291,7 +311,6 @@ export class EscrowV2Service {
 
     return { orderId: opts.orderId, status: "released" as const, releasedCents: held };
   }
-
 
   /** Buyer raises a dispute during the inspection window. */
   static async raiseDispute(
@@ -333,12 +352,15 @@ export class EscrowV2Service {
   }
 
   /** Step 5 — Admin resolves a dispute. */
-  static async resolveDispute(adminId: string, input: {
-    disputeId: string;
-    outcome: "release" | "refund" | "split";
-    buyerRefundCents?: number;
-    resolution: string;
-  }) {
+  static async resolveDispute(
+    adminId: string,
+    input: {
+      disputeId: string;
+      outcome: "release" | "refund" | "split";
+      buyerRefundCents?: number;
+      resolution: string;
+    },
+  ) {
     const sb = await getAdmin();
     // Verify admin role server-side (defense in depth — the server fn also gates).
     const { data: isAdminRow } = await sb.rpc("has_role", { _user_id: adminId, _role: "admin" });
@@ -371,7 +393,14 @@ export class EscrowV2Service {
       const refund = Math.max(0, Math.min(held, input.buyerRefundCents ?? 0));
       const release = held - refund;
       if (refund > 0) {
-        await appendLedger(order.id, "refund", refund, held - refund, adminId, "admin: partial refund");
+        await appendLedger(
+          order.id,
+          "refund",
+          refund,
+          held - refund,
+          adminId,
+          "admin: partial refund",
+        );
         await creditAvailable(order.buyer_id, refund);
       }
       if (release > 0) {
@@ -452,7 +481,14 @@ export class EscrowV2Service {
         const refund = held - penaltyCharged;
 
         if (penaltyCharged > 0) {
-          await appendLedger(o.id, "penalty", penaltyCharged, held - penaltyCharged, null, "farmer ghosting: 50% penalty to platform");
+          await appendLedger(
+            o.id,
+            "penalty",
+            penaltyCharged,
+            held - penaltyCharged,
+            null,
+            "farmer ghosting: 50% penalty to platform",
+          );
         }
         if (refund > 0) {
           await appendLedger(o.id, "refund", refund, 0, null, "farmer ghosting: refund to buyer");

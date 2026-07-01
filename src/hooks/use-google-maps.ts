@@ -19,7 +19,8 @@ declare global {
 /** Loads the Maps JS API (with places library) exactly once. */
 export function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
-  if (window.google?.maps && typeof window.google.maps.importLibrary === "function") return Promise.resolve();
+  if (window.google?.maps && typeof window.google.maps.importLibrary === "function")
+    return Promise.resolve();
   if (window.__dgfMapsLoader) return window.__dgfMapsLoader;
   window.__dgfMapsLoader = (async () => {
     const BROWSER_KEY = await resolveGoogleMapsKey();
@@ -71,9 +72,7 @@ export function usePlacesAutocomplete(input: string, debounceMs = 250) {
       setError(null);
       try {
         await loadGoogleMaps();
-        const places = (await google.maps.importLibrary(
-          "places",
-        )) as google.maps.PlacesLibrary;
+        const places = (await google.maps.importLibrary("places")) as google.maps.PlacesLibrary;
         if (!tokenRef.current) {
           tokenRef.current = new places.AutocompleteSessionToken();
         }

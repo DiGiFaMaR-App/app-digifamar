@@ -14,10 +14,7 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  listLedgerForOrderFn,
-  listOpenDisputesFn,
-} from "@/lib/admin/admin.functions";
+import { listLedgerForOrderFn, listOpenDisputesFn } from "@/lib/admin/admin.functions";
 import { resolveDisputeFn } from "@/lib/escrow-v2/escrow.functions";
 
 export const Route = createFileRoute("/admin/")({
@@ -46,14 +43,54 @@ function AdminBody() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <h1 className="text-3xl font-bold">Admin · Dispute queue</h1>
           <nav className="flex flex-wrap gap-2 text-sm">
-            <Link to="/admin/users" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Users & roles</Link>
-            <Link to="/admin/orders" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Orders</Link>
-            <Link to="/admin/listings" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Listings</Link>
-            <Link to="/admin/chats" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Chats</Link>
-            <Link to="/admin/audit" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Audit log</Link>
-            <Link to="/admin/maps" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Maps key</Link>
-            <Link to="/admin/reveal-key" className="rounded-md border border-[#39FF14]/40 bg-[#39FF14]/10 px-3 py-1.5 text-[#39FF14] hover:bg-[#39FF14]/20">Reveal LOVABLE_API_KEY</Link>
-            <Link to="/admin/change-password" className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10">Change password</Link>
+            <Link
+              to="/admin/users"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Users & roles
+            </Link>
+            <Link
+              to="/admin/orders"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Orders
+            </Link>
+            <Link
+              to="/admin/listings"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Listings
+            </Link>
+            <Link
+              to="/admin/chats"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Chats
+            </Link>
+            <Link
+              to="/admin/audit"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Audit log
+            </Link>
+            <Link
+              to="/admin/maps"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Maps key
+            </Link>
+            <Link
+              to="/admin/reveal-key"
+              className="rounded-md border border-[#39FF14]/40 bg-[#39FF14]/10 px-3 py-1.5 text-[#39FF14] hover:bg-[#39FF14]/20"
+            >
+              Reveal LOVABLE_API_KEY
+            </Link>
+            <Link
+              to="/admin/change-password"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Change password
+            </Link>
           </nav>
         </div>
 
@@ -119,11 +156,17 @@ function DisputeCard({ dispute, onResolved }: { dispute: Dispute; onResolved: ()
         <span>Order {dispute.order_id.slice(0, 8)}…</span>
         <span>{new Date(dispute.created_at).toLocaleString()}</span>
       </div>
-      <p className="mb-2"><strong>Reason:</strong> {dispute.reason}</p>
+      <p className="mb-2">
+        <strong>Reason:</strong> {dispute.reason}
+      </p>
       {dispute.evidence_urls.length > 0 && (
         <ul className="text-sm mb-2 list-disc pl-5">
           {dispute.evidence_urls.map((u) => (
-            <li key={u}><a href={u} target="_blank" rel="noreferrer" className="underline text-[#39FF14]">{u}</a></li>
+            <li key={u}>
+              <a href={u} target="_blank" rel="noreferrer" className="underline text-[#39FF14]">
+                {u}
+              </a>
+            </li>
           ))}
         </ul>
       )}
@@ -141,9 +184,15 @@ function DisputeCard({ dispute, onResolved }: { dispute: Dispute; onResolved: ()
         className="bg-black/40 border-white/15 mb-3"
       />
       <div className="flex gap-2">
-        <Button disabled={busy} onClick={() => act("release")} variant="secondary">Release to farmer</Button>
-        <Button disabled={busy} onClick={() => act("refund")} variant="destructive">Full refund to buyer</Button>
-        <Button disabled={busy} onClick={() => act("split")} variant="outline">Split</Button>
+        <Button disabled={busy} onClick={() => act("release")} variant="secondary">
+          Release to farmer
+        </Button>
+        <Button disabled={busy} onClick={() => act("refund")} variant="destructive">
+          Full refund to buyer
+        </Button>
+        <Button disabled={busy} onClick={() => act("split")} variant="outline">
+          Split
+        </Button>
       </div>
     </li>
   );
@@ -175,7 +224,7 @@ function LedgerSearch() {
       </div>
       {rows.length > 0 && (
         <pre className="text-xs bg-black/60 p-3 rounded overflow-auto border border-white/10">
-{JSON.stringify(rows, null, 2)}
+          {JSON.stringify(rows, null, 2)}
         </pre>
       )}
     </section>

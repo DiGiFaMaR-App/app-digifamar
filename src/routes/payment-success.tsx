@@ -40,18 +40,37 @@ function Success() {
 
         <div className="mt-6 w-full rounded-2xl border border-border bg-card/80 p-5 text-left">
           <Row k="Order ID" v={orderId} mono />
-          {product && <Row k="Item" v={`${product.name} · $${(amount ?? product.price).toFixed(2)}`} />}
+          {product && (
+            <Row k="Item" v={`${product.name} · $${(amount ?? product.price).toFixed(2)}`} />
+          )}
           {amount !== undefined && <Row k="Amount paid" v={`$${amount.toFixed(2)}`} />}
-          <Row k="Delivery window" v={eta.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + " by 6pm"} />
+          <Row
+            k="Delivery window"
+            v={
+              eta.toLocaleDateString(undefined, {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              }) + " by 6pm"
+            }
+          />
           <Row k="Status" v={<span className="text-primary">Awaiting farmer ship-out</span>} />
         </div>
 
         <div className="mt-5 flex w-full flex-col gap-2">
-          <Button asChild size="lg" className="h-12 bg-primary text-primary-foreground hover:bg-primary-hover">
-            <Link to="/orders/$id" params={{ id: orderId }}><Package className="mr-1 h-5 w-5" /> Track My Order</Link>
+          <Button
+            asChild
+            size="lg"
+            className="h-12 bg-primary text-primary-foreground hover:bg-primary-hover"
+          >
+            <Link to="/orders/$id" params={{ id: orderId }}>
+              <Package className="mr-1 h-5 w-5" /> Track My Order
+            </Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="h-12">
-            <Link to="/market"><ShoppingBag className="mr-1 h-5 w-5" /> Continue shopping</Link>
+            <Link to="/market">
+              <ShoppingBag className="mr-1 h-5 w-5" /> Continue shopping
+            </Link>
           </Button>
           <button
             onClick={() => window.print()}

@@ -23,9 +23,7 @@ export function AdminGate({ children }: { children: ReactNode }) {
       <SiteLayout>
         <div className="mx-auto max-w-xl px-5 py-16 text-[#F0FFF0]">
           <h1 className="text-2xl font-bold mb-2">Admin access required</h1>
-          <p className="text-[#F0FFF0]/70">
-            Your account does not have admin privileges.
-          </p>
+          <p className="text-[#F0FFF0]/70">Your account does not have admin privileges.</p>
         </div>
       </SiteLayout>
     );

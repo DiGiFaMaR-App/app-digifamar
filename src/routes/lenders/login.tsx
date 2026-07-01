@@ -74,8 +74,14 @@ function LenderLogin() {
 
             <label className="block">
               <span className="mb-1.5 flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Password</span>
-                <button type="button" className="text-[11px] font-semibold" style={{ color: "#93B4FF" }}>
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Password
+                </span>
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold"
+                  style={{ color: "#93B4FF" }}
+                >
                   Forgot?
                 </button>
               </span>

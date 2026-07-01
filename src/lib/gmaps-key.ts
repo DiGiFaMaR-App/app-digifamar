@@ -9,8 +9,9 @@
  */
 import { getPublicAppSettingFn } from "@/lib/admin/app-settings.functions";
 
-const MANAGED_KEY = import.meta.env
-  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+const MANAGED_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
+  | string
+  | undefined;
 
 export const GMAPS_OVERRIDE_STORAGE_KEY = "dfm:gmaps_browser_key_override";
 

@@ -8,10 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/chat/")({
   head: () => ({
-    meta: [
-      { title: "Messages — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Messages — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: ChatList,
 });
@@ -54,11 +51,9 @@ function formatTimestamp(ts: string): string {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffDays = diffMs / (1000 * 60 * 60 * 24);
-  if (diffDays < 1)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (diffDays < 1) return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   if (diffDays < 2) return "Yesterday";
-  if (diffDays < 7)
-    return date.toLocaleDateString([], { weekday: "short" });
+  if (diffDays < 7) return date.toLocaleDateString([], { weekday: "short" });
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
@@ -71,9 +66,7 @@ function ChatList() {
   const sb = supabase as any;
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [lastMessages, setLastMessages] = useState<
-    Record<string, LastMessage>
-  >({});
+  const [lastMessages, setLastMessages] = useState<Record<string, LastMessage>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -143,8 +136,7 @@ function ChatList() {
               <div className="space-y-2">
                 {conversations.map((conv) => {
                   const last = lastMessages[conv.id];
-                  const hasUnread =
-                    last && !last.is_read && last.sender_id !== user?.id;
+                  const hasUnread = last && !last.is_read && last.sender_id !== user?.id;
 
                   return (
                     <Link
@@ -170,9 +162,7 @@ function ChatList() {
                         <div className="flex items-center justify-between gap-2">
                           <p
                             className={`font-semibold truncate ${
-                              hasUnread
-                                ? "text-[#F0FFF0]"
-                                : "text-[#F0FFF0]/80"
+                              hasUnread ? "text-[#F0FFF0]" : "text-[#F0FFF0]/80"
                             }`}
                           >
                             {conv.farm_name}
@@ -185,14 +175,11 @@ function ChatList() {
                         </div>
                         <p
                           className={`text-sm truncate mt-0.5 ${
-                            hasUnread
-                              ? "text-[#F0FFF0]/70 font-medium"
-                              : "text-[#7AAB7A]"
+                            hasUnread ? "text-[#F0FFF0]/70 font-medium" : "text-[#7AAB7A]"
                           }`}
                         >
                           {last
-                            ? last.content.slice(0, 40) +
-                              (last.content.length > 40 ? "…" : "")
+                            ? last.content.slice(0, 40) + (last.content.length > 40 ? "…" : "")
                             : "No messages yet"}
                         </p>
                       </div>
@@ -222,10 +209,7 @@ function EmptyState() {
       <p className="text-sm text-[#7AAB7A] max-w-xs leading-relaxed">
         Start a conversation from any farm profile or product page.
       </p>
-      <Link
-        to="/market"
-        className="mt-6 text-sm font-semibold text-[#4ADE80] hover:underline"
-      >
+      <Link to="/market" className="mt-6 text-sm font-semibold text-[#4ADE80] hover:underline">
         Browse the marketplace →
       </Link>
     </div>

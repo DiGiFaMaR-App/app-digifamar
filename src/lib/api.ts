@@ -3,10 +3,7 @@
 
 const API_BASE = "/api";
 
-async function request<T = unknown>(
-  path: string,
-  init: RequestInit = {},
-): Promise<T> {
+async function request<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers: {
@@ -23,8 +20,7 @@ async function request<T = unknown>(
       data && typeof data === "object" && "error" in data
         ? (data as { error?: unknown }).error
         : undefined;
-    const message =
-      typeof errField === "string" ? errField : `Request failed (${res.status})`;
+    const message = typeof errField === "string" ? errField : `Request failed (${res.status})`;
     throw new ApiError(message, res.status, data);
   }
 

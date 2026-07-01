@@ -6,7 +6,13 @@ import { cartStore } from "@/lib/cart/store";
 
 // Buyer is signed in for these tests.
 vi.mock("@/hooks/use-auth", () => ({
-  useAuth: () => ({ isAuthenticated: true, loading: false, user: null, session: null, role: "buyer" }),
+  useAuth: () => ({
+    isAuthenticated: true,
+    loading: false,
+    user: null,
+    session: null,
+    role: "buyer",
+  }),
 }));
 
 // Stub the Escrow.com checkout server function.
@@ -61,7 +67,12 @@ describe("Checkout route", () => {
     createEscrowCheckoutFn.mockResolvedValue({
       orderId: "ord-123",
       status: "in_escrow",
-      breakdown: { subtotalCents: 1100, platformFeeCents: 88, escrowFeeCents: 36, totalCents: 1224 },
+      breakdown: {
+        subtotalCents: 1100,
+        platformFeeCents: 88,
+        escrowFeeCents: 36,
+        totalCents: 1224,
+      },
       escrow: { provider: "escrow.com", transactionId: "sim_ord-123", url: "x", simulated: true },
       persisted: true,
     });
@@ -76,7 +87,12 @@ describe("Checkout route", () => {
     expect(createEscrowCheckoutFn).toHaveBeenCalledWith({
       data: {
         items: [
-          { productId: "heirloom-tomatoes", name: "Heirloom Tomato Mix", unitPriceCents: 550, quantity: 2 },
+          {
+            productId: "heirloom-tomatoes",
+            name: "Heirloom Tomato Mix",
+            unitPriceCents: 550,
+            quantity: 2,
+          },
         ],
         shippingAddress: "123 Market St, Austin, TX 78701",
       },

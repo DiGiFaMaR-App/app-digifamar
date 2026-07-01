@@ -46,9 +46,7 @@ describe("PaymentSuccess route", () => {
 
   it("sets a noindex meta entry", () => {
     expect((Route as unknown as { head?: () => { meta?: unknown[] } }).head?.().meta).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ name: "robots", content: "noindex" }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ name: "robots", content: "noindex" })]),
     );
   });
 });

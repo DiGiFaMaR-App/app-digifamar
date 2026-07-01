@@ -16,13 +16,14 @@ describe("Logo", () => {
     expect(screen.getByAltText("DiGiFaMaR")).toBeInTheDocument();
   });
 
-  it.each([["sm", "h-8"], ["lg", "h-20"], ["xl", "h-40"]] as const)(
-    "applies size %s -> %s",
-    (size, cls) => {
-      render(<Logo size={size} />);
-      expect(screen.getByAltText("DiGiFaMaR").className).toContain(cls);
-    },
-  );
+  it.each([
+    ["sm", "h-8"],
+    ["lg", "h-20"],
+    ["xl", "h-40"],
+  ] as const)("applies size %s -> %s", (size, cls) => {
+    render(<Logo size={size} />);
+    expect(screen.getByAltText("DiGiFaMaR").className).toContain(cls);
+  });
 
   it("applies glow class when glow=true", () => {
     render(<Logo glow />);

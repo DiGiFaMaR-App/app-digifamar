@@ -1,5 +1,15 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BadgeCheck, Check, Lock, MapPin, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  Check,
+  Lock,
+  MapPin,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Truck,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -54,12 +64,16 @@ export const Route = createFileRoute("/product/$id")({
   },
   component: ProductPage,
   notFoundComponent: () => (
-    <AppShell><div className="p-10 text-center text-muted-foreground">Product not found.</div></AppShell>
+    <AppShell>
+      <div className="p-10 text-center text-muted-foreground">Product not found.</div>
+    </AppShell>
   ),
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData() as { product: NonNullable<ReturnType<typeof getProduct>> };
+  const { product } = Route.useLoaderData() as {
+    product: NonNullable<ReturnType<typeof getProduct>>;
+  };
   const farm = getFarm(product.farmId);
   const navigate = useNavigate();
   const { add } = useCart();
@@ -82,13 +96,20 @@ function ProductPage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6">
-        <Link to="/market" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary">
+        <Link
+          to="/market"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+        >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to marketplace
         </Link>
 
         <div className="mt-4 grid gap-6 md:grid-cols-2">
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
-            <img src={product.image} alt={product.name} className="h-full w-full object-cover aspect-square" />
+            <img
+              src={product.image}
+              alt={product.name}
+              className="h-full w-full object-cover aspect-square"
+            />
           </div>
 
           <div className="flex flex-col">
@@ -128,7 +149,11 @@ function ProductPage() {
                 to="/market"
                 className="mt-5 flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3 hover:border-primary/40"
               >
-                <img src={farm.image} alt={farm.name} className="h-12 w-12 rounded-lg object-cover" />
+                <img
+                  src={farm.image}
+                  alt={farm.name}
+                  className="h-12 w-12 rounded-lg object-cover"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="flex items-center gap-1 text-sm font-semibold">
                     <BadgeCheck className="h-4 w-4 text-primary" /> {farm.name}
@@ -147,11 +172,18 @@ function ProductPage() {
                 <ShieldCheck className="h-4 w-4" /> Escrow-protected checkout
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Your payment is held securely until you confirm delivery. The farmer is paid the moment you mark your order received with a 6-digit code. Full refund if anything's off — 72 hours.
+                Your payment is held securely until you confirm delivery. The farmer is paid the
+                moment you mark your order received with a 6-digit code. Full refund if anything's
+                off — 72 hours.
               </p>
               <div className="mt-3 flex items-center gap-3 text-[11px] text-muted-foreground">
-                <span className="inline-flex items-center gap-1"><Lock className="h-3 w-3 text-primary" /> Stripe-secured</span>
-                <span className="inline-flex items-center gap-1"><Truck className="h-3 w-3 text-primary" /> {product.delivery === "24h" ? "24-hour" : "48-hour"} delivery</span>
+                <span className="inline-flex items-center gap-1">
+                  <Lock className="h-3 w-3 text-primary" /> Stripe-secured
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Truck className="h-3 w-3 text-primary" />{" "}
+                  {product.delivery === "24h" ? "24-hour" : "48-hour"} delivery
+                </span>
               </div>
             </div>
 
@@ -179,7 +211,6 @@ function ProductPage() {
                 )}
               </Button>
             </div>
-
           </div>
         </div>
       </div>

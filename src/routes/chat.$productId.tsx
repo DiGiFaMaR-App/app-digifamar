@@ -10,10 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/chat/$productId")({
   head: () => ({
-    meta: [
-      { title: "Chat — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Chat — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: ChatThread,
 });
@@ -201,7 +198,6 @@ function ChatThread() {
       <AppShell>
         <div className="min-h-screen bg-[#060F06]">
           <div className="mx-auto flex h-[calc(100dvh-3.5rem)] max-w-2xl flex-col">
-
             {/* Header */}
             <div className="flex items-center gap-3 border-b border-[#1E3A1E] bg-[#060F06]/90 px-4 py-3 backdrop-blur shrink-0">
               <Link
@@ -214,15 +210,11 @@ function ChatThread() {
 
               {/* Farm avatar */}
               <div className="w-10 h-10 rounded-full bg-[#4ADE80]/15 border border-[#4ADE80]/25 flex items-center justify-center shrink-0">
-                <span className="text-sm font-bold text-[#4ADE80]">
-                  {getInitials(farmName)}
-                </span>
+                <span className="text-sm font-bold text-[#4ADE80]">{getInitials(farmName)}</span>
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-[#F0FFF0] truncate">
-                  {farmName}
-                </p>
+                <p className="font-semibold text-[#F0FFF0] truncate">{farmName}</p>
                 <span className="inline-flex items-center gap-1 text-xs text-[#4ADE80]">
                   <BadgeCheck className="h-3.5 w-3.5" /> Verified
                 </span>
@@ -230,19 +222,14 @@ function ChatThread() {
             </div>
 
             {/* Messages */}
-            <div
-              ref={scrollRef}
-              className="flex-1 overflow-y-auto px-4 py-4 space-y-3"
-            >
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-[#7AAB7A] text-sm">Loading…</div>
                 </div>
               ) : messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-center">
-                  <p className="text-sm text-[#7AAB7A]">
-                    No messages yet. Say hello!
-                  </p>
+                  <p className="text-sm text-[#7AAB7A]">No messages yet. Say hello!</p>
                 </div>
               ) : (
                 messages.map((msg) => {

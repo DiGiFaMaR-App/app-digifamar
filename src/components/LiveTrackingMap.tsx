@@ -13,8 +13,9 @@ interface LiveTrackingMapProps {
 
 import { resolveGoogleMapsKey } from "@/lib/gmaps-key";
 
-const TRACKING_ID = import.meta.env
-  .VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string | undefined;
+const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
+  | string
+  | undefined;
 
 declare global {
   interface Window {

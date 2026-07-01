@@ -18,10 +18,7 @@ import { listAuditLogsFn } from "@/lib/admin/audit.functions";
 
 export const Route = createFileRoute("/admin/audit")({
   head: () => ({
-    meta: [
-      { title: "Admin · Audit Log — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Admin · Audit Log — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: () => (
     <RequireAuth>
@@ -61,8 +58,8 @@ function AuditBody() {
         <header className="space-y-1">
           <h1 className="text-3xl font-bold">Admin · Audit Log</h1>
           <p className="text-[#F0FFF0]/70 text-sm">
-            Sensitive admin actions and delivery/OTP events. Append-only —
-            entries cannot be edited or deleted.
+            Sensitive admin actions and delivery/OTP events. Append-only — entries cannot be edited
+            or deleted.
           </p>
         </header>
 

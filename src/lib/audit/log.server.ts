@@ -49,7 +49,10 @@ export async function logAudit(entry: AuditEntry): Promise<void> {
 }
 
 /** Extract IP + user agent from a Request, when available. */
-export function requestContext(request?: Request | null): { ip: string | null; userAgent: string | null } {
+export function requestContext(request?: Request | null): {
+  ip: string | null;
+  userAgent: string | null;
+} {
   if (!request) return { ip: null, userAgent: null };
   const h = request.headers;
   const ip =

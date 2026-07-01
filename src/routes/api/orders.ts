@@ -7,7 +7,7 @@ import { authenticateRequest } from "@/lib/route-auth.server";
 const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Vary": "Origin",
+  Vary: "Origin",
 } as const;
 
 // Mirrors the NestJS CreateOrderDto. The buyer's identity is taken from the
@@ -21,8 +21,7 @@ const CreateOrderSchema = z.object({
 export const Route = createFileRoute("/api/orders")({
   server: {
     handlers: {
-      OPTIONS: async () =>
-        new Response(null, { status: 204, headers: CORS }),
+      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
 
       POST: async ({ request }) => {
         const auth = await authenticateRequest(request);

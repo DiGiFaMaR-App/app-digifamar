@@ -60,9 +60,7 @@ function RoleSelection() {
           </button>
         </div>
 
-        <p className="text-xs text-gray-500 mt-12">
-          Your role can be changed later in settings
-        </p>
+        <p className="text-xs text-gray-500 mt-12">Your role can be changed later in settings</p>
       </div>
     </div>
   );

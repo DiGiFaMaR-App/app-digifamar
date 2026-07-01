@@ -17,10 +17,7 @@ import { createEscrowCheckoutFn } from "@/lib/checkout/checkout.functions";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
-    meta: [
-      { title: "Checkout — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Checkout — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: CheckoutPage,
 });
@@ -65,11 +62,8 @@ function CheckoutPage() {
         search: { orderId: result.orderId, amount: result.breakdown.totalCents / 100 },
       });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Checkout failed. Please try again.";
-      toast.error(
-        /unauthorized/i.test(message) ? "Please sign in to complete checkout." : message,
-      );
+      const message = err instanceof Error ? err.message : "Checkout failed. Please try again.";
+      toast.error(/unauthorized/i.test(message) ? "Please sign in to complete checkout." : message);
       setSubmitting(false);
     }
   };
@@ -84,7 +78,10 @@ function CheckoutPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             Add something fresh before checking out.
           </p>
-          <Button asChild className="mt-5 bg-primary text-primary-foreground hover:bg-primary-hover">
+          <Button
+            asChild
+            className="mt-5 bg-primary text-primary-foreground hover:bg-primary-hover"
+          >
             <Link to="/market">Browse the marketplace</Link>
           </Button>
         </div>
@@ -196,9 +193,8 @@ function CheckoutPage() {
 
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               Your {formatCents(fees.totalCents)} is held by{" "}
-              <span className="font-semibold text-foreground">Escrow.com</span> and released to
-              the farmer only after you confirm delivery. Full refund within 72 hours if anything's
-              off.
+              <span className="font-semibold text-foreground">Escrow.com</span> and released to the
+              farmer only after you confirm delivery. Full refund within 72 hours if anything's off.
             </p>
           </aside>
         </div>
@@ -221,7 +217,9 @@ function Row({
   return (
     <div className="flex items-center justify-between">
       <dt className={muted ? "text-muted-foreground" : bold ? "font-bold" : ""}>{label}</dt>
-      <dd className={`tabular-nums ${bold ? "text-base font-extrabold text-primary" : "font-semibold"}`}>
+      <dd
+        className={`tabular-nums ${bold ? "text-base font-extrabold text-primary" : "font-semibold"}`}
+      >
         {value}
       </dd>
     </div>

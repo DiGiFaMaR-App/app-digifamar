@@ -1,16 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
-import {
-  DashboardSkeleton,
-  ProductCardSkeleton,
-  ProductGridSkeleton,
-} from "./LoadingSkeletons";
+import { DashboardSkeleton, ProductCardSkeleton, ProductGridSkeleton } from "./LoadingSkeletons";
 
 describe("LoadingSkeletons", () => {
   it("renders a single product card skeleton", () => {
     const { container } = render(<ProductCardSkeleton />);
-    expect(container.querySelectorAll("[data-slot='skeleton'], .animate-pulse").length)
-      .toBeGreaterThan(0);
+    expect(
+      container.querySelectorAll("[data-slot='skeleton'], .animate-pulse").length,
+    ).toBeGreaterThan(0);
   });
 
   it("renders the requested number of grid items", () => {

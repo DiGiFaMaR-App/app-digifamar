@@ -23,7 +23,9 @@ export const listAuditLogsFn = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin
       .from("audit_logs")
-      .select("id, actor_id, actor_role, action, resource_type, resource_id, outcome, metadata, ip, user_agent, created_at")
+      .select(
+        "id, actor_id, actor_role, action, resource_type, resource_id, outcome, metadata, ip, user_agent, created_at",
+      )
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 100);
     if (data.action) q = q.eq("action", data.action);

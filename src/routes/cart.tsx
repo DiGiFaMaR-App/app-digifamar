@@ -7,10 +7,7 @@ import { dollarsToCents, formatCents } from "@/lib/cart/fees";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
-    meta: [
-      { title: "Your cart — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Your cart — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: CartPage,
 });
@@ -30,7 +27,10 @@ function CartPage() {
           <div className="mt-10 flex flex-col items-center rounded-2xl border border-border bg-card/60 p-10 text-center">
             <ShoppingCart className="h-8 w-8 text-muted-foreground" />
             <p className="mt-3 text-sm text-muted-foreground">Your cart is empty.</p>
-            <Button asChild className="mt-5 bg-primary text-primary-foreground hover:bg-primary-hover">
+            <Button
+              asChild
+              className="mt-5 bg-primary text-primary-foreground hover:bg-primary-hover"
+            >
               <Link to="/market">Browse the marketplace</Link>
             </Button>
           </div>

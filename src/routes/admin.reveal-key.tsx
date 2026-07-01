@@ -15,10 +15,7 @@ import { revealLovableApiKeyFn } from "@/lib/admin/reveal-lovable-key.functions"
 
 export const Route = createFileRoute("/admin/reveal-key")({
   head: () => ({
-    meta: [
-      { title: "Admin · Reveal Key — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Admin · Reveal Key — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: () => (
     <RequireAuth>
@@ -59,8 +56,8 @@ function Body() {
           <h1 className="text-3xl font-bold">Reveal LOVABLE_API_KEY</h1>
           <p className="text-sm text-[#F0FFF0]/70">
             One-time use. Copy the value into your GitHub repo at{" "}
-            <span className="font-mono">Settings → Secrets and variables → Actions</span>,
-            then delete this page (<span className="font-mono">src/routes/admin.reveal-key.tsx</span>)
+            <span className="font-mono">Settings → Secrets and variables → Actions</span>, then
+            delete this page (<span className="font-mono">src/routes/admin.reveal-key.tsx</span>)
             and <span className="font-mono">src/lib/admin/reveal-lovable-key.functions.ts</span>.
           </p>
         </header>
