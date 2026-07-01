@@ -1,64 +1,100 @@
 import * as React from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { setRouterMockState } from "@/test/router-state";
+
+const ORDER = {
+  id: "abcdef12-3456-7890-abcd-ef1234567890",
+  buyer_id: "buyer-1",
+  farmer_id: "farmer-1",
+  listing_id: "listing-1",
+  qty: 2,
+  total_cents: 1224,
+  subtotal_cents: 1100,
+  platform_fee_cents: 88,
+  escrow_fee_cents: 36,
+  status: "pending",
+  created_at: "2026-01-01T00:00:00.000Z",
+  delivery_deadline: null,
+};
+
+// Buyer who owns the order is signed in.
+vi.mock("@/hooks/use-auth", () => ({
+  useAuth: () => ({
+    isAuthenticated: true,
+    loading: false,
+    user: { id: ORDER.buyer_id },
+    session: {},
+    role: "buyer",
+  }),
+}));
+
+// Server functions are network-bound; keep them inert for the unit test.
+vi.mock("@tanstack/react-start", () => ({
+  useServerFn: (fn: unknown) => fn,
+}));
+vi.mock("@/lib/escrow-v2/escrow.functions", () => ({
+  fundEscrowFn: vi.fn(),
+  generateDeliveryOtpFn: vi.fn(),
+  confirmDeliveryFn: vi.fn(),
+  releaseEscrowFn: vi.fn(),
+  raiseDisputeFn: vi.fn(),
+}));
+
+// Chainable Supabase query stub whose terminal maybeSingle() resolves per table.
+function makeQuery(result: { data: unknown; error: unknown }) {
+  const q: Record<string, unknown> = {};
+  q.select = () => q;
+  q.eq = () => q;
+  q.maybeSingle = () => Promise.resolve(result);
+  return q;
+}
+
+vi.mock("@/integrations/supabase/client", () => ({
+  supabase: {
+    from: (table: string) => {
+      if (table === "orders") return makeQuery({ data: ORDER, error: null });
+      if (table === "listings")
+        return makeQuery({
+          data: { id: "listing-1", title: "Heirloom Tomatoes", unit: "lb", images: [] },
+          error: null,
+        });
+      return makeQuery({ data: null, error: null }); // inspection_windows
+    },
+    channel: () => {
+      const ch: Record<string, unknown> = {};
+      ch.on = () => ch;
+      ch.subscribe = () => ch;
+      return ch;
+    },
+    removeChannel: () => {},
+  },
+}));
+
 import { Route } from "./orders.$id";
 
 const Page = (Route as unknown as { component: () => React.ReactElement }).component;
 
-describe("Order tracking route", () => {
+describe("Order detail route", () => {
   beforeEach(() => {
-    setRouterMockState({ params: { id: "DFM-TESTID0" } });
+    setRouterMockState({ params: { id: ORDER.id } });
     vi.restoreAllMocks();
   });
 
-  it("renders the order id, ETA, and timeline", () => {
+  it("renders the order id, status label, and escrow protection panel", async () => {
     render(<Page />);
-    expect(screen.getByText("DFM-TESTID0")).toBeInTheDocument();
-    expect(screen.getByText(/estimated delivery/i)).toBeInTheDocument();
-    expect(screen.getByText(/delivery status/i)).toBeInTheDocument();
-    expect(screen.getByText(/order placed/i)).toBeInTheDocument();
-  });
-
-  it("opens the message dialog and disables send when empty", () => {
-    render(<Page />);
-    fireEvent.click(screen.getByRole("button", { name: /message/i }));
-    const send = screen.getByRole("button", { name: /send/i });
-    expect(send).toBeDisabled();
-  });
-
-  it("releases funds when API returns ok", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({}), { status: 200, headers: { "Content-Type": "application/json" } }),
+    await waitFor(() =>
+      expect(screen.getByText(new RegExp(ORDER.id.slice(0, 8)))).toBeInTheDocument(),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    expect(screen.getByText(/awaiting payment/i)).toBeInTheDocument();
+    expect(screen.getByText(/escrow protection/i)).toBeInTheDocument();
+    expect(screen.getByText(/Heirloom Tomatoes/i)).toBeInTheDocument();
+  });
 
-    // Use an id that maps to stage >=4 ("out for delivery"). Try many seeds.
-    for (let i = 0; i < 50; i++) {
-      const id = `DFM-RELEASE-${i}`;
-      setRouterMockState({ params: { id } });
-      const { unmount } = render(<Page />);
-      const releaseBtn = screen.queryByRole("button", { name: /release funds/i });
-      if (releaseBtn) {
-        // Fire a synthetic onChange on the OTP via setting the otp inputs is complex;
-        // instead, find all hidden inputs / dispatch a change event on the OTP input.
-        // Easier: the button is disabled until length=6. We invoke handler directly by
-        // dispatching onChange on the underlying input via querying for any input.
-        const otpInput = document.querySelector("input");
-        if (otpInput) {
-          fireEvent.input(otpInput, { target: { value: "123456" } });
-        }
-        // After OTP fills, click release
-        const enabled = screen.getByRole("button", { name: /release funds/i });
-        if (!(enabled as HTMLButtonElement).disabled) {
-          fireEvent.click(enabled);
-          await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-          expect(fetchMock.mock.calls[0][0]).toContain(`/api/orders/${encodeURIComponent(id)}/release`);
-        }
-        unmount();
-        return;
-      }
-      unmount();
-    }
+  it("shows the buyer a fund-escrow action while the order is pending", async () => {
+    render(<Page />);
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /fund escrow/i })).toBeInTheDocument(),
+    );
   });
 });

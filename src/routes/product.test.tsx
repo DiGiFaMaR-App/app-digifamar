@@ -20,7 +20,7 @@ describe("Product detail route", () => {
     expect(screen.getByText(/escrow-protected checkout/i)).toBeInTheDocument();
   });
 
-  it("buy-now navigates to /payment-success with the product id", () => {
+  it("chat-farmer navigates to the farm chat with the product prefilled", () => {
     const product = products[1];
     const navigate = vi.fn();
     setRouterMockState({
@@ -29,8 +29,12 @@ describe("Product detail route", () => {
       navigate,
     });
     render(<Page />);
-    fireEvent.click(screen.getByRole("button", { name: /buy now/i }));
-    expect(navigate).toHaveBeenCalledWith({ to: "/payment-success", search: { id: product.id } });
+    fireEvent.click(screen.getByRole("button", { name: /chat farmer/i }));
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/chat/farm/$farmId",
+      params: { farmId: product.farmId },
+      search: { productId: product.id, qty: 1 },
+    });
     routerMockState.navigate = () => {};
   });
 
