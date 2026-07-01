@@ -1,13 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useState } from "react";
-import {
-  MapPin,
-  ArrowRight,
-  Shield,
-  CheckCircle2,
-  Star,
-  ShoppingCart,
-} from "lucide-react";
+import { MapPin, ArrowRight, Shield, CheckCircle2, Star, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,9 +45,7 @@ function HeroSection() {
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setLocation(
-          `${pos.coords.latitude.toFixed(2)}°N, ${pos.coords.longitude.toFixed(2)}°W`,
-        );
+        setLocation(`${pos.coords.latitude.toFixed(2)}°N, ${pos.coords.longitude.toFixed(2)}°W`);
         setDetecting(false);
       },
       () => {
@@ -69,8 +60,7 @@ function HeroSection() {
     <section
       className="relative overflow-hidden px-4 py-24 sm:py-32 text-center"
       style={{
-        background:
-          "radial-gradient(ellipse at 50% -5%, #1e3d1e 0%, #060F06 65%)",
+        background: "radial-gradient(ellipse at 50% -5%, #1e3d1e 0%, #060F06 65%)",
       }}
     >
       {/* Ambient glow */}
@@ -111,8 +101,7 @@ function HeroSection() {
         </h1>
 
         <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-          Escrow-protected marketplace connecting verified farmers with buyers
-          across all 50 states
+          Escrow-protected marketplace connecting verified farmers with buyers across all 50 states
         </p>
 
         {/* Geolocation search */}
@@ -163,11 +152,17 @@ function HeroSection() {
         {/* Trust badges */}
         <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
           <span>🔒 Secured by Escrow.com</span>
-          <span className="hidden sm:inline" aria-hidden>·</span>
+          <span className="hidden sm:inline" aria-hidden>
+            ·
+          </span>
           <span>📍 50 States</span>
-          <span className="hidden sm:inline" aria-hidden>·</span>
+          <span className="hidden sm:inline" aria-hidden>
+            ·
+          </span>
           <span>🌾 10,000+ Verified Farmers</span>
-          <span className="hidden sm:inline" aria-hidden>·</span>
+          <span className="hidden sm:inline" aria-hidden>
+            ·
+          </span>
           <span>⭐ 98% Delivery Rate</span>
         </div>
       </div>
@@ -207,9 +202,7 @@ function HowItWorks() {
           >
             Simple Process
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">
-            How It Works
-          </h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-white">How It Works</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -235,12 +228,8 @@ function HowItWorks() {
                 </div>
                 <span className="text-2xl">{step.icon}</span>
               </div>
-              <h3 className="text-base font-semibold text-white mb-2">
-                {step.title}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {step.desc}
-              </p>
+              <h3 className="text-base font-semibold text-white mb-2">{step.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
 
               {/* Connector arrow between cards (desktop) */}
               {i < HOW_STEPS.length - 1 && (
@@ -282,8 +271,7 @@ function EscrowSection() {
     <section
       className="py-20 px-4"
       style={{
-        background:
-          "linear-gradient(180deg, #060F06 0%, #091409 50%, #060F06 100%)",
+        background: "linear-gradient(180deg, #060F06 0%, #091409 50%, #060F06 100%)",
       }}
     >
       <div className="mx-auto max-w-6xl">
@@ -303,8 +291,7 @@ function EscrowSection() {
             Every Transaction Protected by Escrow.com
           </h2>
           <p className="mt-3 text-muted-foreground max-w-md mx-auto text-sm">
-            Funds are held in trust until you confirm receipt — no payment
-            risk, ever.
+            Funds are held in trust until you confirm receipt — no payment risk, ever.
           </p>
         </div>
 
@@ -386,11 +373,7 @@ function ProductCard({
       }}
     >
       <div className="relative h-44 overflow-hidden bg-muted">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-cover"
-        />
+        <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
         {product.organic && (
           <span
             className="absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-bold"
@@ -412,12 +395,8 @@ function ProductCard({
       </div>
 
       <div className="p-4 flex flex-col flex-1">
-        <p className="text-xs text-muted-foreground mb-0.5 truncate">
-          {farmName}
-        </p>
-        <h3 className="font-semibold text-white text-sm mb-2 leading-snug">
-          {product.name}
-        </h3>
+        <p className="text-xs text-muted-foreground mb-0.5 truncate">{farmName}</p>
+        <h3 className="font-semibold text-white text-sm mb-2 leading-snug">{product.name}</h3>
 
         <div className="flex items-center gap-1 mb-4 text-xs text-muted-foreground">
           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -433,9 +412,7 @@ function ProductCard({
         <div className="mt-auto flex items-center justify-between gap-2">
           <span className="text-lg font-bold text-white">
             ${product.price}
-            <span className="text-xs font-normal text-muted-foreground">
-              /{product.unit}
-            </span>
+            <span className="text-xs font-normal text-muted-foreground">/{product.unit}</span>
           </span>
           <Button
             size="sm"
@@ -475,9 +452,7 @@ function FeaturedProducts() {
             >
               Fresh Today
             </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">
-              Featured Products
-            </h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white">Featured Products</h2>
           </div>
           <Link
             to="/market"
@@ -503,11 +478,7 @@ function FeaturedProducts() {
         </div>
 
         <div className="mt-8 flex justify-center sm:hidden">
-          <Button
-            asChild
-            variant="outline"
-            className="gap-2"
-          >
+          <Button asChild variant="outline" className="gap-2">
             <Link to="/market">
               View All Products <ArrowRight className="h-4 w-4" />
             </Link>
@@ -539,10 +510,7 @@ const DIGIFAMAR_POINTS = [
 
 function SupplyChainComparison() {
   return (
-    <section
-      className="py-20 px-4"
-      style={{ backgroundColor: "#060F06" }}
-    >
+    <section className="py-20 px-4" style={{ backgroundColor: "#060F06" }}>
       <div className="mx-auto max-w-4xl">
         <div className="text-center mb-12">
           <p
@@ -575,9 +543,7 @@ function SupplyChainComparison() {
               >
                 ❌
               </div>
-              <h3 className="text-lg font-semibold text-white">
-                Traditional Supply Chain
-              </h3>
+              <h3 className="text-lg font-semibold text-white">Traditional Supply Chain</h3>
             </div>
             <div className="space-y-3 mb-6">
               {TRADITIONAL_POINTS.map((pt, i) => (
@@ -617,9 +583,7 @@ function SupplyChainComparison() {
               >
                 ✅
               </div>
-              <h3 className="text-lg font-semibold text-white">
-                DiGiFaMaR Direct
-              </h3>
+              <h3 className="text-lg font-semibold text-white">DiGiFaMaR Direct</h3>
             </div>
             <div className="space-y-3 mb-6">
               {DIGIFAMAR_POINTS.map((pt, i) => (
@@ -701,9 +665,7 @@ function Testimonials() {
         >
           Trusted By Thousands
         </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white">
-          What Our Community Says
-        </h2>
+        <h2 className="text-3xl sm:text-4xl font-bold text-white">What Our Community Says</h2>
       </div>
 
       {/* Horizontally scrollable row */}
@@ -736,9 +698,7 @@ function Testimonials() {
               ★★★★★
             </div>
 
-            <p className="text-sm text-muted-foreground leading-relaxed flex-1">
-              "{t.text}"
-            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed flex-1">"{t.text}"</p>
           </div>
         ))}
       </div>
@@ -754,18 +714,15 @@ function FarmerCTA() {
     <section
       className="py-24 px-4 text-center"
       style={{
-        background:
-          "linear-gradient(135deg, #060F06 0%, #132013 50%, #060F06 100%)",
+        background: "linear-gradient(135deg, #060F06 0%, #132013 50%, #060F06 100%)",
       }}
     >
       <div className="mx-auto max-w-2xl">
         <p className="text-5xl mb-6">🌾</p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-          Ready to Sell Direct?
-        </h2>
+        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Sell Direct?</h2>
         <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-          Join 10,000+ verified American farmers already selling direct on
-          DiGiFaMaR. Keep 92% of every sale — no middlemen, no surprises.
+          Join 10,000+ verified American farmers already selling direct on DiGiFaMaR. Keep 92% of
+          every sale — no middlemen, no surprises.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -780,12 +737,7 @@ function FarmerCTA() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="h-12 px-8 font-semibold"
-          >
+          <Button asChild size="lg" variant="outline" className="h-12 px-8 font-semibold">
             <Link to="/how-it-works">Learn How It Works</Link>
           </Button>
         </div>

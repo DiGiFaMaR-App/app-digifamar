@@ -77,16 +77,33 @@ function LenderDashboard() {
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} label="Recommended farms" value={portfolio.count} accent />
-        <StatCard icon={TrendingUp} label="Avg Trade Score" value={portfolio.avgScore} sub="across recommendations" />
-        <StatCard icon={Wallet} label="Lending pipeline" value={fmtUSD(portfolio.pipeline)} sub="suggested facilities" />
-        <StatCard icon={Star} label="Prime-tier farms" value={portfolio.prime} sub="score 80 or higher" />
+        <StatCard
+          icon={TrendingUp}
+          label="Avg Trade Score"
+          value={portfolio.avgScore}
+          sub="across recommendations"
+        />
+        <StatCard
+          icon={Wallet}
+          label="Lending pipeline"
+          value={fmtUSD(portfolio.pipeline)}
+          sub="suggested facilities"
+        />
+        <StatCard
+          icon={Star}
+          label="Prime-tier farms"
+          value={portfolio.prime}
+          sub="score 80 or higher"
+        />
       </div>
 
       {/* Filters */}
       <LenderCard className="mt-6 p-4">
         <div className="flex flex-wrap items-end gap-4">
           <div className="min-w-0">
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">Trade Score tier</p>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Trade Score tier
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {TIERS.map((t) => {
                 const active = tier === t.value;
@@ -97,7 +114,11 @@ function LenderDashboard() {
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                       active ? "text-white" : "text-slate-400 hover:text-slate-200"
                     }`}
-                    style={active ? { backgroundColor: NAVY.accent } : { backgroundColor: "rgba(255,255,255,0.05)" }}
+                    style={
+                      active
+                        ? { backgroundColor: NAVY.accent }
+                        : { backgroundColor: "rgba(255,255,255,0.05)" }
+                    }
                   >
                     {t.label}
                   </button>
@@ -107,7 +128,9 @@ function LenderDashboard() {
           </div>
 
           <div>
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">State</p>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              State
+            </p>
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
@@ -122,15 +145,23 @@ function LenderDashboard() {
           </div>
 
           <div>
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">Sort by</p>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              Sort by
+            </p>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
               className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[#1D4ED8]"
             >
-              <option value="score" className="bg-[#111827]">Trade Score</option>
-              <option value="sales" className="bg-[#111827]">12-mo sales</option>
-              <option value="amount" className="bg-[#111827]">Suggested amount</option>
+              <option value="score" className="bg-[#111827]">
+                Trade Score
+              </option>
+              <option value="sales" className="bg-[#111827]">
+                12-mo sales
+              </option>
+              <option value="amount" className="bg-[#111827]">
+                Suggested amount
+              </option>
             </select>
           </div>
 
@@ -153,7 +184,11 @@ function LenderDashboard() {
 
       <div className="mt-6">
         <SectionTitle
-          right={<span className="text-xs text-slate-500">{filtered.length} of {recommendedFarmers.length} farms</span>}
+          right={
+            <span className="text-xs text-slate-500">
+              {filtered.length} of {recommendedFarmers.length} farms
+            </span>
+          }
         >
           Matches
         </SectionTitle>
@@ -220,7 +255,15 @@ function LenderDashboard() {
   );
 }
 
-function Metric({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+function Metric({
+  label,
+  value,
+  accent = false,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
   return (
     <div>
       <p className="text-[11px] uppercase tracking-wider text-slate-500">{label}</p>

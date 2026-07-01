@@ -19,8 +19,14 @@ describe("Footer", () => {
   it("links to key buyer pages", () => {
     render(<Footer />);
     expect(screen.getByRole("link", { name: /browse farms/i })).toHaveAttribute("href", "/browse");
-    expect(screen.getByRole("link", { name: /how it works/i })).toHaveAttribute("href", "/how-it-works");
-    expect(screen.getByRole("link", { name: /buyer protection/i })).toHaveAttribute("href", "/buyer-protection");
+    expect(screen.getByRole("link", { name: /how it works/i })).toHaveAttribute(
+      "href",
+      "/how-it-works",
+    );
+    expect(screen.getByRole("link", { name: /buyer protection/i })).toHaveAttribute(
+      "href",
+      "/buyer-protection",
+    );
   });
 
   it("includes a WhatsApp contact link", () => {

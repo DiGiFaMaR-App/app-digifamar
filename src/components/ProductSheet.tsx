@@ -15,11 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { getFarm, type Product } from "@/lib/mock-data";
 
@@ -114,7 +110,9 @@ export function ProductSheet({
                       key={i}
                       onClick={() => setActive(i)}
                       className={`h-14 w-14 overflow-hidden rounded-lg border-2 transition ${
-                        i === active ? "border-primary" : "border-border opacity-70 hover:opacity-100"
+                        i === active
+                          ? "border-primary"
+                          : "border-border opacity-70 hover:opacity-100"
                       }`}
                     >
                       <img src={src} alt="" className="h-full w-full object-cover" />
@@ -140,7 +138,9 @@ export function ProductSheet({
               </div>
 
               <h2 className="mt-3 text-2xl font-extrabold sm:text-3xl">{product.name}</h2>
-              {product.variety && <p className="text-sm text-muted-foreground">{product.variety}</p>}
+              {product.variety && (
+                <p className="text-sm text-muted-foreground">{product.variety}</p>
+              )}
 
               <div className="mt-3 flex items-baseline gap-2">
                 <p className="text-3xl font-extrabold text-primary">${product.price.toFixed(2)}</p>
@@ -155,7 +155,11 @@ export function ProductSheet({
 
               {farm && (
                 <div className="mt-5 flex items-center gap-3 rounded-xl border border-border bg-card/60 p-3">
-                  <img src={farm.image} alt={farm.name} className="h-12 w-12 rounded-lg object-cover" />
+                  <img
+                    src={farm.image}
+                    alt={farm.name}
+                    className="h-12 w-12 rounded-lg object-cover"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-1 text-sm font-semibold">
                       <BadgeCheck className="h-4 w-4 text-primary" /> {farm.name}
@@ -187,9 +191,7 @@ export function ProductSheet({
             </>
           )}
 
-          {step !== "details" && (
-            <FlowProgress step={step} />
-          )}
+          {step !== "details" && <FlowProgress step={step} />}
 
           {step === "held" && (
             <div className="mt-2 text-center">
@@ -201,7 +203,8 @@ export function ProductSheet({
               </div>
               <h2 className="mt-5 text-2xl font-extrabold">Payment held in escrow</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Your ${product.price.toFixed(2)} is safely locked. The farmer is being notified to ship your order.
+                Your ${product.price.toFixed(2)} is safely locked. The farmer is being notified to
+                ship your order.
               </p>
               <SummaryCard orderId={orderId} product={product} status="Awaiting ship-out" />
               <TrustBadges />
@@ -215,7 +218,8 @@ export function ProductSheet({
               </div>
               <h2 className="mt-5 text-2xl font-extrabold">Out for delivery</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Your courier just dropped off the package. Simulate confirming delivery to unlock your release code.
+                Your courier just dropped off the package. Simulate confirming delivery to unlock
+                your release code.
               </p>
               <SummaryCard orderId={orderId} product={product} status="At your door" />
               <Button
@@ -248,7 +252,10 @@ export function ProductSheet({
                 <InputOTP
                   maxLength={6}
                   value={code}
-                  onChange={(v) => { setCode(v); setError(null); }}
+                  onChange={(v) => {
+                    setCode(v);
+                    setError(null);
+                  }}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
@@ -271,7 +278,9 @@ export function ProductSheet({
                   {MOCK_CODE}
                 </button>
               </p>
-              {error && <p className="mt-2 text-center text-xs font-semibold text-destructive">{error}</p>}
+              {error && (
+                <p className="mt-2 text-center text-xs font-semibold text-destructive">{error}</p>
+              )}
 
               <Button
                 size="lg"
@@ -304,7 +313,8 @@ export function ProductSheet({
               <h2 className="mt-5 text-2xl font-extrabold">Funds released — thank you!</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 ${product.price.toFixed(2)} just landed with{" "}
-                <span className="font-semibold text-foreground">{farm?.name ?? "the farmer"}</span>. A receipt is in your inbox.
+                <span className="font-semibold text-foreground">{farm?.name ?? "the farmer"}</span>.
+                A receipt is in your inbox.
               </p>
               <SummaryCard orderId={orderId} product={product} status="Completed" />
               <div className="mt-5 flex flex-col gap-2">
@@ -342,7 +352,8 @@ function EscrowInfo({ product }: { product: Product }) {
         <ShieldCheck className="h-4 w-4" /> Escrow-protected checkout
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Your payment is held until you confirm delivery with a 6-digit code. Full refund within 72 hours if anything's off.
+        Your payment is held until you confirm delivery with a 6-digit code. Full refund within 72
+        hours if anything's off.
       </p>
       <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
         <span className="inline-flex items-center gap-1">

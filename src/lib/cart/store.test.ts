@@ -1,11 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  CART_STORAGE_KEY,
-  cartCount,
-  cartStore,
-  cartSubtotalCents,
-  type CartItem,
-} from "./store";
+import { CART_STORAGE_KEY, cartCount, cartStore, cartSubtotalCents, type CartItem } from "./store";
 
 const tomato: Omit<CartItem, "quantity"> = {
   productId: "heirloom-tomatoes",

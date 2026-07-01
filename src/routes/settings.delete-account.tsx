@@ -14,7 +14,10 @@ export const Route = createFileRoute("/settings/delete-account")({
   head: () => ({
     meta: [
       { title: "Delete account — DiGiFaMaR" },
-      { name: "description", content: "Permanently delete your DiGiFaMaR account and personal data." },
+      {
+        name: "description",
+        content: "Permanently delete your DiGiFaMaR account and personal data.",
+      },
     ],
   }),
   component: () => (
@@ -50,7 +53,9 @@ function DeleteAccountPage() {
       <div className="mx-auto max-w-xl px-5 py-12 text-[#F0FFF0]">
         <h1 className="text-3xl font-bold mb-4">Delete account</h1>
         <p className="text-[#F0FFF0]/80 mb-4">
-          This will permanently remove your profile, listings, messages, and wallet from DiGiFaMaR. Order and escrow-ledger records tied to closed transactions are kept in anonymized form to satisfy financial regulations.
+          This will permanently remove your profile, listings, messages, and wallet from DiGiFaMaR.
+          Order and escrow-ledger records tied to closed transactions are kept in anonymized form to
+          satisfy financial regulations.
         </p>
         <p className="text-amber-400 mb-6">
           You must close or dispute every open escrow order before deleting.

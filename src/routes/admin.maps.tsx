@@ -16,18 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  getAppSettingFn,
-  setAppSettingFn,
-} from "@/lib/admin/app-settings.functions";
+import { getAppSettingFn, setAppSettingFn } from "@/lib/admin/app-settings.functions";
 import { invalidateGoogleMapsKeyCache } from "@/lib/gmaps-key";
 
 export const Route = createFileRoute("/admin/maps")({
   head: () => ({
-    meta: [
-      { title: "Admin · Maps — DiGiFaMaR" },
-      { name: "robots", content: "noindex" },
-    ],
+    meta: [{ title: "Admin · Maps — DiGiFaMaR" }, { name: "robots", content: "noindex" }],
   }),
   component: () => (
     <RequireAuth>
@@ -85,8 +79,8 @@ function MapsAdminBody() {
         <header className="space-y-1">
           <h1 className="text-3xl font-bold">Admin · Maps</h1>
           <p className="text-[#F0FFF0]/70 text-sm">
-            The default Google Maps API key used by every visitor. Updates take
-            effect on the next map load (no deploy needed).
+            The default Google Maps API key used by every visitor. Updates take effect on the next
+            map load (no deploy needed).
           </p>
         </header>
 
@@ -97,11 +91,7 @@ function MapsAdminBody() {
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-[#F0FFF0]/70">Last updated</span>
-            <span>
-              {data?.updated_at
-                ? new Date(data.updated_at).toLocaleString()
-                : "—"}
-            </span>
+            <span>{data?.updated_at ? new Date(data.updated_at).toLocaleString() : "—"}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-[#F0FFF0]/70">Status</span>
@@ -115,9 +105,8 @@ function MapsAdminBody() {
           <div className="space-y-1">
             <Label htmlFor="gmaps-key">Google Maps API key</Label>
             <p className="text-xs text-[#F0FFF0]/60">
-              Paste the key from your Google Cloud project. Make sure its HTTP
-              referrer allowlist includes{" "}
-              <span className="font-mono">https://app.digifamar.com/*</span> and{" "}
+              Paste the key from your Google Cloud project. Make sure its HTTP referrer allowlist
+              includes <span className="font-mono">https://app.digifamar.com/*</span> and{" "}
               <span className="font-mono">https://*.digifamar.com/*</span>.
             </p>
           </div>
@@ -134,11 +123,7 @@ function MapsAdminBody() {
             <Button onClick={save} disabled={saving || !draft.trim()}>
               {saving ? "Saving…" : "Save key"}
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setDraft(data?.value ?? "")}
-              disabled={saving}
-            >
+            <Button variant="outline" onClick={() => setDraft(data?.value ?? "")} disabled={saving}>
               Reset
             </Button>
           </div>

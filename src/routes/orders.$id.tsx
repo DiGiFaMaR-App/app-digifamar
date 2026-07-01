@@ -39,7 +39,10 @@ export const Route = createFileRoute("/orders/$id")({
   head: () => ({
     meta: [
       { title: "Track Order — DiGiFaMaR" },
-      { name: "description", content: "Escrow-protected order tracking, delivery OTP, and release." },
+      {
+        name: "description",
+        content: "Escrow-protected order tracking, delivery OTP, and release.",
+      },
     ],
   }),
   component: () => (
@@ -111,11 +114,7 @@ function OrderDetailPage() {
 
   const load = async () => {
     setLoading(true);
-    const { data: o, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+    const { data: o, error } = await supabase.from("orders").select("*").eq("id", id).maybeSingle();
     if (error || !o) {
       toast.error("Order not found");
       setLoading(false);
@@ -140,9 +139,13 @@ function OrderDetailPage() {
     // realtime
     const ch = supabase
       .channel(`order-${id}`)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${id}` }, () => {
-        void load();
-      })
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${id}` },
+        () => {
+          void load();
+        },
+      )
       .subscribe();
     return () => {
       void supabase.removeChannel(ch);
@@ -173,7 +176,9 @@ function OrderDetailPage() {
   if (loading) {
     return (
       <AppShell role="buyer">
-        <div className="mx-auto max-w-3xl px-4 py-16 text-center text-muted-foreground">Loading order…</div>
+        <div className="mx-auto max-w-3xl px-4 py-16 text-center text-muted-foreground">
+          Loading order…
+        </div>
       </AppShell>
     );
   }
@@ -232,7 +237,9 @@ function OrderDetailPage() {
                   {order.qty} {listing.unit}
                 </p>
               </div>
-              <div className="text-right text-sm font-bold text-primary">{dollars(order.total_cents)}</div>
+              <div className="text-right text-sm font-bold text-primary">
+                {dollars(order.total_cents)}
+              </div>
             </div>
           )}
 
@@ -266,7 +273,9 @@ function OrderDetailPage() {
               </p>
               <Button
                 disabled={busy}
-                onClick={() => wrap(() => fund({ data: { orderId: order.id } }), "Funds placed in escrow")}
+                onClick={() =>
+                  wrap(() => fund({ data: { orderId: order.id } }), "Funds placed in escrow")
+                }
                 className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
               >
                 <ShieldCheck className="mr-2 h-4 w-4" /> Fund escrow {dollars(order.total_cents)}
@@ -316,7 +325,9 @@ function OrderDetailPage() {
                       <Copy className="mr-1 h-3 w-3" /> Copy
                     </Button>
                     <div className="mt-4">
-                      <p className="mb-2 text-xs text-muted-foreground">Enter the code to confirm delivery</p>
+                      <p className="mb-2 text-xs text-muted-foreground">
+                        Enter the code to confirm delivery
+                      </p>
                       <div className="flex justify-center">
                         <InputOTP maxLength={6} value={otpInput} onChange={setOtpInput}>
                           <InputOTPGroup>
@@ -350,16 +361,14 @@ function OrderDetailPage() {
               {inspection?.auto_release_at && (
                 <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
                   <Clock className="h-4 w-4" />
-                  Funds auto-release {new Date(inspection.auto_release_at).toLocaleString()} if you take no action.
+                  Funds auto-release {new Date(inspection.auto_release_at).toLocaleString()} if you
+                  take no action.
                 </div>
               )}
               <Button
                 disabled={busy}
                 onClick={() =>
-                  wrap(
-                    () => release({ data: { orderId: order.id } }),
-                    "Funds released to farmer",
-                  )
+                  wrap(() => release({ data: { orderId: order.id } }), "Funds released to farmer")
                 }
                 className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
               >
@@ -420,8 +429,8 @@ function OrderDetailPage() {
           <DialogHeader>
             <DialogTitle>Open dispute</DialogTitle>
             <DialogDescription>
-              Describe what's wrong. An admin will review and decide how the escrowed funds
-              are split.
+              Describe what's wrong. An admin will review and decide how the escrowed funds are
+              split.
             </DialogDescription>
           </DialogHeader>
           <Textarea
@@ -443,7 +452,9 @@ function OrderDetailPage() {
               variant="destructive"
               disabled={busy || disputeReason.trim().length < 10}
               onClick={async () => {
-                const ev = (document.getElementById("evidence") as HTMLInputElement | null)?.value?.trim();
+                const ev = (
+                  document.getElementById("evidence") as HTMLInputElement | null
+                )?.value?.trim();
                 await wrap(
                   () =>
                     dispute({

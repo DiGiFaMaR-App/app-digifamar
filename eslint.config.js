@@ -34,6 +34,11 @@ export default tseslint.config(
       ],
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      // Several data-access sites cast to `any` to reach Supabase tables that
+      // are not yet in the generated `types.ts` (schema drift). Surface these
+      // as warnings so they stay visible without blocking the build while the
+      // generated types are reconciled.
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
   eslintPluginPrettier,

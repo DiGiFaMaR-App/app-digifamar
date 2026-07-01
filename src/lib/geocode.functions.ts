@@ -73,10 +73,7 @@ export const geocodeAddress = createServerFn({ method: "POST" })
       lat: top.geometry.location.lat,
       lng: top.geometry.location.lng,
       formatted: top.formatted_address,
-      city:
-        comp("locality") ??
-        comp("sublocality") ??
-        comp("administrative_area_level_2"),
+      city: comp("locality") ?? comp("sublocality") ?? comp("administrative_area_level_2"),
       state: comp("administrative_area_level_1", true),
       zip: comp("postal_code"),
     };
@@ -126,10 +123,7 @@ export const reverseGeocode = createServerFn({ method: "POST" })
       lat: top.geometry.location.lat,
       lng: top.geometry.location.lng,
       formatted: top.formatted_address,
-      city:
-        comp("locality") ??
-        comp("sublocality") ??
-        comp("administrative_area_level_2"),
+      city: comp("locality") ?? comp("sublocality") ?? comp("administrative_area_level_2"),
       state: comp("administrative_area_level_1", true),
       zip: comp("postal_code"),
     };
@@ -176,10 +170,7 @@ export const geocodePlaceId = createServerFn({ method: "POST" })
       lat: top.geometry.location.lat,
       lng: top.geometry.location.lng,
       formatted: top.formatted_address,
-      city:
-        comp("locality") ??
-        comp("sublocality") ??
-        comp("administrative_area_level_2"),
+      city: comp("locality") ?? comp("sublocality") ?? comp("administrative_area_level_2"),
       state: comp("administrative_area_level_1", true),
       zip: comp("postal_code"),
     };

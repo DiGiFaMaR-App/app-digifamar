@@ -51,15 +51,7 @@ const LISTING_CATEGORIES = [
   "Other",
 ] as const;
 
-const LISTING_UNITS = [
-  "lb",
-  "kg",
-  "crate",
-  "dozen",
-  "jar",
-  "each",
-  "bag",
-] as const;
+const LISTING_UNITS = ["lb", "kg", "crate", "dozen", "jar", "each", "bag"] as const;
 
 const FARM_TYPES = [
   "Vegetables & Produce",
@@ -218,27 +210,20 @@ function useFarmerDashboard(userId: string | undefined) {
     const load = async () => {
       setLoading(true);
       try {
-        const [ordersRes, listingsRes, reviewsRes, profileRes] =
-          await Promise.all([
-            sb
-              .from("orders")
-              .select(
-                "id, buyer_first_name, product_name, amount, escrow_amount, status, created_at",
-              )
-              .eq("farmer_id", userId)
-              .order("created_at", { ascending: false }),
-            sb
-              .from("listings")
-              .select("*")
-              .eq("farmer_id", userId)
-              .order("created_at", { ascending: false }),
-            sb.from("reviews").select("rating").eq("farmer_id", userId),
-            supabase
-              .from("farmer_profiles")
-              .select("*")
-              .eq("user_id", userId)
-              .maybeSingle(),
-          ]);
+        const [ordersRes, listingsRes, reviewsRes, profileRes] = await Promise.all([
+          sb
+            .from("orders")
+            .select("id, buyer_first_name, product_name, amount, escrow_amount, status, created_at")
+            .eq("farmer_id", userId)
+            .order("created_at", { ascending: false }),
+          sb
+            .from("listings")
+            .select("*")
+            .eq("farmer_id", userId)
+            .order("created_at", { ascending: false }),
+          sb.from("reviews").select("rating").eq("farmer_id", userId),
+          supabase.from("farmer_profiles").select("*").eq("user_id", userId).maybeSingle(),
+        ]);
 
         if (cancelled) return;
 
@@ -256,10 +241,7 @@ function useFarmerDashboard(userId: string | undefined) {
         const activeListings = rawListings.filter((l) => l.is_active).length;
         const avgRating =
           rawReviews.length > 0
-            ? rawReviews.reduce(
-                (s, r) => s + (Number(r.rating) || 0),
-                0,
-              ) / rawReviews.length
+            ? rawReviews.reduce((s, r) => s + (Number(r.rating) || 0), 0) / rawReviews.length
             : null;
 
         setStats({
@@ -295,16 +277,11 @@ function useFarmerDashboard(userId: string | undefined) {
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleActive = async (id: string, value: boolean) => {
-    setListings((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, is_active: value } : l)),
-    );
+    setListings((prev) => prev.map((l) => (l.id === id ? { ...l, is_active: value } : l)));
     await sb.from("listings").update({ is_active: value }).eq("id", id);
   };
 
-  const saveListing = async (
-    draft: ListingDraft,
-    editId?: string,
-  ): Promise<boolean> => {
+  const saveListing = async (draft: ListingDraft, editId?: string): Promise<boolean> => {
     const payload = {
       name: draft.name.trim(),
       category: draft.category,
@@ -324,9 +301,7 @@ function useFarmerDashboard(userId: string | undefined) {
         toast.error("Failed to update listing");
         return false;
       }
-      setListings((prev) =>
-        prev.map((l) => (l.id === editId ? { ...l, ...payload } : l)),
-      );
+      setListings((prev) => prev.map((l) => (l.id === editId ? { ...l, ...payload } : l)));
     } else {
       const { data, error } = await sb
         .from("listings")
@@ -377,16 +352,8 @@ function useFarmerDashboard(userId: string | undefined) {
 
 function FarmerDashboard() {
   const { user } = useAuth();
-  const {
-    stats,
-    listings,
-    orders,
-    profile,
-    loading,
-    toggleActive,
-    saveListing,
-    saveProfile,
-  } = useFarmerDashboard(user?.id);
+  const { stats, listings, orders, profile, loading, toggleActive, saveListing, saveProfile } =
+    useFarmerDashboard(user?.id);
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -397,11 +364,7 @@ function FarmerDashboard() {
     setDraft(emptyDraft);
     setEditingId(null);
     setShowForm(true);
-    setTimeout(
-      () =>
-        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-      80,
-    );
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
   const openEdit = (l: Listing) => {
@@ -416,11 +379,7 @@ function FarmerDashboard() {
     });
     setEditingId(l.id);
     setShowForm(true);
-    setTimeout(
-      () =>
-        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-      80,
-    );
+    setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
   const handleSaveListing = async () => {
@@ -445,17 +404,12 @@ function FarmerDashboard() {
       <AppShell role="farmer">
         <div className="min-h-screen bg-[#060F06] text-[#F0FFF0]">
           <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-8">
-
             {/* Page header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-wider text-[#7AAB7A]">
-                  Farmer Dashboard
-                </p>
+                <p className="text-xs uppercase tracking-wider text-[#7AAB7A]">Farmer Dashboard</p>
                 <h1 className="text-2xl font-extrabold sm:text-3xl">
-                  {loading
-                    ? "Loading…"
-                    : (profile?.farm_name ?? "Your Farm")}
+                  {loading ? "Loading…" : (profile?.farm_name ?? "Your Farm")}
                 </h1>
               </div>
               <Button
@@ -514,15 +468,10 @@ function FarmerDashboard() {
             </SectionWrapper>
 
             {/* Wallet */}
-            <WalletSection
-              available={stats.availableBalance}
-              pending={stats.pendingBalance}
-            />
+            <WalletSection available={stats.availableBalance} pending={stats.pendingBalance} />
 
             {/* Farm profile quick edit */}
-            {profile !== null && (
-              <FarmProfileSection profile={profile} onSave={saveProfile} />
-            )}
+            {profile !== null && <FarmProfileSection profile={profile} onSave={saveProfile} />}
           </div>
         </div>
       </AppShell>
@@ -534,13 +483,7 @@ function FarmerDashboard() {
 // STATS ROW
 // ─────────────────────────────────────────────────────────────────
 
-function StatsRow({
-  stats,
-  loading,
-}: {
-  stats: Stats;
-  loading: boolean;
-}) {
+function StatsRow({ stats, loading }: { stats: Stats; loading: boolean }) {
   if (loading) {
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -552,33 +495,19 @@ function StatsRow({
   }
 
   const ratingDisplay =
-    stats.avgRating !== null
-      ? `${stats.avgRating.toFixed(1)} ★`
-      : "No reviews yet";
+    stats.avgRating !== null ? `${stats.avgRating.toFixed(1)} ★` : "No reviews yet";
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      <StatCard
-        icon={DollarSign}
-        label="Total Sales"
-        value={String(stats.totalSales)}
-      />
+      <StatCard icon={DollarSign} label="Total Sales" value={String(stats.totalSales)} />
       <StatCard
         icon={Wallet}
         label="Pending Balance"
         value={`$${stats.pendingBalance.toFixed(2)}`}
         accent
       />
-      <StatCard
-        icon={LayoutGrid}
-        label="Active Listings"
-        value={String(stats.activeListings)}
-      />
-      <StatCard
-        icon={Star}
-        label="Avg Rating"
-        value={ratingDisplay}
-      />
+      <StatCard icon={LayoutGrid} label="Active Listings" value={String(stats.activeListings)} />
+      <StatCard icon={Star} label="Avg Rating" value={ratingDisplay} />
     </div>
   );
 }
@@ -597,9 +526,7 @@ function StatCard({
   return (
     <div
       className={`rounded-2xl border p-4 ${
-        accent
-          ? "border-[#4ADE80]/30 bg-[#4ADE80]/10"
-          : "border-[#1E3A1E] bg-[#132013]"
+        accent ? "border-[#4ADE80]/30 bg-[#4ADE80]/10" : "border-[#1E3A1E] bg-[#132013]"
       }`}
     >
       <div className="flex items-center gap-2 text-xs text-[#7AAB7A]">
@@ -641,9 +568,7 @@ function LendingMilestone({ salesCount }: { salesCount: number }) {
             <Trophy className="h-4 w-4 text-[#4ADE80]" />
           </div>
           <div>
-            <p className="font-semibold text-[#F0FFF0]">
-              30-Sale Lending Milestone
-            </p>
+            <p className="font-semibold text-[#F0FFF0]">30-Sale Lending Milestone</p>
             {qualified ? (
               <p className="text-sm text-[#7AAB7A] mt-0.5">
                 You've hit the milestone — preferred lender rates unlocked!
@@ -677,19 +602,13 @@ function LendingMilestone({ salesCount }: { salesCount: number }) {
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {qualified ? (
           <Link to="/lending">
-            <Button
-              size="sm"
-              className="bg-[#4ADE80] hover:bg-[#22C55E] text-black font-semibold"
-            >
+            <Button size="sm" className="bg-[#4ADE80] hover:bg-[#22C55E] text-black font-semibold">
               🎉 You qualify! View lending partners
             </Button>
           </Link>
         ) : (
           <Link to="/lending">
-            <Button
-              size="sm"
-              className="bg-[#4ADE80] hover:bg-[#22C55E] text-black font-semibold"
-            >
+            <Button size="sm" className="bg-[#4ADE80] hover:bg-[#22C55E] text-black font-semibold">
               Complete {remaining} more sale{remaining !== 1 ? "s" : ""} →
             </Button>
           </Link>
@@ -777,9 +696,7 @@ function ListingsTable({
           </div>
 
           {/* Name */}
-          <span className="text-sm font-medium text-[#F0FFF0] truncate">
-            {l.name}
-          </span>
+          <span className="text-sm font-medium text-[#F0FFF0] truncate">{l.name}</span>
 
           {/* Price — hidden on mobile */}
           <span className="hidden sm:block text-sm font-semibold text-[#4ADE80]">
@@ -787,9 +704,7 @@ function ListingsTable({
           </span>
 
           {/* Category — hidden on mobile */}
-          <span className="hidden sm:block text-xs text-[#7AAB7A] truncate">
-            {l.category}
-          </span>
+          <span className="hidden sm:block text-xs text-[#7AAB7A] truncate">{l.category}</span>
 
           {/* Status toggle — hidden on mobile */}
           <div className="hidden sm:flex items-center gap-2">
@@ -798,15 +713,11 @@ function ListingsTable({
               onCheckedChange={(v) => onToggleActive(l.id, v)}
               className="data-[state=checked]:bg-[#4ADE80]"
             />
-            <span className="text-xs text-[#7AAB7A]">
-              {l.is_active ? "Active" : "Off"}
-            </span>
+            <span className="text-xs text-[#7AAB7A]">{l.is_active ? "Active" : "Off"}</span>
           </div>
 
           {/* Views — hidden on mobile */}
-          <span className="hidden sm:block text-xs text-[#7AAB7A]">
-            {l.views.toLocaleString()}
-          </span>
+          <span className="hidden sm:block text-xs text-[#7AAB7A]">{l.views.toLocaleString()}</span>
 
           {/* Orders — hidden on mobile */}
           <span className="hidden sm:block text-xs text-[#7AAB7A]">
@@ -876,10 +787,7 @@ function ListingForm({
         {/* Category + Unit side by side */}
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Category">
-            <Select
-              value={draft.category}
-              onValueChange={(v) => set("category", v)}
-            >
+            <Select value={draft.category} onValueChange={(v) => set("category", v)}>
               <SelectTrigger className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] focus:ring-[#4ADE80]/20">
                 <SelectValue />
               </SelectTrigger>
@@ -898,10 +806,7 @@ function ListingForm({
           </FormField>
 
           <FormField label="Unit">
-            <Select
-              value={draft.unit}
-              onValueChange={(v) => set("unit", v)}
-            >
+            <Select value={draft.unit} onValueChange={(v) => set("unit", v)}>
               <SelectTrigger className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] focus:ring-[#4ADE80]/20">
                 <SelectValue />
               </SelectTrigger>
@@ -1004,13 +909,7 @@ const STATUS_LABELS: Record<string, string> = {
   escrowed: "Escrowed",
 };
 
-function RecentOrdersTable({
-  orders,
-  loading,
-}: {
-  orders: Order[];
-  loading: boolean;
-}) {
+function RecentOrdersTable({ orders, loading }: { orders: Order[]; loading: boolean }) {
   if (loading) {
     return (
       <div className="rounded-2xl border border-[#1E3A1E] bg-[#132013] p-4 space-y-3">
@@ -1052,9 +951,7 @@ function RecentOrdersTable({
           <span className="hidden sm:block text-xs font-mono text-[#7AAB7A]">
             #{o.id.slice(-6).toUpperCase()}
           </span>
-          <span className="text-sm text-[#F0FFF0] truncate">
-            {o.buyer_first_name ?? "—"}
-          </span>
+          <span className="text-sm text-[#F0FFF0] truncate">{o.buyer_first_name ?? "—"}</span>
           <span className="hidden sm:block text-sm text-[#7AAB7A] truncate">
             {o.product_name ?? "—"}
           </span>
@@ -1081,13 +978,7 @@ function RecentOrdersTable({
 // WALLET SECTION
 // ─────────────────────────────────────────────────────────────────
 
-function WalletSection({
-  available,
-  pending,
-}: {
-  available: number;
-  pending: number;
-}) {
+function WalletSection({ available, pending }: { available: number; pending: number }) {
   return (
     <SectionWrapper title="Wallet">
       <div className="rounded-2xl border border-[#1E3A1E] bg-[#132013] p-5">
@@ -1096,26 +987,18 @@ function WalletSection({
             <p className="text-xs text-[#7AAB7A] uppercase tracking-wider mb-1">
               Available Balance
             </p>
-            <p className="text-2xl font-extrabold text-[#4ADE80]">
-              ${available.toFixed(2)}
-            </p>
+            <p className="text-2xl font-extrabold text-[#4ADE80]">${available.toFixed(2)}</p>
             <p className="text-xs text-[#7AAB7A] mt-0.5">Released funds</p>
           </div>
           <div>
-            <p className="text-xs text-[#7AAB7A] uppercase tracking-wider mb-1">
-              Pending Balance
-            </p>
-            <p className="text-2xl font-extrabold text-[#F0FFF0]">
-              ${pending.toFixed(2)}
-            </p>
+            <p className="text-xs text-[#7AAB7A] uppercase tracking-wider mb-1">Pending Balance</p>
+            <p className="text-2xl font-extrabold text-[#F0FFF0]">${pending.toFixed(2)}</p>
             <p className="text-xs text-[#7AAB7A] mt-0.5">In escrow</p>
           </div>
         </div>
         <Button
           onClick={() =>
-            toast.success(
-              "Withdrawal request submitted — processed within 2 business days",
-            )
+            toast.success("Withdrawal request submitted — processed within 2 business days")
           }
           className="w-full bg-[#4ADE80] hover:bg-[#22C55E] text-black font-semibold"
         >
@@ -1178,10 +1061,7 @@ function FarmProfileSection({
 
         <div className="grid grid-cols-2 gap-3">
           <FormField label="State">
-            <Select
-              value={form.state ?? ""}
-              onValueChange={(v) => set("state", v)}
-            >
+            <Select value={form.state ?? ""} onValueChange={(v) => set("state", v)}>
               <SelectTrigger className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] focus:ring-[#4ADE80]/20">
                 <SelectValue placeholder="Select state" />
               </SelectTrigger>
@@ -1200,10 +1080,7 @@ function FarmProfileSection({
           </FormField>
 
           <FormField label="Farm Type">
-            <Select
-              value={form.farm_type ?? ""}
-              onValueChange={(v) => set("farm_type", v)}
-            >
+            <Select value={form.farm_type ?? ""} onValueChange={(v) => set("farm_type", v)}>
               <SelectTrigger className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] focus:ring-[#4ADE80]/20">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
@@ -1250,9 +1127,7 @@ function SectionWrapper({
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-[#7AAB7A]">
-          {title}
-        </h2>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-[#7AAB7A]">{title}</h2>
         {action}
       </div>
       {children}
@@ -1260,13 +1135,7 @@ function SectionWrapper({
   );
 }
 
-function FormField({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function FormField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs font-semibold text-[#7AAB7A] uppercase tracking-wide">

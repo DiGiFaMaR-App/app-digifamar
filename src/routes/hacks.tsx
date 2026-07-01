@@ -32,7 +32,7 @@ const HACKS = [
     icon: Sun,
     category: "Soil",
     title: "Cardboard kills weeds without chemicals",
-    body: "Lay flattened cardboard between rows and cover with 2\" of compost. Weeds suffocate; cardboard composts into the bed in one season.",
+    body: 'Lay flattened cardboard between rows and cover with 2" of compost. Weeds suffocate; cardboard composts into the bed in one season.',
   },
   {
     icon: Bug,
@@ -91,12 +91,8 @@ function HacksPage() {
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     {h.category}
                   </p>
-                  <h2 className="mt-0.5 text-base font-semibold leading-snug">
-                    {h.title}
-                  </h2>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                    {h.body}
-                  </p>
+                  <h2 className="mt-0.5 text-base font-semibold leading-snug">{h.title}</h2>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{h.body}</p>
                 </div>
               </div>
             </li>
@@ -104,7 +100,8 @@ function HacksPage() {
         </ul>
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
-          Got a hack that works on your farm? Email tips@digifamar.com — we credit every contributor.
+          Got a hack that works on your farm? Email tips@digifamar.com — we credit every
+          contributor.
         </p>
       </div>
     </AppShell>

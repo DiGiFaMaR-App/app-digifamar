@@ -7,7 +7,7 @@ import { authenticateRequest } from "@/lib/route-auth.server";
 const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Vary": "Origin",
+  Vary: "Origin",
 } as const;
 
 const ReleaseSchema = z.object({
@@ -17,8 +17,7 @@ const ReleaseSchema = z.object({
 export const Route = createFileRoute("/api/orders/$id/release")({
   server: {
     handlers: {
-      OPTIONS: async () =>
-        new Response(null, { status: 204, headers: CORS }),
+      OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
 
       POST: async ({ request, params }) => {
         const auth = await authenticateRequest(request);

@@ -1,14 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Check,
-  Clock,
-  Loader2,
-  Lock,
-  MapPin,
-  ShieldCheck,
-  X,
-} from "lucide-react";
+import { Check, Clock, Loader2, Lock, MapPin, ShieldCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
@@ -35,7 +27,6 @@ export const Route = createFileRoute("/lenders/admin")({
   },
   component: LenderAdmin,
 });
-
 
 type Access = "checking" | "admin" | "denied";
 
@@ -109,15 +100,23 @@ function LenderAdmin() {
     (async () => {
       setLoading(true);
       try {
-        const { data, error } = await (supabase as unknown as {
-          from: (t: string) => {
-            select: (c: string) => {
-              eq: (k: string, v: string) => {
-                order: (c: string, o: { ascending: boolean }) => Promise<{ data: RawApplication[] | null; error: unknown }>;
+        const { data, error } = await (
+          supabase as unknown as {
+            from: (t: string) => {
+              select: (c: string) => {
+                eq: (
+                  k: string,
+                  v: string,
+                ) => {
+                  order: (
+                    c: string,
+                    o: { ascending: boolean },
+                  ) => Promise<{ data: RawApplication[] | null; error: unknown }>;
+                };
               };
             };
-          };
-        })
+          }
+        )
           .from("lender_applications")
           .select("*")
           .eq("status", "pending")
@@ -138,11 +137,15 @@ function LenderAdmin() {
   const decide = async (id: string, status: "approved" | "rejected") => {
     setActing(id);
     try {
-      const { error } = await (supabase as unknown as {
-        from: (t: string) => {
-          update: (v: unknown) => { eq: (k: string, val: string) => Promise<{ error: { message: string } | null }> };
-        };
-      })
+      const { error } = await (
+        supabase as unknown as {
+          from: (t: string) => {
+            update: (v: unknown) => {
+              eq: (k: string, val: string) => Promise<{ error: { message: string } | null }>;
+            };
+          };
+        }
+      )
         .from("lender_applications")
         .update({ status, reviewed_at: new Date().toISOString() })
         .eq("id", id);
@@ -157,7 +160,6 @@ function LenderAdmin() {
       setActing(null);
     }
   };
-
 
   const pendingCount = apps.length;
   const totalCeiling = useMemo(() => apps.reduce((s, a) => s + a.maxLoanAmount, 0), [apps]);
@@ -244,7 +246,10 @@ function LenderAdmin() {
               </thead>
               <tbody>
                 {apps.map((a) => (
-                  <tr key={a.id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.03]">
+                  <tr
+                    key={a.id}
+                    className="border-b border-white/5 last:border-0 hover:bg-white/[0.03]"
+                  >
                     <td className="px-4 py-3">
                       <p className="font-semibold text-slate-100">{a.institutionName}</p>
                       <p className="text-xs text-slate-500">
@@ -252,7 +257,9 @@ function LenderAdmin() {
                         {a.contactEmail}
                       </p>
                     </td>
-                    <td className="px-4 py-3 text-slate-300">{institutionTypeLabel(a.institutionType)}</td>
+                    <td className="px-4 py-3 text-slate-300">
+                      {institutionTypeLabel(a.institutionType)}
+                    </td>
                     <td className="px-4 py-3 text-slate-400">{a.charterNumber || "—"}</td>
                     <td className="px-4 py-3">
                       <span className="flex max-w-[180px] flex-wrap gap-1 text-xs text-slate-400">
@@ -272,7 +279,11 @@ function LenderAdmin() {
                           className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition disabled:opacity-50"
                           style={{ backgroundColor: "#059669" }}
                         >
-                          {acting === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                          {acting === a.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Check className="h-3.5 w-3.5" />
+                          )}
                           Approve
                         </button>
                         <button

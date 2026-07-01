@@ -13,10 +13,7 @@ import { estimatePasswordStrength } from "@/lib/password-strength";
 
 export const Route = createFileRoute("/admin/change-password")({
   head: () => ({
-    meta: [
-      { title: "Change Password — Admin" },
-      { name: "robots", content: "noindex,nofollow" },
-    ],
+    meta: [{ title: "Change Password — Admin" }, { name: "robots", content: "noindex,nofollow" }],
   }),
   component: () => (
     <RequireAuth>
@@ -38,8 +35,7 @@ function ChangePassword() {
     e.preventDefault();
     if (next.length < 8) return toast.error("Password must be at least 8 characters");
     if (next !== confirm) return toast.error("Passwords do not match");
-    if (estimatePasswordStrength(next).score < 2)
-      return toast.error("Choose a stronger password");
+    if (estimatePasswordStrength(next).score < 2) return toast.error("Choose a stronger password");
 
     setLoading(true);
     try {
@@ -68,7 +64,10 @@ function ChangePassword() {
 
   return (
     <div className="mx-auto max-w-md px-5 py-10 text-[#F0FFF0]">
-      <Link to="/admin" className="inline-flex items-center text-sm text-[#39FF14] hover:underline mb-4">
+      <Link
+        to="/admin"
+        className="inline-flex items-center text-sm text-[#39FF14] hover:underline mb-4"
+      >
         <ArrowLeft className="mr-1 h-4 w-4" /> Back to admin
       </Link>
       <h1 className="mb-1 text-2xl font-semibold">Change password</h1>
@@ -76,7 +75,10 @@ function ChangePassword() {
         Verify your current password, then set a new one.
       </p>
 
-      <form onSubmit={onSubmit} className="rounded-2xl border border-white/15 bg-black/40 p-6 space-y-4">
+      <form
+        onSubmit={onSubmit}
+        className="rounded-2xl border border-white/15 bg-black/40 p-6 space-y-4"
+      >
         <Field id="current" label="Current password" value={current} onChange={setCurrent} />
         <div className="space-y-1.5">
           <Field id="next" label="New password" value={next} onChange={setNext} />
@@ -93,8 +95,16 @@ function ChangePassword() {
 }
 
 function Field({
-  id, label, value, onChange,
-}: { id: string; label: string; value: string; onChange: (v: string) => void }) {
+  id,
+  label,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
     <div className="space-y-1.5">
       <Label htmlFor={id}>{label}</Label>

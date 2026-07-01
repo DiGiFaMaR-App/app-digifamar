@@ -6,15 +6,11 @@ import { WhatsAppFab } from "./WhatsAppFab";
 describe("WhatsAppFab", () => {
   it("renders a WhatsApp button", () => {
     render(<WhatsAppFab />);
-    expect(
-      screen.getByRole("button", { name: /whatsapp/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /whatsapp/i })).toBeInTheDocument();
   });
 
   it("opens WhatsApp when clicked", async () => {
-    const openSpy = vi
-      .spyOn(window, "open")
-      .mockReturnValue({} as unknown as Window);
+    const openSpy = vi.spyOn(window, "open").mockReturnValue({} as unknown as Window);
     render(<WhatsAppFab />);
     await userEvent.click(screen.getByRole("button", { name: /whatsapp/i }));
     // On desktop user agent (jsdom), it should top-navigate to the universal WhatsApp link.

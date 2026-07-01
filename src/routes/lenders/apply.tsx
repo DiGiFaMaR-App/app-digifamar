@@ -76,9 +76,7 @@ function ApplyPage() {
       setError("Maximum loan amount must be greater than or equal to the minimum.");
       return;
     }
-    const normalizedPhone = form.contactPhone.trim()
-      ? normalizeToE164(form.contactPhone)
-      : null;
+    const normalizedPhone = form.contactPhone.trim() ? normalizeToE164(form.contactPhone) : null;
     if (form.contactPhone.trim() && !normalizedPhone) {
       setError("Enter a valid US phone number, e.g. (555) 123-4567.");
       return;
@@ -87,9 +85,13 @@ function ApplyPage() {
     try {
       // lender_applications is created by the lender-portal migrations; the generated
       // Supabase types predate it, so the client is cast for this insert.
-      const { error: insertError } = await (supabase as unknown as {
-        from: (t: string) => { insert: (v: unknown) => Promise<{ error: { message: string } | null }> };
-      })
+      const { error: insertError } = await (
+        supabase as unknown as {
+          from: (t: string) => {
+            insert: (v: unknown) => Promise<{ error: { message: string } | null }>;
+          };
+        }
+      )
         .from("lender_applications")
         .insert({
           institution_name: form.institutionName,
@@ -128,7 +130,8 @@ function ApplyPage() {
           <p className="mt-2 text-sm text-slate-400">
             Thanks, {form.contactName || form.institutionName}. Our partnerships team reviews new
             lenders within two business days. We'll email{" "}
-            <span className="text-slate-200">{form.contactEmail}</span> once your institution is approved.
+            <span className="text-slate-200">{form.contactEmail}</span> once your institution is
+            approved.
           </p>
           <Link
             to="/lenders/login"
@@ -228,15 +231,21 @@ function ApplyPage() {
 
             <div className="grid gap-5 sm:grid-cols-2">
               <Field label="Minimum loan amount" required>
-                <MoneyInput value={form.minLoanAmount} onChange={(v) => set("minLoanAmount", v)} placeholder="10,000" />
+                <MoneyInput
+                  value={form.minLoanAmount}
+                  onChange={(v) => set("minLoanAmount", v)}
+                  placeholder="10,000"
+                />
               </Field>
               <Field label="Maximum loan amount" required>
-                <MoneyInput value={form.maxLoanAmount} onChange={(v) => set("maxLoanAmount", v)} placeholder="500,000" />
+                <MoneyInput
+                  value={form.maxLoanAmount}
+                  onChange={(v) => set("maxLoanAmount", v)}
+                  placeholder="500,000"
+                />
               </Field>
             </div>
-            {amountInvalid && (
-              <p className="-mt-3 text-xs text-rose-400">Max must be ≥ min.</p>
-            )}
+            {amountInvalid && <p className="-mt-3 text-xs text-rose-400">Max must be ≥ min.</p>}
 
             <div className="h-px bg-white/10" />
 
@@ -322,7 +331,9 @@ function MoneyInput({
 }) {
   return (
     <div className="relative">
-      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">$</span>
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
+        $
+      </span>
       <input
         type="number"
         min="0"

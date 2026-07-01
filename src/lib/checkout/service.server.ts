@@ -23,8 +23,14 @@ type ListingsLookupClient = {
   from: (table: "listings") => {
     select: (cols: string) => {
       or: (filter: string) => {
-        eq: (col: string, val: string) => {
-          maybeSingle: () => Promise<{ data: { id: string; price_cents: number; status: string } | null; error: unknown }>;
+        eq: (
+          col: string,
+          val: string,
+        ) => {
+          maybeSingle: () => Promise<{
+            data: { id: string; price_cents: number; status: string } | null;
+            error: unknown;
+          }>;
         };
       };
     };
@@ -73,10 +79,7 @@ export type CheckoutContext = {
 };
 
 export class CheckoutService {
-  static async create(
-    ctx: CheckoutContext,
-    input: CreateCheckoutDto,
-  ): Promise<CheckoutResultDto> {
+  static async create(ctx: CheckoutContext, input: CreateCheckoutDto): Promise<CheckoutResultDto> {
     // 1. Recompute money server-side using authoritative prices, never the
     //    client-supplied `unitPriceCents`.
     let subtotalCents = 0;
@@ -88,7 +91,6 @@ export class CheckoutService {
       subtotalCents += authoritative * item.quantity;
     }
     const breakdown = computeFees(subtotalCents);
-
 
     const orderId = crypto.randomUUID();
     const itemCount = input.items.reduce((n, i) => n + i.quantity, 0);
