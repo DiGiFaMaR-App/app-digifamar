@@ -38,6 +38,11 @@ GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;
 GRANT ALL ON public.conversations TO service_role;
 ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
 
+-- Participant lookups filter on buyer_id / farmer_id (also used by the RLS
+-- USING clause). The messages table's own index is defined below.
+CREATE INDEX IF NOT EXISTS idx_conversations_buyer_farmer
+  ON public.conversations (buyer_id, farmer_id);
+
 -- Baseline conversations policies (only if none exist yet — i.e. fresh reset).
 DO $$
 BEGIN
