@@ -14,9 +14,16 @@ export const CheckoutItemDto = z.object({
 });
 export type CheckoutItemDto = z.infer<typeof CheckoutItemDto>;
 
+export const DeliveryMethodDto = z.enum(["pickup", "standard", "express"]);
+export type DeliveryMethodDto = z.infer<typeof DeliveryMethodDto>;
+
 export const CreateCheckoutDto = z.object({
   items: z.array(CheckoutItemDto).min(1).max(50),
   shippingAddress: z.string().trim().min(5).max(500),
+  deliveryMethod: DeliveryMethodDto.default("standard"),
+  /** Buyer→farm distance in miles, used to price distance-based delivery. The
+   *  server recomputes the fee from this; it never trusts a client-sent fee. */
+  deliveryDistanceMiles: z.number().nonnegative().max(50_000).nullable().optional(),
 });
 export type CreateCheckoutDto = z.infer<typeof CreateCheckoutDto>;
 
@@ -24,6 +31,7 @@ export const FeeBreakdownDto = z.object({
   subtotalCents: z.number().int(),
   platformFeeCents: z.number().int(),
   escrowFeeCents: z.number().int(),
+  deliveryFeeCents: z.number().int(),
   totalCents: z.number().int(),
 });
 export type FeeBreakdownDto = z.infer<typeof FeeBreakdownDto>;
