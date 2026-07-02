@@ -8,6 +8,7 @@ import {
   MessageCircle,
   ShoppingCart,
   MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import { type ReactNode } from "react";
 import { useCart } from "@/hooks/use-cart";
@@ -19,6 +20,7 @@ type NavItem = { to: string; label: string; icon: React.ElementType };
 const buyerNav: NavItem[] = [
   { to: "/", label: "Home", icon: Home },
   { to: "/market", label: "Shop", icon: Search },
+  { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/browse", label: "Browse", icon: Search },
   { to: "/dashboard/buyer", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
@@ -29,6 +31,7 @@ const buyerNav: NavItem[] = [
 const farmerNav: NavItem[] = [
   { to: "/", label: "Home", icon: Home },
   { to: "/market", label: "Browse", icon: Search },
+  { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/dashboard/farmer", label: "Dashboard", icon: Tractor },
   { to: "/orders", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
@@ -86,6 +89,14 @@ export function AppShell({
       <main className="flex-1 pb-24 md:pb-10">{children}</main>
 
       {/* Global mobile bottom nav is mounted in __root.tsx */}
+
+      <Link
+        to="/assistant"
+        className="fixed bottom-36 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-card text-primary shadow-[0_0_24px_-4px_color-mix(in_oklab,var(--primary)_60%,transparent)] hover:bg-primary/10 md:bottom-20 md:right-6"
+        aria-label="AI assistant"
+      >
+        <Sparkles className="h-6 w-6" />
+      </Link>
 
       <button
         type="button"
