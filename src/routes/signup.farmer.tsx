@@ -13,6 +13,7 @@ import {
   Clock,
   Phone,
   Star,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -346,7 +347,7 @@ function FarmerSignup() {
         role: "farmer" as const,
       });
 
-      setStep(4);
+      setStep(5);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed. Please try again.");
     } finally {
@@ -356,7 +357,7 @@ function FarmerSignup() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0F0A] via-[#121A12] to-[#0A0F0A] text-white flex flex-col items-center justify-center p-6">
-      {step < 4 && <StepIndicator current={step} />}
+      {step < 5 && <StepIndicator current={step} />}
 
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
@@ -383,6 +384,15 @@ function FarmerSignup() {
           />
         )}
         {step === 3 && (
+          <Review
+            step1={step1}
+            step2={step2}
+            onEdit={(s) => setStep(s)}
+            onBack={() => setStep(2)}
+            onNext={() => setStep(4)}
+          />
+        )}
+        {step === 4 && (
           <Step3
             email={step1.email}
             otp={otp}
@@ -397,10 +407,10 @@ function FarmerSignup() {
             canSubmit={canSubmit}
             submitting={submitting}
             onSubmit={handleSubmit}
-            onBack={() => setStep(2)}
+            onBack={() => setStep(3)}
           />
         )}
-        {step === 4 && (
+        {step === 5 && (
           <Step4
             farmName={step2.farmName}
             email={step1.email}
@@ -417,7 +427,7 @@ function FarmerSignup() {
 // ─────────────────────────────────────────────────────────────────
 
 function StepIndicator({ current }: { current: number }) {
-  const labels = ["Personal Info", "Farm Details", "Verify"];
+  const labels = ["Personal Info", "Farm Details", "Review", "Verify"];
   return (
     <div className="w-full max-w-md mb-8">
       <div className="flex items-center">
@@ -489,7 +499,7 @@ function Step1({
     <div>
       <div className="mb-6">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
-          <Tractor className="h-3 w-3" /> Step 1 of 3
+          <Tractor className="h-3 w-3" /> Step 1 of 4
         </div>
         <h1 className="text-2xl font-bold">Personal Information</h1>
         <p className="text-sm text-white/50 mt-1">Tell us about yourself</p>
@@ -629,7 +639,7 @@ function Step2({
     <div>
       <div className="mb-6">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
-          <Tractor className="h-3 w-3" /> Step 2 of 3
+          <Tractor className="h-3 w-3" /> Step 2 of 4
         </div>
         <h1 className="text-2xl font-bold">Farm Details</h1>
         <p className="text-sm text-white/50 mt-1">Tell buyers about your farm</p>
@@ -819,7 +829,7 @@ function Step3({
     <div>
       <div className="mb-6">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
-          <Phone className="h-3 w-3" /> Step 3 of 3
+          <Phone className="h-3 w-3" /> Step 4 of 4
         </div>
         <h1 className="text-2xl font-bold">Phone Verification</h1>
         <p className="text-sm text-white/50 mt-1">Enter the 6-digit code sent to your phone</p>
@@ -991,6 +1001,121 @@ function Step4({
       >
         Go to Sign In
       </Button>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STEP 3 — Review & Confirm
+// ─────────────────────────────────────────────────────────────────
+
+export function Review({
+  step1,
+  step2,
+  onEdit,
+  onBack,
+  onNext,
+}: {
+  step1: { firstName: string; lastName: string; email: string; phone: string; password: string };
+  step2: {
+    farmName: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    farmType: string;
+    acreage: string;
+    yearsActive: string;
+    usdaNumber: string;
+  };
+  onEdit: (step: number) => void;
+  onBack: () => void;
+  onNext: () => void;
+}) {
+  const stateName = US_STATES.find((s) => s.code === step2.state)?.name ?? step2.state;
+  const location = [step2.address, step2.city, `${stateName} ${step2.zip}`.trim()]
+    .filter(Boolean)
+    .join(", ");
+
+  return (
+    <div>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-white/60 mb-3">
+          <CheckCircle2 className="h-3 w-3" /> Step 3 of 4
+        </div>
+        <h1 className="text-2xl font-bold">Review &amp; Confirm</h1>
+        <p className="text-sm text-white/50 mt-1">
+          Make sure everything looks right before we verify your farm
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <ReviewSection title="Personal" onEdit={() => onEdit(1)}>
+          <ReviewRow label="Name" value={`${step1.firstName} ${step1.lastName}`.trim()} />
+          <ReviewRow label="Email" value={step1.email} />
+          <ReviewRow label="Phone" value={step1.phone} />
+        </ReviewSection>
+
+        <ReviewSection title="Farm" onEdit={() => onEdit(2)}>
+          <ReviewRow label="Farm name" value={step2.farmName} />
+          <ReviewRow label="Location" value={location} />
+          <ReviewRow label="Farm type" value={step2.farmType} />
+          {step2.acreage && <ReviewRow label="Acreage" value={`${step2.acreage} acres`} />}
+          {step2.yearsActive && <ReviewRow label="Years farming" value={step2.yearsActive} />}
+          {step2.usdaNumber && <ReviewRow label="USDA number" value={step2.usdaNumber} />}
+        </ReviewSection>
+      </div>
+
+      <div className="flex gap-3 mt-8">
+        <Button
+          onClick={onBack}
+          variant="outline"
+          className="flex-1 h-12 rounded-2xl border-white/10 bg-white/5 text-white hover:bg-white/10"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+        <Button
+          onClick={onNext}
+          className="flex-[2] h-12 bg-[#22C55E] hover:bg-[#16A34A] text-black font-semibold rounded-2xl"
+        >
+          Looks good — continue
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function ReviewSection({
+  title,
+  onEdit,
+  children,
+}: {
+  title: string;
+  onEdit: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-white/40">{title}</p>
+        <button
+          type="button"
+          onClick={onEdit}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-[#22C55E] hover:underline"
+        >
+          <Pencil className="h-3 w-3" /> Edit
+        </button>
+      </div>
+      <dl className="space-y-2">{children}</dl>
+    </div>
+  );
+}
+
+function ReviewRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4 text-sm">
+      <dt className="text-white/40">{label}</dt>
+      <dd className="text-right text-white/80 break-words">{value || "—"}</dd>
     </div>
   );
 }
