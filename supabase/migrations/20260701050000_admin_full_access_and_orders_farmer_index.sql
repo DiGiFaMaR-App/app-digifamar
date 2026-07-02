@@ -13,6 +13,12 @@
 -- Financial/identity columns on orders remain protected by the immutability
 -- trigger regardless of who performs the update.
 --
+-- FOR ALL covers DELETE, but the base GRANTs on these tables only give
+-- authenticated SELECT/INSERT/UPDATE, which would leave the DELETE arm inert.
+-- We therefore also GRANT DELETE to authenticated so a signed-in admin session
+-- can hard-delete rows; RLS keeps this gated to admins, since the only
+-- DELETE-capable policy on each table is the admin has_role() policy above.
+--
 -- Each policy block is guarded on table existence (to_regclass) because some of
 -- these tables are created out-of-band (profiles, conversations via the Lovable
 -- dashboard / a separate backfill), so a fresh `supabase db reset` must not fail
@@ -26,6 +32,7 @@ BEGIN
       FOR ALL TO authenticated
       USING (public.has_role(auth.uid(), 'admin'))
       WITH CHECK (public.has_role(auth.uid(), 'admin'));
+    GRANT DELETE ON public.profiles TO authenticated;
   END IF;
 
   IF to_regclass('public.orders') IS NOT NULL THEN
@@ -34,6 +41,7 @@ BEGIN
       FOR ALL TO authenticated
       USING (public.has_role(auth.uid(), 'admin'))
       WITH CHECK (public.has_role(auth.uid(), 'admin'));
+    GRANT DELETE ON public.orders TO authenticated;
   END IF;
 
   IF to_regclass('public.conversations') IS NOT NULL THEN
@@ -42,6 +50,7 @@ BEGIN
       FOR ALL TO authenticated
       USING (public.has_role(auth.uid(), 'admin'))
       WITH CHECK (public.has_role(auth.uid(), 'admin'));
+    GRANT DELETE ON public.conversations TO authenticated;
   END IF;
 END $$;
 
