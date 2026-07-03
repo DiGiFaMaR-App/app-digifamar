@@ -16,14 +16,20 @@ async function loadUserContext(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<AssistantUserContext> {
-  const [{ data: profile }, { data: farm }] = await Promise.all([
-    supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
-    supabase
-      .from("farmer_profiles")
-      .select("farm_name, products, city, state")
-      .eq("user_id", userId)
-      .maybeSingle(),
-  ]);
+  const [{ data: profile, error: profileError }, { data: farm, error: farmError }] =
+    await Promise.all([
+      supabase.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
+      supabase
+        .from("farmer_profiles")
+        .select("farm_name, products, city, state")
+        .eq("user_id", userId)
+        .maybeSingle(),
+    ]);
+
+  // Personalization is best-effort: on error we fall back to defaults, but log
+  // so a misconfigured RLS policy or DB issue is diagnosable rather than silent.
+  if (profileError) console.error("[assistant] failed to load profile context:", profileError);
+  if (farmError) console.error("[assistant] failed to load farm context:", farmError);
 
   const location = farm ? [farm.city, farm.state].filter(Boolean).join(", ") || null : null;
 
