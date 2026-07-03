@@ -8,6 +8,7 @@ import {
   MessageCircle,
   ShoppingCart,
   MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import { type ReactNode } from "react";
 import { useCart } from "@/hooks/use-cart";
@@ -22,6 +23,7 @@ const buyerNav: NavItem[] = [
   { to: "/browse", label: "Browse", icon: Search },
   { to: "/dashboard/buyer", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
+  { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/lending", label: "Lending", icon: Package },
   { to: "/auth", label: "Account", icon: User },
 ];
@@ -32,6 +34,7 @@ const farmerNav: NavItem[] = [
   { to: "/dashboard/farmer", label: "Dashboard", icon: Tractor },
   { to: "/orders", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
+  { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/lending", label: "Lending", icon: Package },
   { to: "/auth", label: "Account", icon: User },
 ];
@@ -86,6 +89,14 @@ export function AppShell({
       <main className="flex-1 pb-24 md:pb-10">{children}</main>
 
       {/* Global mobile bottom nav is mounted in __root.tsx */}
+
+      <Link
+        to="/assistant"
+        className="fixed bottom-36 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card text-primary shadow-lg transition hover:bg-card/80 md:bottom-20 md:right-6"
+        aria-label="AI Farm Assistant"
+      >
+        <Sparkles className="h-6 w-6" />
+      </Link>
 
       <button
         type="button"

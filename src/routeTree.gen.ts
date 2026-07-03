@@ -28,6 +28,7 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as BuyerProtectionRouteImport } from './routes/buyer-protection'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SignupIndexRouteImport } from './routes/signup.index'
@@ -156,6 +157,11 @@ const BrowseRoute = BrowseRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -333,6 +339,7 @@ const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -388,6 +395,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -444,6 +452,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/assistant': typeof AssistantRoute
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/buyer-protection': typeof BuyerProtectionRoute
@@ -501,6 +510,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/assistant'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -556,6 +566,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/assistant'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -611,6 +622,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/assistant'
     | '/auth'
     | '/browse'
     | '/buyer-protection'
@@ -667,6 +679,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AssistantRoute: typeof AssistantRoute
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
   BuyerProtectionRoute: typeof BuyerProtectionRoute
@@ -852,6 +865,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -1110,6 +1130,7 @@ const ApiOrdersRouteWithChildren = ApiOrdersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AssistantRoute: AssistantRoute,
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
   BuyerProtectionRoute: BuyerProtectionRoute,
@@ -1164,13 +1185,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
