@@ -9,7 +9,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type { AssistantMessageDto, AssistantReply } from "./dto";
 
-const DEFAULT_MODEL = "claude-3-5-sonnet-latest";
+const DEFAULT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 1024;
 
 export type AssistantUserContext = {
