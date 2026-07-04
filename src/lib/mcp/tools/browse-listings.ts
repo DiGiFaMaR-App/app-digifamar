@@ -25,10 +25,7 @@ export default defineTool({
         {
           type: "text",
           text: `Found ${total} listing(s). Showing ${items.length}:\n${items
-            .map(
-              (l) =>
-                `- ${l.name} (${l.category}) — ${l.price} per ${l.unit} [id: ${l.id}]`,
-            )
+            .map((l) => `- ${l.name} (${l.category}) — ${l.price} per ${l.unit} [id: ${l.id}]`)
             .join("\n")}`,
         },
       ],
