@@ -14,13 +14,26 @@ afterEach(() => {
 });
 
 describe("AssistantService.ask", () => {
-  it("degrades gracefully (no throw) when ANTHROPIC_API_KEY is missing", async () => {
+  it("degrades to the deterministic engine when ANTHROPIC_API_KEY is missing", async () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "");
     const res = await AssistantService.ask({
       user: USER,
       messages: [{ role: "user", content: "How does escrow work?" }],
     });
     expect(res.degraded).toBe(true);
-    expect(res.reply).toContain("ANTHROPIC_API_KEY");
+    // Offline fallback answers with a real escrow explanation, not a "not configured" stub.
+    expect(res.reply).toContain("6-digit code");
+    expect(res.reply).not.toContain("ANTHROPIC_API_KEY");
+  });
+
+  it("runs product search offline against the last user turn", async () => {
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
+    const res = await AssistantService.ask({
+      user: USER,
+      messages: [{ role: "user", content: "find organic tomatoes under $6" }],
+    });
+    expect(res.degraded).toBe(true);
+    expect(res.reply.toLowerCase()).toContain("tomato");
+    expect(res.reply).toMatch(/\$\d/);
   });
 });

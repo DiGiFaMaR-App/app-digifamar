@@ -8,6 +8,7 @@
  */
 import Anthropic from "@anthropic-ai/sdk";
 import type { AssistantMessageDto, AssistantReply } from "./dto";
+import { respondText } from "./engine";
 
 const DEFAULT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 1024;
@@ -21,11 +22,15 @@ export type AssistantUserContext = {
   location: string | null;
 };
 
-const NOT_CONFIGURED_REPLY =
-  "The AI assistant isn't switched on yet. Once an ANTHROPIC_API_KEY is configured " +
-  "for this environment I can answer farming questions, suggest fair prices, and walk " +
-  "you through the escrow and delivery steps. In the meantime, tap “How escrow works” " +
-  "in Help or message support on WhatsApp.";
+/**
+ * When no LLM provider is configured we don't go dark: the deterministic
+ * marketplace engine answers the last user turn with real product search and
+ * escrow/fee/delivery help. It's offline, keyless, and always available.
+ */
+function fallbackReply(messages: AssistantMessageDto[]): AssistantReply {
+  const lastUser = [...messages].reverse().find((m) => m.role === "user");
+  return { reply: respondText(lastUser?.content ?? ""), degraded: true };
+}
 
 function buildSystemPrompt(user: AssistantUserContext, context?: string): string {
   const who: string[] = [];
@@ -81,7 +86,7 @@ export class AssistantService {
   }): Promise<AssistantReply> {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      return { reply: NOT_CONFIGURED_REPLY, degraded: true };
+      return fallbackReply(input.messages);
     }
 
     const model = process.env.ANTHROPIC_MODEL || DEFAULT_MODEL;
