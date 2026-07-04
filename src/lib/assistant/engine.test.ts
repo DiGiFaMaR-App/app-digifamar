@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseQuery, respond, searchProducts } from "./engine";
+import { formatResultText, parseQuery, respond, respondText, searchProducts } from "./engine";
 import type { Product } from "@/lib/mock-data";
 
 /** Small deterministic catalog so assertions don't depend on live mock data. */
@@ -213,5 +213,25 @@ describe("respond", () => {
     for (const msg of ["hi", "tomatoes", "how does escrow work?", "asdf", ""]) {
       expect(respond(msg, CATALOG).reply.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("formatResultText / respondText", () => {
+  it("flattens products into priced bullet lines", () => {
+    const result = respond("find tomatoes", CATALOG);
+    const text = formatResultText(result);
+    expect(text).toContain(result.reply);
+    expect(text).toContain("• Heirloom Tomatoes — $5.00/lb");
+    expect(text).toContain("(organic, ★4.9)");
+  });
+
+  it("includes suggestion hints", () => {
+    const text = formatResultText(respond("", CATALOG));
+    expect(text).toContain("Try:");
+  });
+
+  it("respondText runs the engine and returns a plain string", () => {
+    const text = respondText("how does escrow work?", CATALOG);
+    expect(text).toContain("6-digit code");
   });
 });

@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "digifamar-mcp",
+      "version": "0.1.0",
+      "title": "Digifamar Marketplace MCP"
+    },
+    "tools": [
+      {
+        "name": "browse_listings",
+        "title": "Browse marketplace listings",
+        "description": "Search active produce listings on the Digifamar marketplace. Optionally filter by category or search text.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "search": {
+              "description": "Text to match against listing names.",
+              "type": "string",
+              "minLength": 1
+            },
+            "category": {
+              "description": "Category to filter by.",
+              "type": "string",
+              "minLength": 1
+            },
+            "limit": {
+              "description": "Max results (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_listing",
+        "title": "Get listing details",
+        "description": "Fetch full details for a single Digifamar marketplace listing by id.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Listing id (e.g. 'lst_...' or a mock catalog id)."
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

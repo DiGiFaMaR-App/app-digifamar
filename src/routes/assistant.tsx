@@ -1,107 +1,155 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, Send, ArrowRight } from "lucide-react";
+import { Bot, Loader2, Send, Sparkles, User } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { ProductCard } from "@/components/Cards";
-import { Input } from "@/components/ui/input";
+import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
-import { respond, type AssistantResult } from "@/lib/assistant/engine";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/hooks/use-auth";
+import { askAssistantFn } from "@/lib/assistant/assistant.functions";
+import type { AssistantMessageDto } from "@/lib/assistant/dto";
 
 export const Route = createFileRoute("/assistant")({
   head: () => ({
     meta: [
-      { title: "AI Assistant — DiGiFaMaR" },
+      { title: "Farm Assistant — DiGiFaMaR" },
       {
         name: "description",
-        content:
-          "Ask the DiGiFaMaR assistant to find fresh produce, compare prices, or explain escrow-protected ordering.",
+        content: "Ask the DiGiFaMaR AI Farm Assistant about crops, pricing, and escrow.",
       },
+      { name: "robots", content: "noindex" },
     ],
   }),
-  component: AssistantPage,
+  component: () => (
+    <RequireAuth>
+      <AssistantPage />
+    </RequireAuth>
+  ),
 });
 
-type ChatMessage =
-  | { id: number; role: "user"; text: string }
-  | { id: number; role: "assistant"; result: AssistantResult };
+const GREETING =
+  "Hi! I'm your DiGiFaMaR Farm Assistant. Ask me about growing your crops, fair pricing " +
+  "during a negotiation, how escrow and delivery work, or a quick daily farm hack.";
+
+const SUGGESTIONS = [
+  "How does escrow and the delivery code work?",
+  "Suggest a fair price range for my produce",
+  "What should I plant this season?",
+  "Give me a daily farm hack",
+] as const;
 
 function AssistantPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => [
-    { id: 0, role: "assistant", result: respond("") },
-  ]);
+  const { role } = useAuth();
+  const askAssistant = useServerFn(askAssistantFn);
+
+  const [messages, setMessages] = useState<AssistantMessageDto[]>([]);
   const [input, setInput] = useState("");
-  const nextId = useRef(1);
-  const endRef = useRef<HTMLDivElement>(null);
+  const [sending, setSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView?.({ behavior: "smooth", block: "end" });
-  }, [messages]);
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, sending]);
 
-  const send = (raw: string) => {
-    const text = raw.trim();
-    if (!text) return;
-    const userMsg: ChatMessage = { id: nextId.current++, role: "user", text };
-    const botMsg: ChatMessage = {
-      id: nextId.current++,
-      role: "assistant",
-      result: respond(text),
-    };
-    setMessages((prev) => [...prev, userMsg, botMsg]);
+  const send = async (text: string) => {
+    const content = text.trim();
+    if (!content || sending) return;
+
+    const next: AssistantMessageDto[] = [...messages, { role: "user", content }];
+    setMessages(next);
     setInput("");
+    setSending(true);
+    try {
+      const { reply } = await askAssistant({ data: { messages: next } });
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "The assistant failed to respond.");
+      // Roll the failed user turn back so they can retry without duplication.
+      setMessages((prev) => prev.slice(0, -1));
+      setInput(content);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void send(input);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void send(input);
+    }
   };
 
   return (
-    <AppShell role="buyer">
-      <div className="mx-auto flex max-w-3xl flex-col px-4 pt-6 sm:px-6">
-        <div className="mb-4 flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/15 text-primary">
+    <AppShell role={role === "farmer" ? "farmer" : "buyer"}>
+      <div className="mx-auto flex h-[calc(100vh-8rem)] max-w-3xl flex-col px-4 pt-6 sm:px-6">
+        <header className="flex items-center gap-3 pb-4">
+          <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/15 text-primary">
             <Sparkles className="h-5 w-5" />
           </span>
           <div>
-            <h1 className="text-lg font-bold leading-tight">DiGiFaMaR Assistant</h1>
-            <p className="text-xs text-muted-foreground">
-              Find fresh produce and get answers — instantly.
-            </p>
+            <h1 className="text-lg font-semibold leading-tight">Farm Assistant</h1>
+            <p className="text-xs text-muted-foreground">Powered by Claude · personalized to you</p>
           </div>
-        </div>
+        </header>
 
-        <div className="flex flex-col gap-4">
-          {messages.map((m) =>
-            m.role === "user" ? (
-              <div key={m.id} className="flex justify-end">
-                <p className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-                  {m.text}
-                </p>
-              </div>
-            ) : (
-              <AssistantBubble key={m.id} result={m.result} onSuggestion={send} />
-            ),
-          )}
-          <div ref={endRef} />
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            send(input);
-          }}
-          className="sticky bottom-20 z-20 mt-6 flex items-center gap-2 rounded-2xl border border-border bg-background/95 p-2 backdrop-blur md:bottom-4"
+        <div
+          ref={scrollRef}
+          className="flex-1 space-y-4 overflow-y-auto rounded-2xl border border-border bg-card/40 p-4"
         >
-          <Input
+          <Bubble role="assistant" content={GREETING} />
+
+          {messages.length === 0 && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => void send(s)}
+                  className="rounded-full border border-border bg-background/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-primary/50 hover:text-foreground"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {messages.map((m, i) => (
+            <Bubble key={i} role={m.role} content={m.content} />
+          ))}
+
+          {sending && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Thinking…
+            </div>
+          )}
+        </div>
+
+        <form onSubmit={onSubmit} className="flex items-end gap-2 py-3">
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask for produce, prices, or how it works…"
-            aria-label="Message the assistant"
-            className="h-11 border-0 bg-transparent focus-visible:ring-0"
+            onKeyDown={onKeyDown}
+            placeholder="Ask about crops, pricing, or escrow…"
+            rows={1}
+            className="max-h-40 min-h-11 resize-none"
+            disabled={sending}
           />
           <Button
             type="submit"
             size="icon"
-            className="h-11 w-11 shrink-0 rounded-xl"
-            aria-label="Send"
-            disabled={!input.trim()}
+            className="h-11 w-11 shrink-0"
+            disabled={sending || !input.trim()}
           >
-            <Send className="h-5 w-5" />
+            {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+            <span className="sr-only">Send</span>
           </Button>
         </form>
       </div>
@@ -109,61 +157,26 @@ function AssistantPage() {
   );
 }
 
-function AssistantBubble({
-  result,
-  onSuggestion,
-}: {
-  result: AssistantResult;
-  onSuggestion: (text: string) => void;
-}) {
+function Bubble({ role, content }: { role: AssistantMessageDto["role"]; content: string }) {
+  const isUser = role === "user";
   return (
-    <div className="flex flex-col items-start gap-3">
-      <div className="flex max-w-[92%] items-start gap-2">
-        <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
-          <Sparkles className="h-4 w-4" />
-        </span>
-        <p className="rounded-2xl rounded-tl-sm border border-border bg-card px-4 py-2.5 text-sm leading-relaxed">
-          {result.reply}
-        </p>
+    <div className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}>
+      <span
+        className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full ${
+          isUser ? "bg-primary text-primary-foreground" : "bg-primary/15 text-primary"
+        }`}
+      >
+        {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+      </span>
+      <div
+        className={`max-w-[80%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+          isUser
+            ? "bg-primary text-primary-foreground"
+            : "border border-border bg-background/70 text-foreground"
+        }`}
+      >
+        {content}
       </div>
-
-      {result.products.length > 0 && (
-        <div className="grid w-full grid-cols-2 gap-3 pl-9 sm:grid-cols-3">
-          {result.products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
-      )}
-
-      {result.links.length > 0 && (
-        <div className="flex flex-wrap gap-2 pl-9">
-          {result.links.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20"
-            >
-              {l.label}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {result.suggestions.length > 0 && (
-        <div className="flex flex-wrap gap-2 pl-9">
-          {result.suggestions.map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => onSuggestion(s)}
-              className="rounded-full border border-border bg-card/60 px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground"
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

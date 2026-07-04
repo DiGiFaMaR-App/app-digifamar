@@ -13,6 +13,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleMapsKeyCheck } from "@/components/GoogleMapsKeyCheck";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -112,6 +113,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SplashScreen />
       <AuthSync />
+      <GoogleMapsKeyCheck />
       <SmoothScroll>
         <div className="pb-16 md:pb-0">
           <Outlet />

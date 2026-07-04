@@ -398,6 +398,35 @@ function searchResult(text: string, parsed: ParsedQuery, catalog: Product[]): As
   };
 }
 
+/** Render a single product as a compact one-line summary. */
+function formatProductLine(p: Product): string {
+  const tags: string[] = [];
+  if (p.organic) tags.push("organic");
+  if (typeof p.rating === "number") tags.push(`★${p.rating.toFixed(1)}`);
+  const suffix = tags.length ? ` (${tags.join(", ")})` : "";
+  return `• ${p.name} — $${p.price.toFixed(2)}/${p.unit}${suffix}`;
+}
+
+/**
+ * Flatten a structured AssistantResult into a plain-text reply. Used by the
+ * server-side fallback (no LLM key) where the transport only carries text.
+ */
+export function formatResultText(result: AssistantResult): string {
+  const parts: string[] = [result.reply];
+  if (result.products.length > 0) {
+    parts.push("", result.products.map(formatProductLine).join("\n"));
+  }
+  if (result.suggestions.length > 0) {
+    parts.push("", `Try: ${result.suggestions.join(" · ")}`);
+  }
+  return parts.join("\n");
+}
+
+/** Convenience wrapper: run the engine on `text` and return a plain-text reply. */
+export function respondText(text: string, catalog: Product[] = allProducts): string {
+  return formatResultText(respond(text, catalog));
+}
+
 const RECOMMEND_RE =
   /\b(recommend|suggest|ideas?|what should i|what'?s good|for (a )?(salad|dinner|breakfast|lunch|snack))\b/;
 const SEARCH_HINT_RE =
