@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as LendingRouteImport } from './routes/lending'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
@@ -58,8 +59,11 @@ import { Route as AdminListingsRouteImport } from './routes/admin.listings'
 import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminChangePasswordRouteImport } from './routes/admin.change-password'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
@@ -96,6 +100,11 @@ const PricingRoute = PricingRouteImport.update({
 const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
   id: '/payment-success',
   path: '/payment-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketRoute = MarketRouteImport.update({
@@ -308,6 +317,18 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/admin/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
   id: '/lenders/farmer/$id',
   path: '/lenders/farmer/$id',
@@ -318,6 +339,12 @@ const ChatFarmFarmIdRoute = ChatFarmFarmIdRouteImport.update({
   path: '/chat/farm/$farmId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicCronAutoReleaseRoute =
   ApiPublicCronAutoReleaseRouteImport.update({
     id: '/api/public/cron/auto-release',
@@ -345,6 +372,7 @@ export interface FileRoutesByFullPath {
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
+  '/mcp': typeof McpRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -352,6 +380,8 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -380,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/chat/': typeof ChatIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
@@ -400,6 +431,7 @@ export interface FileRoutesByTo {
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
+  '/mcp': typeof McpRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -407,6 +439,8 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -435,6 +469,7 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/signup': typeof SignupIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
@@ -456,6 +491,7 @@ export interface FileRoutesById {
   '/how-it-works': typeof HowItWorksRoute
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
+  '/mcp': typeof McpRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -463,6 +499,8 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
@@ -491,6 +529,7 @@ export interface FileRoutesById {
   '/chat/': typeof ChatIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
@@ -513,6 +552,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/lending'
     | '/market'
+    | '/mcp'
     | '/payment-success'
     | '/pricing'
     | '/privacy'
@@ -520,6 +560,8 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
     | '/admin/change-password'
     | '/admin/chats'
@@ -548,6 +590,7 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/orders/'
     | '/signup/'
+    | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
@@ -568,6 +611,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/lending'
     | '/market'
+    | '/mcp'
     | '/payment-success'
     | '/pricing'
     | '/privacy'
@@ -575,6 +619,8 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
     | '/admin/change-password'
     | '/admin/chats'
@@ -603,6 +649,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/orders'
     | '/signup'
+    | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
@@ -623,6 +670,7 @@ export interface FileRouteTypes {
     | '/how-it-works'
     | '/lending'
     | '/market'
+    | '/mcp'
     | '/payment-success'
     | '/pricing'
     | '/privacy'
@@ -630,6 +678,8 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
     | '/admin/change-password'
     | '/admin/chats'
@@ -658,6 +708,7 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/orders/'
     | '/signup/'
+    | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
@@ -679,6 +730,7 @@ export interface RootRouteChildren {
   HowItWorksRoute: typeof HowItWorksRoute
   LendingRoute: typeof LendingRoute
   MarketRoute: typeof MarketRoute
+  McpRoute: typeof McpRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -686,6 +738,8 @@ export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminChangePasswordRoute: typeof AdminChangePasswordRoute
   AdminChatsRoute: typeof AdminChatsRoute
@@ -714,6 +768,7 @@ export interface RootRouteChildren {
   ChatIndexRoute: typeof ChatIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
   ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
@@ -768,6 +823,13 @@ declare module '@tanstack/react-router' {
       path: '/payment-success'
       fullPath: '/payment-success'
       preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market': {
@@ -1064,6 +1126,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lenders/farmer/$id': {
       id: '/lenders/farmer/$id'
       path: '/lenders/farmer/$id'
@@ -1076,6 +1152,13 @@ declare module '@tanstack/react-router' {
       path: '/chat/farm/$farmId'
       fullPath: '/chat/farm/$farmId'
       preLoaderRoute: typeof ChatFarmFarmIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/auto-release': {
@@ -1122,6 +1205,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowItWorksRoute: HowItWorksRoute,
   LendingRoute: LendingRoute,
   MarketRoute: MarketRoute,
+  McpRoute: McpRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
@@ -1129,6 +1213,9 @@ const rootRouteChildren: RootRouteChildren = {
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminChangePasswordRoute: AdminChangePasswordRoute,
   AdminChatsRoute: AdminChatsRoute,
@@ -1157,6 +1244,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatIndexRoute: ChatIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
   ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
