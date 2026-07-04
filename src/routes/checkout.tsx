@@ -1,12 +1,31 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Lock, Loader2, LogIn, ShieldCheck, ShoppingCart } from "lucide-react";
+import {
+  Lock,
+  Loader2,
+  LogIn,
+  ShieldCheck,
+  ShoppingCart,
+  Store,
+  Truck,
+  Zap,
+  CreditCard,
+  Landmark,
+  MapPin,
+  Check,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
+import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
+import { getFarm } from "@/lib/mock-data";
 import {
+  computeDeliveryFee,
+  computeFees,
+  DELIVERY_METHODS,
+  type DeliveryMethod,
   dollarsToCents,
   ESCROW_FEE_RATE,
   formatCents,
@@ -14,6 +33,26 @@ import {
   PLATFORM_FEE_RATE,
 } from "@/lib/cart/fees";
 import { createEscrowCheckoutFn } from "@/lib/checkout/checkout.functions";
+
+type FundingSource = "card" | "bank";
+
+const DELIVERY_ORDER: DeliveryMethod[] = ["standard", "express", "pickup"];
+
+const DELIVERY_ICON: Record<DeliveryMethod, typeof Truck> = {
+  standard: Truck,
+  express: Zap,
+  pickup: Store,
+};
+
+const FUNDING_SOURCES: {
+  id: FundingSource;
+  label: string;
+  hint: string;
+  icon: typeof CreditCard;
+}[] = [
+  { id: "card", label: "Card", hint: "Visa, Mastercard, Amex", icon: CreditCard },
+  { id: "bank", label: "Bank transfer", hint: "ACH — 1–2 business days", icon: Landmark },
+];
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -23,15 +62,32 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { items, isEmpty, count, fees, clear } = useCart();
+  const { items, isEmpty, count, subtotalCents, clear } = useCart();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  const { lat, lng } = useGeolocation();
   const navigate = useNavigate();
 
   const [shippingAddress, setShippingAddress] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("standard");
+  const [fundingSource, setFundingSource] = useState<FundingSource>("card");
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(false);
 
   const addressValid = shippingAddress.trim().length >= 5;
+
+  // Farthest farm the buyer is ordering from drives the distance-based fee.
+  const distanceMiles = useMemo(() => {
+    if (lat == null || lng == null) return null;
+    const distances = items
+      .map((i) => getFarm(i.farmId))
+      .filter((f): f is NonNullable<typeof f> => Boolean(f))
+      .map((f) => haversineDistance(lat, lng, f.lat, f.lng));
+    return distances.length ? Math.max(...distances) : null;
+  }, [lat, lng, items]);
+
+  const feeDistance = deliveryMethod === "pickup" ? null : distanceMiles;
+  const deliveryFeeCents = computeDeliveryFee(feeDistance, deliveryMethod);
+  const fees = computeFees(subtotalCents, deliveryFeeCents);
 
   const handlePay = async () => {
     if (!addressValid) {
@@ -49,6 +105,8 @@ function CheckoutPage() {
             quantity: i.quantity,
           })),
           shippingAddress: shippingAddress.trim(),
+          deliveryMethod,
+          deliveryDistanceMiles: deliveryMethod === "pickup" ? null : distanceMiles,
         },
       });
 
@@ -133,6 +191,96 @@ function CheckoutPage() {
               />
             </div>
 
+            {/* Delivery method */}
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                  Delivery
+                </h2>
+                {distanceMiles != null && deliveryMethod !== "pickup" && (
+                  <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3" /> ~{Math.round(distanceMiles)} mi to farm
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 space-y-2">
+                {DELIVERY_ORDER.map((method) => {
+                  const meta = DELIVERY_METHODS[method];
+                  const Icon = DELIVERY_ICON[method];
+                  const selected = deliveryMethod === method;
+                  const feeCents = computeDeliveryFee(
+                    method === "pickup" ? null : distanceMiles,
+                    method,
+                  );
+                  return (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setDeliveryMethod(method)}
+                      aria-pressed={selected}
+                      className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
+                        selected
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <Icon
+                        className={`h-5 w-5 shrink-0 ${selected ? "text-primary" : "text-muted-foreground"}`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold">{meta.label}</span>
+                          {selected && <Check className="h-3.5 w-3.5 text-primary" />}
+                        </div>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {meta.description} · {meta.eta}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-sm font-bold tabular-nums">
+                        {feeCents === 0 ? "Free" : formatCents(feeCents)}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Payment method (funding source) */}
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                Payment method
+              </h2>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {FUNDING_SOURCES.map((source) => {
+                  const Icon = source.icon;
+                  const selected = fundingSource === source.id;
+                  return (
+                    <button
+                      key={source.id}
+                      type="button"
+                      onClick={() => setFundingSource(source.id)}
+                      aria-pressed={selected}
+                      className={`flex flex-col gap-1 rounded-xl border p-3 text-left transition ${
+                        selected
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <Icon
+                        className={`h-5 w-5 ${selected ? "text-primary" : "text-muted-foreground"}`}
+                      />
+                      <span className="text-sm font-semibold">{source.label}</span>
+                      <span className="text-xs text-muted-foreground">{source.hint}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+                Whichever source you choose, your funds are held by Escrow.com and released to the
+                farmer only after you confirm delivery.
+              </p>
+            </div>
+
             {/* Items recap */}
             <div className="rounded-2xl border border-border bg-card p-5">
               <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
@@ -169,6 +317,11 @@ function CheckoutPage() {
               <Row
                 label={`Escrow fee (${formatRate(ESCROW_FEE_RATE)})`}
                 value={formatCents(fees.escrowFeeCents)}
+                muted
+              />
+              <Row
+                label={`Delivery (${DELIVERY_METHODS[deliveryMethod].label})`}
+                value={fees.deliveryFeeCents === 0 ? "Free" : formatCents(fees.deliveryFeeCents)}
                 muted
               />
               <div className="my-2 h-px bg-border" />
