@@ -143,7 +143,7 @@ const step2Schema = z.object({
   farmType: z.string().min(1, "Please select a farm type"),
   acreage: z.string().optional(),
   yearsActive: z.coerce
-    .number({ invalid_type_error: "Enter a number" })
+    .number({ message: "Enter a number" })
     .min(0, "Cannot be negative")
     .max(150, "Enter a realistic value"),
   usdaNumber: z.string().optional(),
