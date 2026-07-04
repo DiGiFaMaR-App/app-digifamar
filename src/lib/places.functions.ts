@@ -27,7 +27,6 @@ export type PlaceDetails = {
   lng: number | null;
   types: string[];
   addressComponents: Array<{ longText: string; shortText: string; types: string[] }>;
-  raw: Record<string, unknown>;
 } | null;
 
 type PlacesNewResponse = {
@@ -54,7 +53,6 @@ function shape(body: PlacesNewResponse): PlaceDetails {
       shortText: c.shortText ?? "",
       types: c.types ?? [],
     })),
-    raw: body as unknown as Record<string, unknown>,
   };
 }
 
