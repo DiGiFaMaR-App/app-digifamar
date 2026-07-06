@@ -133,7 +133,7 @@ export function LocationAutocompleteInput({
             className="pl-8"
             aria-invalid={!!localError}
             aria-autocomplete="list"
-            aria-expanded={showList}
+            aria-expanded={!!showList}
             aria-controls={`${id}-listbox`}
             role="combobox"
           />
