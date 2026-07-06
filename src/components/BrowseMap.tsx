@@ -1,6 +1,7 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
-import { loadGoogleMaps } from "@/hooks/use-google-maps";
+import { loadGoogleMaps, invalidateGoogleMapsLoader } from "@/hooks/use-google-maps";
+import { MapErrorFallback } from "@/components/MapErrorFallback";
 
 interface BrowseMapProps {
   origin: { lat: number; lng: number; formatted?: string | null } | null;
@@ -13,8 +14,9 @@ export function BrowseMap({ origin }: BrowseMapProps) {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
-  // One-time init: load the map centered on a default US view.
-  useEffect(() => {
+  const initMap = () => {
+    setError(null);
+    setReady(false);
     let cancelled = false;
     loadGoogleMaps()
       .then(() => {
@@ -36,6 +38,12 @@ export function BrowseMap({ origin }: BrowseMapProps) {
     return () => {
       cancelled = true;
     };
+  };
+
+  // One-time init: load the map centered on a default US view.
+  useEffect(() => {
+    const cleanup = initMap();
+    return cleanup;
   }, []);
 
   // Pan + marker update when origin changes.
@@ -63,13 +71,14 @@ export function BrowseMap({ origin }: BrowseMapProps) {
 
   if (error) {
     return (
-      <div
-        className="flex h-64 w-full items-center justify-center rounded-xl border border-border bg-muted/40 px-4 text-center text-xs text-muted-foreground"
-        role="img"
-        aria-label="Browse map unavailable"
-      >
-        Map unavailable — {error}
-      </div>
+      <MapErrorFallback
+        title="Location map unavailable"
+        reason={error}
+        onRetry={() => {
+          invalidateGoogleMapsLoader();
+          initMap();
+        }}
+      />
     );
   }
 
@@ -82,3 +91,4 @@ export function BrowseMap({ origin }: BrowseMapProps) {
     />
   );
 }
+
