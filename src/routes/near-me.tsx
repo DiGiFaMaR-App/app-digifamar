@@ -63,6 +63,12 @@ export const Route = createFileRoute("/near-me")({
 function NearMe() {
   const geo = useGeolocation();
   const [radius, setRadius] = useState<(typeof RADIUS_OPTIONS)[number]>(25);
+  const [selectedFarm, setSelectedFarm] = useState<{
+    id: string;
+    name: string;
+    distance: number | null;
+  } | null>(null);
+
   
 
   const hasCoords = geo.lat != null && geo.lng != null;
