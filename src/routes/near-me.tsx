@@ -216,10 +216,39 @@ function NearMe() {
 
           {hasCoords && !results.isLoading && farms.length === 0 && (
             <div className="mt-4 rounded-xl border border-dashed border-border bg-card/50 p-6 text-center">
-              <p className="font-semibold">No farms within {radius} miles</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Try widening the radius above.
+              <p className="font-semibold">
+                No farms within {radius} miles of {origin?.formatted}
               </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Verified farms are sparse in some areas. Try a larger radius or search nearby ZIPs and cities.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                {RADIUS_OPTIONS.filter((r) => r > radius).map((r) => (
+                  <Button
+                    key={r}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setRadius(r)}
+                  >
+                    Try {r} miles
+                  </Button>
+                ))}
+              </div>
+              <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>Or search a different area below</span>
+              </div>
+              <div className="mx-auto mt-2 max-w-md">
+                <LocationAutocompleteInput
+                  id="empty-state-loc"
+                  label="ZIP or city"
+                  placeholder="e.g. 90210 or Portland, OR"
+                  onSubmit={(v) => {
+                    void geo.setManualLocation(v);
+                  }}
+                />
+              </div>
             </div>
           )}
 
