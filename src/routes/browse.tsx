@@ -24,6 +24,7 @@ import {
   reverseGeocode,
   type GeocodeResult,
 } from "@/lib/geocode.functions";
+import { getPlaceDetails } from "@/lib/places.functions";
 import { usePlacesAutocomplete } from "@/hooks/use-google-maps";
 
 export const Route = createFileRoute("/browse")({
