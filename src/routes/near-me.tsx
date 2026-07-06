@@ -327,6 +327,16 @@ function NearMe() {
           )}
         </div>
       </div>
+
+      <FarmDetailSheet
+        farmId={selectedFarm?.id ?? null}
+        farmName={selectedFarm?.name ?? null}
+        distanceMi={selectedFarm?.distance ?? null}
+        open={!!selectedFarm}
+        onOpenChange={(o) => {
+          if (!o) setSelectedFarm(null);
+        }}
+      />
     </SiteLayout>
   );
 }
