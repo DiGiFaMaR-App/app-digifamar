@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
@@ -24,7 +25,7 @@ import {
   reverseGeocode,
   type GeocodeResult,
 } from "@/lib/geocode.functions";
-import { getPlaceDetails } from "@/lib/places.functions";
+import { getPlaceDetails, type PlaceDetails } from "@/lib/places.functions";
 import { usePlacesAutocomplete } from "@/hooks/use-google-maps";
 
 export const Route = createFileRoute("/browse")({
