@@ -41,7 +41,9 @@ export function MapErrorFallback({
 
       {hostname && !isLovableDomain && !isLocalhost && (
         <div className="max-w-sm rounded border border-border bg-background/60 p-3 text-left text-xs text-muted-foreground">
-          <p className="mb-1 font-medium text-foreground">Add these to your key's HTTP referrer allowlist:</p>
+          <p className="mb-1 font-medium text-foreground">
+            Add these to your key's HTTP referrer allowlist:
+          </p>
           <ul className="space-y-1 font-mono">
             <li>https://{hostname}/*</li>
             <li>https://*.{baseDomain}/*</li>
@@ -50,7 +52,12 @@ export function MapErrorFallback({
       )}
 
       <div className="flex flex-wrap items-center justify-center gap-2">
-        <Button variant="outline" size="sm" onClick={onRetry ?? (() => window.location.reload())} className="gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRetry ?? (() => window.location.reload())}
+          className="gap-1"
+        >
           <RefreshCcw className="h-3.5 w-3.5" />
           Try again
         </Button>
