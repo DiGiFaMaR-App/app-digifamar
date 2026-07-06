@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
+import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -497,6 +498,12 @@ function Browse() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-10">
+        {origin && (
+          <section aria-label="Selected location map">
+            <BrowseMap origin={origin} />
+          </section>
+        )}
+
         {!data && results.isLoading && (
           <div className="flex items-center justify-center py-20 text-muted-foreground">
             <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading…
