@@ -181,16 +181,21 @@ function NearMe() {
             </div>
           </div>
 
-          {errMsg && (
-            <div
-              role="alert"
-              className="mt-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
-            >
-              {errMsg}
+          {geo.error && (
+            <div className="mt-4">
+              <GeoPermissionHelp
+                error={geo.error}
+                loading={geo.loading}
+                onRetry={geo.detect}
+                onManualSubmit={(v) => {
+                  setManual(v);
+                  void geo.setManualLocation(v);
+                }}
+              />
             </div>
           )}
 
-          {(geo.error || (!geo.loading && !hasCoords)) && (
+          {!geo.error && !geo.loading && !hasCoords && (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
