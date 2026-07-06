@@ -52,7 +52,15 @@ function MapsAdminBody() {
   const [health, setHealth] = useState<
     | { state: "idle" }
     | { state: "loading" }
-    | { state: "healthy"; place: { name: string | null; formattedAddress: string | null; lat: number | null; lng: number | null } }
+    | {
+        state: "healthy";
+        place: {
+          name: string | null;
+          formattedAddress: string | null;
+          lat: number | null;
+          lng: number | null;
+        };
+      }
     | { state: "unhealthy"; status: string; error: string }
   >({ state: "idle" });
 
@@ -156,11 +164,7 @@ function MapsAdminBody() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              onClick={checkHealth}
-              disabled={health.state === "loading"}
-              variant="outline"
-            >
+            <Button onClick={checkHealth} disabled={health.state === "loading"} variant="outline">
               {health.state === "loading" ? "Checking…" : "Test Places API"}
             </Button>
             {health.state === "healthy" && (
@@ -168,15 +172,12 @@ function MapsAdminBody() {
                 Healthy
               </Badge>
             )}
-            {health.state === "unhealthy" && (
-              <Badge variant="destructive">{health.status}</Badge>
-            )}
+            {health.state === "unhealthy" && <Badge variant="destructive">{health.status}</Badge>}
           </div>
           {health.state === "healthy" && (
             <div className="text-sm space-y-1 rounded border border-white/10 bg-black/60 p-3">
               <p>
-                <span className="text-[#F0FFF0]/60">Name:</span>{" "}
-                {health.place.name ?? "—"}
+                <span className="text-[#F0FFF0]/60">Name:</span> {health.place.name ?? "—"}
               </p>
               <p>
                 <span className="text-[#F0FFF0]/60">Address:</span>{" "}

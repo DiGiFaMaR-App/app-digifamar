@@ -23,6 +23,12 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Local env overrides (the platform-managed `.env` is intentionally committed
+# by Lovable and contains only publishable config — do NOT ignore it here)
+.env.local
+.env.*.local
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
