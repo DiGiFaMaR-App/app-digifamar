@@ -57,24 +57,8 @@ export const Route = createFileRoute("/near-me")({
   ),
 });
 
-function geoErrorMessage(err: string | null): string | null {
-  switch (err) {
-    case "not_supported":
-      return "Your browser does not support location detection.";
-    case "http_blocked":
-      return "Location requires a secure (HTTPS) connection.";
-    case "permission_denied":
-      return "Location permission was denied. Enter a city or ZIP below to continue.";
-    case "unavailable":
-      return "Location is unavailable right now. Enter a city or ZIP below.";
-    case "timeout":
-      return "Location request timed out. Try again, or enter a city or ZIP below.";
-    case "lookup_failed":
-      return "We couldn't find that place. Double-check the city or ZIP.";
-    default:
-      return null;
-  }
-}
+
+
 
 function NearMe() {
   const geo = useGeolocation();
