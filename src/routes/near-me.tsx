@@ -14,6 +14,7 @@ import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GeoPermissionHelp } from "@/components/GeoPermissionHelp";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
 
@@ -56,24 +57,8 @@ export const Route = createFileRoute("/near-me")({
   ),
 });
 
-function geoErrorMessage(err: string | null): string | null {
-  switch (err) {
-    case "not_supported":
-      return "Your browser does not support location detection.";
-    case "http_blocked":
-      return "Location requires a secure (HTTPS) connection.";
-    case "permission_denied":
-      return "Location permission was denied. Enter a city or ZIP below to continue.";
-    case "unavailable":
-      return "Location is unavailable right now. Enter a city or ZIP below.";
-    case "timeout":
-      return "Location request timed out. Try again, or enter a city or ZIP below.";
-    case "lookup_failed":
-      return "We couldn't find that place. Double-check the city or ZIP.";
-    default:
-      return null;
-  }
-}
+
+
 
 function NearMe() {
   const geo = useGeolocation();
@@ -118,7 +103,8 @@ function NearMe() {
     .filter((f) => f.distance_mi != null && (f.distance_mi as number) <= radius)
     .sort((a, b) => (a.distance_mi ?? 0) - (b.distance_mi ?? 0));
 
-  const errMsg = geoErrorMessage(geo.error);
+
+
 
   return (
     <SiteLayout>
@@ -180,16 +166,21 @@ function NearMe() {
             </div>
           </div>
 
-          {errMsg && (
-            <div
-              role="alert"
-              className="mt-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
-            >
-              {errMsg}
+          {geo.error && (
+            <div className="mt-4">
+              <GeoPermissionHelp
+                error={geo.error}
+                loading={geo.loading}
+                onRetry={geo.detect}
+                onManualSubmit={(v) => {
+                  setManual(v);
+                  void geo.setManualLocation(v);
+                }}
+              />
             </div>
           )}
 
-          {(geo.error || (!geo.loading && !hasCoords)) && (
+          {!geo.error && !geo.loading && !hasCoords && (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
