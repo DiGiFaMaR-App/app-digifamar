@@ -209,11 +209,14 @@ function Browse() {
   };
 
   const handleSuggestionPick = async (placeId: string, label: string) => {
+    setLastPlaceId(placeId);
     setShowSuggest(false);
     setInput(label);
+    setTestDetails(null);
+    setTestError(null);
     try {
       // Prefer the richer server-side Places (New) details endpoint.
-      const details = await getPlaceDetails({ data: { placeId } });
+      const details = await fetchPlaceDetails({ data: { placeId } });
       if (details && details.lat != null && details.lng != null) {
         const city =
           details.addressComponents.find((c) => c.types.includes("locality"))?.longText ?? null;
@@ -242,6 +245,25 @@ function Browse() {
       }
     } catch {
       // ignore — the text query still applies
+    }
+  };
+
+  const handleTestPlaceDetails = async () => {
+    if (!lastPlaceId) return;
+    setTestLoading(true);
+    setTestError(null);
+    setTestDetails(null);
+    try {
+      const details = await fetchPlaceDetails({ data: { placeId: lastPlaceId } });
+      if (details) {
+        setTestDetails(details);
+      } else {
+        setTestError("No details returned for this place.");
+      }
+    } catch (err) {
+      setTestError(err instanceof Error ? err.message : "Failed to fetch place details.");
+    } finally {
+      setTestLoading(false);
     }
   };
 
