@@ -14,6 +14,7 @@ import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GeoPermissionHelp } from "@/components/GeoPermissionHelp";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
 
