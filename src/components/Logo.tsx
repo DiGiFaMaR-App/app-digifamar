@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import logoAsset from "@/assets/logo.png.asset.json";
-const logoSrc = logoAsset.url;
+import logoSrc from "@/assets/logo.jpg";
 
 export function Logo({
   className = "",
