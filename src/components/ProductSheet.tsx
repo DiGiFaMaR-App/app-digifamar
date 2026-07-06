@@ -50,6 +50,7 @@ export function ProductSheet({
         setCode("");
         setError(null);
         setActive(0);
+        setAdded(false);
       }, 250);
       return () => clearTimeout(t);
     }
@@ -61,6 +62,13 @@ export function ProductSheet({
     const t = setTimeout(() => setStep("delivery"), 2200);
     return () => clearTimeout(t);
   }, [step]);
+
+  // Revert the "Added" confirmation label after a short delay (cleaned up on unmount/change)
+  useEffect(() => {
+    if (!added) return;
+    const t = setTimeout(() => setAdded(false), 1800);
+    return () => clearTimeout(t);
+  }, [added]);
 
   if (!product) return null;
   const gallery = [product.image, farm?.image, product.image].filter(Boolean) as string[];
@@ -78,7 +86,6 @@ export function ProductSheet({
     });
     setAdded(true);
     toast.success(`${product.name} added to cart`);
-    setTimeout(() => setAdded(false), 1800);
   };
 
   const handleRelease = () => {
