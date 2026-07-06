@@ -172,7 +172,6 @@ function NearMe() {
                 loading={geo.loading}
                 onRetry={geo.detect}
                 onManualSubmit={(v) => {
-                  setManual(v);
                   void geo.setManualLocation(v);
                 }}
               />
@@ -185,7 +184,6 @@ function NearMe() {
                 id="manual-loc"
                 loading={geo.loading}
                 onSubmit={(v) => {
-                  setManual(v);
                   void geo.setManualLocation(v);
                 }}
               />
