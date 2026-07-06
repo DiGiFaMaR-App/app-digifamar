@@ -120,26 +120,32 @@ export type Database = {
         Row: {
           buyer_id: string
           created_at: string
+          farm_name: string | null
           farmer_id: string
           id: string
           last_message_at: string
           product_id: string | null
+          updated_at: string
         }
         Insert: {
           buyer_id: string
           created_at?: string
+          farm_name?: string | null
           farmer_id: string
           id?: string
           last_message_at?: string
           product_id?: string | null
+          updated_at?: string
         }
         Update: {
           buyer_id?: string
           created_at?: string
+          farm_name?: string | null
           farmer_id?: string
           id?: string
           last_message_at?: string
           product_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -578,27 +584,30 @@ export type Database = {
       }
       messages: {
         Row: {
-          body: string
+          content: string
           conversation_id: string
           created_at: string
           flagged: boolean
           id: string
+          is_read: boolean
           sender_id: string
         }
         Insert: {
-          body: string
+          content: string
           conversation_id: string
           created_at?: string
           flagged?: boolean
           id?: string
+          is_read?: boolean
           sender_id: string
         }
         Update: {
-          body?: string
+          content?: string
           conversation_id?: string
           created_at?: string
           flagged?: boolean
           id?: string
+          is_read?: boolean
           sender_id?: string
         }
         Relationships: [
@@ -970,4 +979,3 @@ export const Constants = {
     },
   },
 } as const
-

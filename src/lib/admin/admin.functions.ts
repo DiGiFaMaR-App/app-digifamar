@@ -220,7 +220,7 @@ export const listMessagesForConversationFn = createServerFn({ method: "GET" })
     const { logAudit } = await import("@/lib/audit/log.server");
     const { data: rows, error } = await sb
       .from("messages")
-      .select("id, sender_id, body, flagged, created_at")
+      .select("id, sender_id, content, flagged, created_at")
       .eq("conversation_id", data.conversationId)
       .order("created_at", { ascending: true })
       .limit(500);

@@ -431,7 +431,9 @@ CREATE TABLE IF NOT EXISTS public.conversations (
   buyer_id UUID NOT NULL,
   farmer_id UUID NOT NULL,
   product_id UUID,
+  farm_name TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   last_message_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 GRANT SELECT, INSERT, UPDATE ON public.conversations TO authenticated;
@@ -465,7 +467,8 @@ CREATE TABLE IF NOT EXISTS public.messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   conversation_id UUID NOT NULL REFERENCES public.conversations (id) ON DELETE CASCADE,
   sender_id UUID NOT NULL,
-  body TEXT NOT NULL,
+  content TEXT NOT NULL,
+  is_read BOOLEAN NOT NULL DEFAULT false,
   flagged BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -500,7 +503,7 @@ CREATE INDEX IF NOT EXISTS messages_conversation_id_idx
 CREATE OR REPLACE FUNCTION public.guard_message_contact_info()
 RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
 DECLARE
-  b TEXT := lower(NEW.body);
+  b TEXT := lower(NEW.content);
 BEGIN
   IF b ~ '[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}' THEN
     RAISE EXCEPTION 'CONTACT_INFO_BLOCKED: emails are not allowed in chat to keep escrow protection.' USING ERRCODE = 'P0001';
@@ -521,6 +524,22 @@ REVOKE EXECUTE ON FUNCTION public.guard_message_contact_info() FROM PUBLIC, anon
 DROP TRIGGER IF EXISTS trg_messages_contact_guard ON public.messages;
 CREATE TRIGGER trg_messages_contact_guard BEFORE INSERT ON public.messages
   FOR EACH ROW EXECUTE FUNCTION public.guard_message_contact_info();
+
+-- Keep the parent conversation's recency columns fresh so inboxes can sort by
+-- the most recent activity.
+CREATE OR REPLACE FUNCTION public.touch_conversation_on_message()
+RETURNS trigger LANGUAGE plpgsql SET search_path = public AS $$
+BEGIN
+  UPDATE public.conversations
+     SET last_message_at = NEW.created_at, updated_at = NEW.created_at
+   WHERE id = NEW.conversation_id;
+  RETURN NEW;
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.touch_conversation_on_message() FROM PUBLIC, anon, authenticated;
+DROP TRIGGER IF EXISTS trg_messages_touch_conversation ON public.messages;
+CREATE TRIGGER trg_messages_touch_conversation AFTER INSERT ON public.messages
+  FOR EACH ROW EXECUTE FUNCTION public.touch_conversation_on_message();
 
 -- ---------------------------------------------------------------------------
 -- reviews

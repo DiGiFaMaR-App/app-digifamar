@@ -69,7 +69,7 @@ function Body() {
                     <div className="text-xs text-[#F0FFF0]/60 mb-0.5">
                       {m.sender_id.slice(0, 8)}… · {new Date(m.created_at).toLocaleString()}
                     </div>
-                    <div>{m.body}</div>
+                    <div>{m.content}</div>
                   </li>
                 ))}
               </ul>

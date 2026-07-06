@@ -21,7 +21,7 @@ interface Conversation {
   id: string;
   buyer_id: string;
   farmer_id: string;
-  farm_name: string;
+  farm_name: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,7 +63,6 @@ function formatTimestamp(ts: string): string {
 
 function ChatList() {
   const { user } = useAuth();
-  const sb = supabase as any;
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [lastMessages, setLastMessages] = useState<Record<string, LastMessage>>({});
@@ -76,7 +75,7 @@ function ChatList() {
     const load = async () => {
       setLoading(true);
       try {
-        const { data: convs } = await sb
+        const { data: convs } = await supabase
           .from("conversations")
           .select("id, buyer_id, farmer_id, farm_name, created_at, updated_at")
           .or(`buyer_id.eq.${user.id},farmer_id.eq.${user.id}`)
@@ -89,7 +88,7 @@ function ChatList() {
         if (list.length === 0) return;
 
         const ids = list.map((c) => c.id);
-        const { data: msgs } = await sb
+        const { data: msgs } = await supabase
           .from("messages")
           .select("conversation_id, content, created_at, is_read, sender_id")
           .in("conversation_id", ids)
@@ -149,7 +148,7 @@ function ChatList() {
                       <div className="relative shrink-0">
                         <div className="w-12 h-12 rounded-full bg-[#4ADE80]/15 border border-[#4ADE80]/25 flex items-center justify-center">
                           <span className="text-sm font-bold text-[#4ADE80]">
-                            {getInitials(conv.farm_name)}
+                            {getInitials(conv.farm_name ?? "Farm")}
                           </span>
                         </div>
                         {hasUnread && (
@@ -165,7 +164,7 @@ function ChatList() {
                               hasUnread ? "text-[#F0FFF0]" : "text-[#F0FFF0]/80"
                             }`}
                           >
-                            {conv.farm_name}
+                            {conv.farm_name ?? "Farm"}
                           </p>
                           {last && (
                             <span className="text-[10px] text-[#7AAB7A] shrink-0">
