@@ -8,11 +8,19 @@ const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_
   | string
   | undefined;
 
+export class GoogleMapsKeyError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "GoogleMapsKeyError";
+  }
+}
+
 declare global {
   interface Window {
     google?: typeof google;
     __dgfMapsLoader?: Promise<void>;
     __dgfMapsCallback?: () => void;
+    gm_authFailure?: () => void;
   }
 }
 
@@ -22,11 +30,51 @@ export function loadGoogleMaps(): Promise<void> {
   if (window.google?.maps && typeof window.google.maps.importLibrary === "function")
     return Promise.resolve();
   if (window.__dgfMapsLoader) return window.__dgfMapsLoader;
+
   window.__dgfMapsLoader = (async () => {
     const BROWSER_KEY = await resolveGoogleMapsKey();
-    if (!BROWSER_KEY) throw new Error("Google Maps browser key not configured");
+    if (!BROWSER_KEY) throw new GoogleMapsKeyError("Google Maps browser key not configured");
     await new Promise<void>((resolve, reject) => {
-      window.__dgfMapsCallback = () => resolve();
+      let settled = false;
+
+      const cleanup = () => {
+        settled = true;
+        window.clearTimeout(timeout);
+      };
+
+      const timeout = window.setTimeout(() => {
+        if (settled) return;
+        cleanup();
+        reject(
+          new GoogleMapsKeyError(
+            "Google Maps timed out — the active key may be blocked for this domain.",
+          ),
+        );
+      }, 15_000);
+
+      window.__dgfMapsCallback = () => {
+        if (settled) return;
+        if (window.google?.maps && typeof window.google.maps.importLibrary === "function") {
+          cleanup();
+          resolve();
+        } else {
+          cleanup();
+          reject(new GoogleMapsKeyError("Google Maps loaded but is not usable on this domain."));
+        }
+      };
+
+      const previousGmAuthFailure = window.gm_authFailure;
+      window.gm_authFailure = () => {
+        if (settled) return;
+        cleanup();
+        window.gm_authFailure = previousGmAuthFailure ?? undefined;
+        reject(
+          new GoogleMapsKeyError(
+            "Google Maps key rejected for this domain. Add this domain to the key's HTTP referrer allowlist, or switch to a different key in Map settings.",
+          ),
+        );
+      };
+
       const params = new URLSearchParams({
         key: BROWSER_KEY,
         v: "weekly",
@@ -39,12 +87,26 @@ export function loadGoogleMaps(): Promise<void> {
       s.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
       s.async = true;
       s.defer = true;
-      s.onerror = () => reject(new Error("Failed to load Google Maps script"));
+      s.onerror = () => {
+        if (settled) return;
+        cleanup();
+        window.gm_authFailure = previousGmAuthFailure ?? undefined;
+        reject(new GoogleMapsKeyError("Failed to load Google Maps script."));
+      };
       document.head.appendChild(s);
     });
   })();
   return window.__dgfMapsLoader;
 }
+
+/** Resets the singleton loader so the next call attempts a fresh load. */
+export function invalidateGoogleMapsLoader() {
+  if (typeof window !== "undefined") {
+    window.__dgfMapsLoader = undefined;
+    window.__dgfMapsCallback = undefined;
+  }
+}
+
 
 export type PlaceSuggestion = {
   placeId: string;

@@ -1,60 +1,13 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
+import { loadGoogleMaps, invalidateGoogleMapsLoader } from "@/hooks/use-google-maps";
+import { MapErrorFallback } from "@/components/MapErrorFallback";
 
 interface LiveTrackingMapProps {
   farmer: { lat: number; lng: number } | null;
   destination: { lat: number; lng: number; label?: string };
   farmerLabel?: string;
 }
-
-// ─────────────────────────────────────────────────────────────────
-// Google Maps JS API loader (singleton, async)
-// ─────────────────────────────────────────────────────────────────
-
-import { resolveGoogleMapsKey } from "@/lib/gmaps-key";
-
-const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
-  | string
-  | undefined;
-
-declare global {
-  interface Window {
-    google?: typeof google;
-    __dfmGmapsLoader?: Promise<typeof google>;
-    __dfmGmapsInit?: () => void;
-  }
-}
-
-function loadGoogleMaps(): Promise<typeof google> {
-  if (typeof window === "undefined") {
-    return Promise.reject(new Error("SSR — no window"));
-  }
-  if (window.google?.maps) return Promise.resolve(window.google);
-  if (window.__dfmGmapsLoader) return window.__dfmGmapsLoader;
-
-  window.__dfmGmapsLoader = (async () => {
-    const BROWSER_KEY = await resolveGoogleMapsKey();
-    if (!BROWSER_KEY) throw new Error("Google Maps browser key missing");
-    return new Promise<typeof google>((resolve, reject) => {
-      window.__dfmGmapsInit = () => {
-        if (window.google?.maps) resolve(window.google);
-        else reject(new Error("Google Maps failed to initialise"));
-      };
-      const channel = TRACKING_ID ? `&channel=${TRACKING_ID}` : "";
-      const s = document.createElement("script");
-      s.src = `https://maps.googleapis.com/maps/api/js?key=${BROWSER_KEY}&loading=async&callback=__dfmGmapsInit${channel}`;
-      s.async = true;
-      s.defer = true;
-      s.onerror = () => reject(new Error("Failed to load Google Maps script"));
-      document.head.appendChild(s);
-    });
-  })();
-  return window.__dfmGmapsLoader;
-}
-
-// ─────────────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────────────
 
 export function LiveTrackingMap({
   farmer,
@@ -69,12 +22,14 @@ export function LiveTrackingMap({
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
-  // One-time init
-  useEffect(() => {
+  const initMap = () => {
+    setError(null);
+    setReady(false);
     let cancelled = false;
     loadGoogleMaps()
-      .then((g) => {
-        if (cancelled || !containerRef.current) return;
+      .then(() => {
+        const g = window.google;
+        if (cancelled || !containerRef.current || !g?.maps) return;
         const map = new g.maps.Map(containerRef.current, {
           center: { lat: destination.lat, lng: destination.lng },
           zoom: 13,
@@ -111,6 +66,12 @@ export function LiveTrackingMap({
     return () => {
       cancelled = true;
     };
+  };
+
+  // One-time init
+  useEffect(() => {
+    const cleanup = initMap();
+    return cleanup;
   }, [destination.lat, destination.lng, destination.label]);
 
   // Farmer marker + route + auto-fit on each update
@@ -172,13 +133,14 @@ export function LiveTrackingMap({
 
   if (error) {
     return (
-      <div
-        className="h-56 w-full rounded-xl border border-border bg-muted/40 flex items-center justify-center px-4 text-center text-xs text-muted-foreground"
-        role="img"
-        aria-label="Live tracking map unavailable"
-      >
-        Live map unavailable — {error}
-      </div>
+      <MapErrorFallback
+        title="Live tracking map unavailable"
+        reason={error}
+        onRetry={() => {
+          invalidateGoogleMapsLoader();
+          initMap();
+        }}
+      />
     );
   }
 
