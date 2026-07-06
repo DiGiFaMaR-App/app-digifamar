@@ -16,9 +16,9 @@ export function BrowseMap({ origin }: BrowseMapProps) {
   useEffect(() => {
     let cancelled = false;
     loadGoogleMaps()
-      .then((g) => {
-        if (cancelled || !containerRef.current) return;
-        const map = new g.maps.Map(containerRef.current, {
+      .then(() => {
+        if (cancelled || !containerRef.current || !window.google?.maps) return;
+        const map = new window.google.maps.Map(containerRef.current, {
           center: { lat: 39.8283, lng: -98.5795 },
           zoom: 4,
           disableDefaultUI: true,
@@ -41,7 +41,7 @@ export function BrowseMap({ origin }: BrowseMapProps) {
   useEffect(() => {
     const g = window.google;
     const map = mapRef.current;
-    if (!ready || !g || !map || !origin) return;
+    if (!ready || !g?.maps || !map || !origin) return;
 
     const pos = { lat: origin.lat, lng: origin.lng };
     map.setCenter(pos);
@@ -81,3 +81,4 @@ export function BrowseMap({ origin }: BrowseMapProps) {
     />
   );
 }
+
