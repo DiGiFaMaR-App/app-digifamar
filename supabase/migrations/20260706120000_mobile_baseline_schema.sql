@@ -48,6 +48,10 @@ RETURNS BOOLEAN LANGUAGE SQL STABLE SECURITY DEFINER SET search_path = public AS
     SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role
   );
 $$;
+-- RLS policies on publicly-readable tables (e.g. listings, reviews) reference
+-- has_role for the admin branch, so anon must be able to execute it (it safely
+-- returns false for a null/anon uid).
+GRANT EXECUTE ON FUNCTION public.has_role(UUID, public.app_role) TO anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- profiles (1:1 with auth.users)
