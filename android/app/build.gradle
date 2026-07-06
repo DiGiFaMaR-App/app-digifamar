@@ -7,7 +7,7 @@ def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
 def hasReleaseKeystore = keystorePropertiesFile.exists()
 if (hasReleaseKeystore) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
 }
 
 android {
