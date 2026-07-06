@@ -53,7 +53,6 @@ interface Props {
 
 export function GeoPermissionHelp({ error, loading, onRetry, onManualSubmit }: Props) {
   const [browser, setBrowser] = useState<Browser>("other");
-  
 
   useEffect(() => {
     setBrowser(detectBrowser());

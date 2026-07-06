@@ -8,7 +8,7 @@ import { usePlacesAutocomplete, type PlaceSuggestion } from "@/hooks/use-google-
 const ZIP_RE = /^\d{5}(-\d{4})?$/;
 // Loose "city" or "city, ST" check — used only to surface a friendly hint,
 // server-side geocoding is the source of truth.
-const CITY_RE = /^[A-Za-z][A-Za-z .'\-]{1,}(,\s?[A-Za-z]{2,})?$/;
+const CITY_RE = /^[A-Za-z][A-Za-z .'-]{1,}(,\s?[A-Za-z]{2,})?$/;
 
 export type LocationAutocompleteInputProps = {
   id?: string;
