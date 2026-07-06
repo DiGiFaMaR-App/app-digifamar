@@ -24,6 +24,7 @@ import {
   reverseGeocode,
   type GeocodeResult,
 } from "@/lib/geocode.functions";
+import { getPlaceDetails } from "@/lib/places.functions";
 import { usePlacesAutocomplete } from "@/hooks/use-google-maps";
 
 export const Route = createFileRoute("/browse")({
@@ -202,6 +203,29 @@ function Browse() {
     setShowSuggest(false);
     setInput(label);
     try {
+      // Prefer the richer server-side Places (New) details endpoint.
+      const details = await getPlaceDetails({ data: { placeId } });
+      if (details && details.lat != null && details.lng != null) {
+        const city =
+          details.addressComponents.find((c) => c.types.includes("locality"))?.longText ?? null;
+        const state =
+          details.addressComponents.find((c) =>
+            c.types.includes("administrative_area_level_1"),
+          )?.shortText ?? null;
+        const zip =
+          details.addressComponents.find((c) => c.types.includes("postal_code"))?.longText ?? null;
+        setOrigin({
+          lat: details.lat,
+          lng: details.lng,
+          formatted: details.formattedAddress ?? label,
+          city,
+          state,
+          zip,
+        });
+        setShowFallback(false);
+        return;
+      }
+      // Fallback to legacy geocoding if Places details didn't return coords.
       const res = await geocodePlaceId({ data: { placeId } });
       if (res) {
         setOrigin(res);
