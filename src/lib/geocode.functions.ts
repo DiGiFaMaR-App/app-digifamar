@@ -2,6 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// Note: geocodeAddress and reverseGeocode are intentionally public — the
+// /near-me and /browse flows are usable while signed out. They only proxy a
+// Google Geocoding call through the workspace gateway and return no PII.
+
 const inputSchema = z.object({
   address: z.string().trim().max(200).optional(),
   city: z.string().trim().max(100).optional(),
@@ -53,7 +57,6 @@ async function callGeocode(path: string, errorLabel: string): Promise<GeocodeRes
 }
 
 export const geocodeAddress = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     const parts = [data.address, data.city, data.state, data.zip, data.country]
@@ -72,7 +75,6 @@ const reverseSchema = z.object({
 });
 
 export const reverseGeocode = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => reverseSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     return callGeocode(
