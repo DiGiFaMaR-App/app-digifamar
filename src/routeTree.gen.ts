@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
+import { Route as NearMeRouteImport } from './routes/near-me'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MarketRouteImport } from './routes/market'
 import { Route as LendingRouteImport } from './routes/lending'
@@ -102,6 +103,11 @@ const PricingRoute = PricingRouteImport.update({
 const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
   id: '/payment-success',
   path: '/payment-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearMeRoute = NearMeRouteImport.update({
+  id: '/near-me',
+  path: '/near-me',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpRoute = McpRouteImport.update({
@@ -386,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
+  '/near-me': typeof NearMeRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -447,6 +454,7 @@ export interface FileRoutesByTo {
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
+  '/near-me': typeof NearMeRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -509,6 +517,7 @@ export interface FileRoutesById {
   '/lending': typeof LendingRoute
   '/market': typeof MarketRoute
   '/mcp': typeof McpRoute
+  '/near-me': typeof NearMeRoute
   '/payment-success': typeof PaymentSuccessRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -572,6 +581,7 @@ export interface FileRouteTypes {
     | '/lending'
     | '/market'
     | '/mcp'
+    | '/near-me'
     | '/payment-success'
     | '/pricing'
     | '/privacy'
@@ -633,6 +643,7 @@ export interface FileRouteTypes {
     | '/lending'
     | '/market'
     | '/mcp'
+    | '/near-me'
     | '/payment-success'
     | '/pricing'
     | '/privacy'
@@ -694,6 +705,7 @@ export interface FileRouteTypes {
     | '/lending'
     | '/market'
     | '/mcp'
+    | '/near-me'
     | '/payment-success'
     | '/pricing'
     | '/privacy'
@@ -756,6 +768,7 @@ export interface RootRouteChildren {
   LendingRoute: typeof LendingRoute
   MarketRoute: typeof MarketRoute
   McpRoute: typeof McpRoute
+  NearMeRoute: typeof NearMeRoute
   PaymentSuccessRoute: typeof PaymentSuccessRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -849,6 +862,13 @@ declare module '@tanstack/react-router' {
       path: '/payment-success'
       fullPath: '/payment-success'
       preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/near-me': {
+      id: '/near-me'
+      path: '/near-me'
+      fullPath: '/near-me'
+      preLoaderRoute: typeof NearMeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp': {
@@ -1247,6 +1267,7 @@ const rootRouteChildren: RootRouteChildren = {
   LendingRoute: LendingRoute,
   MarketRoute: MarketRoute,
   McpRoute: McpRoute,
+  NearMeRoute: NearMeRoute,
   PaymentSuccessRoute: PaymentSuccessRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
