@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { Package, ChevronRight } from "lucide-react";
-import { listMyOrdersFn } from "@/lib/orders/orders.functions";
+import { listMyOrders } from "@/lib/orders/orders.queries";
 import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/orders/")({
@@ -24,10 +23,9 @@ export const Route = createFileRoute("/orders/")({
 });
 
 function OrdersIndex() {
-  const fetchOrders = useServerFn(listMyOrdersFn);
   const { data, isLoading, error } = useQuery({
     queryKey: ["my-orders"],
-    queryFn: () => fetchOrders(),
+    queryFn: () => listMyOrders(),
     retry: false,
   });
 
@@ -58,7 +56,7 @@ function OrdersIndex() {
               Browse the marketplace and place your first order.
             </p>
             <Link
-              to="/browse"
+              to="/market"
               className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
             >
               Browse farms
@@ -78,7 +76,7 @@ function OrdersIndex() {
                   <div>
                     <p className="text-sm font-medium">Order #{o.id.slice(-8)}</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
-                      {o.status} · ${(o.totalCents / 100).toFixed(2)}
+                      {o.status} · ${(o.total_cents / 100).toFixed(2)}
                     </p>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />

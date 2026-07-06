@@ -32,7 +32,7 @@ import {
   formatRate,
   PLATFORM_FEE_RATE,
 } from "@/lib/cart/fees";
-import { createEscrowCheckoutFn } from "@/lib/checkout/checkout.functions";
+import { createOrdersFromCart } from "@/lib/orders/orders.queries";
 
 type FundingSource = "card" | "bank";
 
@@ -96,28 +96,20 @@ function CheckoutPage() {
     }
     setSubmitting(true);
     try {
-      const result = await createEscrowCheckoutFn({
-        data: {
-          items: items.map((i) => ({
-            productId: i.productId,
-            name: i.name,
-            unitPriceCents: dollarsToCents(i.unitPrice),
-            quantity: i.quantity,
-          })),
-          shippingAddress: shippingAddress.trim(),
-          deliveryMethod,
-          deliveryDistanceMiles: deliveryMethod === "pickup" ? null : distanceMiles,
-        },
-      });
+      const orders = await createOrdersFromCart(
+        items.map((i) => ({ slug: i.productId, qty: i.quantity })),
+        shippingAddress.trim(),
+      );
 
       setPlaced(true);
       clear();
-      if (result.escrow.simulated) {
-        toast.info("Escrow.com is in demo mode — transaction simulated.");
-      }
+      // Orders are recorded (status `pending`); escrow funding is enabled by the
+      // Phase 2b Edge Function, so surface the total the database actually saved.
+      const totalCents = orders.reduce((sum, o) => sum + o.total_cents, 0);
+      toast.success(orders.length > 1 ? `${orders.length} orders placed.` : "Order placed.");
       navigate({
         to: "/payment-success",
-        search: { orderId: result.orderId, amount: result.breakdown.totalCents / 100 },
+        search: { orderId: orders[0]?.id ?? "", amount: totalCents / 100 },
       });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Checkout failed. Please try again.";
