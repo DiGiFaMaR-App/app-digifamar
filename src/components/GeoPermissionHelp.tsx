@@ -145,31 +145,11 @@ export function GeoPermissionHelp({ error, loading, onRetry, onManualSubmit }: P
             <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" /> Or search manually
             </p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const v = manual.trim();
-                if (v) onManualSubmit(v);
-              }}
-              className="flex flex-col gap-2 sm:flex-row"
-            >
-              <div className="flex-1">
-                <Label htmlFor="geo-manual" className="sr-only">
-                  ZIP or city
-                </Label>
-                <Input
-                  id="geo-manual"
-                  value={manual}
-                  onChange={(e) => setManual(e.target.value)}
-                  placeholder="ZIP (e.g. 94103) or city (e.g. Portland, OR)"
-                  autoComplete="postal-code"
-                />
-              </div>
-              <Button type="submit" disabled={!manual.trim() || loading} className="gap-1.5">
-                <Search className="h-3.5 w-3.5" />
-                Search
-              </Button>
-            </form>
+            <LocationAutocompleteInput
+              id="geo-manual"
+              loading={loading}
+              onSubmit={onManualSubmit}
+            />
           </div>
         </div>
       </div>
