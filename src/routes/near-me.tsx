@@ -103,7 +103,8 @@ function NearMe() {
     .filter((f) => f.distance_mi != null && (f.distance_mi as number) <= radius)
     .sort((a, b) => (a.distance_mi ?? 0) - (b.distance_mi ?? 0));
 
-  const errMsg = geoErrorMessage(geo.error);
+
+
 
   return (
     <SiteLayout>
