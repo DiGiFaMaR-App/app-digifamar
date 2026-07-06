@@ -77,12 +77,20 @@ function useDebounced<T>(value: T, delay: number): T {
 }
 
 function Browse() {
+  const fetchPlaceDetails = useServerFn(getPlaceDetails);
+
   const [input, setInput] = useState("");
   const [page, setPage] = useState(1);
   const debounced = useDebounced(input.trim(), DEBOUNCE_MS);
 
   // Origin = the resolved coordinates we use to filter by distance.
   const [origin, setOrigin] = useState<GeocodeResult>(null);
+
+  // Keep the last placeId selected from autocomplete so we can re-test it.
+  const [lastPlaceId, setLastPlaceId] = useState<string | null>(null);
+  const [testDetails, setTestDetails] = useState<NonNullable<PlaceDetails> | null>(null);
+  const [testLoading, setTestLoading] = useState(false);
+  const [testError, setTestError] = useState<string | null>(null);
 
   // Geolocation state
   const [geoLoading, setGeoLoading] = useState(false);
