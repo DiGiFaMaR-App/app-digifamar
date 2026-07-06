@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
@@ -14,6 +14,7 @@ import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
 import { GeoPermissionHelp } from "@/components/GeoPermissionHelp";
 import { LocationAutocompleteInput } from "@/components/LocationAutocompleteInput";
+import { FarmDetailSheet } from "@/components/FarmDetailSheet";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
 
@@ -62,6 +63,12 @@ export const Route = createFileRoute("/near-me")({
 function NearMe() {
   const geo = useGeolocation();
   const [radius, setRadius] = useState<(typeof RADIUS_OPTIONS)[number]>(25);
+  const [selectedFarm, setSelectedFarm] = useState<{
+    id: string;
+    name: string;
+    distance: number | null;
+  } | null>(null);
+
   
 
   const hasCoords = geo.lat != null && geo.lng != null;
@@ -262,10 +269,17 @@ function NearMe() {
                   key={f.user_id}
                   className="group rounded-xl border border-border bg-card p-4 transition hover:border-primary/60 hover:shadow-md"
                 >
-                  <Link
-                    to="/farm/$id"
-                    params={{ id: f.user_id }}
-                    className="flex items-start justify-between gap-3"
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedFarm({
+                        id: f.user_id,
+                        name: f.farm_name,
+                        distance: dist,
+                      })
+                    }
+                    aria-label={`View details for ${f.farm_name}`}
+                    className="flex w-full items-start justify-between gap-3 text-left"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
@@ -297,7 +311,7 @@ function NearMe() {
                         {dist.toFixed(1)} mi
                       </span>
                     )}
-                  </Link>
+                  </button>
                 </li>
               );
             })}
@@ -313,6 +327,16 @@ function NearMe() {
           )}
         </div>
       </div>
+
+      <FarmDetailSheet
+        farmId={selectedFarm?.id ?? null}
+        farmName={selectedFarm?.name ?? null}
+        distanceMi={selectedFarm?.distance ?? null}
+        open={!!selectedFarm}
+        onOpenChange={(o) => {
+          if (!o) setSelectedFarm(null);
+        }}
+      />
     </SiteLayout>
   );
 }
