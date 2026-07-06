@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, MapPin, RefreshCcw, ShieldAlert, Search } from "lucide-react";
+import { Loader2, MapPin, RefreshCcw, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { LocationAutocompleteInput } from "@/components/LocationAutocompleteInput";
 import type { GeoError } from "@/hooks/use-geolocation";
 
 type Browser = "chrome" | "safari" | "firefox" | "edge" | "other";
