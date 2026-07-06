@@ -150,6 +150,55 @@ function MapsAdminBody() {
 
         <Card className="space-y-3 p-4 bg-black/40 border-white/15">
           <div className="space-y-1">
+            <h2 className="text-sm font-medium">Server-side health check</h2>
+            <p className="text-xs text-[#F0FFF0]/60">
+              Tests the GOOGLE_API_KEY secret used by server functions (Places API details call).
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={checkHealth}
+              disabled={health.state === "loading"}
+              variant="outline"
+            >
+              {health.state === "loading" ? "Checking…" : "Test Places API"}
+            </Button>
+            {health.state === "healthy" && (
+              <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/20 border-green-500/30">
+                Healthy
+              </Badge>
+            )}
+            {health.state === "unhealthy" && (
+              <Badge variant="destructive">{health.status}</Badge>
+            )}
+          </div>
+          {health.state === "healthy" && (
+            <div className="text-sm space-y-1 rounded border border-white/10 bg-black/60 p-3">
+              <p>
+                <span className="text-[#F0FFF0]/60">Name:</span>{" "}
+                {health.place.name ?? "—"}
+              </p>
+              <p>
+                <span className="text-[#F0FFF0]/60">Address:</span>{" "}
+                {health.place.formattedAddress ?? "—"}
+              </p>
+              <p>
+                <span className="text-[#F0FFF0]/60">Lat / Lng:</span>{" "}
+                {health.place.lat != null && health.place.lng != null
+                  ? `${health.place.lat.toFixed(6)}, ${health.place.lng.toFixed(6)}`
+                  : "—"}
+              </p>
+            </div>
+          )}
+          {health.state === "unhealthy" && (
+            <div className="text-sm rounded border border-red-500/20 bg-red-500/10 p-3 text-red-200">
+              {health.error}
+            </div>
+          )}
+        </Card>
+
+        <Card className="space-y-3 p-4 bg-black/40 border-white/15">
+          <div className="space-y-1">
             <Label htmlFor="gmaps-key">Google Maps API key</Label>
             <p className="text-xs text-[#F0FFF0]/60">
               Paste the key from your Google Cloud project. Make sure its HTTP referrer allowlist
