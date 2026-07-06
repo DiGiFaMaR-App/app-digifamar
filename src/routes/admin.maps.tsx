@@ -49,6 +49,12 @@ function MapsAdminBody() {
 
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
+  const [health, setHealth] = useState<
+    | { state: "idle" }
+    | { state: "loading" }
+    | { state: "healthy"; place: { name: string | null; formattedAddress: string | null; lat: number | null; lng: number | null } }
+    | { state: "unhealthy"; status: string; error: string }
+  >({ state: "idle" });
 
   useEffect(() => {
     if (data?.value) setDraft(data.value);
@@ -70,6 +76,47 @@ function MapsAdminBody() {
       toast.error(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const checkHealth = async () => {
+    setHealth({ state: "loading" });
+    try {
+      const res = await fetch("/api/public/health/maps");
+      const payload = (await res.json()) as {
+        status: string;
+        ok: boolean;
+        error?: string;
+        place?: {
+          name?: string | null;
+          formattedAddress?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+        };
+      };
+      if (res.ok && payload.ok) {
+        setHealth({
+          state: "healthy",
+          place: {
+            name: payload.place?.name ?? null,
+            formattedAddress: payload.place?.formattedAddress ?? null,
+            lat: payload.place?.lat ?? null,
+            lng: payload.place?.lng ?? null,
+          },
+        });
+      } else {
+        setHealth({
+          state: "unhealthy",
+          status: payload.status,
+          error: payload.error ?? "Unknown error",
+        });
+      }
+    } catch (e) {
+      setHealth({
+        state: "unhealthy",
+        status: "degraded",
+        error: e instanceof Error ? e.message : "Network or parse error",
+      });
     }
   };
 
