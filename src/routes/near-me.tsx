@@ -180,28 +180,16 @@ function NearMe() {
           )}
 
           {!geo.error && !geo.loading && !hasCoords && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (manual.trim()) void geo.setManualLocation(manual);
-              }}
-              className="mt-3 flex flex-col gap-2 sm:flex-row"
-            >
-              <div className="flex-1">
-                <Label htmlFor="manual-loc" className="sr-only">
-                  City or ZIP
-                </Label>
-                <Input
-                  id="manual-loc"
-                  value={manual}
-                  onChange={(e) => setManual(e.target.value)}
-                  placeholder="Enter a city or ZIP (e.g. 94103 or Portland, OR)"
-                />
-              </div>
-              <Button type="submit" disabled={!manual.trim() || geo.loading}>
-                {geo.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search this area"}
-              </Button>
-            </form>
+            <div className="mt-3">
+              <LocationAutocompleteInput
+                id="manual-loc"
+                loading={geo.loading}
+                onSubmit={(v) => {
+                  setManual(v);
+                  void geo.setManualLocation(v);
+                }}
+              />
+            </div>
           )}
         </div>
       </section>
