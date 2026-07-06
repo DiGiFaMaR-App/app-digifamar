@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
@@ -24,7 +25,7 @@ import {
   reverseGeocode,
   type GeocodeResult,
 } from "@/lib/geocode.functions";
-import { getPlaceDetails } from "@/lib/places.functions";
+import { getPlaceDetails, type PlaceDetails } from "@/lib/places.functions";
 import { usePlacesAutocomplete } from "@/hooks/use-google-maps";
 
 export const Route = createFileRoute("/browse")({
@@ -76,12 +77,20 @@ function useDebounced<T>(value: T, delay: number): T {
 }
 
 function Browse() {
+  const fetchPlaceDetails = useServerFn(getPlaceDetails);
+
   const [input, setInput] = useState("");
   const [page, setPage] = useState(1);
   const debounced = useDebounced(input.trim(), DEBOUNCE_MS);
 
   // Origin = the resolved coordinates we use to filter by distance.
   const [origin, setOrigin] = useState<GeocodeResult>(null);
+
+  // Keep the last placeId selected from autocomplete so we can re-test it.
+  const [lastPlaceId, setLastPlaceId] = useState<string | null>(null);
+  const [testDetails, setTestDetails] = useState<NonNullable<PlaceDetails> | null>(null);
+  const [testLoading, setTestLoading] = useState(false);
+  const [testError, setTestError] = useState<string | null>(null);
 
   // Geolocation state
   const [geoLoading, setGeoLoading] = useState(false);
@@ -200,11 +209,14 @@ function Browse() {
   };
 
   const handleSuggestionPick = async (placeId: string, label: string) => {
+    setLastPlaceId(placeId);
     setShowSuggest(false);
     setInput(label);
+    setTestDetails(null);
+    setTestError(null);
     try {
       // Prefer the richer server-side Places (New) details endpoint.
-      const details = await getPlaceDetails({ data: { placeId } });
+      const details = await fetchPlaceDetails({ data: { placeId } });
       if (details && details.lat != null && details.lng != null) {
         const city =
           details.addressComponents.find((c) => c.types.includes("locality"))?.longText ?? null;
@@ -233,6 +245,25 @@ function Browse() {
       }
     } catch {
       // ignore — the text query still applies
+    }
+  };
+
+  const handleTestPlaceDetails = async () => {
+    if (!lastPlaceId) return;
+    setTestLoading(true);
+    setTestError(null);
+    setTestDetails(null);
+    try {
+      const details = await fetchPlaceDetails({ data: { placeId: lastPlaceId } });
+      if (details) {
+        setTestDetails(details);
+      } else {
+        setTestError("No details returned for this place.");
+      }
+    } catch (err) {
+      setTestError(err instanceof Error ? err.message : "Failed to fetch place details.");
+    } finally {
+      setTestLoading(false);
     }
   };
 
@@ -350,7 +381,7 @@ function Browse() {
           </div>
 
           {origin && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
               <MapPin className="h-3 w-3" /> Showing results within 50 mi of{" "}
               <strong className="text-foreground">{origin.formatted}</strong>
               <button
@@ -360,6 +391,49 @@ function Browse() {
               >
                 <X className="h-3 w-3" />
               </button>
+              {lastPlaceId && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleTestPlaceDetails}
+                  disabled={testLoading}
+                  className="ml-2 h-6 text-[10px]"
+                >
+                  {testLoading ? (
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  ) : (
+                    <Search className="mr-1 h-3 w-3" />
+                  )}
+                  Test Place Details
+                </Button>
+              )}
+            </div>
+          )}
+
+          {testDetails && (
+            <div className="rounded-md border border-border bg-background/60 p-3 text-xs">
+              <p className="font-semibold text-foreground">Place details</p>
+              <p className="mt-1 text-muted-foreground">
+                <span className="font-medium text-foreground">Address:</span>{" "}
+                {testDetails.formattedAddress ?? "—"}
+              </p>
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">Lat / Lng:</span>{" "}
+                {testDetails.lat?.toFixed(6) ?? "—"}, {testDetails.lng?.toFixed(6) ?? "—"}
+              </p>
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">Place ID:</span> {testDetails.id}
+              </p>
+            </div>
+          )}
+
+          {testError && (
+            <div
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+            >
+              {testError}
             </div>
           )}
 
