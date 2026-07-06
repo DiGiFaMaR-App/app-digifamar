@@ -65,6 +65,7 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
@@ -351,6 +352,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHealthMapsRoute = ApiPublicHealthMapsRouteImport.update({
+  id: '/api/public/health/maps',
+  path: '/api/public/health/maps',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCronAutoReleaseRoute =
   ApiPublicCronAutoReleaseRouteImport.update({
     id: '/api/public/cron/auto-release',
@@ -422,6 +428,7 @@ export interface FileRoutesByFullPath {
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
+  '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -482,6 +489,7 @@ export interface FileRoutesByTo {
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
+  '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -543,6 +551,7 @@ export interface FileRoutesById {
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
+  '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -605,6 +614,7 @@ export interface FileRouteTypes {
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
+    | '/api/public/health/maps'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -665,6 +675,7 @@ export interface FileRouteTypes {
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
+    | '/api/public/health/maps'
   id:
     | '__root__'
     | '/'
@@ -725,6 +736,7 @@ export interface FileRouteTypes {
     | '/lenders/farmer/$id'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
+    | '/api/public/health/maps'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -785,6 +797,7 @@ export interface RootRouteChildren {
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
   ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
+  ApiPublicHealthMapsRoute: typeof ApiPublicHealthMapsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1181,6 +1194,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health/maps': {
+      id: '/api/public/health/maps'
+      path: '/api/public/health/maps'
+      fullPath: '/api/public/health/maps'
+      preLoaderRoute: typeof ApiPublicHealthMapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/cron/auto-release': {
       id: '/api/public/cron/auto-release'
       path: '/api/public/cron/auto-release'
@@ -1269,6 +1289,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
   ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
+  ApiPublicHealthMapsRoute: ApiPublicHealthMapsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
