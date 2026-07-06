@@ -49,6 +49,12 @@ function MapsAdminBody() {
 
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
+  const [health, setHealth] = useState<
+    | { state: "idle" }
+    | { state: "loading" }
+    | { state: "healthy"; place: { name: string | null; formattedAddress: string | null; lat: number | null; lng: number | null } }
+    | { state: "unhealthy"; status: string; error: string }
+  >({ state: "idle" });
 
   useEffect(() => {
     if (data?.value) setDraft(data.value);
@@ -70,6 +76,47 @@ function MapsAdminBody() {
       toast.error(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const checkHealth = async () => {
+    setHealth({ state: "loading" });
+    try {
+      const res = await fetch("/api/public/health/maps");
+      const payload = (await res.json()) as {
+        status: string;
+        ok: boolean;
+        error?: string;
+        place?: {
+          name?: string | null;
+          formattedAddress?: string | null;
+          lat?: number | null;
+          lng?: number | null;
+        };
+      };
+      if (res.ok && payload.ok) {
+        setHealth({
+          state: "healthy",
+          place: {
+            name: payload.place?.name ?? null,
+            formattedAddress: payload.place?.formattedAddress ?? null,
+            lat: payload.place?.lat ?? null,
+            lng: payload.place?.lng ?? null,
+          },
+        });
+      } else {
+        setHealth({
+          state: "unhealthy",
+          status: payload.status,
+          error: payload.error ?? "Unknown error",
+        });
+      }
+    } catch (e) {
+      setHealth({
+        state: "unhealthy",
+        status: "degraded",
+        error: e instanceof Error ? e.message : "Network or parse error",
+      });
     }
   };
 
@@ -99,6 +146,55 @@ function MapsAdminBody() {
               {isLoading ? "Loading…" : data?.value ? "Configured" : "Not set"}
             </Badge>
           </div>
+        </Card>
+
+        <Card className="space-y-3 p-4 bg-black/40 border-white/15">
+          <div className="space-y-1">
+            <h2 className="text-sm font-medium">Server-side health check</h2>
+            <p className="text-xs text-[#F0FFF0]/60">
+              Tests the GOOGLE_API_KEY secret used by server functions (Places API details call).
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={checkHealth}
+              disabled={health.state === "loading"}
+              variant="outline"
+            >
+              {health.state === "loading" ? "Checking…" : "Test Places API"}
+            </Button>
+            {health.state === "healthy" && (
+              <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/20 border-green-500/30">
+                Healthy
+              </Badge>
+            )}
+            {health.state === "unhealthy" && (
+              <Badge variant="destructive">{health.status}</Badge>
+            )}
+          </div>
+          {health.state === "healthy" && (
+            <div className="text-sm space-y-1 rounded border border-white/10 bg-black/60 p-3">
+              <p>
+                <span className="text-[#F0FFF0]/60">Name:</span>{" "}
+                {health.place.name ?? "—"}
+              </p>
+              <p>
+                <span className="text-[#F0FFF0]/60">Address:</span>{" "}
+                {health.place.formattedAddress ?? "—"}
+              </p>
+              <p>
+                <span className="text-[#F0FFF0]/60">Lat / Lng:</span>{" "}
+                {health.place.lat != null && health.place.lng != null
+                  ? `${health.place.lat.toFixed(6)}, ${health.place.lng.toFixed(6)}`
+                  : "—"}
+              </p>
+            </div>
+          )}
+          {health.state === "unhealthy" && (
+            <div className="text-sm rounded border border-red-500/20 bg-red-500/10 p-3 text-red-200">
+              {health.error}
+            </div>
+          )}
         </Card>
 
         <Card className="space-y-3 p-4 bg-black/40 border-white/15">
