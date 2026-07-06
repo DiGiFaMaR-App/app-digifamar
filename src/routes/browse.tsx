@@ -222,9 +222,8 @@ function Browse() {
         const city =
           details.addressComponents.find((c) => c.types.includes("locality"))?.longText ?? null;
         const state =
-          details.addressComponents.find((c) =>
-            c.types.includes("administrative_area_level_1"),
-          )?.shortText ?? null;
+          details.addressComponents.find((c) => c.types.includes("administrative_area_level_1"))
+            ?.shortText ?? null;
         const zip =
           details.addressComponents.find((c) => c.types.includes("postal_code"))?.longText ?? null;
         setOrigin({
