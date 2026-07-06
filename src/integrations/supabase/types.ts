@@ -120,26 +120,32 @@ export type Database = {
         Row: {
           buyer_id: string
           created_at: string
+          farm_name: string | null
           farmer_id: string
           id: string
           last_message_at: string
           product_id: string | null
+          updated_at: string
         }
         Insert: {
           buyer_id: string
           created_at?: string
+          farm_name?: string | null
           farmer_id: string
           id?: string
           last_message_at?: string
           product_id?: string | null
+          updated_at?: string
         }
         Update: {
           buyer_id?: string
           created_at?: string
+          farm_name?: string | null
           farmer_id?: string
           id?: string
           last_message_at?: string
           product_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -272,6 +278,48 @@ export type Database = {
           },
         ]
       }
+      farmer_lender_recommendations: {
+        Row: {
+          avg_rating: number
+          created_at: string
+          farmer_id: string
+          id: string
+          lender_id: string | null
+          reason: string | null
+          recommended_amount: number
+          repeat_buyer_pct: number
+          trade_score: number
+          twelve_month_sales: number
+          updated_at: string
+        }
+        Insert: {
+          avg_rating?: number
+          created_at?: string
+          farmer_id: string
+          id?: string
+          lender_id?: string | null
+          reason?: string | null
+          recommended_amount?: number
+          repeat_buyer_pct?: number
+          trade_score?: number
+          twelve_month_sales?: number
+          updated_at?: string
+        }
+        Update: {
+          avg_rating?: number
+          created_at?: string
+          farmer_id?: string
+          id?: string
+          lender_id?: string | null
+          reason?: string | null
+          recommended_amount?: number
+          repeat_buyer_pct?: number
+          trade_score?: number
+          twelve_month_sales?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       farmer_profiles: {
         Row: {
           acres: number | null
@@ -367,6 +415,119 @@ export type Database = {
           },
         ]
       }
+      lender_applications: {
+        Row: {
+          charter_number: string | null
+          contact_email: string
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          institution_name: string
+          institution_type: string
+          lending_states: string[]
+          max_loan_amount: number
+          min_loan_amount: number
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          charter_number?: string | null
+          contact_email: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          institution_name: string
+          institution_type: string
+          lending_states?: string[]
+          max_loan_amount?: number
+          min_loan_amount?: number
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          charter_number?: string | null
+          contact_email?: string
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          institution_name?: string
+          institution_type?: string
+          lending_states?: string[]
+          max_loan_amount?: number
+          min_loan_amount?: number
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lender_profiles: {
+        Row: {
+          application_id: string | null
+          charter_number: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          institution_name: string
+          institution_type: string
+          lending_states: string[]
+          max_loan_amount: number
+          min_loan_amount: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_id?: string | null
+          charter_number?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          institution_name: string
+          institution_type: string
+          lending_states?: string[]
+          max_loan_amount?: number
+          min_loan_amount?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string | null
+          charter_number?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          institution_name?: string
+          institution_type?: string
+          lending_states?: string[]
+          max_loan_amount?: number
+          min_loan_amount?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lender_profiles_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "lender_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           category: string
@@ -423,27 +584,30 @@ export type Database = {
       }
       messages: {
         Row: {
-          body: string
+          content: string
           conversation_id: string
           created_at: string
           flagged: boolean
           id: string
+          is_read: boolean
           sender_id: string
         }
         Insert: {
-          body: string
+          content: string
           conversation_id: string
           created_at?: string
           flagged?: boolean
           id?: string
+          is_read?: boolean
           sender_id: string
         }
         Update: {
-          body?: string
+          content?: string
           conversation_id?: string
           created_at?: string
           flagged?: boolean
           id?: string
+          is_read?: boolean
           sender_id?: string
         }
         Relationships: [
@@ -521,8 +685,8 @@ export type Database = {
           release_code_hash?: string | null
           shipping_address?: string | null
           status?: string
-          subtotal_cents: number
-          total_cents: number
+          subtotal_cents?: number
+          total_cents?: number
           updated_at?: string
         }
         Update: {
@@ -683,7 +847,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "farmer" | "buyer"
+      app_role: "admin" | "farmer" | "buyer" | "lender"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -811,7 +975,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "farmer", "buyer"],
+      app_role: ["admin", "farmer", "buyer", "lender"],
     },
   },
 } as const

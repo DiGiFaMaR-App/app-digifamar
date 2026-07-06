@@ -1,6 +1,17 @@
 import * as React from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
+
+// The marketplace now sources listings from Supabase via useCatalogProducts;
+// stub the hook with the bundled mock catalog so these UI/filter tests remain
+// deterministic without a live backend or QueryClient.
+vi.mock("@/lib/catalog/use-catalog", async () => {
+  const { products } = await import("@/lib/mock-data");
+  return {
+    useCatalogProducts: () => ({ data: products, isLoading: false, isError: false }),
+  };
+});
+
 import { Route } from "./market";
 import { products } from "@/lib/mock-data";
 
