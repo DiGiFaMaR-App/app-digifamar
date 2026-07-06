@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
@@ -14,6 +14,7 @@ import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
 import { GeoPermissionHelp } from "@/components/GeoPermissionHelp";
 import { LocationAutocompleteInput } from "@/components/LocationAutocompleteInput";
+import { FarmDetailSheet } from "@/components/FarmDetailSheet";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
 
