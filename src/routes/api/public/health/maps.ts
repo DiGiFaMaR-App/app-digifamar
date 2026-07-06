@@ -24,43 +24,56 @@ export const Route = createFileRoute("/api/public/health/maps")({
 
         try {
           const response = await fetch(
-            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(placeId)}&fields=${encodeURIComponent(fields)}&key=${encodeURIComponent(apiKey)}`,
+            `https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}?key=${encodeURIComponent(apiKey)}`,
+            {
+              method: "GET",
+              headers: {
+                "X-Goog-FieldMask": fields,
+                Accept: "application/json",
+              },
+            },
           );
 
           if (!response.ok) {
+            const text = await response.text().catch(() => "");
             return Response.json(
               {
                 status: "degraded",
                 ok: false,
-                error: `Google returned HTTP ${response.status}`,
+                error: `Google returned HTTP ${response.status}${text ? ` — ${text}` : ""}`,
               },
               { status: 503 },
             );
           }
 
-          const data = await response.json();
-          if (data.status !== "OK") {
+          const data = (await response.json()) as {
+            id?: string;
+            displayName?: { text?: string };
+            formattedAddress?: string;
+            location?: { latitude?: number; longitude?: number };
+            error?: { message?: string; status?: string };
+          };
+
+          if (data.error) {
             return Response.json(
               {
                 status: "degraded",
                 ok: false,
-                error: `Google Places error: ${data.status}`,
-                details: data.error_message ?? null,
+                error: `Google Places error: ${data.error.message ?? data.error.status ?? "unknown"}`,
               },
               { status: 503 },
             );
           }
 
-          const result = data.result;
           return Response.json({
             status: "healthy",
             ok: true,
             place: {
-              id: result.place_id,
-              name: result.name ?? null,
-              formattedAddress: result.formatted_address ?? null,
-              lat: result.geometry?.location?.lat ?? null,
-              lng: result.geometry?.location?.lng ?? null,
+              id: data.id ?? placeId,
+              name: data.displayName?.text ?? null,
+              formattedAddress: data.formattedAddress ?? null,
+              lat: data.location?.latitude ?? null,
+              lng: data.location?.longitude ?? null,
             },
           });
         } catch (err) {
@@ -77,3 +90,4 @@ export const Route = createFileRoute("/api/public/health/maps")({
     },
   },
 });
+
