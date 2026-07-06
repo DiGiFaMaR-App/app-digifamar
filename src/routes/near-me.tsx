@@ -263,10 +263,17 @@ function NearMe() {
                   key={f.user_id}
                   className="group rounded-xl border border-border bg-card p-4 transition hover:border-primary/60 hover:shadow-md"
                 >
-                  <Link
-                    to="/farm/$id"
-                    params={{ id: f.user_id }}
-                    className="flex items-start justify-between gap-3"
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedFarm({
+                        id: f.user_id,
+                        name: f.farm_name,
+                        distance: dist,
+                      })
+                    }
+                    aria-label={`View details for ${f.farm_name}`}
+                    className="flex w-full items-start justify-between gap-3 text-left"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
@@ -298,7 +305,7 @@ function NearMe() {
                         {dist.toFixed(1)} mi
                       </span>
                     )}
-                  </Link>
+                  </button>
                 </li>
               );
             })}
