@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useCart } from "@/hooks/use-cart";
 import { getFarm, type Product } from "@/lib/mock-data";
 
 type Step = "details" | "held" | "delivery" | "release" | "success";
@@ -32,10 +33,12 @@ export function ProductSheet({
   onOpenChange: (v: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const { add } = useCart();
   const [active, setActive] = useState(0);
   const [step, setStep] = useState<Step>("details");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [added, setAdded] = useState(false);
   const farm = product ? getFarm(product.farmId) : null;
 
   // Reset state whenever the sheet opens for a different product
@@ -47,6 +50,7 @@ export function ProductSheet({
         setCode("");
         setError(null);
         setActive(0);
+        setAdded(false);
       }, 250);
       return () => clearTimeout(t);
     }
@@ -59,9 +63,30 @@ export function ProductSheet({
     return () => clearTimeout(t);
   }, [step]);
 
+  // Revert the "Added" confirmation label after a short delay (cleaned up on unmount/change)
+  useEffect(() => {
+    if (!added) return;
+    const t = setTimeout(() => setAdded(false), 1800);
+    return () => clearTimeout(t);
+  }, [added]);
+
   if (!product) return null;
   const gallery = [product.image, farm?.image, product.image].filter(Boolean) as string[];
   const orderId = "DFM-" + (product.id.slice(0, 4) + "K2X").toUpperCase().slice(0, 6);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    add({
+      productId: product.id,
+      name: product.name,
+      unitPrice: product.price,
+      unit: product.unit,
+      image: product.image,
+      farmId: product.farmId,
+    });
+    setAdded(true);
+    toast.success(`${product.name} added to cart`);
+  };
 
   const handleRelease = () => {
     if (code === MOCK_CODE) {
@@ -182,8 +207,14 @@ export function ProductSheet({
                 >
                   <Lock className="mr-1 h-4 w-4" /> Buy now · ${product.price.toFixed(2)}
                 </Button>
-                <Button size="lg" variant="outline" className="h-12">
-                  Add to cart
+                <Button size="lg" variant="outline" className="h-12" onClick={handleAddToCart}>
+                  {added ? (
+                    <>
+                      <CheckCircle2 className="mr-1 h-5 w-5" /> Added
+                    </>
+                  ) : (
+                    "Add to cart"
+                  )}
                 </Button>
               </div>
 
