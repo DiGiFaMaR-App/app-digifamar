@@ -75,7 +75,6 @@ const reverseSchema = z.object({
 });
 
 export const reverseGeocode = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => reverseSchema.parse(data))
   .handler(async ({ data }): Promise<GeocodeResult> => {
     return callGeocode(
