@@ -381,7 +381,7 @@ function Browse() {
           </div>
 
           {origin && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
               <MapPin className="h-3 w-3" /> Showing results within 50 mi of{" "}
               <strong className="text-foreground">{origin.formatted}</strong>
               <button
@@ -391,6 +391,49 @@ function Browse() {
               >
                 <X className="h-3 w-3" />
               </button>
+              {lastPlaceId && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleTestPlaceDetails}
+                  disabled={testLoading}
+                  className="ml-2 h-6 text-[10px]"
+                >
+                  {testLoading ? (
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                  ) : (
+                    <Search className="mr-1 h-3 w-3" />
+                  )}
+                  Test Place Details
+                </Button>
+              )}
+            </div>
+          )}
+
+          {testDetails && (
+            <div className="rounded-md border border-border bg-background/60 p-3 text-xs">
+              <p className="font-semibold text-foreground">Place details</p>
+              <p className="mt-1 text-muted-foreground">
+                <span className="font-medium text-foreground">Address:</span>{" "}
+                {testDetails.formattedAddress ?? "—"}
+              </p>
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">Lat / Lng:</span>{" "}
+                {testDetails.lat?.toFixed(6) ?? "—"}, {testDetails.lng?.toFixed(6) ?? "—"}
+              </p>
+              <p className="text-muted-foreground">
+                <span className="font-medium text-foreground">Place ID:</span> {testDetails.id}
+              </p>
+            </div>
+          )}
+
+          {testError && (
+            <div
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+            >
+              {testError}
             </div>
           )}
 
