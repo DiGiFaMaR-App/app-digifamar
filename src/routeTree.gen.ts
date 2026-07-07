@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as XaiAgentRouteImport } from './routes/xai-agent'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SigninRouteImport } from './routes/signin'
@@ -71,6 +72,11 @@ import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/hea
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
+const XaiAgentRoute = XaiAgentRouteImport.update({
+  id: '/xai-agent',
+  path: '/xai-agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -406,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/xai-agent': typeof XaiAgentRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/xai-agent': typeof XaiAgentRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -533,6 +541,7 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/xai-agent': typeof XaiAgentRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -598,6 +607,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/xai-agent'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -661,6 +671,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/xai-agent'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -724,6 +735,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/xai-agent'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -788,6 +800,7 @@ export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  XaiAgentRoute: typeof XaiAgentRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAuditRoute: typeof AdminAuditRoute
@@ -828,6 +841,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/xai-agent': {
+      id: '/xai-agent'
+      path: '/xai-agent'
+      fullPath: '/xai-agent'
+      preLoaderRoute: typeof XaiAgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -1295,6 +1315,7 @@ const rootRouteChildren: RootRouteChildren = {
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  XaiAgentRoute: XaiAgentRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
