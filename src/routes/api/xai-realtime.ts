@@ -104,7 +104,7 @@ export const Route = createFileRoute("/api/xai-realtime")({
         // Pipe client -> upstream
         serverSocket.addEventListener("message", (evt: MessageEvent) => {
           try {
-            upstream.send(evt.data as string | ArrayBufferLike);
+            upstream.send(evt.data as string | ArrayBuffer);
           } catch (err) {
             console.error("[xai-realtime] failed forwarding client->upstream", err);
             closeBoth(1011, "forward error");
@@ -125,7 +125,7 @@ export const Route = createFileRoute("/api/xai-realtime")({
         // Pipe upstream -> client
         upstream.addEventListener("message", (evt: MessageEvent) => {
           try {
-            serverSocket.send(evt.data as string | ArrayBufferLike);
+            serverSocket.send(evt.data as string | ArrayBuffer);
           } catch (err) {
             console.error("[xai-realtime] failed forwarding upstream->client", err);
             closeBoth(1011, "forward error");
