@@ -51,6 +51,7 @@ import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
+import { Route as ApiXaiRealtimeRouteImport } from './routes/api/xai-realtime'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
@@ -280,6 +281,11 @@ const ChatProductIdRoute = ChatProductIdRouteImport.update({
   path: '/chat/$productId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiXaiRealtimeRoute = ApiXaiRealtimeRouteImport.update({
+  id: '/api/xai-realtime',
+  path: '/api/xai-realtime',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiOrdersRoute = ApiOrdersRouteImport.update({
   id: '/api/orders',
   path: '/api/orders',
@@ -412,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
+  '/api/xai-realtime': typeof ApiXaiRealtimeRoute
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -474,6 +481,7 @@ export interface FileRoutesByTo {
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
+  '/api/xai-realtime': typeof ApiXaiRealtimeRoute
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -537,6 +545,7 @@ export interface FileRoutesById {
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
+  '/api/xai-realtime': typeof ApiXaiRealtimeRoute
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -601,6 +610,7 @@ export interface FileRouteTypes {
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
+    | '/api/xai-realtime'
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
@@ -663,6 +673,7 @@ export interface FileRouteTypes {
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
+    | '/api/xai-realtime'
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
@@ -725,6 +736,7 @@ export interface FileRouteTypes {
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
+    | '/api/xai-realtime'
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
@@ -788,6 +800,7 @@ export interface RootRouteChildren {
   AdminRevealKeyRoute: typeof AdminRevealKeyRoute
   AdminUsersRoute: typeof AdminUsersRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
+  ApiXaiRealtimeRoute: typeof ApiXaiRealtimeRoute
   ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
@@ -1109,6 +1122,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/xai-realtime': {
+      id: '/api/xai-realtime'
+      path: '/api/xai-realtime'
+      fullPath: '/api/xai-realtime'
+      preLoaderRoute: typeof ApiXaiRealtimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/orders': {
       id: '/api/orders'
       path: '/api/orders'
@@ -1288,6 +1308,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRevealKeyRoute: AdminRevealKeyRoute,
   AdminUsersRoute: AdminUsersRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
+  ApiXaiRealtimeRoute: ApiXaiRealtimeRoute,
   ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
