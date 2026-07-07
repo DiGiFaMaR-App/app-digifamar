@@ -224,7 +224,7 @@ function XaiAgentPage() {
 
             {messages.map((m) => (
               <Message key={m.id} from={m.role}>
-                <MessageContent variant={m.role === "assistant" ? "flat" : "contained"}>
+                <MessageContent>
                   {m.role === "assistant" ? (
                     <MessageResponse>{m.text || " "}</MessageResponse>
                   ) : (
