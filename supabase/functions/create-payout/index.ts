@@ -107,28 +107,30 @@ Deno.serve(async (req) => {
       const acct = await stripe(`/accounts/${accountId}`, key);
       if (!acct.payouts_enabled) return errorResponse("Your connected account can't receive payouts yet.", 400);
 
-      const { data: wallet } = await sb
-        .from("wallets")
-        .select("available_balance_cents")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      const available = Number(wallet?.available_balance_cents ?? 0);
+      // Atomically claim the whole available balance BEFORE calling Stripe so a
+      // double-click / retry can't transfer the same funds twice. The loser of a
+      // concurrent race gets 0. If Stripe then fails we credit the amount back.
+      const { data: claimed, error: cErr } = await sb.rpc("wallet_claim_available", {
+        p_user_id: user.id,
+      });
+      if (cErr) throw new Error(cErr.message);
+      const available = Number(claimed ?? 0);
       if (available <= 0) return errorResponse("No available balance to withdraw.", 400);
 
       // Transfer from platform balance to the farmer's connected account.
-      const transfer = await stripe("/transfers", key, {
-        amount: String(available),
-        currency: "usd",
-        destination: accountId!,
-        description: `DiGiFaMaR wallet withdrawal for ${user.id}`,
-      });
-
-      // Debit the wallet only after the transfer succeeds.
-      const { error: uerr } = await sb
-        .from("wallets")
-        .update({ available_balance_cents: 0 })
-        .eq("user_id", user.id);
-      if (uerr) throw new Error(uerr.message);
+      let transfer: { id: string };
+      try {
+        transfer = await stripe("/transfers", key, {
+          amount: String(available),
+          currency: "usd",
+          destination: accountId!,
+          description: `DiGiFaMaR wallet withdrawal for ${user.id}`,
+        });
+      } catch (e) {
+        // Transfer failed — restore the claimed balance so nothing is lost.
+        await sb.rpc("wallet_credit", { p_user_id: user.id, p_amount: available });
+        throw e;
+      }
 
       await sb.from("notifications").insert({
         user_id: user.id,

@@ -88,25 +88,15 @@ async function appendLedger(
   if (error) throw new Error(`ledger insert failed: ${error.message}`);
 }
 
-async function ensureWallet(userId: string) {
-  await sb.from("wallets").insert({ user_id: userId }).select().maybeSingle();
-}
-
 async function creditAvailable(userId: string, amountCents: number) {
   if (amountCents <= 0) return;
-  await ensureWallet(userId);
-  const { data, error } = await sb
-    .from("wallets")
-    .select("available_balance_cents")
-    .eq("user_id", userId)
-    .maybeSingle();
+  // Atomic increment (creates the wallet row if missing) — avoids the
+  // read-modify-write race when two settlements land at once for one user.
+  const { error } = await sb.rpc("wallet_credit", {
+    p_user_id: userId,
+    p_amount: amountCents,
+  });
   if (error) throw new Error(error.message);
-  const next = Number(data?.available_balance_cents ?? 0) + amountCents;
-  const { error: uerr } = await sb
-    .from("wallets")
-    .update({ available_balance_cents: next })
-    .eq("user_id", userId);
-  if (uerr) throw new Error(uerr.message);
 }
 
 async function notify(userId: string, type: string, title: string, body: string, orderId: string) {
@@ -285,6 +275,12 @@ async function resolveDispute(
   input: { disputeId: string; outcome: "release" | "refund" | "split"; buyerRefundCents?: number; resolution: string },
 ) {
   if (!(await hasRole(adminId, "admin"))) throw new Error("Forbidden");
+  if (!["release", "refund", "split"].includes(input.outcome)) {
+    throw new Error(`Invalid dispute outcome: ${input.outcome}`);
+  }
+  if (input.outcome === "split" && !(Number(input.buyerRefundCents) >= 0)) {
+    throw new Error("A non-negative buyerRefundCents is required for a split outcome");
+  }
   const { data: dispute, error: dErr } = await sb
     .from("disputes")
     .select("id, order_id, state")
