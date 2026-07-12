@@ -5,7 +5,6 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { AdminGate } from "@/components/AdminGate";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -36,7 +35,7 @@ function badgeVariant(outcome: string) {
 }
 
 function AuditBody() {
-  const list = useServerFn(listAuditLogsFn);
+  const list = listAuditLogsFn;
   const [action, setAction] = useState("");
   const [resourceId, setResourceId] = useState("");
 

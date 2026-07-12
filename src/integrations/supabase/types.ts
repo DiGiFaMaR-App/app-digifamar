@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       app_settings: {
@@ -333,6 +358,7 @@ export type Database = {
           lng: number | null
           products: string[]
           state: string | null
+          stripe_account_id: string | null
           updated_at: string
           user_id: string
           verification_status: string
@@ -351,6 +377,7 @@ export type Database = {
           lng?: number | null
           products?: string[]
           state?: string | null
+          stripe_account_id?: string | null
           updated_at?: string
           user_id: string
           verification_status?: string
@@ -369,6 +396,7 @@ export type Database = {
           lng?: number | null
           products?: string[]
           state?: string | null
+          stripe_account_id?: string | null
           updated_at?: string
           user_id?: string
           verification_status?: string
@@ -620,6 +648,47 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          data: Json
+          id: string
+          is_read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          is_read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          is_read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_events: {
         Row: {
           created_at: string
@@ -835,7 +904,48 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_farms: {
+        Row: {
+          certifications: string[] | null
+          city: string | null
+          description: string | null
+          farm_name: string | null
+          lat: number | null
+          lng: number | null
+          products: string[] | null
+          state: string | null
+          user_id: string | null
+          verification_status: string | null
+          zip: string | null
+        }
+        Insert: {
+          certifications?: string[] | null
+          city?: string | null
+          description?: string | null
+          farm_name?: string | null
+          lat?: number | null
+          lng?: number | null
+          products?: string[] | null
+          state?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          zip?: string | null
+        }
+        Update: {
+          certifications?: string[] | null
+          city?: string | null
+          description?: string | null
+          farm_name?: string | null
+          lat?: number | null
+          lng?: number | null
+          products?: string[] | null
+          state?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -973,6 +1083,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "farmer", "buyer", "lender"],

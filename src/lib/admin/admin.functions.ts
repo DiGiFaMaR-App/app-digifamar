@@ -1,237 +1,200 @@
 /**
- * Admin module — server functions for the internal admin panel.
- * All callers must be in the `admin` role (checked server-side).
- * Every mutating action writes an audit_logs entry.
+ * Admin module — CLIENT module (self-contained app).
+ *
+ * The admin panel queries Supabase directly under the admin's session. The
+ * "Admin full-access" RLS policies (has_role(auth.uid(),'admin')) authorize
+ * these reads/writes, so no server function or service role is needed in the
+ * app. Dispute *resolution* (which moves money) stays in the escrow Edge
+ * Function (see escrow-v2/escrow.functions.ts::resolveDisputeFn).
+ *
+ * Export names + `{ data }` call shapes are kept for drop-in compatibility.
  */
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertAdminRole } from "@/lib/admin/authorization";
+import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
-async function assertAdmin(context: { userId: string }) {
-  await assertAdminRole(context.userId);
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  return supabaseAdmin;
+/** Best-effort audit trail; never block an admin action if it can't be written. */
+async function audit(entry: {
+  action: string;
+  resourceType: string;
+  resourceId?: string | null;
+  outcome?: "success" | "failure";
+  metadata?: Record<string, unknown>;
+}): Promise<void> {
+  try {
+    const { data: auth } = await supabase.auth.getUser();
+    await supabase.from("audit_logs").insert({
+      actor_id: auth.user?.id ?? null,
+      actor_role: "admin",
+      action: entry.action,
+      resource_type: entry.resourceType,
+      resource_id: entry.resourceId ?? null,
+      outcome: entry.outcome ?? "success",
+      metadata: (entry.metadata ?? {}) as Json,
+    });
+  } catch {
+    /* audit is best-effort on the client */
+  }
 }
 
-export const listOpenDisputesFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const sb = await assertAdmin(context);
-    const { data, error } = await sb
-      .from("disputes")
-      .select(
-        "id, order_id, raised_by, reason, evidence_urls, state, resolution, created_at, resolved_at",
-      )
-      .in("state", ["open", "under_review"])
-      .order("created_at", { ascending: false })
-      .limit(100);
+export const verifyAdminSessionFn = async (): Promise<{ ok: true }> => {
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) throw new Error("Not signed in");
+  const { data, error } = await supabase.rpc("has_role", {
+    _user_id: auth.user.id,
+    _role: "admin",
+  });
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Forbidden");
+  return { ok: true };
+};
+
+export const listOpenDisputesFn = async () => {
+  const { data, error } = await supabase
+    .from("disputes")
+    .select(
+      "id, order_id, raised_by, reason, evidence_urls, state, resolution, created_at, resolved_at",
+    )
+    .in("state", ["open", "under_review"])
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+};
+
+export const listLedgerForOrderFn = async ({ data }: { data: { orderId: string } }) => {
+  const { data: rows, error } = await supabase
+    .from("escrow_ledger")
+    .select("*")
+    .eq("order_id", data.orderId)
+    .order("created_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return rows ?? [];
+};
+
+export const setUserRoleFn = async ({
+  data,
+}: {
+  data: { userId: string; role: "admin" | "farmer" | "buyer"; action: "grant" | "revoke" };
+}) => {
+  if (data.action === "grant") {
+    const { error } = await supabase
+      .from("user_roles")
+      .insert({ user_id: data.userId, role: data.role });
+    if (error && !error.message.toLowerCase().includes("duplicate")) throw new Error(error.message);
+  } else {
+    const { error } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.userId)
+      .eq("role", data.role);
     if (error) throw new Error(error.message);
-    return data ?? [];
+  }
+  await audit({
+    action: data.action === "grant" ? "admin.role.grant" : "admin.role.revoke",
+    resourceType: "user_role",
+    resourceId: data.userId,
+    metadata: { role: data.role },
   });
+  return { ok: true };
+};
 
-export const verifyAdminSessionFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdminRole(context.userId);
-    return { ok: true };
+export const listUsersFn = async ({ data }: { data?: { search?: string } } = {}) => {
+  let q = supabase
+    .from("profiles")
+    .select("id, full_name, email, phone, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
+  const s = data?.search?.trim();
+  if (s) q = q.or(`email.ilike.%${s}%,full_name.ilike.%${s}%`);
+  const { data: profiles, error } = await q;
+  if (error) throw new Error(error.message);
+  const ids = (profiles ?? []).map((p) => p.id);
+  const { data: roles } = ids.length
+    ? await supabase.from("user_roles").select("user_id, role").in("user_id", ids)
+    : { data: [] as Array<{ user_id: string; role: string }> };
+  const roleMap = new Map<string, string[]>();
+  (roles ?? []).forEach((r) => {
+    const arr = roleMap.get(r.user_id) ?? [];
+    arr.push(r.role);
+    roleMap.set(r.user_id, arr);
   });
+  return (profiles ?? []).map((p) => ({ ...p, roles: roleMap.get(p.id) ?? [] }));
+};
 
-export const listLedgerForOrderFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ orderId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const sb = await assertAdmin(context);
-    const { data: rows, error } = await sb
-      .from("escrow_ledger")
-      .select("*")
-      .eq("order_id", data.orderId)
-      .order("created_at", { ascending: true });
-    if (error) throw new Error(error.message);
-    return rows ?? [];
+export const listAllOrdersFn = async ({
+  data,
+}: {
+  data?: { status?: string; limit?: number };
+} = {}) => {
+  let q = supabase
+    .from("orders")
+    .select("id, buyer_id, farmer_id, listing_id, qty, total_cents, status, created_at")
+    .order("created_at", { ascending: false })
+    .limit(data?.limit ?? 200);
+  if (data?.status) q = q.eq("status", data.status);
+  const { data: rows, error } = await q;
+  if (error) throw new Error(error.message);
+  return rows ?? [];
+};
+
+export const listAllListingsFn = async ({ data }: { data?: { search?: string } } = {}) => {
+  let q = supabase
+    .from("listings")
+    .select("id, farmer_id, title, category, price_cents, unit, qty_available, status, created_at")
+    .order("created_at", { ascending: false })
+    .limit(300);
+  const s = data?.search?.trim();
+  if (s) q = q.ilike("title", `%${s}%`);
+  const { data: rows, error } = await q;
+  if (error) throw new Error(error.message);
+  return rows ?? [];
+};
+
+export const setListingStatusFn = async ({
+  data,
+}: {
+  data: { id: string; status: "active" | "paused" | "removed" };
+}) => {
+  const { error } = await supabase
+    .from("listings")
+    .update({ status: data.status })
+    .eq("id", data.id);
+  if (error) throw new Error(error.message);
+  await audit({
+    action: "admin.listing.status",
+    resourceType: "listing",
+    resourceId: data.id,
+    metadata: { status: data.status },
   });
+  return { ok: true };
+};
 
-const RoleUpdateDto = z.object({
-  userId: z.string().uuid(),
-  role: z.enum(["admin", "farmer", "buyer"]),
-  action: z.enum(["grant", "revoke"]),
-});
+export const listAllConversationsFn = async () => {
+  const { data, error } = await supabase
+    .from("conversations")
+    .select("id, buyer_id, farmer_id, product_id, last_message_at, created_at")
+    .order("last_message_at", { ascending: false, nullsFirst: false })
+    .limit(200);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+};
 
-export const setUserRoleFn = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => RoleUpdateDto.parse(input))
-  .handler(async ({ data, context }) => {
-    const sb = await assertAdmin(context);
-    const { logAudit } = await import("@/lib/audit/log.server");
-
-    let outcome: "success" | "failure" = "success";
-    let errorMsg: string | null = null;
-    try {
-      if (data.action === "grant") {
-        const { error } = await sb
-          .from("user_roles")
-          .insert({ user_id: data.userId, role: data.role });
-        if (error && !error.message.toLowerCase().includes("duplicate")) {
-          throw new Error(error.message);
-        }
-      } else {
-        const { error } = await sb
-          .from("user_roles")
-          .delete()
-          .eq("user_id", data.userId)
-          .eq("role", data.role);
-        if (error) throw new Error(error.message);
-      }
-    } catch (e) {
-      outcome = "failure";
-      errorMsg = e instanceof Error ? e.message : String(e);
-      await logAudit({
-        actorId: context.userId,
-        actorRole: "admin",
-        action: data.action === "grant" ? "admin.role.grant" : "admin.role.revoke",
-        resourceType: "user_role",
-        resourceId: data.userId,
-        outcome,
-        metadata: { role: data.role, error: errorMsg },
-      });
-      throw e;
-    }
-
-    await logAudit({
-      actorId: context.userId,
-      actorRole: "admin",
-      action: data.action === "grant" ? "admin.role.grant" : "admin.role.revoke",
-      resourceType: "user_role",
-      resourceId: data.userId,
-      outcome,
-      metadata: { role: data.role },
-    });
-    return { ok: true };
+export const listMessagesForConversationFn = async ({
+  data,
+}: {
+  data: { conversationId: string };
+}) => {
+  const { data: rows, error } = await supabase
+    .from("messages")
+    .select("id, sender_id, content, flagged, created_at")
+    .eq("conversation_id", data.conversationId)
+    .order("created_at", { ascending: true })
+    .limit(500);
+  if (error) throw new Error(error.message);
+  await audit({
+    action: "admin.chat.read",
+    resourceType: "conversation",
+    resourceId: data.conversationId,
   });
-
-export const listUsersFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ search: z.string().optional() }).parse(input ?? {}))
-  .handler(async ({ data, context }) => {
-    const sb = await assertAdmin(context);
-    let q = sb
-      .from("profiles")
-      .select("id, full_name, email, phone, created_at")
-      .order("created_at", { ascending: false })
-      .limit(200);
-    const s = data.search?.trim();
-    if (s) q = q.or(`email.ilike.%${s}%,full_name.ilike.%${s}%`);
-    const { data: profiles, error } = await q;
-    if (error) throw new Error(error.message);
-    const ids = (profiles ?? []).map((p) => p.id);
-    const { data: roles } = ids.length
-      ? await sb.from("user_roles").select("user_id, role").in("user_id", ids)
-      : { data: [] as Array<{ user_id: string; role: string }> };
-    const roleMap = new Map<string, string[]>();
-    (roles ?? []).forEach((r) => {
-      const arr = roleMap.get(r.user_id) ?? [];
-      arr.push(r.role);
-      roleMap.set(r.user_id, arr);
-    });
-    return (profiles ?? []).map((p) => ({ ...p, roles: roleMap.get(p.id) ?? [] }));
-  });
-
-export const listAllOrdersFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z
-      .object({ status: z.string().optional(), limit: z.number().int().min(1).max(500).optional() })
-      .parse(input ?? {}),
-  )
-  .handler(async ({ data, context }) => {
-    const sb = await assertAdmin(context);
-    let q = sb
-      .from("orders")
-      .select("id, buyer_id, farmer_id, listing_id, qty, total_cents, status, created_at")
-      .order("created_at", { ascending: false })
-      .limit(data.limit ?? 200);
-    if (data.status) q = q.eq("status", data.status);
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    return rows ?? [];
-  });
-
-export const listAllListingsFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ search: z.string().optional() }).parse(input ?? {}))
-  .handler(async ({ data, context }) => {
-    const sb = await assertAdmin(context);
-    let q = sb
-      .from("listings")
-      .select(
-        "id, farmer_id, title, category, price_cents, unit, qty_available, status, created_at",
-      )
-      .order("created_at", { ascending: false })
-      .limit(300);
-    const s = data.search?.trim();
-    if (s) q = q.ilike("title", `%${s}%`);
-    const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
-    return rows ?? [];
-  });
-
-export const setListingStatusFn = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z
-      .object({ id: z.string().uuid(), status: z.enum(["active", "paused", "removed"]) })
-      .parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    const sb = await assertAdmin(context);
-    const { logAudit } = await import("@/lib/audit/log.server");
-    const { error } = await sb.from("listings").update({ status: data.status }).eq("id", data.id);
-    if (error) throw new Error(error.message);
-    await logAudit({
-      actorId: context.userId,
-      actorRole: "admin",
-      action: "admin.listing.status",
-      resourceType: "listing",
-      resourceId: data.id,
-      outcome: "success",
-      metadata: { status: data.status },
-    });
-    return { ok: true };
-  });
-
-export const listAllConversationsFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const sb = await assertAdmin(context);
-    const { data, error } = await sb
-      .from("conversations")
-      .select("id, buyer_id, farmer_id, product_id, last_message_at, created_at")
-      .order("last_message_at", { ascending: false, nullsFirst: false })
-      .limit(200);
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
-
-export const listMessagesForConversationFn = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ conversationId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const sb = await assertAdmin(context);
-    const { logAudit } = await import("@/lib/audit/log.server");
-    const { data: rows, error } = await sb
-      .from("messages")
-      .select("id, sender_id, content, flagged, created_at")
-      .eq("conversation_id", data.conversationId)
-      .order("created_at", { ascending: true })
-      .limit(500);
-    if (error) throw new Error(error.message);
-    await logAudit({
-      actorId: context.userId,
-      actorRole: "admin",
-      action: "admin.chat.read",
-      resourceType: "conversation",
-      resourceId: data.conversationId,
-      outcome: "success",
-    });
-    return rows ?? [];
-  });
+  return rows ?? [];
+};

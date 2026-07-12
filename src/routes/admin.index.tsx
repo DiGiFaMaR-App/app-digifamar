@@ -5,7 +5,6 @@
  */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminGate } from "@/components/AdminGate";
@@ -31,7 +30,7 @@ export const Route = createFileRoute("/admin/")({
 });
 
 function AdminBody() {
-  const listDisputes = useServerFn(listOpenDisputesFn);
+  const listDisputes = listOpenDisputesFn;
   const { data: disputes, refetch } = useQuery({
     queryKey: ["admin", "disputes"],
     queryFn: () => listDisputes(),
@@ -121,7 +120,7 @@ type Dispute = {
 };
 
 function DisputeCard({ dispute, onResolved }: { dispute: Dispute; onResolved: () => void }) {
-  const resolve = useServerFn(resolveDisputeFn);
+  const resolve = resolveDisputeFn;
   const [resolution, setResolution] = useState("");
   const [refund, setRefund] = useState("");
   const [busy, setBusy] = useState(false);
@@ -200,7 +199,7 @@ function DisputeCard({ dispute, onResolved }: { dispute: Dispute; onResolved: ()
 
 function LedgerSearch() {
   const [orderId, setOrderId] = useState("");
-  const fn = useServerFn(listLedgerForOrderFn);
+  const fn = listLedgerForOrderFn;
   const [rows, setRows] = useState<Array<Record<string, unknown>>>([]);
   const search = async () => {
     try {
