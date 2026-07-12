@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -108,11 +107,11 @@ function OrderDetailPage() {
   const [disputeOpen, setDisputeOpen] = useState(false);
   const [disputeReason, setDisputeReason] = useState("");
 
-  const fund = useServerFn(fundEscrowFn);
-  const genOtp = useServerFn(generateDeliveryOtpFn);
-  const confirmDelivery = useServerFn(confirmDeliveryFn);
-  const release = useServerFn(releaseEscrowFn);
-  const dispute = useServerFn(raiseDisputeFn);
+  const fund = fundEscrowFn;
+  const genOtp = generateDeliveryOtpFn;
+  const confirmDelivery = confirmDeliveryFn;
+  const release = releaseEscrowFn;
+  const dispute = raiseDisputeFn;
 
   const load = async () => {
     setLoading(true);

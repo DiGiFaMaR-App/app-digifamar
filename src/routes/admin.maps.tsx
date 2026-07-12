@@ -5,7 +5,6 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminGate } from "@/components/AdminGate";
@@ -39,8 +38,8 @@ function mask(key: string | undefined | null) {
 }
 
 function MapsAdminBody() {
-  const getSetting = useServerFn(getAppSettingFn);
-  const setSetting = useServerFn(setAppSettingFn);
+  const getSetting = getAppSettingFn;
+  const setSetting = setAppSettingFn;
 
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["app_settings", "gmaps_browser_key"],

@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { RequireAuth } from "@/components/RequireAuth";
 import { SiteLayout } from "@/components/SiteLayout";
@@ -31,7 +30,7 @@ function DeleteAccountPage() {
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
-  const del = useServerFn(deleteMyAccountFn);
+  const del = deleteMyAccountFn;
 
   const onDelete = async () => {
     if (confirm !== "DELETE") return;

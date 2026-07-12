@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminGate } from "@/components/AdminGate";
@@ -22,8 +21,8 @@ export const Route = createFileRoute("/admin/listings")({
 });
 
 function Body() {
-  const listFn = useServerFn(listAllListingsFn);
-  const statusFn = useServerFn(setListingStatusFn);
+  const listFn = listAllListingsFn;
+  const statusFn = setListingStatusFn;
   const [search, setSearch] = useState("");
   const { data, refetch } = useQuery({
     queryKey: ["admin", "listings", search],

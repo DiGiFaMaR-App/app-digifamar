@@ -4,7 +4,6 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AdminGate } from "@/components/AdminGate";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -27,14 +26,14 @@ export const Route = createFileRoute("/admin/reveal-key")({
 });
 
 function Body() {
-  const reveal = useServerFn(revealLovableApiKeyFn);
+  const reveal = revealLovableApiKeyFn;
   const [value, setValue] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const onReveal = async () => {
     setLoading(true);
     try {
-      const res = await reveal({ data: {} as never });
+      const res = await reveal();
       setValue(res.value);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
