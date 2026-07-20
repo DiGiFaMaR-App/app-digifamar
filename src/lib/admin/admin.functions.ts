@@ -121,6 +121,65 @@ export const listUsersFn = async ({ data }: { data?: { search?: string } } = {})
   return (profiles ?? []).map((p) => ({ ...p, roles: roleMap.get(p.id) ?? [] }));
 };
 
+export const listFarmerProfilesFn = async ({
+  data,
+}: {
+  data?: { status?: "pending" | "under_review" | "approved" | "rejected" };
+} = {}) => {
+  let q = supabase
+    .from("farmer_profiles")
+    .select(
+      "user_id, farm_name, city, state, products, verification_status, rejection_reason, verified_at, created_at",
+    )
+    .order("created_at", { ascending: false })
+    .limit(300);
+  if (data?.status) q = q.eq("verification_status", data.status);
+  const { data: rows, error } = await q;
+  if (error) throw new Error(error.message);
+  const ids = (rows ?? []).map((r) => r.user_id);
+  const { data: profiles } = ids.length
+    ? await supabase.from("profiles").select("id, full_name, email, phone").in("id", ids)
+    : {
+        data: [] as Array<{
+          id: string;
+          full_name: string | null;
+          email: string | null;
+          phone: string | null;
+        }>,
+      };
+  const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
+  return (rows ?? []).map((r) => ({
+    ...r,
+    full_name: byId.get(r.user_id)?.full_name ?? null,
+    email: byId.get(r.user_id)?.email ?? null,
+    phone: byId.get(r.user_id)?.phone ?? null,
+  }));
+};
+
+export const setFarmerVerificationFn = async ({
+  data,
+}: {
+  data: {
+    userId: string;
+    status: "pending" | "under_review" | "approved" | "rejected";
+    reason?: string;
+  };
+}) => {
+  const patch: { verification_status: string; rejection_reason: string | null } = {
+    verification_status: data.status,
+    rejection_reason: data.status === "rejected" ? (data.reason ?? null) : null,
+  };
+  const { error } = await supabase.from("farmer_profiles").update(patch).eq("user_id", data.userId);
+  if (error) throw new Error(error.message);
+  await audit({
+    action: "admin.farmer.verification",
+    resourceType: "farmer_profile",
+    resourceId: data.userId,
+    metadata: { status: data.status, reason: data.reason ?? null },
+  });
+  return { ok: true };
+};
+
 export const listAllOrdersFn = async ({
   data,
 }: {

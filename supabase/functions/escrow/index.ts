@@ -14,6 +14,7 @@
 // transmitter licensing is resolved.
 import { corsHeaders, errorResponse, jsonResponse } from "../_shared/cors.ts";
 import { adminClient, getUser } from "../_shared/supabase.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const INSPECTION_WINDOW_HOURS = 48;
 const OTP_TTL_HOURS = 72;
@@ -108,35 +109,6 @@ async function notify(userId: string, type: string, title: string, body: string,
       () => {},
       (e: unknown) => console.error("[escrow] notify failed", e),
     );
-}
-
-/** Best-effort SMS via Vonage. Returns whether it was sent. */
-async function sendSms(to: string | null | undefined, body: string): Promise<boolean> {
-  const apiKey = Deno.env.get("VONAGE_API_KEY");
-  const apiSecret = Deno.env.get("VONAGE_API_SECRET");
-  const from = Deno.env.get("VONAGE_FROM");
-  if (!apiKey || !apiSecret || !from || !to) return false;
-  const e164 = to.replace(/[^\d+]/g, "");
-  try {
-    const params = new URLSearchParams({
-      api_key: apiKey,
-      api_secret: apiSecret,
-      from,
-      to: e164.replace(/^\+/, ""),
-      text: body,
-    });
-    const res = await fetch("https://rest.nexmo.com/sms/json", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
-      body: params.toString(),
-    });
-    if (!res.ok) return false;
-    const payload = await res.json().catch(() => ({}));
-    return payload?.messages?.[0]?.status === "0";
-  } catch (e) {
-    console.error("[escrow] sms failed", e);
-    return false;
-  }
 }
 
 async function hasRole(userId: string, role: string): Promise<boolean> {
