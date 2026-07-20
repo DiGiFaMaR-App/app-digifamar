@@ -121,22 +121,42 @@ export const listUsersFn = async ({ data }: { data?: { search?: string } } = {})
   return (profiles ?? []).map((p) => ({ ...p, roles: roleMap.get(p.id) ?? [] }));
 };
 
+/**
+ * Verification columns (rejection_reason/verified_at) are added by the Phase 1
+ * migration and are not yet in the generated Supabase types; the query builder
+ * is cast until types.ts is regenerated post-migration.
+ */
+interface FarmerProfileRow {
+  user_id: string;
+  farm_name: string;
+  city: string | null;
+  state: string | null;
+  products: string[];
+  verification_status: string;
+  rejection_reason: string | null;
+  verified_at: string | null;
+  created_at: string;
+}
+
 export const listFarmerProfilesFn = async ({
   data,
 }: {
   data?: { status?: "pending" | "under_review" | "approved" | "rejected" };
 } = {}) => {
+  // Non-literal column string so the codegen doesn't validate it against the
+  // (pre-migration) generated types; result is cast to FarmerProfileRow below.
+  const cols: string =
+    "user_id, farm_name, city, state, products, verification_status, rejection_reason, verified_at, created_at";
   let q = supabase
     .from("farmer_profiles")
-    .select(
-      "user_id, farm_name, city, state, products, verification_status, rejection_reason, verified_at, created_at",
-    )
+    .select(cols)
     .order("created_at", { ascending: false })
     .limit(300);
   if (data?.status) q = q.eq("verification_status", data.status);
-  const { data: rows, error } = await q;
+  const { data: rawRows, error } = await q;
   if (error) throw new Error(error.message);
-  const ids = (rows ?? []).map((r) => r.user_id);
+  const rows = (rawRows ?? []) as unknown as FarmerProfileRow[];
+  const ids = rows.map((r) => r.user_id);
   const { data: profiles } = ids.length
     ? await supabase.from("profiles").select("id, full_name, email, phone").in("id", ids)
     : {
@@ -169,7 +189,12 @@ export const setFarmerVerificationFn = async ({
     verification_status: data.status,
     rejection_reason: data.status === "rejected" ? (data.reason ?? null) : null,
   };
-  const { error } = await supabase.from("farmer_profiles").update(patch).eq("user_id", data.userId);
+  const fp = supabase.from("farmer_profiles") as unknown as {
+    update: (patch: { verification_status: string; rejection_reason: string | null }) => {
+      eq: (col: string, val: string) => Promise<{ error: { message: string } | null }>;
+    };
+  };
+  const { error } = await fp.update(patch).eq("user_id", data.userId);
   if (error) throw new Error(error.message);
   await audit({
     action: "admin.farmer.verification",
