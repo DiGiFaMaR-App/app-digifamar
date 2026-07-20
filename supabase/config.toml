@@ -1,1 +1,8 @@
-project_id = "cgmwdwnijifwprgdkvxk"
+project_id = "rlwygbvuukrcxkytzbxf"
+
+# Signup phone verification runs before the user has an account/session, so it
+# must be reachable without a user JWT. It enforces its own abuse controls
+# (rate limit, TTL, attempt cap) and only ever writes the service-role-locked
+# public.phone_otps table.
+[functions.verify-phone]
+verify_jwt = false
