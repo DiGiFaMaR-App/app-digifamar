@@ -85,8 +85,12 @@ Deno.serve(async (req) => {
         phone,
         `DiGiFaMaR: your verification code is ${code}. It expires in ${CODE_TTL_MINUTES} minutes.`,
       );
-      // When SMS isn't configured (dev), surface the code so the flow is testable.
-      const devCode = sent ? undefined : code;
+      // Only ever echo the code back for local/dev testing, and ONLY when
+      // explicitly opted in via ALLOW_DEV_OTP=true. In production (flag unset)
+      // this stays off so a missing/failed SMS can never leak the OTP and
+      // bypass verification — the flow fails closed instead.
+      const allowDevCode = Deno.env.get("ALLOW_DEV_OTP") === "true";
+      const devCode = !sent && allowDevCode ? code : undefined;
       return jsonResponse({ ok: true, sent, ...(devCode ? { devCode } : {}) });
     }
 
