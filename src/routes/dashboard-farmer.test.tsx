@@ -93,8 +93,6 @@ describe("Farmer dashboard", () => {
     h.verification = "pending";
     render(<Page />);
     expect(await screen.findByText(/pending verification/i)).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: /create new listing/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /create new listing/i })).not.toBeInTheDocument();
   });
 });
