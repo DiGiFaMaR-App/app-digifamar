@@ -19,6 +19,12 @@ import { sendSms } from "../_shared/sms.ts";
 const CODE_TTL_MINUTES = 10;
 const RESEND_COOLDOWN_SECONDS = 60;
 const MAX_ATTEMPTS = 5;
+// Anti-toll-fraud ceilings (SMS-pumping across many distinct numbers). The
+// per-phone cooldown above does not cover that vector; these do. Tunable via
+// env without a redeploy.
+const IP_HOURLY_LIMIT = Number(Deno.env.get("OTP_IP_HOURLY_LIMIT") ?? "5");
+const GLOBAL_HOURLY_LIMIT = Number(Deno.env.get("OTP_GLOBAL_HOURLY_LIMIT") ?? "100");
+const RATE_WINDOW_MS = 60 * 60 * 1000;
 
 const sb = adminClient();
 
@@ -28,6 +34,12 @@ function normalizePhone(raw: unknown): string | null {
   const digits = cleaned.replace(/^\+/, "");
   if (digits.length < 10 || digits.length > 15) return null;
   return cleaned.startsWith("+") ? cleaned : `+${digits}`;
+}
+
+function callerIp(req: Request): string {
+  const fwd = req.headers.get("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  return req.headers.get("x-real-ip")?.trim() || "unknown";
 }
 
 function generateCode(): string {
@@ -68,6 +80,27 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Toll-fraud backstop: cap outbound SMS per-IP and globally per hour so a
+      // caller can't pump SMS across many distinct numbers (the per-phone
+      // cooldown above does not cover that).
+      const ip = callerIp(req);
+      const windowStart = new Date(Date.now() - RATE_WINDOW_MS).toISOString();
+      const { count: ipCount } = await sb
+        .from("otp_send_events")
+        .select("*", { count: "exact", head: true })
+        .eq("ip", ip)
+        .gte("created_at", windowStart);
+      if ((ipCount ?? 0) >= IP_HOURLY_LIMIT) {
+        return errorResponse("Too many verification requests. Try again later.", 429);
+      }
+      const { count: globalCount } = await sb
+        .from("otp_send_events")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", windowStart);
+      if ((globalCount ?? 0) >= GLOBAL_HOURLY_LIMIT) {
+        return errorResponse("Verification is temporarily busy. Try again later.", 429);
+      }
+
       const code = generateCode();
       const codeHash = await sha256Hex(`${phone}:${code}`);
       const expiresAt = new Date(Date.now() + CODE_TTL_MINUTES * 60_000).toISOString();
@@ -80,6 +113,10 @@ Deno.serve(async (req) => {
         last_sent_at: new Date().toISOString(),
       });
       if (error) throw new Error(error.message);
+
+      // Record the send against the rate-limit window (counts toward the
+      // per-IP + global ceilings above) regardless of SMS delivery outcome.
+      await sb.from("otp_send_events").insert({ ip, phone });
 
       const sent = await sendSms(
         phone,
