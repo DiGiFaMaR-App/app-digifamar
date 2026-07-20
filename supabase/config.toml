@@ -1,4 +1,4 @@
-project_id = "cgmwdwnijifwprgdkvxk"
+project_id = "rlwygbvuukrcxkytzbxf"
 
 # Signup phone verification runs before the user has an account/session, so it
 # must be reachable without a user JWT. It enforces its own abuse controls

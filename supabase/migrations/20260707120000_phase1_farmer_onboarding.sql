@@ -53,6 +53,7 @@ CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
   meta JSONB := COALESCE(NEW.raw_user_meta_data, '{}'::jsonb);
+  app_meta JSONB := COALESCE(NEW.raw_app_meta_data, '{}'::jsonb);
   chosen_role public.app_role;
   v_phone TEXT := meta->>'phone';
   phone_ok BOOLEAN := false;
@@ -79,8 +80,17 @@ BEGIN
   EXCEPTION WHEN others THEN
     chosen_role := 'buyer';
   END;
+
+  -- Admin is only accepted when trusted app metadata explicitly allows it; it
+  -- can never be self-assigned via user-supplied signup metadata. (Preserves
+  -- the existing bootstrap path on the canonical project.)
   IF chosen_role = 'admin' THEN
-    chosen_role := 'buyer';  -- admin is never self-assigned
+    IF COALESCE(app_meta->>'allow_admin_role', 'false') = 'true'
+       AND COALESCE(app_meta->>'role', '') = 'admin' THEN
+      chosen_role := 'admin';
+    ELSE
+      chosen_role := 'buyer';
+    END IF;
   END IF;
 
   INSERT INTO public.user_roles (user_id, role)
@@ -129,9 +139,9 @@ CREATE TRIGGER trg_guard_farmer_verification
 -- 5. Gate LISTINGS on approval — DRAFTS ALLOWED for unapproved farmers.
 --    Per the approved Phase 1 design:
 --      * An UNAPPROVED farmer may INSERT/UPDATE their own listing ONLY while it
---        stays status='draft'. Drafts are never publicly visible (the SELECT
---        policy "Active listings are public" only exposes status='active' to
---        non-owners) and are never orderable (see section 6).
+--        stays status='draft'. Drafts are never publicly visible (the existing
+--        SELECT policy "Listings read scope" only exposes a row to its owner or
+--        an admin) and are never orderable (see section 6).
 --      * They cannot flip a listing to 'active' (or any published state) until
 --        an admin approves them — enforced by the WITH CHECK below, not the UI.
 --      * An APPROVED farmer may use any status (draft/active/paused/…).
@@ -154,6 +164,9 @@ $$;
 GRANT EXECUTE ON FUNCTION public.is_approved_farmer(UUID) TO anon, authenticated;
 
 -- INSERT: own listing; approved => any status, unapproved => draft only.
+-- Drop the existing permissive INSERT policy (canonical name plus older variant)
+-- so it can't be OR'd in to bypass the draft gate.
+DROP POLICY IF EXISTS "Farmers insert own listings" ON public.listings;
 DROP POLICY IF EXISTS "Farmers insert their own listings" ON public.listings;
 CREATE POLICY "Farmers insert own listings, publish requires approval"
   ON public.listings FOR INSERT TO authenticated
@@ -163,6 +176,7 @@ CREATE POLICY "Farmers insert own listings, publish requires approval"
   );
 
 -- UPDATE: own listing; approved => any status, unapproved => must remain draft.
+DROP POLICY IF EXISTS "Farmers update own listings" ON public.listings;
 DROP POLICY IF EXISTS "Farmers update their own listings" ON public.listings;
 CREATE POLICY "Farmers update own listings, publish requires approval"
   ON public.listings FOR UPDATE TO authenticated
