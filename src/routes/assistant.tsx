@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { Bot, Loader2, Send, Sparkles, User } from "lucide-react";
 import { toast } from "sonner";
@@ -42,7 +41,7 @@ const SUGGESTIONS = [
 
 function AssistantPage() {
   const { role } = useAuth();
-  const askAssistant = useServerFn(askAssistantFn);
+  const askAssistant = askAssistantFn;
 
   const [messages, setMessages] = useState<AssistantMessageDto[]>([]);
   const [input, setInput] = useState("");

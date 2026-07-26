@@ -1,20 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import {
-  BadgeCheck,
-  Crosshair,
-  Loader2,
-  MapPin,
-  Navigation,
-  Sprout,
-} from "lucide-react";
+import { BadgeCheck, Crosshair, Loader2, MapPin, Navigation, Sprout } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
 import { GeoPermissionHelp } from "@/components/GeoPermissionHelp";
 import { LocationAutocompleteInput } from "@/components/LocationAutocompleteInput";
-import { FarmDetailSheet } from "@/components/FarmDetailSheet";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
 
@@ -57,19 +49,9 @@ export const Route = createFileRoute("/near-me")({
   ),
 });
 
-
-
-
 function NearMe() {
   const geo = useGeolocation();
   const [radius, setRadius] = useState<(typeof RADIUS_OPTIONS)[number]>(25);
-  const [selectedFarm, setSelectedFarm] = useState<{
-    id: string;
-    name: string;
-    distance: number | null;
-  } | null>(null);
-
-  
 
   const hasCoords = geo.lat != null && geo.lng != null;
 
@@ -79,8 +61,7 @@ function NearMe() {
         ? {
             lat: geo.lat as number,
             lng: geo.lng as number,
-            formatted:
-              [geo.city, geo.state].filter(Boolean).join(", ") || "your current location",
+            formatted: [geo.city, geo.state].filter(Boolean).join(", ") || "your current location",
             city: geo.city,
             state: geo.state,
             zip: null,
@@ -108,9 +89,6 @@ function NearMe() {
   const farms = (results.data?.farms ?? [])
     .filter((f) => f.distance_mi != null && (f.distance_mi as number) <= radius)
     .sort((a, b) => (a.distance_mi ?? 0) - (b.distance_mi ?? 0));
-
-
-
 
   return (
     <SiteLayout>
@@ -153,12 +131,7 @@ function NearMe() {
                   </button>
                 ))}
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={geo.detect}
-                disabled={geo.loading}
-              >
+              <Button type="button" variant="outline" onClick={geo.detect} disabled={geo.loading}>
                 {geo.loading ? (
                   <>
                     <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Locating…
@@ -223,63 +196,24 @@ function NearMe() {
 
           {hasCoords && !results.isLoading && farms.length === 0 && (
             <div className="mt-4 rounded-xl border border-dashed border-border bg-card/50 p-6 text-center">
-              <p className="font-semibold">
-                No farms within {radius} miles of {origin?.formatted}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Verified farms are sparse in some areas. Try a larger radius or search nearby ZIPs and cities.
-              </p>
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                {RADIUS_OPTIONS.filter((r) => r > radius).map((r) => (
-                  <Button
-                    key={r}
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setRadius(r)}
-                  >
-                    Try {r} miles
-                  </Button>
-                ))}
-              </div>
-              <div className="mt-4 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>Or search a different area below</span>
-              </div>
-              <div className="mx-auto mt-2 max-w-md">
-                <LocationAutocompleteInput
-                  id="empty-state-loc"
-                  label="ZIP or city"
-                  placeholder="e.g. 90210 or Portland, OR"
-                  onSubmit={(v) => {
-                    void geo.setManualLocation(v);
-                  }}
-                />
-              </div>
+              <p className="font-semibold">No farms within {radius} miles</p>
+              <p className="mt-1 text-sm text-muted-foreground">Try widening the radius above.</p>
             </div>
           )}
 
           <ul className="mt-4 space-y-3">
             {farms.map((f) => {
               const dist =
-                f.distance_mi ??
-                (origin ? haversineDistance(origin.lat, origin.lng, 0, 0) : null);
+                f.distance_mi ?? (origin ? haversineDistance(origin.lat, origin.lng, 0, 0) : null);
               return (
                 <li
                   key={f.user_id}
                   className="group rounded-xl border border-border bg-card p-4 transition hover:border-primary/60 hover:shadow-md"
                 >
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedFarm({
-                        id: f.user_id,
-                        name: f.farm_name,
-                        distance: dist,
-                      })
-                    }
-                    aria-label={`View details for ${f.farm_name}`}
-                    className="flex w-full items-start justify-between gap-3 text-left"
+                  <Link
+                    to="/farm/$id"
+                    params={{ id: f.user_id }}
+                    className="flex items-start justify-between gap-3"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
@@ -311,7 +245,7 @@ function NearMe() {
                         {dist.toFixed(1)} mi
                       </span>
                     )}
-                  </button>
+                  </Link>
                 </li>
               );
             })}
@@ -327,16 +261,6 @@ function NearMe() {
           )}
         </div>
       </div>
-
-      <FarmDetailSheet
-        farmId={selectedFarm?.id ?? null}
-        farmName={selectedFarm?.name ?? null}
-        distanceMi={selectedFarm?.distance ?? null}
-        open={!!selectedFarm}
-        onOpenChange={(o) => {
-          if (!o) setSelectedFarm(null);
-        }}
-      />
     </SiteLayout>
   );
 }

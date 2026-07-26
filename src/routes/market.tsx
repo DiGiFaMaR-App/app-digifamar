@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ProductSheet } from "@/components/ProductSheet";
 import { useReveal } from "@/hooks/use-reveal";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
-import { categories, farms, products, getFarm, type Product } from "@/lib/mock-data";
+import { categories, farms, getFarm, type Product } from "@/lib/mock-data";
+import { useCatalogProducts } from "@/lib/catalog/use-catalog";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -62,6 +63,12 @@ function Marketplace() {
     detect,
   } = useGeolocation();
 
+  const {
+    data: products = [],
+    isLoading: productsLoading,
+    isError: productsError,
+  } = useCatalogProducts();
+
   const [manualInput, setManualInput] = useState("");
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<string>("all");
@@ -102,7 +109,7 @@ function Marketplace() {
         const db = farmDistances.get(b.farmId) ?? 999;
         return da - db;
       });
-  }, [cat, tier, maxDist, query, farmDistances]);
+  }, [products, cat, tier, maxDist, query, farmDistances]);
 
   const gridRef = useReveal<HTMLDivElement>({ stagger: 0.05, y: 32, scale: 0.96 });
 
@@ -310,7 +317,19 @@ function Marketplace() {
           })}
         </div>
 
-        {filtered.length === 0 && (
+        {productsLoading && (
+          <div className="mt-12 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading fresh listings…
+          </div>
+        )}
+
+        {productsError && !productsLoading && (
+          <div className="mt-12 text-center text-sm text-destructive">
+            Couldn't load listings. Check your connection and try again.
+          </div>
+        )}
+
+        {!productsLoading && !productsError && filtered.length === 0 && (
           <div className="mt-12 text-center text-sm text-muted-foreground">
             No products match those filters.{" "}
             <Button

@@ -107,7 +107,6 @@ export function invalidateGoogleMapsLoader() {
   }
 }
 
-
 export type PlaceSuggestion = {
   placeId: string;
   primary: string;

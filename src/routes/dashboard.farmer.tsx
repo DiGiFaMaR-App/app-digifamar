@@ -161,6 +161,8 @@ interface FarmProfile {
   description: string | null;
   state: string | null;
   farm_type: string | null;
+  verification_status: string | null;
+  rejection_reason: string | null;
 }
 
 interface ListingDraft {
@@ -261,6 +263,8 @@ function useFarmerDashboard(userId: string | undefined) {
             description: pd.description ?? null,
             state: pd.state ?? null,
             farm_type: pd.farm_type ?? null,
+            verification_status: pd.verification_status ?? null,
+            rejection_reason: pd.rejection_reason ?? null,
           });
         }
       } catch {
@@ -360,7 +364,13 @@ function FarmerDashboard() {
   const [draft, setDraft] = useState<ListingDraft>(emptyDraft);
   const formRef = useRef<HTMLDivElement>(null);
 
+  const isApproved = profile?.verification_status === "approved";
+
   const openCreate = () => {
+    if (!isApproved) {
+      toast.error("Your farm must be approved before you can list products.");
+      return;
+    }
     setDraft(emptyDraft);
     setEditingId(null);
     setShowForm(true);
@@ -412,13 +422,46 @@ function FarmerDashboard() {
                   {loading ? "Loading…" : (profile?.farm_name ?? "Your Farm")}
                 </h1>
               </div>
-              <Button
-                onClick={openCreate}
-                className="bg-[#4ADE80] hover:bg-[#22C55E] text-black font-semibold"
-              >
-                <Plus className="mr-1.5 h-4 w-4" /> Create New Listing
-              </Button>
+              {isApproved && (
+                <Button
+                  onClick={openCreate}
+                  className="bg-[#4ADE80] hover:bg-[#22C55E] text-black font-semibold"
+                >
+                  <Plus className="mr-1.5 h-4 w-4" /> Create New Listing
+                </Button>
+              )}
             </div>
+
+            {/* Verification status banner */}
+            {!loading && profile && !isApproved && (
+              <div
+                className={`rounded-xl border p-4 text-sm ${
+                  profile.verification_status === "rejected"
+                    ? "border-red-400/30 bg-red-500/10 text-red-100"
+                    : "border-amber-400/30 bg-amber-500/10 text-amber-100"
+                }`}
+              >
+                {profile.verification_status === "rejected" ? (
+                  <>
+                    <p className="font-semibold">Your farm application was not approved.</p>
+                    {profile.rejection_reason && (
+                      <p className="mt-1 opacity-90">Reason: {profile.rejection_reason}</p>
+                    )}
+                    <p className="mt-1 opacity-90">
+                      Update your farm details and our team will re-review.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold">Your farm is pending verification.</p>
+                    <p className="mt-1 opacity-90">
+                      You can set up your profile now, but product listings unlock once an admin
+                      approves your farm (typically 24–48 hours).
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Stats row */}
             <StatsRow stats={stats} loading={loading} />

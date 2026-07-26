@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { AdminGate } from "@/components/AdminGate";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -19,8 +18,8 @@ export const Route = createFileRoute("/admin/chats")({
 });
 
 function Body() {
-  const convFn = useServerFn(listAllConversationsFn);
-  const msgFn = useServerFn(listMessagesForConversationFn);
+  const convFn = listAllConversationsFn;
+  const msgFn = listMessagesForConversationFn;
   const [active, setActive] = useState<string | null>(null);
   const { data: convs } = useQuery({
     queryKey: ["admin", "conversations"],
@@ -69,7 +68,7 @@ function Body() {
                     <div className="text-xs text-[#F0FFF0]/60 mb-0.5">
                       {m.sender_id.slice(0, 8)}… · {new Date(m.created_at).toLocaleString()}
                     </div>
-                    <div>{m.body}</div>
+                    <div>{m.content}</div>
                   </li>
                 ))}
               </ul>

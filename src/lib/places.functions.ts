@@ -1,23 +1,10 @@
 /**
- * Server-side Google Places (New) details lookup.
+ * Google Places details — CLIENT module (self-contained app).
  *
- * Prefers the Lovable Google Maps connector gateway; falls back to a direct
- * Places API (New) call using `GOOGLE_API_KEY` when the connector isn't
- * available (e.g. CodedSpace).
+ * Calls the `geo` Supabase Edge Function (action "place"), which holds
+ * GOOGLE_API_KEY. Returns null when unavailable. Shape kept for compatibility.
  */
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-const inputSchema = z.object({
-  placeId: z.string().trim().min(1).max(300),
-  // Comma-separated Places API (New) field mask. Defaults to a safe minimal set.
-  fields: z
-    .string()
-    .trim()
-    .max(500)
-    .default("id,displayName,formattedAddress,location,types,addressComponents"),
-});
+import { supabase } from "@/integrations/supabase/client";
 
 export type PlaceDetails = {
   id: string;
@@ -29,51 +16,18 @@ export type PlaceDetails = {
   addressComponents: Array<{ longText: string; shortText: string; types: string[] }>;
 } | null;
 
-type PlacesNewResponse = {
-  id?: string;
-  displayName?: { text?: string };
-  formattedAddress?: string;
-  location?: { latitude?: number; longitude?: number };
-  types?: string[];
-  addressComponents?: Array<{ longText?: string; shortText?: string; types?: string[] }>;
-  error?: { message?: string; status?: string };
-};
-
-function shape(body: PlacesNewResponse): PlaceDetails {
-  if (!body || !body.id) return null;
-  return {
-    id: body.id,
-    displayName: body.displayName?.text ?? null,
-    formattedAddress: body.formattedAddress ?? null,
-    lat: body.location?.latitude ?? null,
-    lng: body.location?.longitude ?? null,
-    types: body.types ?? [],
-    addressComponents: (body.addressComponents ?? []).map((c) => ({
-      longText: c.longText ?? "",
-      shortText: c.shortText ?? "",
-      types: c.types ?? [],
-    })),
-  };
-}
-
-export const getPlaceDetails = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<PlaceDetails> => {
-    const { fetchGoogleMaps } = await import("@/lib/gmaps-fetch.server");
-    const path = `/places/v1/places/${encodeURIComponent(data.placeId)}`;
-    const res = await fetchGoogleMaps(path, {
-      method: "GET",
-      headers: {
-        "X-Goog-FieldMask": data.fields,
-        Accept: "application/json",
-      },
+export const getPlaceDetails = async ({
+  data,
+}: {
+  data: { placeId: string; fields?: string };
+}): Promise<PlaceDetails> => {
+  try {
+    const { data: res, error } = await supabase.functions.invoke("geo", {
+      body: { action: "place", placeId: data.placeId, fields: data.fields },
     });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Place details failed: ${res.status}${text ? ` — ${text}` : ""}`);
-    }
-    const body = (await res.json()) as PlacesNewResponse;
-    if (body.error) throw new Error(`Place details error: ${body.error.message ?? "unknown"}`);
-    return shape(body);
-  });
+    if (error || !res || res.notConfigured) return null;
+    return (res.result ?? null) as PlaceDetails;
+  } catch {
+    return null;
+  }
+};

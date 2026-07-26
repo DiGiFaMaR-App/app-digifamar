@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import type { RealtimePostgresInsertPayload } from "@supabase/supabase-js";
 
 export const Route = createFileRoute("/chat/$productId")({
   head: () => ({
@@ -30,7 +31,7 @@ interface DbMessage {
 
 interface Conversation {
   id: string;
-  farm_name: string;
+  farm_name: string | null;
   buyer_id: string;
   farmer_id: string;
 }
@@ -68,7 +69,6 @@ const QUICK_REPLIES = [
 function ChatThread() {
   const { productId: conversationId } = Route.useParams();
   const { user } = useAuth();
-  const sb = supabase as any;
 
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<DbMessage[]>([]);
@@ -95,12 +95,12 @@ function ChatThread() {
       setLoading(true);
       try {
         const [convRes, msgsRes] = await Promise.all([
-          sb
+          supabase
             .from("conversations")
             .select("id, farm_name, buyer_id, farmer_id")
             .eq("id", conversationId)
             .maybeSingle(),
-          sb
+          supabase
             .from("messages")
             .select("id, conversation_id, sender_id, content, created_at, is_read")
             .eq("conversation_id", conversationId)
@@ -108,8 +108,8 @@ function ChatThread() {
         ]);
 
         if (cancelled) return;
-        if (convRes.data) setConversation(convRes.data as Conversation);
-        setMessages((msgsRes.data ?? []) as DbMessage[]);
+        if (convRes.data) setConversation(convRes.data);
+        setMessages(msgsRes.data ?? []);
       } catch {
         // tables may not exist yet
       } finally {
@@ -126,7 +126,8 @@ function ChatThread() {
   // Mark unread messages as read
   useEffect(() => {
     if (!user || !conversationId || messages.length === 0) return;
-    sb.from("messages")
+    void supabase
+      .from("messages")
       .update({ is_read: true })
       .eq("conversation_id", conversationId)
       .neq("sender_id", user.id)
@@ -140,15 +141,15 @@ function ChatThread() {
     const channel = supabase
       .channel(`chat:${conversationId}`)
       .on(
-        "postgres_changes" as any,
+        "postgres_changes",
         {
           event: "INSERT",
           schema: "public",
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload: any) => {
-          const incoming = payload.new as DbMessage;
+        (payload: RealtimePostgresInsertPayload<DbMessage>) => {
+          const incoming = payload.new;
           setMessages((prev) => {
             // Avoid duplicate if we already added optimistically
             if (prev.some((m) => m.id === incoming.id)) return prev;
@@ -169,7 +170,7 @@ function ChatThread() {
     setSending(true);
     setInput("");
     try {
-      await sb.from("messages").insert({
+      await supabase.from("messages").insert({
         conversation_id: conversationId,
         sender_id: user.id,
         content: text,

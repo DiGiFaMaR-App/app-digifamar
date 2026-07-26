@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { AdminGate } from "@/components/AdminGate";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -18,7 +17,7 @@ export const Route = createFileRoute("/admin/orders")({
 });
 
 function Body() {
-  const fn = useServerFn(listAllOrdersFn);
+  const fn = listAllOrdersFn;
   const { data } = useQuery({ queryKey: ["admin", "orders"], queryFn: () => fn({ data: {} }) });
   return (
     <SiteLayout>

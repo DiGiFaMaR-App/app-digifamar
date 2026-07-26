@@ -15,10 +15,10 @@ vi.mock("@/hooks/use-auth", () => ({
   }),
 }));
 
-// Stub the Escrow.com checkout server function.
-const createEscrowCheckoutFn = vi.fn();
-vi.mock("@/lib/checkout/checkout.functions", () => ({
-  createEscrowCheckoutFn: (...args: unknown[]) => createEscrowCheckoutFn(...args),
+// Stub the client-side order creation (direct Supabase insert).
+const createOrdersFromCart = vi.fn();
+vi.mock("@/lib/orders/orders.queries", () => ({
+  createOrdersFromCart: (...args: unknown[]) => createOrdersFromCart(...args),
 }));
 
 import { Route } from "./checkout";
@@ -43,7 +43,7 @@ function seedCart() {
 describe("Checkout route", () => {
   beforeEach(() => {
     window.localStorage.clear();
-    createEscrowCheckoutFn.mockReset();
+    createOrdersFromCart.mockReset();
     setRouterMockState({ navigate: vi.fn() });
   });
 
@@ -72,20 +72,11 @@ describe("Checkout route", () => {
     expect(screen.getByText("$12.24")).toBeInTheDocument(); // 1100 + 88 + 36 + 0
   });
 
-  it("submits line items in cents to Escrow.com and clears the cart on success", async () => {
+  it("creates orders from the cart lines and clears the cart on success", async () => {
     seedCart();
-    createEscrowCheckoutFn.mockResolvedValue({
-      orderId: "ord-123",
-      status: "in_escrow",
-      breakdown: {
-        subtotalCents: 1100,
-        platformFeeCents: 88,
-        escrowFeeCents: 36,
-        totalCents: 1224,
-      },
-      escrow: { provider: "escrow.com", transactionId: "sim_ord-123", url: "x", simulated: true },
-      persisted: true,
-    });
+    createOrdersFromCart.mockResolvedValue([
+      { id: "ord-123", total_cents: 1224, status: "pending" },
+    ]);
 
     render(<Page />);
     fireEvent.change(screen.getByLabelText(/delivery address/i), {
@@ -93,29 +84,18 @@ describe("Checkout route", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /pay with escrow\.com/i }));
 
-    await waitFor(() => expect(createEscrowCheckoutFn).toHaveBeenCalledTimes(1));
-    expect(createEscrowCheckoutFn).toHaveBeenCalledWith({
-      data: {
-        items: [
-          {
-            productId: "heirloom-tomatoes",
-            name: "Heirloom Tomato Mix",
-            unitPriceCents: 550,
-            quantity: 2,
-          },
-        ],
-        shippingAddress: "123 Market St, Austin, TX 78701",
-        deliveryMethod: "standard",
-        deliveryDistanceMiles: null,
-      },
-    });
+    await waitFor(() => expect(createOrdersFromCart).toHaveBeenCalledTimes(1));
+    expect(createOrdersFromCart).toHaveBeenCalledWith(
+      [{ slug: "heirloom-tomatoes", qty: 2 }],
+      "123 Market St, Austin, TX 78701",
+    );
     await waitFor(() => expect(cartStore.getItems()).toEqual([]));
   });
 
-  it("does not call the server when the address is too short", () => {
+  it("does not create orders when the address is too short", () => {
     seedCart();
     render(<Page />);
     fireEvent.click(screen.getByRole("button", { name: /pay with escrow\.com/i }));
-    expect(createEscrowCheckoutFn).not.toHaveBeenCalled();
+    expect(createOrdersFromCart).not.toHaveBeenCalled();
   });
 });
