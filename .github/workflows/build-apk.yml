@@ -42,7 +42,9 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build mobile SPA
-        run: bun run build:mobile
+        run: |
+          set -o pipefail
+          bun run build:mobile 2>&1 | tee build_mobile.log
 
       - name: Sync Capacitor (Android)
         run: npx cap sync android
@@ -107,3 +109,42 @@ jobs:
           name: digifamar-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
+
+      - name: Print release certificate fingerprint
+        if: steps.keystore_check.outputs.present == 'true'
+        working-directory: android
+        run: |
+          keytool -printcert -jarfile app/build/outputs/bundle/release/app-release.aab | grep -i 'SHA256' | tee ../fingerprint.txt
+
+      - name: Comment AAB fingerprint on commit
+        if: steps.keystore_check.outputs.present == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const fingerprint = fs.existsSync('fingerprint.txt')
+              ? fs.readFileSync('fingerprint.txt', 'utf8').trim()
+              : 'Fingerprint not found';
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `Signed release AAB certificate fingerprint for \`${context.sha}\`:\n\n\`\`\`\n${fingerprint}\n\`\`\``,
+            });
+
+      - name: Comment mobile build failure log on commit
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let log = 'No build log captured';
+            try {
+              log = fs.readFileSync('build_mobile.log', 'utf8').slice(-4000);
+            } catch {}
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `Mobile build failed for \`${context.sha}\`. Last ~4000 chars of log:\n\n\`\`\`\n${log}\n\`\`\``,
+            });

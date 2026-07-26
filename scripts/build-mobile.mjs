@@ -14,8 +14,9 @@ import { copyFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = process.cwd();
+const viteBin = resolve(root, "node_modules", "vite", "bin", "vite.js");
 
-execFileSync("npx", ["vite", "build", "--config", "vite.config.mobile.ts"], {
+execFileSync("node", [viteBin, "build", "--config", "vite.config.mobile.ts"], {
   stdio: "inherit",
   cwd: root,
 });
