@@ -120,6 +120,8 @@ BEGIN
       l.price_cents,
       l.unit,
       l.images,
+      l.qty_available,
+      l.description,
       fp.farm_name,
       CASE
         WHEN v_origin_set AND l.lat IS NOT NULL AND l.lng IS NOT NULL

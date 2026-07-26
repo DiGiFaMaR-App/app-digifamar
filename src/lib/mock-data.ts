@@ -166,6 +166,7 @@ export type Product = {
   name: string;
   variety?: string;
   farmId: string;
+  farm?: Farm;
   category: string;
   price: number;
   unit: string;

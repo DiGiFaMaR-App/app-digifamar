@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { type Product, type Farm, getFarm } from "@/lib/mock-data";
 
 export function ProductCard({ product }: { product: Product }) {
-  const farm = getFarm(product.farmId);
+  const farm = product.farm ?? getFarm(product.farmId);
   return (
     <div className="card-lift group flex flex-col overflow-hidden rounded-xl border border-border bg-card">
       <Link

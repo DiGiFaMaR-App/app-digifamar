@@ -48,7 +48,7 @@ export function ProductSheet({
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [releaseCode, setReleaseCode] = useState<string | null>(null);
-  const farm = product ? getFarm(product.farmId) : null;
+  const farm = product ? (product.farm ?? getFarm(product.farmId)) : null;
 
   // Reset state whenever the sheet opens for a different product
   useEffect(() => {

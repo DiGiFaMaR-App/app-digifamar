@@ -40,6 +40,8 @@ export type BrowseListing = {
   price_cents: number;
   unit: string;
   images: string[];
+  qty_available: number | null;
+  description: string | null;
   farm_name: string | null;
   distance_mi: number | null;
 };

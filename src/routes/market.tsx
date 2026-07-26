@@ -1,14 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { MapPin, Search, Star, Sparkles, BadgeCheck, Filter, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProductSheet } from "@/components/ProductSheet";
 import { useReveal } from "@/hooks/use-reveal";
-import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
-import { categories, farms, getFarm, type Product } from "@/lib/mock-data";
-import { useCatalogProducts } from "@/lib/catalog/use-catalog";
+import { useGeolocation } from "@/hooks/use-geolocation";
+import { categories, type Product } from "@/lib/mock-data";
+import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
+import { listingToProduct } from "@/lib/catalog/use-catalog";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -63,12 +65,6 @@ function Marketplace() {
     detect,
   } = useGeolocation();
 
-  const {
-    data: products = [],
-    isLoading: productsLoading,
-    isError: productsError,
-  } = useCatalogProducts();
-
   const [manualInput, setManualInput] = useState("");
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<string>("all");
@@ -76,40 +72,49 @@ function Marketplace() {
   const [maxDist, setMaxDist] = useState(100);
   const [active, setActive] = useState<Product | null>(null);
 
-  const farmDistances = useMemo<Map<string, number> | null>(() => {
-    if (lat === null || lng === null) return null;
-    const map = new Map<string, number>();
-    for (const farm of farms) {
-      map.set(farm.id, haversineDistance(lat, lng, farm.lat, farm.lng));
-    }
-    return map;
-  }, [lat, lng]);
+  const {
+    data: results,
+    isLoading: productsLoading,
+    isError: productsError,
+  } = useQuery<BrowseResults>({
+    queryKey: ["market", lat, lng, maxDist],
+    queryFn: () =>
+      searchBrowse({
+        data: {
+          q: "",
+          page: 1,
+          originLat: lat,
+          originLng: lng,
+          maxMiles: maxDist,
+        },
+      }),
+    placeholderData: keepPreviousData,
+  });
+
+  const products = useMemo(
+    () => (results?.listings ?? []).map((l) => listingToProduct(l, results?.farms ?? [])),
+    [results],
+  );
 
   const filtered = useMemo(() => {
     const t = PRICE_TIERS[tier];
     return products
       .filter((p) => {
-        const f = getFarm(p.farmId);
         if (cat !== "all" && p.category !== cat) return false;
         if (p.price < t.min || p.price > t.max) return false;
-        const dist = farmDistances?.get(p.farmId) ?? f?.distance ?? 0;
+        const dist = p.farm?.distance ?? 0;
         if (dist > maxDist) return false;
         if (
           query &&
-          !`${p.name} ${p.variety ?? ""} ${f?.name ?? ""}`
+          !`${p.name} ${p.variety ?? ""} ${p.farm?.name ?? ""}`
             .toLowerCase()
             .includes(query.toLowerCase())
         )
           return false;
         return true;
       })
-      .sort((a, b) => {
-        if (!farmDistances) return 0;
-        const da = farmDistances.get(a.farmId) ?? 999;
-        const db = farmDistances.get(b.farmId) ?? 999;
-        return da - db;
-      });
-  }, [products, cat, tier, maxDist, query, farmDistances]);
+      .sort((a, b) => (a.farm?.distance ?? 999) - (b.farm?.distance ?? 999));
+  }, [products, cat, tier, maxDist, query]);
 
   const gridRef = useReveal<HTMLDivElement>({ stagger: 0.05, y: 32, scale: 0.96 });
 
@@ -258,8 +263,8 @@ function Marketplace() {
           className="mt-5 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
         >
           {filtered.map((p) => {
-            const farm = getFarm(p.farmId);
-            const dist = farmDistances?.get(p.farmId) ?? farm?.distance ?? 0;
+            const farm = p.farm;
+            const dist = farm?.distance ?? 0;
             return (
               <button
                 key={p.id}
