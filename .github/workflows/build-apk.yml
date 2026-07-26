@@ -141,7 +141,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          readTail() { tail -c 2000 "$1" 2>/dev/null || echo "($1 not found)"; }
+          readTail() { tail -n 100 "$1" 2>/dev/null || echo "($1 not found)"; }
           mobileLog=$(readTail build_mobile.log)
           capLog=$(readTail cap_sync.log)
           gradleDebugLog=$(readTail android/gradle_debug.log)
