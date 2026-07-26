@@ -68,7 +68,7 @@ jobs:
         working-directory: android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee gradle_debug.log
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -105,7 +105,7 @@ jobs:
             -Pandroid.injected.signing.store.file=app/release.keystore \
             -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD"
+            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD" 2>&1 | tee gradle_release.log
 
       - name: Upload release AAB
         if: steps.keystore_check.outputs.present == 'true'
@@ -141,11 +141,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          readTail() { tail -c 3000 "$1" 2>/dev/null || echo "($1 not found)"; }
+          readTail() { tail -c 2000 "$1" 2>/dev/null || echo "($1 not found)"; }
           mobileLog=$(readTail build_mobile.log)
           capLog=$(readTail cap_sync.log)
-          body=$(jq -n --arg sha "$GITHUB_SHA" --arg mobile "$mobileLog" --arg cap "$capLog" '{
-            body: "Build failed for `\($sha)`.\n\nMobile build log (tail):\n```\n\($mobile)\n```\n\nCapacitor sync log (tail):\n```\n\($cap)\n```"
+          gradleDebugLog=$(readTail android/gradle_debug.log)
+          gradleReleaseLog=$(readTail android/gradle_release.log)
+          body=$(jq -n --arg sha "$GITHUB_SHA" --arg mobile "$mobileLog" --arg cap "$capLog" --arg gd "$gradleDebugLog" --arg gr "$gradleReleaseLog" '{
+            body: "Build failed for `\($sha)`.\n\nMobile build log (tail):\n```\n\($mobile)\n```\n\nCapacitor sync log (tail):\n```\n\($cap)\n```\n\nGradle debug log (tail):\n```\n\($gd)\n```\n\nGradle release log (tail):\n```\n\($gr)\n```"
           }')
           curl -sS -H "Authorization: token $GITHUB_TOKEN" \
                -H "Accept: application/vnd.github+json" \
