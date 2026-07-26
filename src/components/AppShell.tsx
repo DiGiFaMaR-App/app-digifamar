@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { type ReactNode } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { useNotifications } from "@/lib/notifications/use-notifications";
 import { Logo } from "./Logo";
 import { openWhatsApp } from "./WhatsAppFab";
 
@@ -21,7 +22,7 @@ const buyerNav: NavItem[] = [
   { to: "/", label: "Home", icon: Home },
   { to: "/market", label: "Shop", icon: Search },
   { to: "/browse", label: "Browse", icon: Search },
-  { to: "/dashboard/buyer", label: "Orders", icon: Package },
+  { to: "/orders", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
   { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/lending", label: "Lending", icon: Package },
@@ -49,6 +50,8 @@ export function AppShell({
   const path = useRouterState({ select: (r) => r.location.pathname });
   const nav = role === "farmer" ? farmerNav : buyerNav;
   const { count } = useCart();
+  // Subscribe to Supabase Realtime notifications and surface them as toasts.
+  useNotifications();
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

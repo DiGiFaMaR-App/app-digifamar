@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
@@ -78,7 +77,7 @@ function useDebounced<T>(value: T, delay: number): T {
 }
 
 function Browse() {
-  const fetchPlaceDetails = useServerFn(getPlaceDetails);
+  const fetchPlaceDetails = getPlaceDetails;
 
   const [input, setInput] = useState("");
   const [page, setPage] = useState(1);

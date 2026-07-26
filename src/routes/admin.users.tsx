@@ -4,7 +4,6 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AdminGate } from "@/components/AdminGate";
@@ -32,8 +31,8 @@ export const Route = createFileRoute("/admin/users")({
 type Role = "admin" | "farmer" | "buyer";
 
 function Body() {
-  const list = useServerFn(listUsersFn);
-  const setRole = useServerFn(setUserRoleFn);
+  const list = listUsersFn;
+  const setRole = setUserRoleFn;
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
 

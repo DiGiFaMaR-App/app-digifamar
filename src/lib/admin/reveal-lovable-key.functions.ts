@@ -1,26 +1,13 @@
 /**
- * TEMPORARY admin-only reveal of LOVABLE_API_KEY so it can be copied into
- * GitHub Actions secrets. Delete this file (and the /admin/reveal-key route)
- * after the value is copied. The handler logs every access to audit_logs.
+ * Reveal LOVABLE_API_KEY — OBSOLETE in the self-contained app.
+ *
+ * The self-contained build has no server and no LOVABLE_API_KEY; the app no
+ * longer depends on the Lovable connector. This stub keeps the export so the
+ * /admin/reveal-key route compiles, but it always reports the key is
+ * unavailable. Safe to delete along with the route.
  */
-import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { assertAdminRole } from "@/lib/admin/authorization";
-
-export const revealLovableApiKeyFn = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdminRole(context.userId);
-    const value = process.env.LOVABLE_API_KEY;
-    const { logAudit } = await import("@/lib/audit/log.server");
-    await logAudit({
-      actorId: context.userId,
-      actorRole: "admin",
-      action: "admin.lovable_api_key.reveal",
-      resourceType: "secret",
-      resourceId: "LOVABLE_API_KEY",
-      metadata: { present: !!value, length: value?.length ?? 0 },
-    });
-    if (!value) throw new Error("LOVABLE_API_KEY is not set on the server");
-    return { value };
-  });
+export const revealLovableApiKeyFn = async (): Promise<{ value: string }> => {
+  throw new Error(
+    "LOVABLE_API_KEY is not available in the self-contained app (no server / no Lovable connector).",
+  );
+};

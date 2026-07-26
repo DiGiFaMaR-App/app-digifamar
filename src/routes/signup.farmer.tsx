@@ -199,10 +199,55 @@ function FarmerSignup() {
   const [termsChecked, setTermsChecked] = useState(false);
   const [escrowChecked, setEscrowChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Phone verification (real OTP via the verify-phone Edge Function)
+  const [otpSent, setOtpSent] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const otpComplete = otp.every((d) => d.length === 1);
-  const canSubmit = otpComplete && termsChecked && escrowChecked && !submitting;
+  const phoneE164 = normalizeToE164(step1.phone) ?? step1.phone;
+
+  const sendOtp = async () => {
+    setSendingOtp(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-phone", {
+        body: { action: "send", phone: phoneE164 },
+      });
+      if (error) throw error;
+      setOtpSent(true);
+      setPhoneVerified(false);
+      setOtp(["", "", "", "", "", ""]);
+      if (data?.devCode) toast.message(`Your code (dev): ${data.devCode}`);
+      else toast.success("Verification code sent to your phone.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't send the code. Try again.");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const verifyOtp = async (code: string) => {
+    setVerifying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("verify-phone", {
+        body: { action: "check", phone: phoneE164, code },
+      });
+      if (error) throw error;
+      if (data?.verified) {
+        setPhoneVerified(true);
+        toast.success("Phone verified.");
+      }
+    } catch {
+      setPhoneVerified(false);
+      toast.error("That code didn't match. Please try again.");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const canSubmit = phoneVerified && termsChecked && escrowChecked && !submitting;
 
   const updateStep1 = <K extends keyof typeof step1>(key: K, value: (typeof step1)[K]) => {
     setStep1((p) => ({ ...p, [key]: value }));
@@ -220,6 +265,7 @@ function FarmerSignup() {
     next[index] = digit;
     setOtp(next);
     if (digit && index < 5) otpRefs.current[index + 1]?.focus();
+    if (next.every((d) => d.length === 1)) void verifyOtp(next.join(""));
   };
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -234,6 +280,7 @@ function FarmerSignup() {
     if (paste.length === 6) {
       setOtp(paste.split(""));
       otpRefs.current[5]?.focus();
+      void verifyOtp(paste);
     }
   };
 
@@ -313,7 +360,8 @@ function FarmerSignup() {
         options: {
           data: {
             full_name: `${step1.firstName} ${step1.lastName}`,
-            phone: normalizeToE164(step1.phone) ?? step1.phone,
+            phone: phoneE164,
+            role: "farmer",
           },
         },
       });
@@ -341,11 +389,9 @@ function FarmerSignup() {
       };
       await supabase.from("farmer_profiles").insert(profileInsert);
 
-      // Assign farmer role
-      await supabase.from("user_roles").insert({
-        user_id: userId,
-        role: "farmer" as const,
-      });
+      // The 'farmer' role is assigned server-side by the handle_new_user
+      // trigger from the signUp metadata above; the client cannot write
+      // user_roles (INSERT is RLS-revoked for authenticated).
 
       setStep(5);
     } catch (err) {
@@ -389,7 +435,10 @@ function FarmerSignup() {
             step2={step2}
             onEdit={(s) => setStep(s)}
             onBack={() => setStep(2)}
-            onNext={() => setStep(4)}
+            onNext={() => {
+              setStep(4);
+              void sendOtp();
+            }}
           />
         )}
         {step === 4 && (
@@ -400,6 +449,11 @@ function FarmerSignup() {
             onOtpChange={handleOtpChange}
             onOtpKeyDown={handleOtpKeyDown}
             onOtpPaste={handleOtpPaste}
+            phoneVerified={phoneVerified}
+            verifying={verifying}
+            sendingOtp={sendingOtp}
+            otpSent={otpSent}
+            onResend={sendOtp}
             termsChecked={termsChecked}
             escrowChecked={escrowChecked}
             onTermsChange={setTermsChecked}
@@ -801,6 +855,11 @@ function Step3({
   onOtpChange,
   onOtpKeyDown,
   onOtpPaste,
+  phoneVerified,
+  verifying,
+  sendingOtp,
+  otpSent,
+  onResend,
   termsChecked,
   escrowChecked,
   onTermsChange,
@@ -816,6 +875,11 @@ function Step3({
   onOtpChange: (index: number, value: string) => void;
   onOtpKeyDown: (index: number, e: React.KeyboardEvent<HTMLInputElement>) => void;
   onOtpPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
+  phoneVerified: boolean;
+  verifying: boolean;
+  sendingOtp: boolean;
+  otpSent: boolean;
+  onResend: () => void;
   termsChecked: boolean;
   escrowChecked: boolean;
   onTermsChange: (v: boolean) => void;
@@ -855,6 +919,28 @@ function Step3({
             }`}
           />
         ))}
+      </div>
+
+      {/* Verification status / resend */}
+      <div className="flex items-center justify-center gap-2 mb-5 text-sm">
+        {phoneVerified ? (
+          <span className="inline-flex items-center gap-1.5 text-[#22C55E] font-medium">
+            <CheckCircle2 className="h-4 w-4" /> Phone verified
+          </span>
+        ) : verifying ? (
+          <span className="inline-flex items-center gap-1.5 text-white/60">
+            <Loader2 className="h-4 w-4 animate-spin" /> Verifying…
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={onResend}
+            disabled={sendingOtp}
+            className="text-white/60 hover:text-white underline disabled:opacity-40"
+          >
+            {sendingOtp ? "Sending…" : otpSent ? "Resend code" : "Send code"}
+          </button>
+        )}
       </div>
 
       {/* Verification checklist */}
