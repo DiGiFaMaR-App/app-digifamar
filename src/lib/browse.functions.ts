@@ -70,8 +70,17 @@ export const searchBrowse = async ({ data }: { data: unknown }): Promise<BrowseR
 
   const typed = result as BrowseResults;
   return {
-    farms: typed.farms.map((f) => ({ ...f, certifications: f.certifications ?? [], distance_mi: f.distance_mi ?? null })),
-    listings: typed.listings.map((l) => ({ ...l, images: l.images ?? [], farm_name: l.farm_name ?? null, distance_mi: l.distance_mi ?? null })),
+    farms: typed.farms.map((f) => ({
+      ...f,
+      certifications: f.certifications ?? [],
+      distance_mi: f.distance_mi ?? null,
+    })),
+    listings: typed.listings.map((l) => ({
+      ...l,
+      images: l.images ?? [],
+      farm_name: l.farm_name ?? null,
+      distance_mi: l.distance_mi ?? null,
+    })),
     totalFarms: typed.totalFarms ?? 0,
     totalListings: typed.totalListings ?? 0,
     page: typed.page ?? input.page,
