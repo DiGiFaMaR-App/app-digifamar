@@ -21,7 +21,15 @@ import { useCart } from "@/hooks/use-cart";
 import { getFarm, type Product } from "@/lib/mock-data";
 
 type Step = "details" | "held" | "delivery" | "release" | "success";
-const MOCK_CODE = "123456";
+
+function generateReleaseCode(): string {
+  if (typeof crypto !== "undefined" && "getRandomValues" in crypto) {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return String(buf[0] % 1_000_000).padStart(6, "0");
+  }
+  return String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0");
+}
 
 export function ProductSheet({
   product,
@@ -39,6 +47,7 @@ export function ProductSheet({
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+  const [releaseCode, setReleaseCode] = useState<string | null>(null);
   const farm = product ? getFarm(product.farmId) : null;
 
   // Reset state whenever the sheet opens for a different product
@@ -51,6 +60,7 @@ export function ProductSheet({
         setError(null);
         setActive(0);
         setAdded(false);
+        setReleaseCode(null);
       }, 250);
       return () => clearTimeout(t);
     }
@@ -89,12 +99,12 @@ export function ProductSheet({
   };
 
   const handleRelease = () => {
-    if (code === MOCK_CODE) {
+    if (releaseCode && code === releaseCode) {
       setError(null);
       setStep("success");
       toast.success("Funds released to farmer");
     } else {
-      setError("That code doesn't match. Try 123456.");
+      setError("That code doesn't match.");
     }
   };
 
@@ -256,6 +266,8 @@ export function ProductSheet({
               <Button
                 size="lg"
                 onClick={() => {
+                  const code = generateReleaseCode();
+                  setReleaseCode(code);
                   toast.success("Delivery confirmed. Release code generated.");
                   setStep("release");
                 }}
@@ -299,16 +311,18 @@ export function ProductSheet({
                 </InputOTP>
               </div>
 
-              <p className="mt-3 text-center text-xs text-muted-foreground">
-                For this demo, the code is{" "}
-                <button
-                  type="button"
-                  onClick={() => setCode(MOCK_CODE)}
-                  className="font-mono font-bold text-primary underline-offset-2 hover:underline"
-                >
-                  {MOCK_CODE}
-                </button>
-              </p>
+              {releaseCode && (
+                <p className="mt-3 text-center text-xs text-muted-foreground">
+                  Demo release code:{" "}
+                  <button
+                    type="button"
+                    onClick={() => setCode(releaseCode)}
+                    className="font-mono font-bold text-primary underline-offset-2 hover:underline"
+                  >
+                    {releaseCode}
+                  </button>
+                </p>
+              )}
               {error && (
                 <p className="mt-2 text-center text-xs font-semibold text-destructive">{error}</p>
               )}
