@@ -97,13 +97,20 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
           ls -l android/app/release.keystore
+          keytool -list -keystore android/app/release.keystore -storepass "$ANDROID_KEYSTORE_PASSWORD" > android/keystore_info.txt 2>&1
+          cat android/keystore_info.txt
+          alias_from_keystore=$(grep -m1 'PrivateKeyEntry' android/keystore_info.txt | sed 's/,.*//' | tr -d ' ')
+          if [ -z "$alias_from_keystore" ]; then
+            echo 'No PrivateKeyEntry found in keystore; using provided ANDROID_KEY_ALIAS'
+            alias_from_keystore="$ANDROID_KEY_ALIAS"
+          fi
+          echo "Resolved keystore alias: $alias_from_keystore"
           cat > android/keystore.properties <<EOF
 storeFile=release.keystore
 storePassword=$ANDROID_KEYSTORE_PASSWORD
-keyAlias=$ANDROID_KEY_ALIAS
+keyAlias=$alias_from_keystore
 keyPassword=$ANDROID_KEY_PASSWORD
 EOF
-          keytool -list -v -keystore android/app/release.keystore -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" 2>&1 | grep -E 'Alias name|Creation date|SHA256|Valid from' | tee android/keystore_info.txt
 
       - name: Build signed release AAB
         if: steps.keystore_check.outputs.present == 'true'
@@ -156,12 +163,12 @@ EOF
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          readTail() { tail -c 1500 "$1" 2>/dev/null || echo "($1 not found)"; }
+          readTail() { tail -c 1200 "$1" 2>/dev/null || echo "($1 not found)"; }
           mobileLog=$(readTail build_mobile.log)
           capLog=$(readTail cap_sync.log)
           gradleDebugLog=$(readTail android/gradle_debug.log)
           gradleReleaseLog=$(readTail android/gradle_release.log)
-          keystoreInfo=$(readTail android/keystore_info.txt)
+          keystoreInfo=$(head -c 2000 android/keystore_info.txt 2>/dev/null || echo "(keystore_info.txt not found)")
           gradleError=$(readTail android/gradle_error.txt)
           body=$(jq -n --arg sha "$GITHUB_SHA" --arg mobile "$mobileLog" --arg cap "$capLog" --arg gd "$gradleDebugLog" --arg gr "$gradleReleaseLog" --arg ks "$keystoreInfo" --arg ge "$gradleError" '{
             body: "Build failed for `\($sha)`.\n\nMobile build log (tail):\n```\n\($mobile)\n```\n\nCapacitor sync log (tail):\n```\n\($cap)\n```\n\nGradle debug log (tail):\n```\n\($gd)\n```\n\nGradle release log (tail):\n```\n\($gr)\n```\n\nKeystore info:\n```\n\($ks)\n```\n\nGradle error grep:\n```\n\($ge)\n```"
