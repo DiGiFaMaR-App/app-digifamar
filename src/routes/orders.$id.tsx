@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   AlertTriangle,
   Copy,
+  Truck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -30,6 +31,7 @@ import {
   confirmDeliveryFn,
   fundEscrowFn,
   generateDeliveryOtpFn,
+  markShippedFn,
   raiseDisputeFn,
   releaseEscrowFn,
 } from "@/lib/escrow-v2/escrow.functions";
@@ -75,6 +77,7 @@ const STATUS_LABEL: Record<string, string> = {
   escrow_funded: "Funds in escrow",
   awaiting_delivery: "OTP issued — awaiting delivery",
   shipped: "Shipped",
+  awaiting_release: "Awaiting release code",
   delivered: "Delivered",
   inspection: "In inspection window",
   released: "Released to farmer",
@@ -108,6 +111,7 @@ function OrderDetailPage() {
   const [disputeReason, setDisputeReason] = useState("");
 
   const fund = fundEscrowFn;
+  const markShipped = markShippedFn;
   const genOtp = generateDeliveryOtpFn;
   const confirmDelivery = confirmDeliveryFn;
   const release = releaseEscrowFn;
@@ -284,117 +288,103 @@ function OrderDetailPage() {
             </div>
           )}
 
-          {/* FARMER · funded → request OTP */}
-          {role === "farmer" &&
-            ["escrow_funded", "awaiting_delivery", "shipped"].includes(order.status) && (
-              <div className="mt-4 space-y-3">
-                {!codeIssued ? (
-                  <>
-                    <p className="text-sm text-muted-foreground">
-                      Generate the 6-digit delivery code. We text it to the buyer, who reads it back
-                      to you at handover so you can confirm delivery.
-                    </p>
-                    <Button
-                      disabled={busy}
-                      onClick={() =>
-                        wrap(async () => {
-                          const r = await genOtp({ data: { orderId: order.id } });
-                          setCodeIssued(true);
-                          setOtpShown(r.otp);
-                          setSmsMasked(r.smsDelivered ? r.maskedPhone : null);
-                        }, "Delivery code issued")
-                      }
-                      className="w-full"
-                    >
-                      <KeyRound className="mr-2 h-4 w-4" /> Generate delivery code
-                    </Button>
-                  </>
-                ) : (
-                  <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 text-center">
-                    {smsMasked ? (
-                      <>
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                          Delivery code texted to the buyer
-                        </p>
-                        <div className="my-2 font-mono text-lg font-semibold text-primary">
-                          {smsMasked}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Ask the buyer for the code at handover and enter it below.
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                          SMS unavailable — show this code to the buyer at delivery
-                        </p>
-                        <div className="my-2 font-mono text-3xl font-bold tracking-[0.4em] text-primary">
-                          {otpShown}
-                        </div>
-                        {otpShown && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              navigator.clipboard.writeText(otpShown);
-                              toast.success("Copied");
-                            }}
-                          >
-                            <Copy className="mr-1 h-3 w-3" /> Copy
-                          </Button>
-                        )}
-                      </>
-                    )}
-                    <div className="mt-4">
-                      <p className="mb-2 text-xs text-muted-foreground">
-                        Enter the code to confirm delivery
-                      </p>
-                      <div className="flex justify-center">
-                        <InputOTP maxLength={6} value={otpInput} onChange={setOtpInput}>
-                          <InputOTPGroup>
-                            {[0, 1, 2, 3, 4, 5].map((i) => (
-                              <InputOTPSlot key={i} index={i} className="h-11 w-11 text-base" />
-                            ))}
-                          </InputOTPGroup>
-                        </InputOTP>
-                      </div>
-                      <Button
-                        disabled={busy || otpInput.length !== 6}
-                        onClick={() =>
-                          wrap(
-                            () => confirmDelivery({ data: { orderId: order.id, otp: otpInput } }),
-                            "Delivery confirmed — inspection window open",
-                          )
-                        }
-                        className="mt-3 w-full"
-                      >
-                        Confirm delivery
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-          {/* BUYER · inspection → accept or dispute */}
-          {role === "buyer" && order.status === "inspection" && (
+          {/* FARMER · escrow funded / awaiting delivery → mark shipped */}
+          {role === "farmer" && ["escrow_funded", "awaiting_delivery"].includes(order.status) && (
             <div className="mt-4 space-y-3">
-              {inspection?.auto_release_at && (
-                <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-300">
-                  <Clock className="h-4 w-4" />
-                  Funds auto-release {new Date(inspection.auto_release_at).toLocaleString()} if you
-                  take no action.
-                </div>
-              )}
+              <p className="text-sm text-muted-foreground">
+                Funds are held in escrow. Mark the order as shipped when it leaves your farm.
+              </p>
               <Button
                 disabled={busy}
                 onClick={() =>
-                  wrap(() => release({ data: { orderId: order.id } }), "Funds released to farmer")
+                  wrap(
+                    () => markShipped({ data: { orderId: order.id } }),
+                    "Order marked as shipped",
+                  )
                 }
-                className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+                className="w-full"
               >
-                <CheckCircle2 className="mr-2 h-4 w-4" /> Accept & release funds
+                <Truck className="mr-2 h-4 w-4" /> Mark as shipped
               </Button>
+            </div>
+          )}
+
+          {/* FARMER · shipped → waiting for buyer code */}
+          {role === "farmer" && order.status === "shipped" && (
+            <div className="mt-4 rounded-xl border border-border bg-card/60 p-4 text-sm">
+              Order shipped. The buyer will generate the release code after delivery.
+            </div>
+          )}
+
+          {/* BUYER · shipped → generate release code */}
+          {role === "buyer" && order.status === "shipped" && (
+            <div className="mt-4 space-y-3">
+              {!codeIssued ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Your order is on its way. Confirm receipt and generate the 6-digit release code
+                    to share with the farmer at handover.
+                  </p>
+                  <Button
+                    disabled={busy}
+                    onClick={() =>
+                      wrap(async () => {
+                        const r = await genOtp({ data: { orderId: order.id } });
+                        setCodeIssued(true);
+                        setOtpShown(r.otp);
+                        setSmsMasked(null);
+                      }, "Release code generated")
+                    }
+                    className="w-full"
+                  >
+                    <KeyRound className="mr-2 h-4 w-4" /> Generate release code
+                  </Button>
+                </>
+              ) : (
+                <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 text-center">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Show this code to the farmer
+                  </p>
+                  <div className="my-2 font-mono text-3xl font-bold tracking-[0.4em] text-primary">
+                    {otpShown}
+                  </div>
+                  {otpShown && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(otpShown);
+                        toast.success("Copied");
+                      }}
+                    >
+                      <Copy className="mr-1 h-3 w-3" /> Copy
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* BUYER · awaiting_release → show code / dispute */}
+          {role === "buyer" && order.status === "awaiting_release" && (
+            <div className="mt-4 space-y-3">
+              {codeIssued && otpShown ? (
+                <div className="rounded-xl border border-primary/40 bg-primary/10 p-4 text-center">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Release code generated
+                  </p>
+                  <div className="my-2 font-mono text-2xl font-bold tracking-[0.4em] text-primary">
+                    {otpShown}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Share this code with the farmer to release funds.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Waiting for you to generate the release code.
+                </p>
+              )}
               <Button
                 variant="destructive"
                 disabled={busy}
@@ -402,6 +392,36 @@ function OrderDetailPage() {
                 className="w-full"
               >
                 <AlertTriangle className="mr-2 h-4 w-4" /> Open dispute
+              </Button>
+            </div>
+          )}
+
+          {/* FARMER · awaiting_release → verify release code */}
+          {role === "farmer" && order.status === "awaiting_release" && (
+            <div className="mt-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Enter the 6-digit code the buyer shared with you to release escrow to your wallet.
+              </p>
+              <div className="flex justify-center">
+                <InputOTP maxLength={6} value={otpInput} onChange={setOtpInput}>
+                  <InputOTPGroup>
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <InputOTPSlot key={i} index={i} className="h-11 w-11 text-base" />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <Button
+                disabled={busy || otpInput.length !== 6}
+                onClick={() =>
+                  wrap(
+                    () => confirmDelivery({ data: { orderId: order.id, otp: otpInput } }),
+                    "Funds released to farmer",
+                  )
+                }
+                className="w-full"
+              >
+                <KeyRound className="mr-2 h-4 w-4" /> Release funds
               </Button>
             </div>
           )}

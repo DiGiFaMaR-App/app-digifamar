@@ -1,10 +1,9 @@
 /**
- * Escrow-v2 — CLIENT module (self-contained app).
+ * Escrow-v2 — thin client wrappers that call the server-side release-code RPCs.
  *
- * The money-moving logic runs in the `escrow` Supabase Edge Function (service
- * role + JWT auth). These thin wrappers call it via supabase.functions.invoke,
- * so there is no TanStack server function and no web host. The export names and
- * `{ data }` input shape are kept for drop-in compatibility with callers.
+ * The actual code generation, hashing, expiry, rate-limiting, and escrow fund
+ * release all run inside Supabase Postgres functions. The client never sees the
+ * pepper, never hashes the code, and cannot release funds unilaterally.
  */
 import { supabase } from "@/integrations/supabase/client";
 import type {
@@ -12,65 +11,84 @@ import type {
   FundEscrowDto,
   GenerateOtpDto,
   RaiseDisputeDto,
-  ReleaseEscrowDto,
   ResolveDisputeDto,
 } from "./dto";
 
-async function invokeEscrow<T>(action: string, payload: Record<string, unknown>): Promise<T> {
-  const { data, error } = await supabase.functions.invoke("escrow", {
-    body: { action, ...payload },
-  });
-  if (error) {
-    // Surface the function's JSON error message when present.
-    const ctx = (error as { context?: Response }).context;
-    if (ctx && typeof ctx.json === "function") {
-      const body = await ctx.json().catch(() => null);
-      if (body?.error) throw new Error(body.error);
-    }
-    throw new Error(error.message);
+async function rpc(name: string, args: Record<string, unknown>): Promise<unknown> {
+  // The local generated types don't include these RPCs yet; the server API is the source of truth.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any).rpc(name, args);
+  if (error) throw new Error(error.message);
+  const record = data as Record<string, unknown> | null;
+  if (record && typeof record === "object" && record.error) {
+    throw new Error(String(record.error));
   }
-  if (data && typeof data === "object" && "error" in data) {
-    throw new Error((data as { error: string }).error);
-  }
-  return data as T;
+  return record;
 }
 
-export const fundEscrowFn = ({ data }: { data: FundEscrowDto }) =>
-  invokeEscrow<{ orderId: string; status: string; heldCents: number }>("fund", {
+export const fundEscrowFn = async ({ data }: { data: FundEscrowDto }) => {
+  const result = (await rpc("fund_escrow", {
+    p_order_id: data.orderId,
+  })) as { success?: boolean; error?: string } | null;
+  if (result && result.error) throw new Error(result.error);
+  return { orderId: data.orderId, status: "escrow_funded", heldCents: 0 };
+};
+
+export const markShippedFn = async ({ data }: { data: { orderId: string } }) => {
+  const result = (await rpc("mark_shipped", {
+    p_order_id: data.orderId,
+  })) as { success?: boolean; error?: string } | null;
+  if (result && result.error) throw new Error(result.error);
+  return { orderId: data.orderId, status: "shipped" };
+};
+
+export const generateDeliveryOtpFn = async ({ data }: { data: GenerateOtpDto }) => {
+  const result = (await rpc("create_release_code", {
+    p_order_id: data.orderId,
+  })) as { code: string; expires_at?: string } | null;
+  if (!result || !result.code) throw new Error("Failed to generate release code");
+  return {
     orderId: data.orderId,
-  });
+    expiresAt: result.expires_at ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    smsDelivered: false,
+    maskedPhone: null,
+    otp: result.code,
+  };
+};
 
-export const generateDeliveryOtpFn = ({ data }: { data: GenerateOtpDto }) =>
-  invokeEscrow<{
-    orderId: string;
-    expiresAt: string;
-    smsDelivered: boolean;
-    maskedPhone: string | null;
-    otp: string | null;
-  }>("generate-otp", { orderId: data.orderId });
-
-export const confirmDeliveryFn = ({ data }: { data: ConfirmDeliveryDto }) =>
-  invokeEscrow<{ orderId: string; status: string; autoReleaseAt: string }>("confirm-delivery", {
+export const confirmDeliveryFn = async ({ data }: { data: ConfirmDeliveryDto }) => {
+  const result = (await rpc("verify_release_code", {
+    p_order_id: data.orderId,
+    p_code: data.otp,
+  })) as { success: boolean; error?: string; locked_until?: string } | null;
+  if (!result || !result.success) throw new Error(result?.error ?? "Invalid release code");
+  return {
     orderId: data.orderId,
-    otp: data.otp,
-  });
+    status: "released",
+    autoReleaseAt: new Date().toISOString(),
+  };
+};
 
-export const releaseEscrowFn = ({ data }: { data: ReleaseEscrowDto }) =>
-  invokeEscrow<{ orderId: string; status: string; releasedCents: number }>("release", {
-    orderId: data.orderId,
-  });
+export const raiseDisputeFn = async ({ data }: { data: RaiseDisputeDto }) => {
+  const result = (await rpc("dispute_order", {
+    p_order_id: data.orderId,
+    p_reason: data.reason,
+  })) as { success?: boolean; error?: string } | null;
+  if (result && result.error) throw new Error(result.error);
+  return { id: data.orderId };
+};
 
-export const raiseDisputeFn = ({ data }: { data: RaiseDisputeDto }) =>
-  invokeEscrow<{ id: string }>("raise-dispute", {
-    orderId: data.orderId,
-    reason: data.reason,
-    evidenceUrls: data.evidenceUrls,
-  });
+export const resolveDisputeFn = async ({ data }: { data: ResolveDisputeDto }) => {
+  const result = (await rpc("resolve_dispute", {
+    p_order_id: data.disputeId,
+    p_resolution: data.outcome,
+  })) as { success?: boolean; error?: string } | null;
+  if (result && result.error) throw new Error(result.error);
+  return { ok: true as const };
+};
 
-export const resolveDisputeFn = ({ data }: { data: ResolveDisputeDto }) =>
-  invokeEscrow<{ ok: true }>("resolve-dispute", {
-    disputeId: data.disputeId,
-    outcome: data.outcome,
-    buyerRefundCents: data.buyerRefundCents,
-    resolution: data.resolution,
-  });
+// Manual release during an inspection window is not part of the release-code
+// flow; the farmer must enter the buyer's code to release funds.
+export const releaseEscrowFn = async () => {
+  throw new Error("releaseEscrow is not implemented; use the 6-digit release code instead");
+};

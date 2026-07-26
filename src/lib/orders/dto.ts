@@ -9,6 +9,7 @@ export const OrderStatus = z.enum([
   "paid",
   "in_escrow",
   "shipped",
+  "awaiting_release",
   "delivered",
   "released",
   "cancelled",
