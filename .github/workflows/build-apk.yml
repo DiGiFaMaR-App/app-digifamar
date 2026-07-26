@@ -88,12 +88,12 @@ jobs:
             echo "::notice::ANDROID_KEYSTORE_BASE64 not set — skipping signed release .aab build."
           fi
 
-      - name: Decode keystore and write keystore.properties
+      - name: Decode keystore and resolve key alias
         if: steps.keystore_check.outputs.present == 'true'
+        id: decode_keystore
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
           ls -l android/app/release.keystore
@@ -105,14 +105,9 @@ jobs:
             alias_from_keystore="$ANDROID_KEY_ALIAS"
           fi
           echo "Resolved keystore alias: $alias_from_keystore"
-          cat > android/keystore.properties <<EOF
-storeFile=release.keystore
-storePassword=$ANDROID_KEYSTORE_PASSWORD
-keyAlias=$alias_from_keystore
-keyPassword=$ANDROID_KEY_PASSWORD
-EOF
+          echo "key_alias=$alias_from_keystore" >> "$GITHUB_OUTPUT"
 
-      - name: Build signed release APK
+      - name: Build unsigned release APK
         if: steps.keystore_check.outputs.present == 'true'
         working-directory: android
         run: |
@@ -124,6 +119,36 @@ EOF
             grep -n -E 'FAILED|What went wrong|Execution failed|Cannot recover|Invalid keystore|password|tampered|No certificate' gradle_release.log | tail -n 30 > gradle_error.txt
           fi
           exit $exit_code
+
+      - name: Sign release APK with apksigner
+        if: steps.keystore_check.outputs.present == 'true'
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ steps.decode_keystore.outputs.key_alias }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -e
+          APK_SIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -1)
+          if [ -z "$APK_SIGNER" ]; then APK_SIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner -type f 2>/dev/null | sort -V | tail -1); fi
+          ZIP_ALIGN=$(find "$ANDROID_SDK_ROOT/build-tools" -name zipalign -type f 2>/dev/null | sort -V | tail -1)
+          if [ -z "$ZIP_ALIGN" ]; then ZIP_ALIGN=$(find "$ANDROID_HOME/build-tools" -name zipalign -type f 2>/dev/null | sort -V | tail -1); fi
+          echo "Using apksigner: $APK_SIGNER"
+          echo "Using zipalign: $ZIP_ALIGN"
+          UNSIGNED=app/build/outputs/apk/release/app-release-unsigned.apk
+          ALIGNED=app/build/outputs/apk/release/app-release-aligned-unsigned.apk
+          SIGNED=app/build/outputs/apk/release/app-release.apk
+          if [ ! -f "$UNSIGNED" ]; then
+            echo "Unsigned APK not found at $UNSIGNED"
+            ls -R app/build/outputs/apk/release/
+            exit 1
+          fi
+          "$ZIP_ALIGN" -p 4 "$UNSIGNED" "$ALIGNED"
+          "$APK_SIGNER" sign --ks app/release.keystore --ks-key-alias "$ANDROID_KEY_ALIAS" \
+            --ks-pass "pass:$ANDROID_KEYSTORE_PASSWORD" \
+            --key-pass "pass:$ANDROID_KEY_PASSWORD" \
+            --out "$SIGNED" "$ALIGNED"
+          "$APK_SIGNER" verify -v "$SIGNED"
 
       - name: Upload release APK
         if: steps.keystore_check.outputs.present == 'true'
