@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as XaiAgentRouteImport } from './routes/xai-agent'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SigninRouteImport } from './routes/signin'
@@ -52,7 +51,6 @@ import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
-import { Route as ApiXaiRealtimeRouteImport } from './routes/api/xai-realtime'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
@@ -69,16 +67,10 @@ import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
-import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 
-const XaiAgentRoute = XaiAgentRouteImport.update({
-  id: '/xai-agent',
-  path: '/xai-agent',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -289,11 +281,6 @@ const ChatProductIdRoute = ChatProductIdRouteImport.update({
   path: '/chat/$productId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiXaiRealtimeRoute = ApiXaiRealtimeRouteImport.update({
-  id: '/api/xai-realtime',
-  path: '/api/xai-realtime',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiOrdersRoute = ApiOrdersRouteImport.update({
   id: '/api/orders',
   path: '/api/orders',
@@ -377,11 +364,6 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
-const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
-  id: '/.lovable/oauth/consent',
-  path: '/.lovable/oauth/consent',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicHealthMapsRoute = ApiPublicHealthMapsRouteImport.update({
   id: '/api/public/health/maps',
   path: '/api/public/health/maps',
@@ -424,7 +406,6 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/xai-agent': typeof XaiAgentRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -438,7 +419,6 @@ export interface FileRoutesByFullPath {
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
-  '/api/xai-realtime': typeof ApiXaiRealtimeRoute
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -457,7 +437,6 @@ export interface FileRoutesByFullPath {
   '/chat/': typeof ChatIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
@@ -490,7 +469,6 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/xai-agent': typeof XaiAgentRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -504,7 +482,6 @@ export interface FileRoutesByTo {
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
-  '/api/xai-realtime': typeof ApiXaiRealtimeRoute
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -523,7 +500,6 @@ export interface FileRoutesByTo {
   '/chat': typeof ChatIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/signup': typeof SignupIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
@@ -557,7 +533,6 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
-  '/xai-agent': typeof XaiAgentRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -571,7 +546,6 @@ export interface FileRoutesById {
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
-  '/api/xai-realtime': typeof ApiXaiRealtimeRoute
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
@@ -590,7 +564,6 @@ export interface FileRoutesById {
   '/chat/': typeof ChatIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
-  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
@@ -625,7 +598,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
-    | '/xai-agent'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -639,7 +611,6 @@ export interface FileRouteTypes {
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
-    | '/api/xai-realtime'
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
@@ -658,7 +629,6 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/orders/'
     | '/signup/'
-    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
@@ -691,7 +661,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
-    | '/xai-agent'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -705,7 +674,6 @@ export interface FileRouteTypes {
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
-    | '/api/xai-realtime'
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
@@ -724,7 +692,6 @@ export interface FileRouteTypes {
     | '/chat'
     | '/orders'
     | '/signup'
-    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
@@ -757,7 +724,6 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
-    | '/xai-agent'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -771,7 +737,6 @@ export interface FileRouteTypes {
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
-    | '/api/xai-realtime'
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
@@ -790,7 +755,6 @@ export interface FileRouteTypes {
     | '/chat/'
     | '/orders/'
     | '/signup/'
-    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
@@ -824,7 +788,6 @@ export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
-  XaiAgentRoute: typeof XaiAgentRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAuditRoute: typeof AdminAuditRoute
@@ -838,7 +801,6 @@ export interface RootRouteChildren {
   AdminRevealKeyRoute: typeof AdminRevealKeyRoute
   AdminUsersRoute: typeof AdminUsersRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
-  ApiXaiRealtimeRoute: typeof ApiXaiRealtimeRoute
   ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
@@ -857,7 +819,6 @@ export interface RootRouteChildren {
   ChatIndexRoute: typeof ChatIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
-  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
@@ -867,13 +828,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/xai-agent': {
-      id: '/xai-agent'
-      path: '/xai-agent'
-      fullPath: '/xai-agent'
-      preLoaderRoute: typeof XaiAgentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -1168,13 +1122,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/xai-realtime': {
-      id: '/api/xai-realtime'
-      path: '/api/xai-realtime'
-      fullPath: '/api/xai-realtime'
-      preLoaderRoute: typeof ApiXaiRealtimeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/orders': {
       id: '/api/orders'
       path: '/api/orders'
@@ -1287,13 +1234,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/.lovable/oauth/consent': {
-      id: '/.lovable/oauth/consent'
-      path: '/.lovable/oauth/consent'
-      fullPath: '/.lovable/oauth/consent'
-      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/health/maps': {
       id: '/api/public/health/maps'
       path: '/api/public/health/maps'
@@ -1355,7 +1295,6 @@ const rootRouteChildren: RootRouteChildren = {
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
-  XaiAgentRoute: XaiAgentRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
@@ -1370,7 +1309,6 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRevealKeyRoute: AdminRevealKeyRoute,
   AdminUsersRoute: AdminUsersRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,
-  ApiXaiRealtimeRoute: ApiXaiRealtimeRoute,
   ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
@@ -1389,7 +1327,6 @@ const rootRouteChildren: RootRouteChildren = {
   ChatIndexRoute: ChatIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
-  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
