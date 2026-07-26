@@ -88,10 +88,20 @@ jobs:
             echo "::notice::ANDROID_KEYSTORE_BASE64 not set — skipping signed release .aab build."
           fi
 
-      - name: Decode keystore
+      - name: Decode keystore and write keystore.properties
         if: steps.keystore_check.outputs.present == 'true'
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+          cat > android/keystore.properties <<EOF
+storeFile=release.keystore
+storePassword=$ANDROID_KEYSTORE_PASSWORD
+keyAlias=$ANDROID_KEY_ALIAS
+keyPassword=$ANDROID_KEY_PASSWORD
+EOF
 
       - name: Build signed release AAB
         if: steps.keystore_check.outputs.present == 'true'
@@ -101,11 +111,7 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          ./gradlew bundleRelease --no-daemon --stacktrace \
-            -Pandroid.injected.signing.store.file=app/release.keystore \
-            -Pandroid.injected.signing.store.password="$ANDROID_KEYSTORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$ANDROID_KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$ANDROID_KEY_PASSWORD" 2>&1 | tee gradle_release.log
+          ./gradlew bundleRelease --no-daemon --stacktrace 2>&1 | tee gradle_release.log
 
       - name: Upload release AAB
         if: steps.keystore_check.outputs.present == 'true'
