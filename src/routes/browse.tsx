@@ -620,7 +620,7 @@ function FarmResultCard({ farm }: { farm: BrowseResults["farms"][number] }) {
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold leading-tight">{farm.farm_name}</h3>
-        {farm.verification_status === "verified" && (
+        {farm.verification_status === "approved" && (
           <BadgeCheck className="h-4 w-4 shrink-0 text-primary" />
         )}
       </div>

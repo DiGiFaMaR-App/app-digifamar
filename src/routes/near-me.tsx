@@ -220,7 +220,7 @@ function NearMe() {
                         <h3 className="truncate font-semibold group-hover:text-primary">
                           {f.farm_name}
                         </h3>
-                        {f.verification_status === "verified" && (
+                        {f.verification_status === "approved" && (
                           <BadgeCheck
                             className="h-4 w-4 shrink-0 text-primary"
                             aria-label="Verified"
