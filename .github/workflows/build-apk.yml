@@ -42,7 +42,7 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install
 
       - name: Build mobile SPA
         run: |
@@ -123,34 +123,32 @@ jobs:
 
       - name: Comment AAB fingerprint on commit
         if: steps.keystore_check.outputs.present == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const fingerprint = fs.existsSync('fingerprint.txt')
-              ? fs.readFileSync('fingerprint.txt', 'utf8').trim()
-              : 'Fingerprint not found';
-            github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: `Signed release AAB certificate fingerprint for \`${context.sha}\`:\n\n\`\`\`\n${fingerprint}\n\`\`\``,
-            });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          fingerprint=$(cat fingerprint.txt 2>/dev/null || echo 'Fingerprint not found')
+          body=$(jq -n --arg sha "$GITHUB_SHA" --arg fp "$fingerprint" '{
+            body: "Signed release AAB certificate fingerprint for `\($sha)`:\n\n```\n\($fp)\n```"
+          }')
+          curl -sS -H "Authorization: token $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               -H "Content-Type: application/json" \
+               -d "$body" \
+               "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/comments"
 
       - name: Comment build failure log on commit
         if: failure()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const readTail = (p, n=2000) => {
-              try { return fs.readFileSync(p, 'utf8').slice(-n); } catch { return `(${p} not found)`; }
-            };
-            const mobileLog = readTail('build_mobile.log', 3000);
-            const capLog = readTail('cap_sync.log', 3000);
-            github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: `Build failed for \`${context.sha}\`.\n\nMobile build log (tail):\n\`\`\`\n${mobileLog}\n\`\`\`\n\nCapacitor sync log (tail):\n\`\`\`\n${capLog}\n\`\`\``,
-            });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          readTail() { tail -c 3000 "$1" 2>/dev/null || echo "($1 not found)"; }
+          mobileLog=$(readTail build_mobile.log)
+          capLog=$(readTail cap_sync.log)
+          body=$(jq -n --arg sha "$GITHUB_SHA" --arg mobile "$mobileLog" --arg cap "$capLog" '{
+            body: "Build failed for `\($sha)`.\n\nMobile build log (tail):\n```\n\($mobile)\n```\n\nCapacitor sync log (tail):\n```\n\($cap)\n```"
+          }')
+          curl -sS -H "Authorization: token $GITHUB_TOKEN" \
+               -H "Accept: application/vnd.github+json" \
+               -H "Content-Type: application/json" \
+               -d "$body" \
+               "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/comments"
