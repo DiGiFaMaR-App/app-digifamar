@@ -58,6 +58,7 @@ import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminMapsRouteImport } from './routes/admin.maps'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
+import { Route as AdminFarmersRouteImport } from './routes/admin.farmers'
 import { Route as AdminChatsRouteImport } from './routes/admin.chats'
 import { Route as AdminChangePasswordRouteImport } from './routes/admin.change-password'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
@@ -315,6 +316,11 @@ const AdminListingsRoute = AdminListingsRouteImport.update({
   path: '/admin/listings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminFarmersRoute = AdminFarmersRouteImport.update({
+  id: '/admin/farmers',
+  path: '/admin/farmers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminChatsRoute = AdminChatsRouteImport.update({
   id: '/admin/chats',
   path: '/admin/chats',
@@ -405,6 +411,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
+  '/admin/farmers': typeof AdminFarmersRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
@@ -467,6 +474,7 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
+  '/admin/farmers': typeof AdminFarmersRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
@@ -530,6 +538,7 @@ export interface FileRoutesById {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/change-password': typeof AdminChangePasswordRoute
   '/admin/chats': typeof AdminChatsRoute
+  '/admin/farmers': typeof AdminFarmersRoute
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
@@ -594,6 +603,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/change-password'
     | '/admin/chats'
+    | '/admin/farmers'
     | '/admin/listings'
     | '/admin/login'
     | '/admin/maps'
@@ -656,6 +666,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/change-password'
     | '/admin/chats'
+    | '/admin/farmers'
     | '/admin/listings'
     | '/admin/login'
     | '/admin/maps'
@@ -718,6 +729,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/change-password'
     | '/admin/chats'
+    | '/admin/farmers'
     | '/admin/listings'
     | '/admin/login'
     | '/admin/maps'
@@ -781,6 +793,7 @@ export interface RootRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
   AdminChangePasswordRoute: typeof AdminChangePasswordRoute
   AdminChatsRoute: typeof AdminChatsRoute
+  AdminFarmersRoute: typeof AdminFarmersRoute
   AdminListingsRoute: typeof AdminListingsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMapsRoute: typeof AdminMapsRoute
@@ -1158,6 +1171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminListingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/farmers': {
+      id: '/admin/farmers'
+      path: '/admin/farmers'
+      fullPath: '/admin/farmers'
+      preLoaderRoute: typeof AdminFarmersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/chats': {
       id: '/admin/chats'
       path: '/admin/chats'
@@ -1281,6 +1301,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
   AdminChangePasswordRoute: AdminChangePasswordRoute,
   AdminChatsRoute: AdminChatsRoute,
+  AdminFarmersRoute: AdminFarmersRoute,
   AdminListingsRoute: AdminListingsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMapsRoute: AdminMapsRoute,
