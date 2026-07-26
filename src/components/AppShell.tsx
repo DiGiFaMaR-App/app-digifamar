@@ -22,7 +22,7 @@ const buyerNav: NavItem[] = [
   { to: "/", label: "Home", icon: Home },
   { to: "/market", label: "Shop", icon: Search },
   { to: "/browse", label: "Browse", icon: Search },
-  { to: "/dashboard/buyer", label: "Orders", icon: Package },
+  { to: "/orders", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
   { to: "/assistant", label: "Assistant", icon: Sparkles },
   { to: "/lending", label: "Lending", icon: Package },
