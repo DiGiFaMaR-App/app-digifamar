@@ -41,13 +41,8 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build web app
-        run: bun run build
-
-      # TanStack Start is SSR and emits no static index.html; write a shell so
-      # `cap sync` has an entry point. The WebView loads server.url at runtime.
-      - name: Generate Capacitor web shell
-        run: node scripts/capacitor-web-shell.mjs
+      - name: Build mobile SPA
+        run: bun run build:mobile
 
       - name: Sync Capacitor (Android)
         run: npx cap sync android
