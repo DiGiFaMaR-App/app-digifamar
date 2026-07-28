@@ -24,7 +24,7 @@ interface DbMessage {
   id: string;
   conversation_id: string;
   sender_id: string;
-  content: string;
+  body: string;
   created_at: string;
   is_read: boolean;
 }
@@ -102,7 +102,7 @@ function ChatThread() {
             .maybeSingle(),
           supabase
             .from("messages")
-            .select("id, conversation_id, sender_id, content, created_at, is_read")
+            .select("id, conversation_id, sender_id, body, created_at, is_read")
             .eq("conversation_id", conversationId)
             .order("created_at", { ascending: true }),
         ]);
@@ -173,7 +173,7 @@ function ChatThread() {
       await supabase.from("messages").insert({
         conversation_id: conversationId,
         sender_id: user.id,
-        content: text,
+        body: text,
         is_read: false,
       });
       // Realtime subscription will append the message
@@ -247,7 +247,7 @@ function ChatThread() {
                             : "bg-[#132013] text-[#F0FFF0] border border-[#1E3A1E] rounded-bl-sm"
                         }`}
                       >
-                        {msg.content}
+                        {msg.body}
                       </div>
                       <span className="mt-0.5 text-[10px] text-[#7AAB7A]/60 px-1">
                         {formatTime(msg.created_at)}
