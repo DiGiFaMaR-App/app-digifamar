@@ -1,0 +1,33 @@
+name: digifamar-gitkraken-mcp
+version: "0.1.0"
+description: "Example GitKraken MCP manifest to allow an external AI (e.g., Claude) to propose edits (edts) to this repository."
+maintainer: "DiGiFaMaR-App"
+integrations:
+  - name: claude
+    type: ai
+    description: "Placeholder integration for Anthropic Claude API. Implement a service that calls Claude and pushes commits."
+    config:
+      api_key_secret: GITKRAKEN_CLAUDE_API_KEY  # secret name stored in GitKraken or GitHub (or other secret store)
+      model: claude-2
+      allowed_paths:
+        - "src/**"
+        - "docs/**"
+triggers:
+  - on: webhook
+    event: mcp.generate_edits
+    description: "Webhook triggered when MCP requests edits"
+actions:
+  - id: generate_edits
+    run: |
+      # This action should be implemented by the external service that integrates with this MCP manifest.
+      # Example responsibilities:
+      # 1) Receive an MCP trigger with a request describing desired edits (natural language or structured).
+      # 2) Call Claude (or another model) with a prompt that includes repository context and the requested change.
+      # 3) Receive a patch from the model and validate it (linting, tests, safety checks).
+      # 4) Apply the patch, create a branch, and open a pull request back to the repository.
+
+      # Response format expected by the MCP controller: unified diff text or JSON { "patch": "..." }
+
+notes: |
+  This is a template/example manifest meant to document how a GitKraken MCP entry could be structured for integrating an AI ("claude") to produce edits ("edts").
+  GitKraken's actual MCP specification may differ — treat this as a starting point and adapt fields, triggers, and integration details to match the real MCP schema.
