@@ -19,7 +19,7 @@
       {
         "name": "browse_listings",
         "title": "Browse marketplace listings",
-        "description": "Search active produce listings on the Digifamar marketplace. Optionally filter by category or search text.",
+        "description": "Search active produce listings on the DiGiFaMaR farm-to-buyer marketplace.\n\nUse this tool to discover what farmers currently have available. All filters are optional; call with no arguments to get the newest listings across every category.\n\nReturns a text summary plus `structuredContent` with:\n  - `total` (number): count of matching listings\n  - `items` (array): each item has `id`, `name`, `category`, `price` (numeric, per `unit`), `unit` (e.g. 'kg', 'crate'), `stock`, `description`, `farmerId`.\n\nUse the returned `id` with the `get_listing` tool to fetch full details for a specific listing.\n\nExamples:\n  - Newest 20 listings:            {}\n  - Search by name:                { \"search\": \"tomato\" }\n  - Filter by category:            { \"category\": \"Vegetables\" }\n  - Combined + custom page size:   { \"search\": \"organic\", \"category\": \"Fruits\", \"limit\": 10 }",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -30,17 +30,19 @@
           "type": "object",
           "properties": {
             "search": {
-              "description": "Text to match against listing names.",
+              "description": "Case-insensitive substring matched against listing names (e.g. 'tomato', 'mango'). Omit to skip name filtering.",
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "maxLength": 120
             },
             "category": {
-              "description": "Category to filter by.",
+              "description": "Category label to filter by. Common values: 'Vegetables', 'Fruits', 'Grains', 'Dairy', 'Herbs', 'Livestock'. Case-sensitive exact match.",
               "type": "string",
-              "minLength": 1
+              "minLength": 1,
+              "maxLength": 64
             },
             "limit": {
-              "description": "Max results (default 20).",
+              "description": "Maximum number of listings to return. Defaults to 20. Max 50.",
               "type": "integer",
               "minimum": 1,
               "maximum": 50
@@ -52,7 +54,7 @@
       {
         "name": "get_listing",
         "title": "Get listing details",
-        "description": "Fetch full details for a single Digifamar marketplace listing by id.",
+        "description": "Fetch full details for a single DiGiFaMaR marketplace listing by its id.\n\nCall this after `browse_listings` when the user wants price, stock, unit, description, or the owning farmer for a specific item. Do NOT guess ids — always pass an `id` returned by `browse_listings`.\n\nReturns a text summary plus `structuredContent.listing` with:\n  - `id`, `name`, `category`, `price` (per `unit`), `unit`, `stock`, `description`, `farmerId`.\n\nIf the id doesn't exist, the tool returns `isError: true` with an explanatory message — treat that as 'not found' rather than retrying with variants of the id.\n\nExamples:\n  - Real listing:  { \"id\": \"lst_01HZX9K3ABCDEF\" }\n  - Mock catalog:  { \"id\": \"mock-tomato-01\" }",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -65,7 +67,8 @@
             "id": {
               "type": "string",
               "minLength": 1,
-              "description": "Listing id (e.g. 'lst_...' or a mock catalog id)."
+              "maxLength": 64,
+              "description": "Listing id, exactly as returned by `browse_listings` (e.g. 'lst_...' for real listings, or a mock catalog id like 'mock-tomato-01'). Required."
             }
           },
           "required": [
