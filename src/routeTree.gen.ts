@@ -9,176 +9,71 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SigninRouteImport } from './routes/signin'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
-import { Route as NearMeRouteImport } from './routes/near-me'
-import { Route as McpRouteImport } from './routes/mcp'
-import { Route as MarketRouteImport } from './routes/market'
-import { Route as LendingRouteImport } from './routes/lending'
-import { Route as HowItWorksRouteImport } from './routes/how-it-works'
-import { Route as HacksRouteImport } from './routes/hacks'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as DownloadRouteImport } from './routes/download'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CheckoutRouteImport } from './routes/checkout'
-import { Route as CartRouteImport } from './routes/cart'
-import { Route as BuyerProtectionRouteImport } from './routes/buyer-protection'
-import { Route as BrowseRouteImport } from './routes/browse'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AssistantRouteImport } from './routes/assistant'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SignupIndexRouteImport } from './routes/signup.index'
-import { Route as OrdersIndexRouteImport } from './routes/orders.index'
-import { Route as ChatIndexRouteImport } from './routes/chat.index'
-import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
-import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
-import { Route as SettingsMapsRouteImport } from './routes/settings.maps'
-import { Route as SettingsDeleteAccountRouteImport } from './routes/settings.delete-account'
-import { Route as ProductIdRouteImport } from './routes/product.$id'
-import { Route as OrdersIdRouteImport } from './routes/orders.$id'
-import { Route as LendersLoginRouteImport } from './routes/lenders/login'
-import { Route as LendersDashboardRouteImport } from './routes/lenders/dashboard'
-import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
-import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
-import { Route as FarmIdRouteImport } from './routes/farm.$id'
-import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
-import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
-import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
-import { Route as ApiOrdersRouteImport } from './routes/api/orders'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
-import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
-import { Route as AdminMapsRouteImport } from './routes/admin.maps'
-import { Route as AdminLoginRouteImport } from './routes/admin.login'
-import { Route as AdminListingsRouteImport } from './routes/admin.listings'
-import { Route as AdminFarmersRouteImport } from './routes/admin.farmers'
-import { Route as AdminChatsRouteImport } from './routes/admin.chats'
-import { Route as AdminChangePasswordRouteImport } from './routes/admin.change-password'
-import { Route as AdminAuditRouteImport } from './routes/admin.audit'
-import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AssistantRouteImport } from './routes/assistant'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as BuyerProtectionRouteImport } from './routes/buyer-protection'
+import { Route as CartRouteImport } from './routes/cart'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DownloadRouteImport } from './routes/download'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HacksRouteImport } from './routes/hacks'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LendingRouteImport } from './routes/lending'
+import { Route as MarketRouteImport } from './routes/market'
+import { Route as McpRouteImport } from './routes/mcp'
+import { Route as NearMeRouteImport } from './routes/near-me'
+import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SigninRouteImport } from './routes/signin'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
-import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
-import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminChangePasswordRouteImport } from './routes/admin.change-password'
+import { Route as AdminChatsRouteImport } from './routes/admin.chats'
+import { Route as AdminFarmersRouteImport } from './routes/admin.farmers'
+import { Route as AdminListingsRouteImport } from './routes/admin.listings'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminMapsRouteImport } from './routes/admin.maps'
+import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
+import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as ApiOrdersRouteImport } from './routes/api/orders'
+import { Route as ChatIndexRouteImport } from './routes/chat.index'
+import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
+import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
+import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
+import { Route as FarmIdRouteImport } from './routes/farm.$id'
+import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
+import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
+import { Route as LendersDashboardRouteImport } from './routes/lenders/dashboard'
+import { Route as LendersLoginRouteImport } from './routes/lenders/login'
+import { Route as OrdersIndexRouteImport } from './routes/orders.index'
+import { Route as OrdersIdRouteImport } from './routes/orders.$id'
+import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as SettingsDeleteAccountRouteImport } from './routes/settings.delete-account'
+import { Route as SettingsMapsRouteImport } from './routes/settings.maps'
+import { Route as SignupIndexRouteImport } from './routes/signup.index'
+import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
+import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
-import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
-import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
+import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
+import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
+import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
+import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SigninRoute = SigninRouteImport.update({
-  id: '/signin',
-  path: '/signin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
-  id: '/payment-success',
-  path: '/payment-success',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NearMeRoute = NearMeRouteImport.update({
-  id: '/near-me',
-  path: '/near-me',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const McpRoute = McpRouteImport.update({
-  id: '/mcp',
-  path: '/mcp',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MarketRoute = MarketRouteImport.update({
-  id: '/market',
-  path: '/market',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LendingRoute = LendingRouteImport.update({
-  id: '/lending',
-  path: '/lending',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HowItWorksRoute = HowItWorksRouteImport.update({
-  id: '/how-it-works',
-  path: '/how-it-works',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HacksRoute = HacksRouteImport.update({
-  id: '/hacks',
-  path: '/hacks',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DownloadRoute = DownloadRouteImport.update({
-  id: '/download',
-  path: '/download',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutRoute = CheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CartRoute = CartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BuyerProtectionRoute = BuyerProtectionRouteImport.update({
-  id: '/buyer-protection',
-  path: '/buyer-protection',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BrowseRoute = BrowseRouteImport.update({
-  id: '/browse',
-  path: '/browse',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssistantRoute = AssistantRouteImport.update({
-  id: '/assistant',
-  path: '/assistant',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -186,149 +81,131 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SignupIndexRoute = SignupIndexRouteImport.update({
-  id: '/signup/',
-  path: '/signup/',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrdersIndexRoute = OrdersIndexRouteImport.update({
-  id: '/orders/',
-  path: '/orders/',
+const BrowseRoute = BrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChatIndexRoute = ChatIndexRouteImport.update({
-  id: '/chat/',
-  path: '/chat/',
+const BuyerProtectionRoute = BuyerProtectionRouteImport.update({
+  id: '/buyer-protection',
+  path: '/buyer-protection',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CartRoute = CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HacksRoute = HacksRouteImport.update({
+  id: '/hacks',
+  path: '/hacks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendingRoute = LendingRouteImport.update({
+  id: '/lending',
+  path: '/lending',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NearMeRoute = NearMeRouteImport.update({
+  id: '/near-me',
+  path: '/near-me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment-success',
+  path: '/payment-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigninRoute = SigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupFarmerRoute = SignupFarmerRouteImport.update({
-  id: '/signup/farmer',
-  path: '/signup/farmer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupBuyerRoute = SignupBuyerRouteImport.update({
-  id: '/signup/buyer',
-  path: '/signup/buyer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsMapsRoute = SettingsMapsRouteImport.update({
-  id: '/settings/maps',
-  path: '/settings/maps',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsDeleteAccountRoute = SettingsDeleteAccountRouteImport.update({
-  id: '/settings/delete-account',
-  path: '/settings/delete-account',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProductIdRoute = ProductIdRouteImport.update({
-  id: '/product/$id',
-  path: '/product/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OrdersIdRoute = OrdersIdRouteImport.update({
-  id: '/orders/$id',
-  path: '/orders/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LendersLoginRoute = LendersLoginRouteImport.update({
-  id: '/lenders/login',
-  path: '/lenders/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LendersDashboardRoute = LendersDashboardRouteImport.update({
-  id: '/lenders/dashboard',
-  path: '/lenders/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LendersApplyRoute = LendersApplyRouteImport.update({
-  id: '/lenders/apply',
-  path: '/lenders/apply',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LendersAdminRoute = LendersAdminRouteImport.update({
-  id: '/lenders/admin',
-  path: '/lenders/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FarmIdRoute = FarmIdRouteImport.update({
-  id: '/farm/$id',
-  path: '/farm/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
-  id: '/dashboard/farmer',
-  path: '/dashboard/farmer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardBuyerRoute = DashboardBuyerRouteImport.update({
-  id: '/dashboard/buyer',
-  path: '/dashboard/buyer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatProductIdRoute = ChatProductIdRouteImport.update({
-  id: '/chat/$productId',
-  path: '/chat/$productId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiOrdersRoute = ApiOrdersRouteImport.update({
-  id: '/api/orders',
-  path: '/api/orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRevealKeyRoute = AdminRevealKeyRouteImport.update({
-  id: '/admin/reveal-key',
-  path: '/admin/reveal-key',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminOrdersRoute = AdminOrdersRouteImport.update({
-  id: '/admin/orders',
-  path: '/admin/orders',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminMapsRoute = AdminMapsRouteImport.update({
-  id: '/admin/maps',
-  path: '/admin/maps',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminListingsRoute = AdminListingsRouteImport.update({
-  id: '/admin/listings',
-  path: '/admin/listings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminFarmersRoute = AdminFarmersRouteImport.update({
-  id: '/admin/farmers',
-  path: '/admin/farmers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminChatsRoute = AdminChatsRouteImport.update({
-  id: '/admin/chats',
-  path: '/admin/chats',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminChangePasswordRoute = AdminChangePasswordRouteImport.update({
-  id: '/admin/change-password',
-  path: '/admin/change-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
@@ -336,26 +213,139 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/admin/audit',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Char91DotwellKnownChar93OauthProtectedResourceRoute =
-  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
-    id: '/.well-known/oauth-protected-resource',
-    path: '/.well-known/oauth-protected-resource',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const Char91DotmcpChar93ListToolsRoute =
-  Char91DotmcpChar93ListToolsRouteImport.update({
-    id: '/.mcp/list-tools',
-    path: '/.mcp/list-tools',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
-  id: '/lenders/farmer/$id',
-  path: '/lenders/farmer/$id',
+const AdminChangePasswordRoute = AdminChangePasswordRouteImport.update({
+  id: '/admin/change-password',
+  path: '/admin/change-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ChatFarmFarmIdRoute = ChatFarmFarmIdRouteImport.update({
-  id: '/chat/farm/$farmId',
-  path: '/chat/farm/$farmId',
+const AdminChatsRoute = AdminChatsRouteImport.update({
+  id: '/admin/chats',
+  path: '/admin/chats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminFarmersRoute = AdminFarmersRouteImport.update({
+  id: '/admin/farmers',
+  path: '/admin/farmers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminListingsRoute = AdminListingsRouteImport.update({
+  id: '/admin/listings',
+  path: '/admin/listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminMapsRoute = AdminMapsRouteImport.update({
+  id: '/admin/maps',
+  path: '/admin/maps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminOrdersRoute = AdminOrdersRouteImport.update({
+  id: '/admin/orders',
+  path: '/admin/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRevealKeyRoute = AdminRevealKeyRouteImport.update({
+  id: '/admin/reveal-key',
+  path: '/admin/reveal-key',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrdersRoute = ApiOrdersRouteImport.update({
+  id: '/api/orders',
+  path: '/api/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatProductIdRoute = ChatProductIdRouteImport.update({
+  id: '/chat/$productId',
+  path: '/chat/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardBuyerRoute = DashboardBuyerRouteImport.update({
+  id: '/dashboard/buyer',
+  path: '/dashboard/buyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
+  id: '/dashboard/farmer',
+  path: '/dashboard/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarmIdRoute = FarmIdRouteImport.update({
+  id: '/farm/$id',
+  path: '/farm/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersAdminRoute = LendersAdminRouteImport.update({
+  id: '/lenders/admin',
+  path: '/lenders/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersApplyRoute = LendersApplyRouteImport.update({
+  id: '/lenders/apply',
+  path: '/lenders/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersDashboardRoute = LendersDashboardRouteImport.update({
+  id: '/lenders/dashboard',
+  path: '/lenders/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersLoginRoute = LendersLoginRouteImport.update({
+  id: '/lenders/login',
+  path: '/lenders/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersIndexRoute = OrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersIdRoute = OrdersIdRouteImport.update({
+  id: '/orders/$id',
+  path: '/orders/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductIdRoute = ProductIdRouteImport.update({
+  id: '/product/$id',
+  path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsDeleteAccountRoute = SettingsDeleteAccountRouteImport.update({
+  id: '/settings/delete-account',
+  path: '/settings/delete-account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsMapsRoute = SettingsMapsRouteImport.update({
+  id: '/settings/maps',
+  path: '/settings/maps',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupIndexRoute = SignupIndexRouteImport.update({
+  id: '/signup/',
+  path: '/signup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupBuyerRoute = SignupBuyerRouteImport.update({
+  id: '/signup/buyer',
+  path: '/signup/buyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupFarmerRoute = SignupFarmerRouteImport.update({
+  id: '/signup/farmer',
+  path: '/signup/farmer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotmcpChar93InvokeToolToolRoute =
@@ -364,10 +354,20 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHealthMapsRoute = ApiPublicHealthMapsRouteImport.update({
-  id: '/api/public/health/maps',
-  path: '/api/public/health/maps',
+const ChatFarmFarmIdRoute = ChatFarmFarmIdRouteImport.update({
+  id: '/chat/farm/$farmId',
+  path: '/chat/farm/$farmId',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
+  id: '/lenders/farmer/$id',
+  path: '/lenders/farmer/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
+  id: '/$id/release',
+  path: '/$id/release',
+  getParentRoute: () => ApiOrdersRoute,
 } as any)
 const ApiPublicCronAutoReleaseRoute =
   ApiPublicCronAutoReleaseRouteImport.update({
@@ -375,10 +375,10 @@ const ApiPublicCronAutoReleaseRoute =
     path: '/api/public/cron/auto-release',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
-  id: '/$id/release',
-  path: '/$id/release',
-  getParentRoute: () => ApiOrdersRoute,
+const ApiPublicHealthMapsRoute = ApiPublicHealthMapsRouteImport.update({
+  id: '/api/public/health/maps',
+  path: '/api/public/health/maps',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -828,158 +828,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signin': {
-      id: '/signin'
-      path: '/signin'
-      fullPath: '/signin'
-      preLoaderRoute: typeof SigninRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/payment-success': {
-      id: '/payment-success'
-      path: '/payment-success'
-      fullPath: '/payment-success'
-      preLoaderRoute: typeof PaymentSuccessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/near-me': {
-      id: '/near-me'
-      path: '/near-me'
-      fullPath: '/near-me'
-      preLoaderRoute: typeof NearMeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mcp': {
-      id: '/mcp'
-      path: '/mcp'
-      fullPath: '/mcp'
-      preLoaderRoute: typeof McpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/market': {
-      id: '/market'
-      path: '/market'
-      fullPath: '/market'
-      preLoaderRoute: typeof MarketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lending': {
-      id: '/lending'
-      path: '/lending'
-      fullPath: '/lending'
-      preLoaderRoute: typeof LendingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/how-it-works': {
-      id: '/how-it-works'
-      path: '/how-it-works'
-      fullPath: '/how-it-works'
-      preLoaderRoute: typeof HowItWorksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hacks': {
-      id: '/hacks'
-      path: '/hacks'
-      fullPath: '/hacks'
-      preLoaderRoute: typeof HacksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/download': {
-      id: '/download'
-      path: '/download'
-      fullPath: '/download'
-      preLoaderRoute: typeof DownloadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout': {
-      id: '/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cart': {
-      id: '/cart'
-      path: '/cart'
-      fullPath: '/cart'
-      preLoaderRoute: typeof CartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/buyer-protection': {
-      id: '/buyer-protection'
-      path: '/buyer-protection'
-      fullPath: '/buyer-protection'
-      preLoaderRoute: typeof BuyerProtectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/browse': {
-      id: '/browse'
-      path: '/browse'
-      fullPath: '/browse'
-      preLoaderRoute: typeof BrowseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assistant': {
-      id: '/assistant'
-      path: '/assistant'
-      fullPath: '/assistant'
-      preLoaderRoute: typeof AssistantRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -989,221 +842,158 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/signup/': {
-      id: '/signup/'
-      path: '/signup'
-      fullPath: '/signup/'
-      preLoaderRoute: typeof SignupIndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orders/': {
-      id: '/orders/'
-      path: '/orders'
-      fullPath: '/orders/'
-      preLoaderRoute: typeof OrdersIndexRouteImport
+    '/browse': {
+      id: '/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof BrowseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat/': {
-      id: '/chat/'
-      path: '/chat'
-      fullPath: '/chat/'
-      preLoaderRoute: typeof ChatIndexRouteImport
+    '/buyer-protection': {
+      id: '/buyer-protection'
+      path: '/buyer-protection'
+      fullPath: '/buyer-protection'
+      preLoaderRoute: typeof BuyerProtectionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/': {
-      id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin/'
-      preLoaderRoute: typeof AdminIndexRouteImport
+    '/cart': {
+      id: '/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/signup/farmer': {
-      id: '/signup/farmer'
-      path: '/signup/farmer'
-      fullPath: '/signup/farmer'
-      preLoaderRoute: typeof SignupFarmerRouteImport
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/signup/buyer': {
-      id: '/signup/buyer'
-      path: '/signup/buyer'
-      fullPath: '/signup/buyer'
-      preLoaderRoute: typeof SignupBuyerRouteImport
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/maps': {
-      id: '/settings/maps'
-      path: '/settings/maps'
-      fullPath: '/settings/maps'
-      preLoaderRoute: typeof SettingsMapsRouteImport
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/settings/delete-account': {
-      id: '/settings/delete-account'
-      path: '/settings/delete-account'
-      fullPath: '/settings/delete-account'
-      preLoaderRoute: typeof SettingsDeleteAccountRouteImport
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/product/$id': {
-      id: '/product/$id'
-      path: '/product/$id'
-      fullPath: '/product/$id'
-      preLoaderRoute: typeof ProductIdRouteImport
+    '/hacks': {
+      id: '/hacks'
+      path: '/hacks'
+      fullPath: '/hacks'
+      preLoaderRoute: typeof HacksRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/orders/$id': {
-      id: '/orders/$id'
-      path: '/orders/$id'
-      fullPath: '/orders/$id'
-      preLoaderRoute: typeof OrdersIdRouteImport
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lenders/login': {
-      id: '/lenders/login'
-      path: '/lenders/login'
-      fullPath: '/lenders/login'
-      preLoaderRoute: typeof LendersLoginRouteImport
+    '/lending': {
+      id: '/lending'
+      path: '/lending'
+      fullPath: '/lending'
+      preLoaderRoute: typeof LendingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lenders/dashboard': {
-      id: '/lenders/dashboard'
-      path: '/lenders/dashboard'
-      fullPath: '/lenders/dashboard'
-      preLoaderRoute: typeof LendersDashboardRouteImport
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lenders/apply': {
-      id: '/lenders/apply'
-      path: '/lenders/apply'
-      fullPath: '/lenders/apply'
-      preLoaderRoute: typeof LendersApplyRouteImport
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lenders/admin': {
-      id: '/lenders/admin'
-      path: '/lenders/admin'
-      fullPath: '/lenders/admin'
-      preLoaderRoute: typeof LendersAdminRouteImport
+    '/near-me': {
+      id: '/near-me'
+      path: '/near-me'
+      fullPath: '/near-me'
+      preLoaderRoute: typeof NearMeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/farm/$id': {
-      id: '/farm/$id'
-      path: '/farm/$id'
-      fullPath: '/farm/$id'
-      preLoaderRoute: typeof FarmIdRouteImport
+    '/payment-success': {
+      id: '/payment-success'
+      path: '/payment-success'
+      fullPath: '/payment-success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/farmer': {
-      id: '/dashboard/farmer'
-      path: '/dashboard/farmer'
-      fullPath: '/dashboard/farmer'
-      preLoaderRoute: typeof DashboardFarmerRouteImport
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/buyer': {
-      id: '/dashboard/buyer'
-      path: '/dashboard/buyer'
-      fullPath: '/dashboard/buyer'
-      preLoaderRoute: typeof DashboardBuyerRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat/$productId': {
-      id: '/chat/$productId'
-      path: '/chat/$productId'
-      fullPath: '/chat/$productId'
-      preLoaderRoute: typeof ChatProductIdRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/orders': {
-      id: '/api/orders'
-      path: '/api/orders'
-      fullPath: '/api/orders'
-      preLoaderRoute: typeof ApiOrdersRouteImport
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/admin/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/reveal-key': {
-      id: '/admin/reveal-key'
-      path: '/admin/reveal-key'
-      fullPath: '/admin/reveal-key'
-      preLoaderRoute: typeof AdminRevealKeyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/orders': {
-      id: '/admin/orders'
-      path: '/admin/orders'
-      fullPath: '/admin/orders'
-      preLoaderRoute: typeof AdminOrdersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/maps': {
-      id: '/admin/maps'
-      path: '/admin/maps'
-      fullPath: '/admin/maps'
-      preLoaderRoute: typeof AdminMapsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/listings': {
-      id: '/admin/listings'
-      path: '/admin/listings'
-      fullPath: '/admin/listings'
-      preLoaderRoute: typeof AdminListingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/farmers': {
-      id: '/admin/farmers'
-      path: '/admin/farmers'
-      fullPath: '/admin/farmers'
-      preLoaderRoute: typeof AdminFarmersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/chats': {
-      id: '/admin/chats'
-      path: '/admin/chats'
-      fullPath: '/admin/chats'
-      preLoaderRoute: typeof AdminChatsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/change-password': {
-      id: '/admin/change-password'
-      path: '/admin/change-password'
-      fullPath: '/admin/change-password'
-      preLoaderRoute: typeof AdminChangePasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/audit': {
-      id: '/admin/audit'
-      path: '/admin/audit'
-      fullPath: '/admin/audit'
-      preLoaderRoute: typeof AdminAuditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/.well-known/oauth-protected-resource': {
-      id: '/.well-known/oauth-protected-resource'
-      path: '/.well-known/oauth-protected-resource'
-      fullPath: '/.well-known/oauth-protected-resource'
-      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/list-tools': {
@@ -1213,18 +1003,214 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/lenders/farmer/$id': {
-      id: '/lenders/farmer/$id'
-      path: '/lenders/farmer/$id'
-      fullPath: '/lenders/farmer/$id'
-      preLoaderRoute: typeof LendersFarmerIdRouteImport
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat/farm/$farmId': {
-      id: '/chat/farm/$farmId'
-      path: '/chat/farm/$farmId'
-      fullPath: '/chat/farm/$farmId'
-      preLoaderRoute: typeof ChatFarmFarmIdRouteImport
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/audit': {
+      id: '/admin/audit'
+      path: '/admin/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/change-password': {
+      id: '/admin/change-password'
+      path: '/admin/change-password'
+      fullPath: '/admin/change-password'
+      preLoaderRoute: typeof AdminChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/chats': {
+      id: '/admin/chats'
+      path: '/admin/chats'
+      fullPath: '/admin/chats'
+      preLoaderRoute: typeof AdminChatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/farmers': {
+      id: '/admin/farmers'
+      path: '/admin/farmers'
+      fullPath: '/admin/farmers'
+      preLoaderRoute: typeof AdminFarmersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/listings': {
+      id: '/admin/listings'
+      path: '/admin/listings'
+      fullPath: '/admin/listings'
+      preLoaderRoute: typeof AdminListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/maps': {
+      id: '/admin/maps'
+      path: '/admin/maps'
+      fullPath: '/admin/maps'
+      preLoaderRoute: typeof AdminMapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/orders': {
+      id: '/admin/orders'
+      path: '/admin/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AdminOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/reveal-key': {
+      id: '/admin/reveal-key'
+      path: '/admin/reveal-key'
+      fullPath: '/admin/reveal-key'
+      preLoaderRoute: typeof AdminRevealKeyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/orders': {
+      id: '/api/orders'
+      path: '/api/orders'
+      fullPath: '/api/orders'
+      preLoaderRoute: typeof ApiOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$productId': {
+      id: '/chat/$productId'
+      path: '/chat/$productId'
+      fullPath: '/chat/$productId'
+      preLoaderRoute: typeof ChatProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/buyer': {
+      id: '/dashboard/buyer'
+      path: '/dashboard/buyer'
+      fullPath: '/dashboard/buyer'
+      preLoaderRoute: typeof DashboardBuyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/farmer': {
+      id: '/dashboard/farmer'
+      path: '/dashboard/farmer'
+      fullPath: '/dashboard/farmer'
+      preLoaderRoute: typeof DashboardFarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farm/$id': {
+      id: '/farm/$id'
+      path: '/farm/$id'
+      fullPath: '/farm/$id'
+      preLoaderRoute: typeof FarmIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/admin': {
+      id: '/lenders/admin'
+      path: '/lenders/admin'
+      fullPath: '/lenders/admin'
+      preLoaderRoute: typeof LendersAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/apply': {
+      id: '/lenders/apply'
+      path: '/lenders/apply'
+      fullPath: '/lenders/apply'
+      preLoaderRoute: typeof LendersApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/dashboard': {
+      id: '/lenders/dashboard'
+      path: '/lenders/dashboard'
+      fullPath: '/lenders/dashboard'
+      preLoaderRoute: typeof LendersDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/login': {
+      id: '/lenders/login'
+      path: '/lenders/login'
+      fullPath: '/lenders/login'
+      preLoaderRoute: typeof LendersLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/': {
+      id: '/orders/'
+      path: '/orders'
+      fullPath: '/orders/'
+      preLoaderRoute: typeof OrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders/$id': {
+      id: '/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/orders/$id'
+      preLoaderRoute: typeof OrdersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/product/$id': {
+      id: '/product/$id'
+      path: '/product/$id'
+      fullPath: '/product/$id'
+      preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/delete-account': {
+      id: '/settings/delete-account'
+      path: '/settings/delete-account'
+      fullPath: '/settings/delete-account'
+      preLoaderRoute: typeof SettingsDeleteAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/maps': {
+      id: '/settings/maps'
+      path: '/settings/maps'
+      fullPath: '/settings/maps'
+      preLoaderRoute: typeof SettingsMapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/': {
+      id: '/signup/'
+      path: '/signup'
+      fullPath: '/signup/'
+      preLoaderRoute: typeof SignupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/buyer': {
+      id: '/signup/buyer'
+      path: '/signup/buyer'
+      fullPath: '/signup/buyer'
+      preLoaderRoute: typeof SignupBuyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup/farmer': {
+      id: '/signup/farmer'
+      path: '/signup/farmer'
+      fullPath: '/signup/farmer'
+      preLoaderRoute: typeof SignupFarmerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.mcp/invoke-tool/$tool': {
@@ -1234,18 +1220,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/health/maps': {
-      id: '/api/public/health/maps'
-      path: '/api/public/health/maps'
-      fullPath: '/api/public/health/maps'
-      preLoaderRoute: typeof ApiPublicHealthMapsRouteImport
+    '/chat/farm/$farmId': {
+      id: '/chat/farm/$farmId'
+      path: '/chat/farm/$farmId'
+      fullPath: '/chat/farm/$farmId'
+      preLoaderRoute: typeof ChatFarmFarmIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/cron/auto-release': {
-      id: '/api/public/cron/auto-release'
-      path: '/api/public/cron/auto-release'
-      fullPath: '/api/public/cron/auto-release'
-      preLoaderRoute: typeof ApiPublicCronAutoReleaseRouteImport
+    '/lenders/farmer/$id': {
+      id: '/lenders/farmer/$id'
+      path: '/lenders/farmer/$id'
+      fullPath: '/lenders/farmer/$id'
+      preLoaderRoute: typeof LendersFarmerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/orders/$id/release': {
@@ -1254,6 +1240,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/orders/$id/release'
       preLoaderRoute: typeof ApiOrdersIdReleaseRouteImport
       parentRoute: typeof ApiOrdersRoute
+    }
+    '/api/public/cron/auto-release': {
+      id: '/api/public/cron/auto-release'
+      path: '/api/public/cron/auto-release'
+      fullPath: '/api/public/cron/auto-release'
+      preLoaderRoute: typeof ApiPublicCronAutoReleaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/health/maps': {
+      id: '/api/public/health/maps'
+      path: '/api/public/health/maps'
+      fullPath: '/api/public/health/maps'
+      preLoaderRoute: typeof ApiPublicHealthMapsRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
