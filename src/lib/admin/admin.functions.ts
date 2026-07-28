@@ -270,7 +270,7 @@ export const listMessagesForConversationFn = async ({
 }) => {
   const { data: rows, error } = await supabase
     .from("messages")
-    .select("id, sender_id, content, flagged, created_at")
+    .select("id, sender_id, body, flagged, created_at")
     .eq("conversation_id", data.conversationId)
     .order("created_at", { ascending: true })
     .limit(500);

@@ -28,7 +28,7 @@ interface Conversation {
 
 interface LastMessage {
   conversation_id: string;
-  content: string;
+  body: string;
   created_at: string;
   is_read: boolean;
   sender_id: string;
@@ -90,7 +90,7 @@ function ChatList() {
         const ids = list.map((c) => c.id);
         const { data: msgs } = await supabase
           .from("messages")
-          .select("conversation_id, content, created_at, is_read, sender_id")
+          .select("conversation_id, body, created_at, is_read, sender_id")
           .in("conversation_id", ids)
           .order("created_at", { ascending: false });
 
@@ -178,7 +178,7 @@ function ChatList() {
                           }`}
                         >
                           {last
-                            ? last.content.slice(0, 40) + (last.content.length > 40 ? "…" : "")
+                            ? last.body.slice(0, 40) + (last.body.length > 40 ? "…" : "")
                             : "No messages yet"}
                         </p>
                       </div>
