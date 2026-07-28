@@ -120,26 +120,32 @@ export type Database = {
         Row: {
           buyer_id: string
           created_at: string
+          farm_name: string | null
           farmer_id: string
           id: string
           last_message_at: string
           product_id: string | null
+          updated_at: string
         }
         Insert: {
           buyer_id: string
           created_at?: string
+          farm_name?: string | null
           farmer_id: string
           id?: string
           last_message_at?: string
           product_id?: string | null
+          updated_at?: string
         }
         Update: {
           buyer_id?: string
           created_at?: string
+          farm_name?: string | null
           farmer_id?: string
           id?: string
           last_message_at?: string
           product_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -428,6 +434,7 @@ export type Database = {
           created_at: string
           flagged: boolean
           id: string
+          is_read: boolean
           sender_id: string
         }
         Insert: {
@@ -436,6 +443,7 @@ export type Database = {
           created_at?: string
           flagged?: boolean
           id?: string
+          is_read?: boolean
           sender_id: string
         }
         Update: {
@@ -444,6 +452,7 @@ export type Database = {
           created_at?: string
           flagged?: boolean
           id?: string
+          is_read?: boolean
           sender_id?: string
         }
         Relationships: [
@@ -455,6 +464,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          data: Json
+          id: string
+          is_read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          is_read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          is_read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       order_events: {
         Row: {
@@ -521,8 +563,8 @@ export type Database = {
           release_code_hash?: string | null
           shipping_address?: string | null
           status?: string
-          subtotal_cents: number
-          total_cents: number
+          subtotal_cents?: number
+          total_cents?: number
           updated_at?: string
         }
         Update: {
@@ -671,7 +713,45 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_farms: {
+        Row: {
+          certifications: string[] | null
+          city: string | null
+          description: string | null
+          farm_name: string | null
+          lat: number | null
+          lng: number | null
+          state: string | null
+          user_id: string | null
+          verification_status: string | null
+          zip: string | null
+        }
+        Insert: {
+          certifications?: string[] | null
+          city?: string | null
+          description?: string | null
+          farm_name?: string | null
+          lat?: number | null
+          lng?: number | null
+          state?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          zip?: string | null
+        }
+        Update: {
+          certifications?: string[] | null
+          city?: string | null
+          description?: string | null
+          farm_name?: string | null
+          lat?: number | null
+          lng?: number | null
+          state?: string | null
+          user_id?: string | null
+          verification_status?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
