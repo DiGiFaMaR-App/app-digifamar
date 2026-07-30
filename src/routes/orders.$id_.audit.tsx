@@ -16,7 +16,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
-export const Route = createFileRoute("/orders/$id/audit")({
+export const Route = createFileRoute("/orders/$id_/audit")({
   head: () => ({
     meta: [
       { title: "Escrow Release Audit Log — DiGiFaMaR" },
