@@ -21,7 +21,7 @@ import { useCart } from "@/hooks/use-cart";
 import { getFarm, type Product } from "@/lib/mock-data";
 
 type Step = "details" | "held" | "delivery" | "release" | "success";
-const MOCK_CODE = "123456";
+
 
 export function ProductSheet({
   product,
