@@ -88,15 +88,8 @@ export function ProductSheet({
     toast.success(`${product.name} added to cart`);
   };
 
-  const handleRelease = () => {
-    if (code === MOCK_CODE) {
-      setError(null);
-      setStep("success");
-      toast.success("Funds released to farmer");
-    } else {
-      setError("That code doesn't match. Try 123456.");
-    }
-  };
+
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
