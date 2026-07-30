@@ -205,12 +205,21 @@ function OrderDetailPage() {
   return (
     <AppShell role={role === "farmer" ? "farmer" : "buyer"}>
       <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
-        <Link
-          to={role === "farmer" ? "/dashboard/farmer" : "/dashboard/buyer"}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to orders
-        </Link>
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            to={role === "farmer" ? "/dashboard/farmer" : "/dashboard/buyer"}
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to orders
+          </Link>
+          <Link
+            to="/orders/$id/audit"
+            params={{ id: order.id }}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground"
+          >
+            <ShieldCheck className="h-3.5 w-3.5" /> Escrow audit log
+          </Link>
+        </div>
 
         {/* Header */}
         <div className="mt-4 rounded-2xl border border-border bg-card p-5">

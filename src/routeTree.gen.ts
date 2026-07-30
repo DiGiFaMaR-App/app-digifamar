@@ -67,6 +67,7 @@ import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
+import { Route as OrdersIdAuditRouteImport } from './routes/orders.$id_.audit'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
@@ -364,6 +365,11 @@ const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
   path: '/lenders/farmer/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdersIdAuditRoute = OrdersIdAuditRouteImport.update({
+  id: '/orders/$id_/audit',
+  path: '/orders/$id/audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiOrdersIdReleaseRoute = ApiOrdersIdReleaseRouteImport.update({
   id: '/$id/release',
   path: '/$id/release',
@@ -440,6 +446,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/orders/$id/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
@@ -503,6 +510,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/orders/$id/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
@@ -567,6 +575,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/orders/$id_/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
@@ -632,6 +641,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/orders/$id/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
@@ -695,6 +705,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/orders/$id/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
@@ -758,6 +769,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/orders/$id_/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
@@ -822,6 +834,7 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
+  OrdersIdAuditRoute: typeof OrdersIdAuditRoute
   ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
   ApiPublicHealthMapsRoute: typeof ApiPublicHealthMapsRoute
 }
@@ -1234,6 +1247,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LendersFarmerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orders/$id_/audit': {
+      id: '/orders/$id_/audit'
+      path: '/orders/$id/audit'
+      fullPath: '/orders/$id/audit'
+      preLoaderRoute: typeof OrdersIdAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/orders/$id/release': {
       id: '/api/orders/$id/release'
       path: '/$id/release'
@@ -1330,6 +1350,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
+  OrdersIdAuditRoute: OrdersIdAuditRoute,
   ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
   ApiPublicHealthMapsRoute: ApiPublicHealthMapsRoute,
 }
