@@ -187,6 +187,57 @@ export type Database = {
           },
         ]
       }
+      dispute_events: {
+        Row: {
+          author_id: string | null
+          author_role: string
+          body: string | null
+          created_at: string
+          dispute_id: string
+          evidence_urls: string[]
+          id: string
+          kind: string
+          order_id: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_role?: string
+          body?: string | null
+          created_at?: string
+          dispute_id: string
+          evidence_urls?: string[]
+          id?: string
+          kind?: string
+          order_id: string
+        }
+        Update: {
+          author_id?: string | null
+          author_role?: string
+          body?: string | null
+          created_at?: string
+          dispute_id?: string
+          evidence_urls?: string[]
+          id?: string
+          kind?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_events_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disputes: {
         Row: {
           created_at: string
