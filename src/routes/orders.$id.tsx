@@ -7,7 +7,6 @@ import {
   KeyRound,
   Package,
   ShieldCheck,
-  AlertTriangle,
   Copy,
 } from "lucide-react";
 import { toast } from "sonner";
