@@ -15,7 +15,6 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/use-cart";
 import { getFarm, type Product } from "@/lib/mock-data";
@@ -36,8 +35,8 @@ export function ProductSheet({
   const { add } = useCart();
   const [active, setActive] = useState(0);
   const [step, setStep] = useState<Step>("details");
-  const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
+
+
   const [added, setAdded] = useState(false);
   const farm = product ? getFarm(product.farmId) : null;
 
@@ -47,8 +46,8 @@ export function ProductSheet({
       // Small delay so the closing animation doesn't flash to step 1
       const t = setTimeout(() => {
         setStep("details");
-        setCode("");
-        setError(null);
+
+
         setActive(0);
         setAdded(false);
       }, 250);
