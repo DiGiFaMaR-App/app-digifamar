@@ -14,15 +14,6 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -30,9 +21,9 @@ import {
   confirmDeliveryFn,
   fundEscrowFn,
   generateDeliveryOtpFn,
-  raiseDisputeFn,
   releaseEscrowFn,
 } from "@/lib/escrow-v2/escrow.functions";
+import { DisputePanel } from "@/components/order/DisputePanel";
 
 export const Route = createFileRoute("/orders/$id")({
   head: () => ({
@@ -104,14 +95,11 @@ function OrderDetailPage() {
   const [otpShown, setOtpShown] = useState<string | null>(null);
   const [smsMasked, setSmsMasked] = useState<string | null>(null);
   const [otpInput, setOtpInput] = useState("");
-  const [disputeOpen, setDisputeOpen] = useState(false);
-  const [disputeReason, setDisputeReason] = useState("");
 
   const fund = fundEscrowFn;
   const genOtp = generateDeliveryOtpFn;
   const confirmDelivery = confirmDeliveryFn;
   const release = releaseEscrowFn;
-  const dispute = raiseDisputeFn;
 
   const load = async () => {
     setLoading(true);
@@ -404,14 +392,9 @@ function OrderDetailPage() {
               >
                 <CheckCircle2 className="mr-2 h-4 w-4" /> Accept & release funds
               </Button>
-              <Button
-                variant="destructive"
-                disabled={busy}
-                onClick={() => setDisputeOpen(true)}
-                className="w-full"
-              >
-                <AlertTriangle className="mr-2 h-4 w-4" /> Open dispute
-              </Button>
+              <p className="text-center text-xs text-muted-foreground">
+                Not happy with the delivery? Use the dispute panel below to freeze the funds.
+              </p>
             </div>
           )}
 
@@ -444,6 +427,14 @@ function OrderDetailPage() {
           )}
         </div>
 
+        <DisputePanel
+          orderId={order.id}
+          role={role}
+          userId={user!.id}
+          orderStatus={order.status}
+          onChanged={() => void load()}
+        />
+
         {/* Chat link */}
         <div className="mt-6 flex justify-center gap-2">
           <Button asChild variant="outline">
@@ -454,57 +445,6 @@ function OrderDetailPage() {
         </div>
       </div>
 
-      <Dialog open={disputeOpen} onOpenChange={setDisputeOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Open dispute</DialogTitle>
-            <DialogDescription>
-              Describe what's wrong. An admin will review and decide how the escrowed funds are
-              split.
-            </DialogDescription>
-          </DialogHeader>
-          <Textarea
-            value={disputeReason}
-            onChange={(e) => setDisputeReason(e.target.value)}
-            placeholder="What was wrong with the delivery? (min 10 characters)"
-            rows={5}
-          />
-          <Input
-            placeholder="Optional evidence URL (photo / video)"
-            id="evidence"
-            className="mt-2"
-          />
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDisputeOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              variant="destructive"
-              disabled={busy || disputeReason.trim().length < 10}
-              onClick={async () => {
-                const ev = (
-                  document.getElementById("evidence") as HTMLInputElement | null
-                )?.value?.trim();
-                await wrap(
-                  () =>
-                    dispute({
-                      data: {
-                        orderId: order.id,
-                        reason: disputeReason.trim(),
-                        evidenceUrls: ev ? [ev] : [],
-                      },
-                    }),
-                  "Dispute filed",
-                );
-                setDisputeOpen(false);
-                setDisputeReason("");
-              }}
-            >
-              File dispute
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </AppShell>
   );
 }
