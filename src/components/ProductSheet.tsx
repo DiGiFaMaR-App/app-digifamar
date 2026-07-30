@@ -15,13 +15,12 @@ import {
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/use-cart";
 import { getFarm, type Product } from "@/lib/mock-data";
 
 type Step = "details" | "held" | "delivery" | "release" | "success";
-const MOCK_CODE = "123456";
+
 
 export function ProductSheet({
   product,
@@ -36,8 +35,8 @@ export function ProductSheet({
   const { add } = useCart();
   const [active, setActive] = useState(0);
   const [step, setStep] = useState<Step>("details");
-  const [code, setCode] = useState("");
-  const [error, setError] = useState<string | null>(null);
+
+
   const [added, setAdded] = useState(false);
   const farm = product ? getFarm(product.farmId) : null;
 
@@ -47,8 +46,8 @@ export function ProductSheet({
       // Small delay so the closing animation doesn't flash to step 1
       const t = setTimeout(() => {
         setStep("details");
-        setCode("");
-        setError(null);
+
+
         setActive(0);
         setAdded(false);
       }, 250);
@@ -88,15 +87,8 @@ export function ProductSheet({
     toast.success(`${product.name} added to cart`);
   };
 
-  const handleRelease = () => {
-    if (code === MOCK_CODE) {
-      setError(null);
-      setStep("success");
-      toast.success("Funds released to farmer");
-    } else {
-      setError("That code doesn't match. Try 123456.");
-    }
-  };
+
+
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -273,53 +265,25 @@ export function ProductSheet({
                 <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-primary/15 text-primary">
                   <KeyRound className="h-12 w-12" />
                 </div>
-                <h2 className="mt-5 text-2xl font-extrabold">Enter 6-digit release code</h2>
+                <h2 className="mt-5 text-2xl font-extrabold">Release code at handover</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  We sent a release code to your phone. Enter it to release escrow to the farmer.
+                  Release codes are issued and verified on your real order. Open the order to
+                  generate your one-time code — the farmer enters it at handover and escrow is
+                  released server-side.
                 </p>
               </div>
 
-              <div className="mt-5 flex justify-center">
-                <InputOTP
-                  maxLength={6}
-                  value={code}
-                  onChange={(v) => {
-                    setCode(v);
-                    setError(null);
-                  }}
-                >
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-
-              <p className="mt-3 text-center text-xs text-muted-foreground">
-                For this demo, the code is{" "}
-                <button
-                  type="button"
-                  onClick={() => setCode(MOCK_CODE)}
-                  className="font-mono font-bold text-primary underline-offset-2 hover:underline"
-                >
-                  {MOCK_CODE}
-                </button>
-              </p>
-              {error && (
-                <p className="mt-2 text-center text-xs font-semibold text-destructive">{error}</p>
-              )}
+              <SummaryCard orderId={orderId} product={product} status="Awaiting release" />
 
               <Button
                 size="lg"
-                disabled={code.length !== 6}
-                onClick={handleRelease}
+                onClick={() => {
+                  onOpenChange(false);
+                  navigate({ to: "/orders" });
+                }}
                 className="mt-5 h-12 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
               >
-                <KeyRound className="mr-1 h-4 w-4" /> Release ${product.price.toFixed(2)} to farmer
+                <KeyRound className="mr-1 h-4 w-4" /> Go to my orders
               </Button>
 
               <button
@@ -332,6 +296,7 @@ export function ProductSheet({
               <TrustBadges />
             </div>
           )}
+
 
           {step === "success" && (
             <div className="mt-2 text-center">
