@@ -52,7 +52,7 @@ function generateOtpCode(): string {
 async function loadOrder(orderId: string): Promise<OrderRow> {
   const { data, error } = await sb
     .from("orders")
-    .select("id, buyer_id, farmer_id, total_cents, status, delivery_deadline")
+    .select("id, buyer_id, farmer_id, total_cents, platform_fee_cents, status, delivery_deadline, stripe_payment_intent_id, stripe_charge_id, stripe_transfer_id")
     .eq("id", orderId)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -403,7 +403,7 @@ Deno.serve(async (req) => {
     const action = String(body.action ?? "");
     switch (action) {
       case "fund":
-        return jsonResponse(await fund(user.id, String(body.orderId)));
+        return jsonResponse(await fund(user.id, String(body.orderId), String(body.paymentMethodId ?? "")));
       case "generate-otp":
         return jsonResponse(await generateOtp(user.id, String(body.orderId)));
       case "confirm-delivery":
