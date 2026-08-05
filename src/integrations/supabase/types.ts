@@ -596,6 +596,9 @@ export type Database = {
           release_code_hash: string | null
           shipping_address: string | null
           status: string
+          stripe_charge_id: string | null
+          stripe_payment_intent_id: string | null
+          stripe_transfer_id: string | null
           subtotal_cents: number
           total_cents: number
           updated_at: string
@@ -614,6 +617,9 @@ export type Database = {
           release_code_hash?: string | null
           shipping_address?: string | null
           status?: string
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
           subtotal_cents?: number
           total_cents?: number
           updated_at?: string
@@ -632,6 +638,9 @@ export type Database = {
           release_code_hash?: string | null
           shipping_address?: string | null
           status?: string
+          stripe_charge_id?: string | null
+          stripe_payment_intent_id?: string | null
+          stripe_transfer_id?: string | null
           subtotal_cents?: number
           total_cents?: number
           updated_at?: string
@@ -654,6 +663,8 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          stripe_account_id: string | null
+          stripe_account_status: string
           updated_at: string
         }
         Insert: {
@@ -663,6 +674,8 @@ export type Database = {
           full_name?: string | null
           id: string
           phone?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string
           updated_at?: string
         }
         Update: {
@@ -672,6 +685,8 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string
           updated_at?: string
         }
         Relationships: []
