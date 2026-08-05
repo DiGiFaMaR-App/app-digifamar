@@ -8,13 +8,15 @@
 // Actions: fund | generate-otp | confirm-delivery | release | raise-dispute
 //          | resolve-dispute
 //
-// NOTE ON FUNDS: `fund` records a *simulated* escrow hold in the ledger. No
-// real money moves here. Real settlement/payout is a separate, gated concern
-// (see the create-payout function) and must not be enabled until money-
-// transmitter licensing is resolved.
+// NOTE ON FUNDS: `fund` and `release` move REAL money through Stripe using
+// Separate Charges and Transfers — `fund` confirms a PaymentIntent onto the
+// platform account (no application_fee_amount) and `release` creates a Transfer
+// to the farmer's connected account, sourced from the original charge. Live
+// mode stays gated behind MONEY_TRANSMITTER_CLEARED (see _shared/stripe.ts).
 import { corsHeaders, errorResponse, jsonResponse } from "../_shared/cors.ts";
 import { adminClient, getUser } from "../_shared/supabase.ts";
 import { sendSms } from "../_shared/sms.ts";
+import { safeStripeError, stripeRequest } from "../_shared/stripe.ts";
 
 const INSPECTION_WINDOW_HOURS = 48;
 const OTP_TTL_HOURS = 72;
@@ -24,8 +26,12 @@ type OrderRow = {
   buyer_id: string;
   farmer_id: string;
   total_cents: number;
+  platform_fee_cents: number;
   status: string;
   delivery_deadline: string | null;
+  stripe_payment_intent_id: string | null;
+  stripe_charge_id: string | null;
+  stripe_transfer_id: string | null;
 };
 
 const sb = adminClient();
@@ -118,18 +124,74 @@ async function hasRole(userId: string, role: string): Promise<boolean> {
 
 // ── Action handlers ───────────────────────────────────────────────
 
-async function fund(userId: string, orderId: string) {
+async function fund(userId: string, orderId: string, paymentMethodId: string) {
   const order = await loadOrder(orderId);
   if (order.buyer_id !== userId) throw new Error("Forbidden");
   if (!["pending", "negotiating"].includes(order.status)) {
     throw new Error(`Order in state ${order.status} cannot be funded`);
   }
+  if (!paymentMethodId) throw new Error("A payment method is required to fund this order");
+
+  // Charge the buyer. Deterministic idempotency key: a retry (double-click,
+  // network retry) returns the SAME PaymentIntent instead of charging twice.
+  let intent: {
+    id: string;
+    status: string;
+    latest_charge?: string | { id: string } | null;
+    last_payment_error?: { message?: string } | null;
+  };
+  try {
+    intent = await stripeRequest("/payment_intents", {
+      idempotencyKey: `pi_create:${orderId}`,
+      body: {
+        amount: order.total_cents,
+        currency: "usd",
+        payment_method: paymentMethodId,
+        confirm: "true",
+        // Separate Charges and Transfers: funds land on the platform account
+        // and are transferred to the farmer at release time. No
+        // application_fee_amount, no on_behalf_of.
+        transfer_group: `order_${orderId}`,
+        automatic_payment_methods: { enabled: "true", allow_redirects: "never" },
+        metadata: { order_id: orderId, buyer_id: order.buyer_id, farmer_id: order.farmer_id },
+      },
+    });
+  } catch (e) {
+    throw new Error(
+      safeStripeError(e, `fund order ${orderId}`, "We couldn't process that payment. Please try another card."),
+    );
+  }
+
+  const chargeId =
+    typeof intent.latest_charge === "string" ? intent.latest_charge : intent.latest_charge?.id ?? null;
+
+  if (intent.status !== "succeeded") {
+    await sb
+      .from("orders")
+      .update({ stripe_payment_intent_id: intent.id, stripe_charge_id: chargeId })
+      .eq("id", orderId);
+    console.error(`[escrow] fund ${orderId} not succeeded:`, intent.status, intent.last_payment_error?.message);
+    throw new Error("The payment was not completed. No funds were placed in escrow.");
+  }
+
+  // Payment succeeded — only now does the order become funded. The webhook
+  // handler performs the same write idempotently if it lands first.
   const balanceAfter = (await escrowBalanceForOrder(orderId)) + order.total_cents;
-  await appendLedger(orderId, "fund", order.total_cents, balanceAfter, userId, "buyer funded escrow");
-  const { error } = await sb.from("orders").update({ status: "escrow_funded" }).eq("id", orderId);
+  await appendLedger(
+    orderId,
+    "fund",
+    order.total_cents,
+    balanceAfter,
+    userId,
+    `buyer funded escrow (${intent.id})`,
+  );
+  const { error } = await sb
+    .from("orders")
+    .update({ status: "escrow_funded", stripe_payment_intent_id: intent.id, stripe_charge_id: chargeId })
+    .eq("id", orderId);
   if (error) throw new Error(error.message);
   await notify(order.farmer_id, "order", "Order funded", "A buyer funded escrow for an order.", orderId);
-  return { orderId, status: "escrow_funded", heldCents: balanceAfter };
+  return { orderId, status: "escrow_funded", heldCents: balanceAfter, paymentIntentId: intent.id };
 }
 
 async function generateOtp(userId: string, orderId: string) {
@@ -207,12 +269,49 @@ async function release(userId: string, orderId: string) {
   }
   const held = await escrowBalanceForOrder(orderId);
   if (held <= 0) throw new Error("No funds in escrow for this order");
-  await appendLedger(orderId, "release", held, 0, userId, "buyer released funds");
-  await creditAvailable(order.farmer_id, held);
-  await sb.from("orders").update({ status: "released" }).eq("id", orderId);
+  if (!order.stripe_charge_id) throw new Error("This order has no settled payment to release");
+
+  // The farmer must have a payout-ready connected account.
+  const { data: farmer } = await sb
+    .from("profiles")
+    .select("stripe_account_id, stripe_account_status")
+    .eq("id", order.farmer_id)
+    .maybeSingle();
+  if (!farmer?.stripe_account_id || farmer.stripe_account_status !== "active") {
+    throw new Error("The farmer's payout account isn't ready yet. Funds stay in escrow until it is.");
+  }
+
+  // Farmer receives the total minus the platform fee. The escrow fee stays on
+  // the platform balance too. source_transaction ties the transfer to the
+  // original charge so it can't fail on available-balance timing.
+  const transferAmount = Math.max(0, order.total_cents - order.platform_fee_cents);
+  let transfer: { id: string };
+  try {
+    transfer = await stripeRequest("/transfers", {
+      idempotencyKey: `transfer:${orderId}:release`,
+      body: {
+        amount: transferAmount,
+        currency: "usd",
+        destination: farmer.stripe_account_id,
+        source_transaction: order.stripe_charge_id,
+        transfer_group: `order_${orderId}`,
+        metadata: { order_id: orderId, buyer_id: order.buyer_id, farmer_id: order.farmer_id },
+      },
+    });
+  } catch (e) {
+    throw new Error(
+      safeStripeError(e, `release order ${orderId}`, "We couldn't pay out this order right now. Funds remain in escrow."),
+    );
+  }
+
+  await appendLedger(orderId, "release", held, 0, userId, `buyer released funds (${transfer.id})`);
+  await sb
+    .from("orders")
+    .update({ status: "released", stripe_transfer_id: transfer.id })
+    .eq("id", orderId);
   await sb.from("inspection_windows").update({ released_at: new Date().toISOString() }).eq("order_id", orderId);
-  await notify(order.farmer_id, "funds", "Funds released", "Escrow funds were released to your wallet.", orderId);
-  return { orderId, status: "released", releasedCents: held };
+  await notify(order.farmer_id, "funds", "Funds released", "Escrow funds were paid out to your Stripe account.", orderId);
+  return { orderId, status: "released", releasedCents: held, transferredCents: transferAmount, transferId: transfer.id };
 }
 
 async function raiseDispute(
