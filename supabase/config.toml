@@ -6,3 +6,7 @@ project_id = "rlwygbvuukrcxkytzbxf"
 # public.phone_otps table.
 [functions.verify-phone]
 verify_jwt = false
+# Stripe posts here with no Supabase session token — auth is the HMAC signature
+# check against PAYMENTS_*_WEBHOOK_SECRET, performed before any payload is read.
+[functions.stripe-webhook]
+verify_jwt = false
