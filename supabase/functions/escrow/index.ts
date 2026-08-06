@@ -137,6 +137,7 @@ async function fund(userId: string, orderId: string, paymentMethodId: string) {
   let intent: {
     id: string;
     status: string;
+    client_secret?: string | null;
     latest_charge?: string | { id: string } | null;
     last_payment_error?: { message?: string } | null;
   };
@@ -164,6 +165,26 @@ async function fund(userId: string, orderId: string, paymentMethodId: string) {
 
   const chargeId =
     typeof intent.latest_charge === "string" ? intent.latest_charge : intent.latest_charge?.id ?? null;
+
+  // 3-D Secure / SCA: the card issuer wants the buyer to authenticate. Hand the
+  // client secret back so the browser can run the challenge, then the client
+  // re-invokes `fund` (the deterministic idempotency key returns the SAME
+  // PaymentIntent, so nobody is charged twice).
+  if (
+    (intent.status === "requires_action" || intent.status === "requires_confirmation") &&
+    intent.client_secret
+  ) {
+    await sb
+      .from("orders")
+      .update({ stripe_payment_intent_id: intent.id, stripe_charge_id: chargeId })
+      .eq("id", orderId);
+    return {
+      orderId,
+      status: "requires_action" as const,
+      clientSecret: intent.client_secret,
+      paymentIntentId: intent.id,
+    };
+  }
 
   if (intent.status !== "succeeded") {
     await sb
