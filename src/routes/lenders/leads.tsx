@@ -4,6 +4,7 @@ import { Download, Loader2, Lock, RefreshCw, Search, ShieldCheck, Users } from "
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
+import { updateLeadStatusFn } from "@/lib/lenders/lead-notifications.functions";
 import { LenderCard, LenderShell } from "./-ui";
 import { NAVY } from "./-data";
 import {
