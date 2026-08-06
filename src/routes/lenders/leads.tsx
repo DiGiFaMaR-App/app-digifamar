@@ -6,6 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
 import { LenderCard, LenderShell } from "./-ui";
 import { NAVY } from "./-data";
+import {
+  LeadDrawer,
+  STATUSES,
+  STATUS_STYLE,
+  type Lead,
+  type LeadStatus,
+} from "./-LeadDrawer";
 
 export const Route = createFileRoute("/lenders/leads")({
   head: () => ({
