@@ -302,10 +302,13 @@ function LenderLeadsAdmin() {
                   return (
                     <tr
                       key={l.id}
-                      className="border-b border-white/5 last:border-0 hover:bg-white/[0.03]"
+                      onClick={() => setSelectedId(l.id)}
+                      className="cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/[0.03]"
                     >
                       <td className="px-4 py-3">
-                        <p className="font-semibold text-slate-100">{l.name}</p>
+                        <p className="font-semibold text-slate-100 underline-offset-2 hover:underline">
+                          {l.name}
+                        </p>
                         <p className="text-xs text-slate-500">
                           {l.email}
                           {l.phone ? ` · ${l.phone}` : ""}
@@ -313,6 +316,7 @@ function LenderLeadsAdmin() {
                       </td>
                       <td className="px-4 py-3 text-slate-300">{entityLabel(l.entity_type)}</td>
                       <td className="max-w-[280px] px-4 py-3 text-xs text-slate-400">
+
                         {l.interest_notes ? (
                           <span className="line-clamp-3">{l.interest_notes}</span>
                         ) : (
