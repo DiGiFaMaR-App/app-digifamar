@@ -145,6 +145,7 @@ interface Order {
   buyer_first_name: string | null;
   product_name: string | null;
   amount: number;
+  escrow_amount: number;
   status: string;
   created_at: string;
 }
