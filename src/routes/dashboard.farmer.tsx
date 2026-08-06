@@ -598,7 +598,13 @@ function SkeletonCard() {
 // LENDING MILESTONE
 // ─────────────────────────────────────────────────────────────────
 
-function LendingMilestone({ salesCount }: { salesCount: number }) {
+function LendingMilestone({
+  salesCount,
+  farmerId,
+}: {
+  salesCount: number;
+  farmerId: string | null;
+}) {
   const pct = Math.min((salesCount / LENDING_TARGET) * 100, 100);
   const qualified = salesCount >= LENDING_TARGET;
   const remaining = LENDING_TARGET - salesCount;
