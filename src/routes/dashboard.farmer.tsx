@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
+import { LoanInterestDialog } from "@/components/farmer/LoanInterestDialog";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/dashboard/farmer")({
@@ -467,7 +468,7 @@ function FarmerDashboard() {
             <StatsRow stats={stats} loading={loading} />
 
             {/* Lending milestone */}
-            <LendingMilestone salesCount={stats.totalSales} />
+            <LendingMilestone salesCount={stats.totalSales} farmerId={user?.id ?? null} />
 
             {/* Listings section */}
             <SectionWrapper
@@ -598,7 +599,13 @@ function SkeletonCard() {
 // LENDING MILESTONE
 // ─────────────────────────────────────────────────────────────────
 
-function LendingMilestone({ salesCount }: { salesCount: number }) {
+function LendingMilestone({
+  salesCount,
+  farmerId,
+}: {
+  salesCount: number;
+  farmerId: string | null;
+}) {
   const pct = Math.min((salesCount / LENDING_TARGET) * 100, 100);
   const qualified = salesCount >= LENDING_TARGET;
   const remaining = LENDING_TARGET - salesCount;
@@ -656,8 +663,9 @@ function LendingMilestone({ salesCount }: { salesCount: number }) {
             </Button>
           </Link>
         )}
+        <LoanInterestDialog farmerId={farmerId} />
         <Link
-          to="/lending"
+          to="/lenders"
           className="text-xs text-[#7AAB7A] hover:text-[#4ADE80] hover:underline flex items-center gap-1"
         >
           Learn about the lending program <ChevronRight className="h-3 w-3" />

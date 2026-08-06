@@ -52,9 +52,11 @@ import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
+import { Route as LendersIndexRouteImport } from './routes/lenders/index'
 import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
 import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
 import { Route as LendersDashboardRouteImport } from './routes/lenders/dashboard'
+import { Route as LendersDemoRouteImport } from './routes/lenders/demo'
 import { Route as LendersLoginRouteImport } from './routes/lenders/login'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
@@ -289,6 +291,11 @@ const FarmIdRoute = FarmIdRouteImport.update({
   path: '/farm/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LendersIndexRoute = LendersIndexRouteImport.update({
+  id: '/lenders/',
+  path: '/lenders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LendersAdminRoute = LendersAdminRouteImport.update({
   id: '/lenders/admin',
   path: '/lenders/admin',
@@ -302,6 +309,11 @@ const LendersApplyRoute = LendersApplyRouteImport.update({
 const LendersDashboardRoute = LendersDashboardRouteImport.update({
   id: '/lenders/dashboard',
   path: '/lenders/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LendersDemoRoute = LendersDemoRouteImport.update({
+  id: '/lenders/demo',
+  path: '/lenders/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LendersLoginRoute = LendersLoginRouteImport.update({
@@ -432,6 +444,7 @@ export interface FileRoutesByFullPath {
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/demo': typeof LendersDemoRoute
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -441,6 +454,7 @@ export interface FileRoutesByFullPath {
   '/signup/farmer': typeof SignupFarmerRoute
   '/admin/': typeof AdminIndexRoute
   '/chat/': typeof ChatIndexRoute
+  '/lenders/': typeof LendersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -496,6 +510,7 @@ export interface FileRoutesByTo {
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/demo': typeof LendersDemoRoute
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -505,6 +520,7 @@ export interface FileRoutesByTo {
   '/signup/farmer': typeof SignupFarmerRoute
   '/admin': typeof AdminIndexRoute
   '/chat': typeof ChatIndexRoute
+  '/lenders': typeof LendersIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/signup': typeof SignupIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -561,6 +577,7 @@ export interface FileRoutesById {
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/demo': typeof LendersDemoRoute
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -570,6 +587,7 @@ export interface FileRoutesById {
   '/signup/farmer': typeof SignupFarmerRoute
   '/admin/': typeof AdminIndexRoute
   '/chat/': typeof ChatIndexRoute
+  '/lenders/': typeof LendersIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/signup/': typeof SignupIndexRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -627,6 +645,7 @@ export interface FileRouteTypes {
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/dashboard'
+    | '/lenders/demo'
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
@@ -636,6 +655,7 @@ export interface FileRouteTypes {
     | '/signup/farmer'
     | '/admin/'
     | '/chat/'
+    | '/lenders/'
     | '/orders/'
     | '/signup/'
     | '/.mcp/invoke-tool/$tool'
@@ -691,6 +711,7 @@ export interface FileRouteTypes {
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/dashboard'
+    | '/lenders/demo'
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
@@ -700,6 +721,7 @@ export interface FileRouteTypes {
     | '/signup/farmer'
     | '/admin'
     | '/chat'
+    | '/lenders'
     | '/orders'
     | '/signup'
     | '/.mcp/invoke-tool/$tool'
@@ -755,6 +777,7 @@ export interface FileRouteTypes {
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/dashboard'
+    | '/lenders/demo'
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
@@ -764,6 +787,7 @@ export interface FileRouteTypes {
     | '/signup/farmer'
     | '/admin/'
     | '/chat/'
+    | '/lenders/'
     | '/orders/'
     | '/signup/'
     | '/.mcp/invoke-tool/$tool'
@@ -820,6 +844,7 @@ export interface RootRouteChildren {
   LendersAdminRoute: typeof LendersAdminRoute
   LendersApplyRoute: typeof LendersApplyRoute
   LendersDashboardRoute: typeof LendersDashboardRoute
+  LendersDemoRoute: typeof LendersDemoRoute
   LendersLoginRoute: typeof LendersLoginRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -829,6 +854,7 @@ export interface RootRouteChildren {
   SignupFarmerRoute: typeof SignupFarmerRoute
   AdminIndexRoute: typeof AdminIndexRoute
   ChatIndexRoute: typeof ChatIndexRoute
+  LendersIndexRoute: typeof LendersIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
@@ -1142,6 +1168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarmIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lenders/': {
+      id: '/lenders/'
+      path: '/lenders'
+      fullPath: '/lenders/'
+      preLoaderRoute: typeof LendersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lenders/admin': {
       id: '/lenders/admin'
       path: '/lenders/admin'
@@ -1161,6 +1194,13 @@ declare module '@tanstack/react-router' {
       path: '/lenders/dashboard'
       fullPath: '/lenders/dashboard'
       preLoaderRoute: typeof LendersDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lenders/demo': {
+      id: '/lenders/demo'
+      path: '/lenders/demo'
+      fullPath: '/lenders/demo'
+      preLoaderRoute: typeof LendersDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lenders/login': {
@@ -1336,6 +1376,7 @@ const rootRouteChildren: RootRouteChildren = {
   LendersAdminRoute: LendersAdminRoute,
   LendersApplyRoute: LendersApplyRoute,
   LendersDashboardRoute: LendersDashboardRoute,
+  LendersDemoRoute: LendersDemoRoute,
   LendersLoginRoute: LendersLoginRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
@@ -1345,6 +1386,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupFarmerRoute: SignupFarmerRoute,
   AdminIndexRoute: AdminIndexRoute,
   ChatIndexRoute: ChatIndexRoute,
+  LendersIndexRoute: LendersIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,

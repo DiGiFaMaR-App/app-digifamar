@@ -1,51 +1,72 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Building2, CheckCircle2, Landmark, Loader2 } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2, Loader2, User } from "lucide-react";
+import { SiteLayout } from "@/components/SiteLayout";
+import { WaitlistBanner } from "@/components/lenders/WaitlistBanner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { formatUSInput, normalizeToE164 } from "@/lib/phone";
-import { LenderCard, LenderShell } from "./-ui";
-import { INSTITUTION_TYPES, NAVY, US_STATES } from "./-data";
 
 export const Route = createFileRoute("/lenders/apply")({
   head: () => ({
     meta: [
-      { title: "Become a DiGiFaMaR Lending Partner" },
+      { title: "Apply to Become a Lender | DiGiFaMaR" },
       {
         name: "description",
         content:
-          "Apply to lend to vetted, high-performing farms on DiGiFaMaR. Tell us your institution, the states you serve, and your loan range.",
+          "Join the DiGiFaMaR lender waitlist. Tell us who you are and the kind of farm lending you're interested in — no KYC, no capital commitment.",
       },
+      { property: "og:title", content: "Apply to Become a DiGiFaMaR Lender" },
+      {
+        property: "og:description",
+        content:
+          "Register your interest in funding working-capital loans for verified farms. Waitlist only — the program is not live yet.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ApplyPage,
+  component: LenderApplyPage,
 });
 
+type EntityType = "individual" | "institutional";
+
 type FormState = {
-  institutionName: string;
-  institutionType: string;
-  charterNumber: string;
-  lendingStates: string[];
-  minLoanAmount: string;
-  maxLoanAmount: string;
-  contactName: string;
-  contactEmail: string;
-  contactPhone: string;
+  name: string;
+  email: string;
+  phone: string;
+  entityType: EntityType;
+  interestNotes: string;
 };
 
-const empty: FormState = {
-  institutionName: "",
-  institutionType: INSTITUTION_TYPES[0].value,
-  charterNumber: "",
-  lendingStates: [],
-  minLoanAmount: "",
-  maxLoanAmount: "",
-  contactName: "",
-  contactEmail: "",
-  contactPhone: "",
+const EMPTY: FormState = {
+  name: "",
+  email: "",
+  phone: "",
+  entityType: "individual",
+  interestNotes: "",
 };
 
-function ApplyPage() {
-  const [form, setForm] = useState<FormState>(empty);
+const ENTITY_OPTIONS: { value: EntityType; label: string; hint: string; icon: typeof User }[] = [
+  {
+    value: "individual",
+    label: "Individual",
+    hint: "Investing personal capital",
+    icon: User,
+  },
+  {
+    value: "institutional",
+    label: "Institutional",
+    hint: "Bank, credit union, fund or CDFI",
+    icon: Building2,
+  },
+];
+
+function LenderApplyPage() {
+  const [form, setForm] = useState<FormState>(EMPTY);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,63 +74,46 @@ function ApplyPage() {
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
 
-  const toggleState = (s: string) =>
-    setForm((p) => ({
-      ...p,
-      lendingStates: p.lendingStates.includes(s)
-        ? p.lendingStates.filter((x) => x !== s)
-        : [...p.lendingStates, s],
-    }));
-
-  const minNum = parseFloat(form.minLoanAmount) || 0;
-  const maxNum = parseFloat(form.maxLoanAmount) || 0;
-  const amountInvalid = maxNum > 0 && maxNum < minNum;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (form.lendingStates.length === 0) {
-      setError("Select at least one state you lend in.");
+
+    const name = form.name.trim();
+    const email = form.email.trim();
+    if (name.length < 2 || name.length > 100) {
+      setError("Enter your full name.");
       return;
     }
-    if (amountInvalid) {
-      setError("Maximum loan amount must be greater than or equal to the minimum.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 255) {
+      setError("Enter a valid email address.");
       return;
     }
-    const normalizedPhone = form.contactPhone.trim() ? normalizeToE164(form.contactPhone) : null;
-    if (form.contactPhone.trim() && !normalizedPhone) {
-      setError("Enter a valid US phone number, e.g. (555) 123-4567.");
+    let phone: string | null = null;
+    if (form.phone.trim()) {
+      phone = normalizeToE164(form.phone);
+      if (!phone) {
+        setError("Enter a valid US phone number, e.g. (555) 123-4567.");
+        return;
+      }
+    }
+    if (form.interestNotes.length > 1000) {
+      setError("Please keep your notes under 1000 characters.");
       return;
     }
+
     setSubmitting(true);
     try {
-      // lender_applications is created by the lender-portal migrations; the generated
-      // Supabase types predate it, so the client is cast for this insert.
-      const { error: insertError } = await (
-        supabase as unknown as {
-          from: (t: string) => {
-            insert: (v: unknown) => Promise<{ error: { message: string } | null }>;
-          };
-        }
-      )
-        .from("lender_applications")
-        .insert({
-          institution_name: form.institutionName,
-          institution_type: form.institutionType,
-          charter_number: form.charterNumber || null,
-          lending_states: form.lendingStates,
-          min_loan_amount: minNum,
-          max_loan_amount: maxNum,
-          contact_name: form.contactName || null,
-          contact_email: form.contactEmail,
-          contact_phone: normalizedPhone,
-          status: "pending",
-        });
+      const { error: insertError } = await supabase.from("lender_leads").insert({
+        name,
+        email,
+        phone,
+        entity_type: form.entityType,
+        interest_notes: form.interestNotes.trim() || null,
+        status: "new",
+      });
       if (insertError) throw new Error(insertError.message);
       setDone(true);
     } catch (err) {
-      // Submission still "succeeds" for the demo even if the backend isn't provisioned,
-      // but surface real errors so a connected environment is debuggable.
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
@@ -118,256 +122,154 @@ function ApplyPage() {
 
   if (done) {
     return (
-      <LenderShell showNav={false}>
-        <div className="mx-auto max-w-lg pt-10 text-center">
-          <div
-            className="mx-auto grid h-16 w-16 place-items-center rounded-2xl"
-            style={{ backgroundColor: "rgba(52,211,153,0.12)" }}
-          >
-            <CheckCircle2 className="h-8 w-8 text-emerald-400" />
+      <SiteLayout>
+        <div className="mx-auto max-w-xl px-4 py-20 text-center sm:px-6">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-leaf-soft">
+            <CheckCircle2 className="h-7 w-7 text-primary" />
           </div>
-          <h1 className="mt-5 text-2xl font-extrabold">Application received</h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Thanks, {form.contactName || form.institutionName}. Our partnerships team reviews new
-            lenders within two business days. We'll email{" "}
-            <span className="text-slate-200">{form.contactEmail}</span> once your institution is
-            approved.
+          <h1 className="mt-5 text-3xl font-extrabold">You're on the lender waitlist</h1>
+          <p className="mt-3 text-muted-foreground">
+            Thanks, {form.name.split(" ")[0] || "there"}. We've recorded your interest and will be
+            in touch as the lending program takes shape. Nothing further is needed from you — no
+            documents, no capital.
           </p>
-          <Link
-            to="/lenders/login"
-            className="mt-6 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
-            style={{ backgroundColor: NAVY.accent }}
-          >
-            Go to lender login <ArrowRight className="h-4 w-4" />
-          </Link>
+          <WaitlistBanner className="mt-6 text-left" />
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button asChild variant="outline">
+              <Link to="/lenders">Back to lending overview</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/lenders/demo">See the dashboard preview</Link>
+            </Button>
+          </div>
         </div>
-      </LenderShell>
+      </SiteLayout>
     );
   }
 
   return (
-    <LenderShell showNav={false}>
-      <div className="mx-auto max-w-2xl">
-        <div className="flex items-center gap-3">
-          <span
-            className="grid h-11 w-11 place-items-center rounded-xl text-white"
-            style={{ backgroundColor: NAVY.accent }}
-          >
-            <Landmark className="h-5 w-5" />
-          </span>
-          <div>
-            <h1 className="text-2xl font-extrabold sm:text-3xl">Become a lending partner</h1>
-            <p className="text-sm text-slate-400">
-              Reach vetted, high-performing farms with verified sales history.
+    <SiteLayout>
+      <div className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
+        <Link
+          to="/lenders"
+          className="text-sm text-muted-foreground hover:text-foreground hover:underline"
+        >
+          ← Lending overview
+        </Link>
+        <h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">Apply to become a lender</h1>
+        <p className="mt-3 text-muted-foreground">
+          Register your interest in funding working-capital loans for verified DiGiFaMaR farms. This
+          takes about a minute — we only ask for contact details and the kind of lending you have in
+          mind.
+        </p>
+
+        <WaitlistBanner className="mt-6" />
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full name</Label>
+            <Input
+              id="name"
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
+              placeholder="Jordan Ellis"
+              maxLength={100}
+              required
+            />
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={form.email}
+                onChange={(e) => set("email", e.target.value)}
+                placeholder="you@example.com"
+                maxLength={255}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone (optional)</Label>
+              <Input
+                id="phone"
+                inputMode="tel"
+                value={form.phone}
+                onChange={(e) => set("phone", formatUSInput(e.target.value))}
+                placeholder="(555) 123-4567"
+              />
+            </div>
+          </div>
+
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium">Entity type</legend>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {ENTITY_OPTIONS.map((opt) => {
+                const active = form.entityType === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => set("entityType", opt.value)}
+                    aria-pressed={active}
+                    className={`flex items-start gap-3 rounded-xl border p-4 text-left transition ${
+                      active
+                        ? "border-primary bg-leaf-soft"
+                        : "border-border bg-card hover:border-primary/40"
+                    }`}
+                  >
+                    <opt.icon
+                      className={`mt-0.5 h-5 w-5 ${active ? "text-primary" : "text-muted-foreground"}`}
+                    />
+                    <span>
+                      <span className="block text-sm font-semibold">{opt.label}</span>
+                      <span className="block text-xs text-muted-foreground">{opt.hint}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <div className="space-y-2">
+            <Label htmlFor="interest">Investment interest / ballpark range</Label>
+            <Textarea
+              id="interest"
+              value={form.interestNotes}
+              onChange={(e) => set("interestNotes", e.target.value)}
+              placeholder="e.g. Interested in $25k–$100k per farm across the Southeast, focused on produce and dairy."
+              rows={4}
+              maxLength={1000}
+            />
+            <p className="text-xs text-muted-foreground">
+              Free text — a rough range is plenty. This is not a commitment.
             </p>
           </div>
-        </div>
 
-        <LenderCard className="mt-6 p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <Field label="Institution name" required>
-              <input
-                value={form.institutionName}
-                onChange={(e) => set("institutionName", e.target.value)}
-                required
-                placeholder="e.g. Heartland Farm Credit"
-                className={inputCls}
-              />
-            </Field>
+          {error && (
+            <p className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </p>
+          )}
 
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Institution type" required>
-                <select
-                  value={form.institutionType}
-                  onChange={(e) => set("institutionType", e.target.value)}
-                  className={inputCls}
-                >
-                  {INSTITUTION_TYPES.map((t) => (
-                    <option key={t.value} value={t.value} className="bg-[#111827]">
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Charter / license number" hint="Optional">
-                <input
-                  value={form.charterNumber}
-                  onChange={(e) => set("charterNumber", e.target.value)}
-                  placeholder="e.g. FC-44821"
-                  className={inputCls}
-                />
-              </Field>
-            </div>
-
-            <Field
-              label="States you lend in"
-              required
-              hint={form.lendingStates.length ? `${form.lendingStates.length} selected` : undefined}
-            >
-              <div className="flex flex-wrap gap-1.5">
-                {US_STATES.map((s) => {
-                  const active = form.lendingStates.includes(s);
-                  return (
-                    <button
-                      type="button"
-                      key={s}
-                      onClick={() => toggleState(s)}
-                      aria-pressed={active}
-                      className={`rounded-md px-2 py-1 text-xs font-semibold transition ${
-                        active ? "text-white" : "text-slate-400 hover:text-slate-200"
-                      }`}
-                      style={
-                        active
-                          ? { backgroundColor: NAVY.accent }
-                          : { backgroundColor: "rgba(255,255,255,0.05)" }
-                      }
-                    >
-                      {s}
-                    </button>
-                  );
-                })}
-              </div>
-            </Field>
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Minimum loan amount" required>
-                <MoneyInput
-                  value={form.minLoanAmount}
-                  onChange={(v) => set("minLoanAmount", v)}
-                  placeholder="10,000"
-                />
-              </Field>
-              <Field label="Maximum loan amount" required>
-                <MoneyInput
-                  value={form.maxLoanAmount}
-                  onChange={(v) => set("maxLoanAmount", v)}
-                  placeholder="500,000"
-                />
-              </Field>
-            </div>
-            {amountInvalid && <p className="-mt-3 text-xs text-rose-400">Max must be ≥ min.</p>}
-
-            <div className="h-px bg-white/10" />
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Contact name">
-                <input
-                  value={form.contactName}
-                  onChange={(e) => set("contactName", e.target.value)}
-                  placeholder="Dana Whitfield"
-                  className={inputCls}
-                />
-              </Field>
-              <Field label="Contact phone" hint="Optional">
-                <input
-                  value={form.contactPhone}
-                  onChange={(e) => set("contactPhone", formatUSInput(e.target.value))}
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="(555) 123-4567"
-                  className={inputCls}
-                />
-              </Field>
-            </div>
-            <Field label="Work email" required>
-              <input
-                type="email"
-                value={form.contactEmail}
-                onChange={(e) => set("contactEmail", e.target.value)}
-                required
-                placeholder="you@institution.com"
-                className={inputCls}
-              />
-            </Field>
-
-            {error && (
-              <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
-                {error}
-              </p>
+          <Button type="submit" size="lg" disabled={submitting} className="w-full">
+            {submitting ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Submitting…
+              </>
+            ) : (
+              <>
+                Join the lender waitlist <ArrowRight className="ml-1 h-4 w-4" />
+              </>
             )}
-
-            <button
-              type="submit"
-              disabled={submitting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-bold text-white transition disabled:opacity-60"
-              style={{ backgroundColor: NAVY.accent }}
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Submitting…
-                </>
-              ) : (
-                <>
-                  Submit application <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
-          </form>
-        </LenderCard>
-
-        <p className="mt-4 text-center text-xs text-slate-500">
-          <Building2 className="mr-1 inline h-3.5 w-3.5" />
-          Already approved?{" "}
-          <Link to="/lenders/login" className="font-semibold" style={{ color: "#93B4FF" }}>
-            Sign in to the lender portal
-          </Link>
-        </p>
+          </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            No KYC, no documents, no account creation. We store only what you enter above.
+          </p>
+        </form>
       </div>
-    </LenderShell>
-  );
-}
-
-const inputCls =
-  "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/30";
-
-function MoneyInput({
-  value,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-}) {
-  return (
-    <div className="relative">
-      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
-        $
-      </span>
-      <input
-        type="number"
-        min="0"
-        step="1000"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required
-        placeholder={placeholder}
-        className={`${inputCls} pl-7`}
-      />
-    </div>
-  );
-}
-
-function Field({
-  label,
-  children,
-  required,
-  hint,
-}: {
-  label: string;
-  children: React.ReactNode;
-  required?: boolean;
-  hint?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-          {label} {required && <span className="text-rose-400">*</span>}
-        </span>
-        {hint && <span className="text-[11px] text-slate-500">{hint}</span>}
-      </span>
-      {children}
-    </label>
+    </SiteLayout>
   );
 }
