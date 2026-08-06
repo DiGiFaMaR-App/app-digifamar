@@ -935,6 +935,25 @@ export type Database = {
         }
         Relationships: []
       }
+      public_reviews: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          farmer_id: string | null
+          id: string | null
+          order_id: string | null
+          rating: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
