@@ -662,8 +662,9 @@ function LendingMilestone({
             </Button>
           </Link>
         )}
+        <LoanInterestDialog farmerId={farmerId} />
         <Link
-          to="/lending"
+          to="/lenders"
           className="text-xs text-[#7AAB7A] hover:text-[#4ADE80] hover:underline flex items-center gap-1"
         >
           Learn about the lending program <ChevronRight className="h-3 w-3" />
