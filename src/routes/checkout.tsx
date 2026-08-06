@@ -10,8 +10,6 @@ import {
   Store,
   Truck,
   Zap,
-  CreditCard,
-  Landmark,
   MapPin,
   Check,
 } from "lucide-react";
@@ -38,8 +36,6 @@ import {
   type PayableOrder,
 } from "@/components/checkout/EscrowPaymentForm";
 
-type FundingSource = "card" | "bank";
-
 const DELIVERY_ORDER: DeliveryMethod[] = ["standard", "express", "pickup"];
 
 const DELIVERY_ICON: Record<DeliveryMethod, typeof Truck> = {
@@ -47,16 +43,6 @@ const DELIVERY_ICON: Record<DeliveryMethod, typeof Truck> = {
   express: Zap,
   pickup: Store,
 };
-
-const FUNDING_SOURCES: {
-  id: FundingSource;
-  label: string;
-  hint: string;
-  icon: typeof CreditCard;
-}[] = [
-  { id: "card", label: "Card", hint: "Visa, Mastercard, Amex", icon: CreditCard },
-  { id: "bank", label: "Bank transfer", hint: "ACH — 1–2 business days", icon: Landmark },
-];
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -73,7 +59,6 @@ function CheckoutPage() {
 
   const [shippingAddress, setShippingAddress] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("standard");
-  const [fundingSource, setFundingSource] = useState<FundingSource>("card");
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(false);
   // Orders that exist in the DB but still need their escrow funded with a card.
