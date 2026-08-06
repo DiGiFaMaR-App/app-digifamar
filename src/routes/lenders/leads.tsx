@@ -95,6 +95,7 @@ function LenderLeadsAdmin() {
   const [statusFilter, setStatusFilter] = useState<"all" | LeadStatus>("all");
   const [entityFilter, setEntityFilter] = useState<"all" | "individual" | "institutional">("all");
   const [search, setSearch] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
