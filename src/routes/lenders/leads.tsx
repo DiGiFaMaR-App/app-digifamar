@@ -6,6 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
 import { LenderCard, LenderShell } from "./-ui";
 import { NAVY } from "./-data";
+import {
+  LeadDrawer,
+  STATUSES,
+  STATUS_STYLE,
+  type Lead,
+  type LeadStatus,
+} from "./-LeadDrawer";
 
 export const Route = createFileRoute("/lenders/leads")({
   head: () => ({
@@ -37,27 +44,8 @@ export const Route = createFileRoute("/lenders/leads")({
   component: LenderLeadsAdmin,
 });
 
-type LeadStatus = "new" | "contacted" | "qualified" | "archived";
+// Lead shape, status list and status colors are shared with the detail drawer.
 
-type Lead = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  entity_type: string;
-  interest_notes: string | null;
-  status: string;
-  created_at: string;
-};
-
-const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "archived"];
-
-const STATUS_STYLE: Record<string, { bg: string; fg: string }> = {
-  new: { bg: "rgba(29,78,216,0.18)", fg: "#93B4FF" },
-  contacted: { bg: "rgba(217,119,6,0.16)", fg: "#FCD34D" },
-  qualified: { bg: "rgba(5,150,105,0.16)", fg: "#6EE7B7" },
-  archived: { bg: "rgba(148,163,184,0.14)", fg: "#CBD5E1" },
-};
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
@@ -107,6 +95,7 @@ function LenderLeadsAdmin() {
   const [statusFilter, setStatusFilter] = useState<"all" | LeadStatus>("all");
   const [entityFilter, setEntityFilter] = useState<"all" | "individual" | "institutional">("all");
   const [search, setSearch] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -313,10 +302,13 @@ function LenderLeadsAdmin() {
                   return (
                     <tr
                       key={l.id}
-                      className="border-b border-white/5 last:border-0 hover:bg-white/[0.03]"
+                      onClick={() => setSelectedId(l.id)}
+                      className="cursor-pointer border-b border-white/5 last:border-0 hover:bg-white/[0.03]"
                     >
                       <td className="px-4 py-3">
-                        <p className="font-semibold text-slate-100">{l.name}</p>
+                        <p className="font-semibold text-slate-100 underline-offset-2 hover:underline">
+                          {l.name}
+                        </p>
                         <p className="text-xs text-slate-500">
                           {l.email}
                           {l.phone ? ` · ${l.phone}` : ""}
@@ -324,6 +316,7 @@ function LenderLeadsAdmin() {
                       </td>
                       <td className="px-4 py-3 text-slate-300">{entityLabel(l.entity_type)}</td>
                       <td className="max-w-[280px] px-4 py-3 text-xs text-slate-400">
+
                         {l.interest_notes ? (
                           <span className="line-clamp-3">{l.interest_notes}</span>
                         ) : (
@@ -341,7 +334,8 @@ function LenderLeadsAdmin() {
                           {l.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+
                         <div className="flex items-center justify-end gap-2">
                           {saving === l.id && (
                             <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
@@ -375,8 +369,16 @@ function LenderLeadsAdmin() {
 
       <p className="mt-3 text-xs text-slate-500">
         Showing {filtered.length} of {leads.length} leads. CSV export includes exactly the rows
-        currently visible under your filters.
+        currently visible under your filters. Select a row to open the full lead profile.
       </p>
+
+      <LeadDrawer
+        lead={leads.find((l) => l.id === selectedId) ?? null}
+        open={selectedId !== null}
+        onOpenChange={(o) => !o && setSelectedId(null)}
+        onStatusChange={updateStatus}
+        saving={saving !== null && saving === selectedId}
+      />
     </LenderShell>
   );
 }
