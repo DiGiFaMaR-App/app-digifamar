@@ -94,6 +94,18 @@ jobs:
           cmdline-tools-version: latest
           packages: ""
 
+      - name: Cache Android SDK packages
+        id: android-sdk-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.ANDROID_SDK_ROOT }}/platforms
+            ${{ env.ANDROID_SDK_ROOT }}/build-tools
+            ${{ env.ANDROID_SDK_ROOT }}/platform-tools
+            ${{ env.ANDROID_SDK_ROOT }}/licenses
+          key: android-sdk-${{ runner.os }}-platform36-buildtools36.0.0
+          restore-keys: android-sdk-${{ runner.os }}-
+
       - name: Accept Android SDK licenses
         run: yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
@@ -111,15 +123,22 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle', 'android/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: gradle-${{ runner.os }}-
+            android/.gradle
+            android/build-cache
+          key: gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle', 'android/**/gradle-wrapper.properties', 'android/gradle.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-${{ hashFiles('android/**/*.gradle') }}
+            gradle-${{ runner.os }}-
 
       - name: Build debug APK
         working-directory: android
+        env:
+          GRADLE_OPTS: -Dorg.gradle.jvmargs=-Xmx3g -Dkotlin.incremental=false
         run: |
           set -o pipefail
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee gradle_debug.log
+          ./gradlew assembleDebug --no-daemon --build-cache --stacktrace 2>&1 | tee gradle_debug.log
+
 
       - name: Stage debug APK
         run: |
