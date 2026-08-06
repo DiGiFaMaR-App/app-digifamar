@@ -386,8 +386,13 @@ function LenderLeadsAdmin() {
 
       <p className="mt-3 text-xs text-slate-500">
         Showing {filtered.length} of {leads.length} leads. CSV export includes exactly the rows
-        currently visible under your filters. Select a row to open the full lead profile.
+        currently visible under your filters. Select a row to open the full lead profile. Moving a
+        lead to <strong>contacted</strong> or <strong>qualified</strong> notifies the platform
+        admins in-app and by email; the lead is not contacted automatically.
       </p>
+
+      <LoanInterestQueue />
+
 
       <LeadDrawer
         lead={leads.find((l) => l.id === selectedId) ?? null}
