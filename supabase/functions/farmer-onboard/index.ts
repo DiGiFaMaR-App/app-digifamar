@@ -90,7 +90,6 @@ Deno.serve(async (req) => {
     const { error: insertErr } = await sb.from("farmer_profiles").insert({
       user_id: userId,
       farm_name: farmName,
-      address: str(body.address, 200),
       city: str(body.city, 100),
       state: str(body.state, 2),
       zip: str(body.zip, 10),
@@ -99,11 +98,22 @@ Deno.serve(async (req) => {
       acres: num(body.acres),
       years_farming: num(body.yearsFarming),
       farm_type: str(body.farmType, 80),
-      usda_number: str(body.usdaNumber, 60),
       verification_status: "pending",
     });
     if (insertErr) {
       console.error("[farmer-onboard] insert failed", insertErr);
+      return errorResponse("Could not save your farm details. Please contact support.", 500);
+    }
+
+    // Street address + USDA number are PII: they live in a private table that
+    // only the farm owner and admins can read.
+    const { error: privateErr } = await sb.from("farmer_profiles_private").upsert({
+      user_id: userId,
+      address: str(body.address, 200),
+      usda_number: str(body.usdaNumber, 60),
+    });
+    if (privateErr) {
+      console.error("[farmer-onboard] private details insert failed", privateErr);
       return errorResponse("Could not save your farm details. Please contact support.", 500);
     }
 
