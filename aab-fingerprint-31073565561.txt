@@ -1,0 +1,9 @@
+	 SHA256: A4:A5:23:8C:FB:20:A1:E0:63:5A:73:E7:86:B8:E7:28:25:6D:C8:B4:FE:22:9F:FB:4C:CB:40:F8:C4:06:16:FD
+Issuer: CN=DigiCert Trusted G4 TimeStamping RSA4096 SHA256 2025 CA1, O="DigiCert, Inc.", C=US
+	 SHA256: 32:F3:E3:B1:BD:A2:D7:B2:6D:4F:1D:1B:8C:DD:BD:8F:8B:84:76:A1:78:9E:D6:12:CD:3C:AA:7A:9E:FF:35:C2
+   accessLocation: URIName: http://cacerts.digicert.com/DigiCertTrustedG4TimeStampingRSA4096SHA2562025CA1.crt
+     [URIName: http://crl3.digicert.com/DigiCertTrustedG4TimeStampingRSA4096SHA2562025CA1.crl]
+Owner: CN=DigiCert Trusted G4 TimeStamping RSA4096 SHA256 2025 CA1, O="DigiCert, Inc.", C=US
+	 SHA256: CA:0B:15:54:EC:D9:01:EA:19:DC:AD:87:49:E9:F2:64:8C:8D:6D:FC:EA:1A:DD:9D:2C:21:09:41:5B:B8:2C:CD
+Signature algorithm name: SHA256withRSA
+	 SHA256: 33:84:6B:54:5A:49:C9:BE:49:03:C6:0E:01:71:3C:1B:D4:E4:EF:31:EA:65:CD:95:D6:9E:62:79:4F:30:B9:41
