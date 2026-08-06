@@ -329,6 +329,33 @@ export type Database = {
           },
         ]
       }
+      farmer_loan_interest: {
+        Row: {
+          created_at: string
+          farmer_id: string
+          id: string
+          purpose_notes: string | null
+          requested_amount_range: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          farmer_id: string
+          id?: string
+          purpose_notes?: string | null
+          requested_amount_range: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          farmer_id?: string
+          id?: string
+          purpose_notes?: string | null
+          requested_amount_range?: string
+          status?: string
+        }
+        Relationships: []
+      }
       farmer_profiles: {
         Row: {
           acres: number | null
@@ -423,6 +450,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lender_leads: {
+        Row: {
+          created_at: string
+          email: string
+          entity_type: string
+          id: string
+          interest_notes: string | null
+          name: string
+          phone: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          entity_type?: string
+          id?: string
+          interest_notes?: string | null
+          name: string
+          phone?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          entity_type?: string
+          id?: string
+          interest_notes?: string | null
+          name?: string
+          phone?: string | null
+          status?: string
+        }
+        Relationships: []
       }
       listings: {
         Row: {
