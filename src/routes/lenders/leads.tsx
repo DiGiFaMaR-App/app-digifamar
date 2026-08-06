@@ -37,27 +37,8 @@ export const Route = createFileRoute("/lenders/leads")({
   component: LenderLeadsAdmin,
 });
 
-type LeadStatus = "new" | "contacted" | "qualified" | "archived";
+// Lead shape, status list and status colors are shared with the detail drawer.
 
-type Lead = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  entity_type: string;
-  interest_notes: string | null;
-  status: string;
-  created_at: string;
-};
-
-const STATUSES: LeadStatus[] = ["new", "contacted", "qualified", "archived"];
-
-const STATUS_STYLE: Record<string, { bg: string; fg: string }> = {
-  new: { bg: "rgba(29,78,216,0.18)", fg: "#93B4FF" },
-  contacted: { bg: "rgba(217,119,6,0.16)", fg: "#FCD34D" },
-  qualified: { bg: "rgba(5,150,105,0.16)", fg: "#6EE7B7" },
-  archived: { bg: "rgba(148,163,184,0.14)", fg: "#CBD5E1" },
-};
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
