@@ -217,7 +217,7 @@ function useFarmerDashboard(userId: string | undefined) {
         const [ordersRes, listingsRes, reviewsRes, profileRes] = await Promise.all([
           sb
             .from("orders")
-            .select("id, buyer_first_name, product_name, amount, escrow_amount, status, created_at")
+            .select("id, total_cents, status, created_at, listings(title)")
             .eq("farmer_id", userId)
             .order("created_at", { ascending: false }),
           sb
