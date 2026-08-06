@@ -10,9 +10,7 @@
  */
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 
-export const STRIPE_PUBLISHABLE_KEY = (
-  import.meta.env["VITE_PAYMENTS_CLIENT_TOKEN"] ?? ""
-).trim();
+export const STRIPE_PUBLISHABLE_KEY = (import.meta.env["VITE_PAYMENTS_CLIENT_TOKEN"] ?? "").trim();
 
 export const isStripeConfigured = STRIPE_PUBLISHABLE_KEY.startsWith("pk_");
 

@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  KeyRound,
-  Package,
-  ShieldCheck,
-  Copy,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, KeyRound, Package, ShieldCheck, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -278,7 +270,6 @@ function OrderDetailPage() {
             </div>
           )}
 
-
           {/* FARMER · funded → request OTP */}
           {role === "farmer" &&
             ["escrow_funded", "awaiting_delivery", "shipped"].includes(order.status) && (
@@ -442,7 +433,6 @@ function OrderDetailPage() {
           </Button>
         </div>
       </div>
-
     </AppShell>
   );
 }

@@ -31,10 +31,7 @@ import {
   PLATFORM_FEE_RATE,
 } from "@/lib/cart/fees";
 import { createOrdersFromCart } from "@/lib/orders/orders.queries";
-import {
-  EscrowPaymentForm,
-  type PayableOrder,
-} from "@/components/checkout/EscrowPaymentForm";
+import { EscrowPaymentForm, type PayableOrder } from "@/components/checkout/EscrowPaymentForm";
 
 const DELIVERY_ORDER: DeliveryMethod[] = ["standard", "express", "pickup"];
 
@@ -112,7 +109,6 @@ function CheckoutPage() {
       search: { orderId: pendingOrders[0]?.id ?? "", amount: total / 100 },
     });
   };
-
 
   // Empty cart (and we didn't just clear it after a successful order).
   if (isEmpty && !placed) {
@@ -317,7 +313,6 @@ function CheckoutPage() {
               Your {formatCents(fees.totalCents)} is held in escrow and released to the farmer only
               after you confirm delivery. Full refund within 72 hours if anything's off.
             </p>
-
           </aside>
         </div>
       </div>
