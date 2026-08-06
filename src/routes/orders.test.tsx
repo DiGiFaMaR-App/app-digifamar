@@ -91,10 +91,15 @@ describe("Order detail route", () => {
     expect(screen.getByText(/Heirloom Tomatoes/i)).toBeInTheDocument();
   });
 
-  it("shows the buyer a fund-escrow action while the order is pending", async () => {
+  it("shows the buyer the escrow card-payment step while the order is pending", async () => {
     render(<Page />);
+    // Stripe Elements needs a publishable key, which the test env doesn't set,
+    // so the payment surface renders its not-configured state — either way the
+    // pending buyer sees the funding step rather than a simulated pay button.
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: /fund escrow/i })).toBeInTheDocument(),
+      expect(
+        screen.getAllByText(/into escrow|card payments aren't configured/i).length,
+      ).toBeGreaterThan(0),
     );
   });
 });

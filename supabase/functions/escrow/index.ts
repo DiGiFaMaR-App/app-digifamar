@@ -132,38 +132,79 @@ async function fund(userId: string, orderId: string, paymentMethodId: string) {
   }
   if (!paymentMethodId) throw new Error("A payment method is required to fund this order");
 
-  // Charge the buyer. Deterministic idempotency key: a retry (double-click,
-  // network retry) returns the SAME PaymentIntent instead of charging twice.
-  let intent: {
+  type Intent = {
     id: string;
     status: string;
+    client_secret?: string | null;
     latest_charge?: string | { id: string } | null;
     last_payment_error?: { message?: string } | null;
   };
-  try {
-    intent = await stripeRequest("/payment_intents", {
-      idempotencyKey: `pi_create:${orderId}`,
-      body: {
-        amount: order.total_cents,
-        currency: "usd",
-        payment_method: paymentMethodId,
-        confirm: "true",
-        // Separate Charges and Transfers: funds land on the platform account
-        // and are transferred to the farmer at release time. No
-        // application_fee_amount, no on_behalf_of.
-        transfer_group: `order_${orderId}`,
-        automatic_payment_methods: { enabled: "true", allow_redirects: "never" },
-        metadata: { order_id: orderId, buyer_id: order.buyer_id, farmer_id: order.farmer_id },
-      },
-    });
-  } catch (e) {
-    throw new Error(
-      safeStripeError(e, `fund order ${orderId}`, "We couldn't process that payment. Please try another card."),
-    );
+  let intent: Intent | null = null;
+
+  // A previous attempt may have left a PaymentIntent behind (typically a 3-D
+  // Secure challenge the buyer has since completed in the browser). Re-read it
+  // rather than POSTing again: an idempotent replay would return the stale
+  // "requires_action" body and the buyer would loop forever.
+  if (order.stripe_payment_intent_id) {
+    try {
+      const existing: Intent = await stripeRequest(`/payment_intents/${order.stripe_payment_intent_id}`);
+      if (["succeeded", "requires_action", "requires_confirmation"].includes(existing.status)) {
+        intent = existing;
+      }
+    } catch (e) {
+      console.error(`[escrow] could not re-read intent for ${orderId}:`, (e as Error).message);
+    }
   }
+
+  // Charge the buyer. Deterministic idempotency key: a retry (double-click,
+  // network retry) returns the SAME PaymentIntent instead of charging twice.
+  if (!intent) {
+    try {
+      intent = await stripeRequest("/payment_intents", {
+        idempotencyKey: `pi_create:${orderId}`,
+        body: {
+          amount: order.total_cents,
+          currency: "usd",
+          payment_method: paymentMethodId,
+          confirm: "true",
+          // Separate Charges and Transfers: funds land on the platform account
+          // and are transferred to the farmer at release time. No
+          // application_fee_amount, no on_behalf_of.
+          transfer_group: `order_${orderId}`,
+          automatic_payment_methods: { enabled: "true", allow_redirects: "never" },
+          metadata: { order_id: orderId, buyer_id: order.buyer_id, farmer_id: order.farmer_id },
+        },
+      });
+    } catch (e) {
+      throw new Error(
+        safeStripeError(e, `fund order ${orderId}`, "We couldn't process that payment. Please try another card."),
+      );
+    }
+  }
+  if (!intent) throw new Error("We couldn't start that payment. Please try again.");
 
   const chargeId =
     typeof intent.latest_charge === "string" ? intent.latest_charge : intent.latest_charge?.id ?? null;
+
+  // 3-D Secure / SCA: the card issuer wants the buyer to authenticate. Hand the
+  // client secret back so the browser can run the challenge, then the client
+  // re-invokes `fund` (the deterministic idempotency key returns the SAME
+  // PaymentIntent, so nobody is charged twice).
+  if (
+    (intent.status === "requires_action" || intent.status === "requires_confirmation") &&
+    intent.client_secret
+  ) {
+    await sb
+      .from("orders")
+      .update({ stripe_payment_intent_id: intent.id, stripe_charge_id: chargeId })
+      .eq("id", orderId);
+    return {
+      orderId,
+      status: "requires_action" as const,
+      clientSecret: intent.client_secret,
+      paymentIntentId: intent.id,
+    };
+  }
 
   if (intent.status !== "succeeded") {
     await sb

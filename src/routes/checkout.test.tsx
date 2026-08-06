@@ -82,7 +82,7 @@ describe("Checkout route", () => {
     fireEvent.change(screen.getByLabelText(/delivery address/i), {
       target: { value: "123 Market St, Austin, TX 78701" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /pay with escrow\.com/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
 
     await waitFor(() => expect(createOrdersFromCart).toHaveBeenCalledTimes(1));
     expect(createOrdersFromCart).toHaveBeenCalledWith(
@@ -95,7 +95,7 @@ describe("Checkout route", () => {
   it("does not create orders when the address is too short", () => {
     seedCart();
     render(<Page />);
-    fireEvent.click(screen.getByRole("button", { name: /pay with escrow\.com/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
     expect(createOrdersFromCart).not.toHaveBeenCalled();
   });
 });

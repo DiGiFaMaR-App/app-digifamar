@@ -10,8 +10,6 @@ import {
   Store,
   Truck,
   Zap,
-  CreditCard,
-  Landmark,
   MapPin,
   Check,
 } from "lucide-react";
@@ -33,8 +31,7 @@ import {
   PLATFORM_FEE_RATE,
 } from "@/lib/cart/fees";
 import { createOrdersFromCart } from "@/lib/orders/orders.queries";
-
-type FundingSource = "card" | "bank";
+import { EscrowPaymentForm, type PayableOrder } from "@/components/checkout/EscrowPaymentForm";
 
 const DELIVERY_ORDER: DeliveryMethod[] = ["standard", "express", "pickup"];
 
@@ -43,16 +40,6 @@ const DELIVERY_ICON: Record<DeliveryMethod, typeof Truck> = {
   express: Zap,
   pickup: Store,
 };
-
-const FUNDING_SOURCES: {
-  id: FundingSource;
-  label: string;
-  hint: string;
-  icon: typeof CreditCard;
-}[] = [
-  { id: "card", label: "Card", hint: "Visa, Mastercard, Amex", icon: CreditCard },
-  { id: "bank", label: "Bank transfer", hint: "ACH — 1–2 business days", icon: Landmark },
-];
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -69,9 +56,10 @@ function CheckoutPage() {
 
   const [shippingAddress, setShippingAddress] = useState("");
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("standard");
-  const [fundingSource, setFundingSource] = useState<FundingSource>("card");
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(false);
+  // Orders that exist in the DB but still need their escrow funded with a card.
+  const [pendingOrders, setPendingOrders] = useState<PayableOrder[]>([]);
 
   const addressValid = shippingAddress.trim().length >= 5;
 
@@ -89,7 +77,9 @@ function CheckoutPage() {
   const deliveryFeeCents = computeDeliveryFee(feeDistance, deliveryMethod);
   const fees = computeFees(subtotalCents, deliveryFeeCents);
 
-  const handlePay = async () => {
+  // Step 1 — create the real `orders` rows (status `pending`, priced by the DB
+  // trigger). Step 2 — collect a card and fund escrow for real via Stripe.
+  const handlePlaceOrder = async () => {
     if (!addressValid) {
       toast.error("Enter a delivery address (at least 5 characters).");
       return;
@@ -100,22 +90,24 @@ function CheckoutPage() {
         items.map((i) => ({ slug: i.productId, qty: i.quantity })),
         shippingAddress.trim(),
       );
-
       setPlaced(true);
       clear();
-      // Orders are recorded (status `pending`); escrow funding is enabled by the
-      // Phase 2b Edge Function, so surface the total the database actually saved.
-      const totalCents = orders.reduce((sum, o) => sum + o.total_cents, 0);
-      toast.success(orders.length > 1 ? `${orders.length} orders placed.` : "Order placed.");
-      navigate({
-        to: "/payment-success",
-        search: { orderId: orders[0]?.id ?? "", amount: totalCents / 100 },
-      });
+      setPendingOrders(orders.map((o) => ({ id: o.id, totalCents: o.total_cents })));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Checkout failed. Please try again.";
       toast.error(/unauthorized/i.test(message) ? "Please sign in to complete checkout." : message);
+    } finally {
       setSubmitting(false);
     }
+  };
+
+  const goToConfirmation = (funded: boolean) => {
+    const total = pendingOrders.reduce((sum, o) => sum + o.totalCents, 0);
+    if (funded) toast.success(pendingOrders.length > 1 ? "Orders funded." : "Order funded.");
+    navigate({
+      to: "/payment-success",
+      search: { orderId: pendingOrders[0]?.id ?? "", amount: total / 100 },
+    });
   };
 
   // Empty cart (and we didn't just clear it after a successful order).
@@ -237,41 +229,8 @@ function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment method (funding source) */}
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                Payment method
-              </h2>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                {FUNDING_SOURCES.map((source) => {
-                  const Icon = source.icon;
-                  const selected = fundingSource === source.id;
-                  return (
-                    <button
-                      key={source.id}
-                      type="button"
-                      onClick={() => setFundingSource(source.id)}
-                      aria-pressed={selected}
-                      className={`flex flex-col gap-1 rounded-xl border p-3 text-left transition ${
-                        selected
-                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                          : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      <Icon
-                        className={`h-5 w-5 ${selected ? "text-primary" : "text-muted-foreground"}`}
-                      />
-                      <span className="text-sm font-semibold">{source.label}</span>
-                      <span className="text-xs text-muted-foreground">{source.hint}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-                Whichever source you choose, your funds are held by Escrow.com and released to the
-                farmer only after you confirm delivery.
-              </p>
-            </div>
+            {/* Payment method is collected by Stripe's PaymentElement in the
+                summary panel once the order rows exist. */}
 
             {/* Items recap */}
             <div className="rounded-2xl border border-border bg-card p-5">
@@ -320,26 +279,39 @@ function CheckoutPage() {
               <Row label="Total due" value={formatCents(fees.totalCents)} bold />
             </dl>
 
-            <Button
-              onClick={handlePay}
-              disabled={submitting || isEmpty || (!authLoading && !isAuthenticated)}
-              className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Opening escrow…
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="mr-1 h-4 w-4" /> Pay with Escrow.com
-                </>
-              )}
-            </Button>
+            {pendingOrders.length > 0 ? (
+              <div className="mt-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Card details
+                </p>
+                <EscrowPaymentForm
+                  orders={pendingOrders}
+                  totalCents={pendingOrders.reduce((sum, o) => sum + o.totalCents, 0)}
+                  onFunded={() => goToConfirmation(true)}
+                  onCancel={() => goToConfirmation(false)}
+                />
+              </div>
+            ) : (
+              <Button
+                onClick={handlePlaceOrder}
+                disabled={submitting || isEmpty || (!authLoading && !isAuthenticated)}
+                className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Placing order…
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="mr-1 h-4 w-4" /> Continue to payment
+                  </>
+                )}
+              </Button>
+            )}
 
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-              Your {formatCents(fees.totalCents)} is held by{" "}
-              <span className="font-semibold text-foreground">Escrow.com</span> and released to the
-              farmer only after you confirm delivery. Full refund within 72 hours if anything's off.
+              Your {formatCents(fees.totalCents)} is held in escrow and released to the farmer only
+              after you confirm delivery. Full refund within 72 hours if anything's off.
             </p>
           </aside>
         </div>

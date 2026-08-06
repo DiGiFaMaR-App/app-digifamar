@@ -1,24 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  KeyRound,
-  Package,
-  ShieldCheck,
-  Copy,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, KeyRound, Package, ShieldCheck, Copy } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
+import { EscrowPaymentForm } from "@/components/checkout/EscrowPaymentForm";
 import { useAuth } from "@/hooks/use-auth";
 import {
   confirmDeliveryFn,
-  fundEscrowFn,
   generateDeliveryOtpFn,
   releaseEscrowFn,
 } from "@/lib/escrow-v2/escrow.functions";
@@ -95,7 +87,6 @@ function OrderDetailPage() {
   const [smsMasked, setSmsMasked] = useState<string | null>(null);
   const [otpInput, setOtpInput] = useState("");
 
-  const fund = fundEscrowFn;
   const genOtp = generateDeliveryOtpFn;
   const confirmDelivery = confirmDeliveryFn;
   const release = releaseEscrowFn;
@@ -261,22 +252,21 @@ function OrderDetailPage() {
             </h2>
           </div>
 
-          {/* BUYER · pending → fund */}
+          {/* BUYER · pending → collect a real card and fund escrow */}
           {role === "buyer" && ["pending", "negotiating"].includes(order.status) && (
             <div className="mt-4 space-y-3">
               <p className="text-sm text-muted-foreground">
                 Move {dollars(order.total_cents)} into escrow. The farmer cannot withdraw funds
                 until you confirm delivery — or 48h after delivery if you take no action.
               </p>
-              <Button
-                disabled={busy}
-                onClick={() =>
-                  wrap(() => fund({ data: { orderId: order.id } }), "Funds placed in escrow")
-                }
-                className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
-              >
-                <ShieldCheck className="mr-2 h-4 w-4" /> Fund escrow {dollars(order.total_cents)}
-              </Button>
+              <EscrowPaymentForm
+                orders={[{ id: order.id, totalCents: order.total_cents }]}
+                totalCents={order.total_cents}
+                onFunded={() => {
+                  toast.success("Funds placed in escrow");
+                  void load();
+                }}
+              />
             </div>
           )}
 
@@ -443,7 +433,6 @@ function OrderDetailPage() {
           </Button>
         </div>
       </div>
-
     </AppShell>
   );
 }
