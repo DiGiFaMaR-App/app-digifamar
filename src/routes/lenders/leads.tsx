@@ -4,8 +4,10 @@ import { Download, Loader2, Lock, RefreshCw, Search, ShieldCheck, Users } from "
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
+import { updateLeadStatusFn } from "@/lib/lenders/lead-notifications.functions";
 import { LenderCard, LenderShell } from "./-ui";
 import { NAVY } from "./-data";
+import { LoanInterestQueue } from "./-LoanInterestQueue";
 import {
   LeadDrawer,
   STATUSES,
@@ -122,16 +124,32 @@ function LenderLeadsAdmin() {
     const previous = leads;
     setSaving(id);
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
-    const { error } = await supabase.from("lender_leads").update({ status }).eq("id", id);
-    setSaving(null);
-    if (error) {
+    try {
+      // Status changes go through the server so contacted/qualified transitions
+      // notify the platform admins (in-app + email) and get audit-logged.
+      const res = await updateLeadStatusFn({ data: { kind: "lender_lead", id, status } });
+      if (res.notified && !res.emailSent) {
+        toast.success(`Marked as ${status}`, {
+          description: `Admins notified in-app. Email not sent: ${res.emailError ?? "unknown reason"}`,
+        });
+      } else if (res.notified) {
+        toast.success(`Marked as ${status}`, {
+          description: `${res.adminsNotified} admin notification(s) sent.`,
+        });
+      } else {
+        toast.success(`Marked as ${status}`);
+      }
+    } catch (e) {
       // Never swallow a write failure — roll back and tell the admin.
       setLeads(previous);
-      toast.error("Status update failed", { description: error.message });
-      return;
+      toast.error("Status update failed", {
+        description: e instanceof Error ? e.message : "Unknown error",
+      });
+    } finally {
+      setSaving(null);
     }
-    toast.success(`Marked as ${status}`);
   };
+
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -369,8 +387,13 @@ function LenderLeadsAdmin() {
 
       <p className="mt-3 text-xs text-slate-500">
         Showing {filtered.length} of {leads.length} leads. CSV export includes exactly the rows
-        currently visible under your filters. Select a row to open the full lead profile.
+        currently visible under your filters. Select a row to open the full lead profile. Moving a
+        lead to <strong>contacted</strong> or <strong>qualified</strong> notifies the platform
+        admins in-app and by email; the lead is not contacted automatically.
       </p>
+
+      <LoanInterestQueue />
+
 
       <LeadDrawer
         lead={leads.find((l) => l.id === selectedId) ?? null}
