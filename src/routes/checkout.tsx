@@ -327,27 +327,41 @@ function CheckoutPage() {
               <Row label="Total due" value={formatCents(fees.totalCents)} bold />
             </dl>
 
-            <Button
-              onClick={handlePay}
-              disabled={submitting || isEmpty || (!authLoading && !isAuthenticated)}
-              className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Opening escrow…
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="mr-1 h-4 w-4" /> Pay with Escrow.com
-                </>
-              )}
-            </Button>
+            {pendingOrders.length > 0 ? (
+              <div className="mt-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Card details
+                </p>
+                <EscrowPaymentForm
+                  orders={pendingOrders}
+                  totalCents={pendingOrders.reduce((sum, o) => sum + o.totalCents, 0)}
+                  onFunded={() => goToConfirmation(true)}
+                  onCancel={() => goToConfirmation(false)}
+                />
+              </div>
+            ) : (
+              <Button
+                onClick={handlePlaceOrder}
+                disabled={submitting || isEmpty || (!authLoading && !isAuthenticated)}
+                className="mt-4 w-full bg-primary text-primary-foreground hover:bg-primary-hover"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" /> Placing order…
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="mr-1 h-4 w-4" /> Continue to payment
+                  </>
+                )}
+              </Button>
+            )}
 
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-              Your {formatCents(fees.totalCents)} is held by{" "}
-              <span className="font-semibold text-foreground">Escrow.com</span> and released to the
-              farmer only after you confirm delivery. Full refund within 72 hours if anything's off.
+              Your {formatCents(fees.totalCents)} is held in escrow and released to the farmer only
+              after you confirm delivery. Full refund within 72 hours if anything's off.
             </p>
+
           </aside>
         </div>
       </div>
