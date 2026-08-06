@@ -231,17 +231,27 @@ function useFarmerDashboard(userId: string | undefined) {
 
         if (cancelled) return;
 
-        const rawOrders: any[] = ordersRes.data ?? [];
+        // Map the real `orders` schema (cents + joined listing title) onto the
+        // dashboard's view model. Buyer names aren't readable here under RLS.
+        const rawOrders: Order[] = (ordersRes.data ?? []).map((o: any) => ({
+          id: o.id,
+          buyer_first_name: null,
+          product_name: o.listings?.title ?? null,
+          amount: (Number(o.total_cents) || 0) / 100,
+          escrow_amount: (Number(o.total_cents) || 0) / 100,
+          status: o.status,
+          created_at: o.created_at,
+        }));
         const rawListings: Listing[] = listingsRes.data ?? [];
         const rawReviews: any[] = reviewsRes.data ?? [];
 
         const totalSales = rawOrders.length;
         const pendingBalance = rawOrders
-          .filter((o) => o.status === "escrowed")
-          .reduce((s, o) => s + (Number(o.escrow_amount) || 0), 0);
+          .filter((o) => ["paid", "in_escrow", "shipped", "delivered"].includes(o.status))
+          .reduce((s, o) => s + o.escrow_amount, 0);
         const availableBalance = rawOrders
           .filter((o) => o.status === "released")
-          .reduce((s, o) => s + (Number(o.amount) || 0), 0);
+          .reduce((s, o) => s + o.amount, 0);
         const activeListings = rawListings.filter((l) => l.is_active).length;
         const avgRating =
           rawReviews.length > 0
@@ -256,7 +266,7 @@ function useFarmerDashboard(userId: string | undefined) {
           avgRating,
         });
         setListings(rawListings);
-        setOrders(rawOrders.slice(0, 10) as Order[]);
+        setOrders(rawOrders.slice(0, 10));
 
         if (profileRes.data) {
           const pd = profileRes.data as any;
