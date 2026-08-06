@@ -55,6 +55,7 @@ import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as LendersIndexRouteImport } from './routes/lenders/index'
 import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
 import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
+import { Route as LendersApplyInstitutionRouteImport } from './routes/lenders/apply-institution'
 import { Route as LendersDashboardRouteImport } from './routes/lenders/dashboard'
 import { Route as LendersDemoRouteImport } from './routes/lenders/demo'
 import { Route as LendersLeadsRouteImport } from './routes/lenders/leads'
@@ -307,6 +308,11 @@ const LendersApplyRoute = LendersApplyRouteImport.update({
   path: '/lenders/apply',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LendersApplyInstitutionRoute = LendersApplyInstitutionRouteImport.update({
+  id: '/lenders/apply-institution',
+  path: '/lenders/apply-institution',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LendersDashboardRoute = LendersDashboardRouteImport.update({
   id: '/lenders/dashboard',
   path: '/lenders/dashboard',
@@ -449,6 +455,7 @@ export interface FileRoutesByFullPath {
   '/farm/$id': typeof FarmIdRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
+  '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
   '/lenders/demo': typeof LendersDemoRoute
   '/lenders/leads': typeof LendersLeadsRoute
@@ -516,6 +523,7 @@ export interface FileRoutesByTo {
   '/farm/$id': typeof FarmIdRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
+  '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
   '/lenders/demo': typeof LendersDemoRoute
   '/lenders/leads': typeof LendersLeadsRoute
@@ -584,6 +592,7 @@ export interface FileRoutesById {
   '/farm/$id': typeof FarmIdRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
+  '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
   '/lenders/demo': typeof LendersDemoRoute
   '/lenders/leads': typeof LendersLeadsRoute
@@ -653,6 +662,7 @@ export interface FileRouteTypes {
     | '/farm/$id'
     | '/lenders/admin'
     | '/lenders/apply'
+    | '/lenders/apply-institution'
     | '/lenders/dashboard'
     | '/lenders/demo'
     | '/lenders/leads'
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/farm/$id'
     | '/lenders/admin'
     | '/lenders/apply'
+    | '/lenders/apply-institution'
     | '/lenders/dashboard'
     | '/lenders/demo'
     | '/lenders/leads'
@@ -787,6 +798,7 @@ export interface FileRouteTypes {
     | '/farm/$id'
     | '/lenders/admin'
     | '/lenders/apply'
+    | '/lenders/apply-institution'
     | '/lenders/dashboard'
     | '/lenders/demo'
     | '/lenders/leads'
@@ -855,6 +867,7 @@ export interface RootRouteChildren {
   FarmIdRoute: typeof FarmIdRoute
   LendersAdminRoute: typeof LendersAdminRoute
   LendersApplyRoute: typeof LendersApplyRoute
+  LendersApplyInstitutionRoute: typeof LendersApplyInstitutionRoute
   LendersDashboardRoute: typeof LendersDashboardRoute
   LendersDemoRoute: typeof LendersDemoRoute
   LendersLeadsRoute: typeof LendersLeadsRoute
@@ -1202,6 +1215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LendersApplyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lenders/apply-institution': {
+      id: '/lenders/apply-institution'
+      path: '/lenders/apply-institution'
+      fullPath: '/lenders/apply-institution'
+      preLoaderRoute: typeof LendersApplyInstitutionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lenders/dashboard': {
       id: '/lenders/dashboard'
       path: '/lenders/dashboard'
@@ -1395,6 +1415,7 @@ const rootRouteChildren: RootRouteChildren = {
   FarmIdRoute: FarmIdRoute,
   LendersAdminRoute: LendersAdminRoute,
   LendersApplyRoute: LendersApplyRoute,
+  LendersApplyInstitutionRoute: LendersApplyInstitutionRoute,
   LendersDashboardRoute: LendersDashboardRoute,
   LendersDemoRoute: LendersDemoRoute,
   LendersLeadsRoute: LendersLeadsRoute,
