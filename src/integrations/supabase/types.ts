@@ -365,11 +365,13 @@ export type Database = {
           created_at: string
           description: string | null
           farm_name: string
+          farm_type: string | null
           lat: number | null
           lng: number | null
           products: string[]
           state: string | null
           updated_at: string
+          usda_number: string | null
           user_id: string
           verification_status: string
           years_farming: number | null
@@ -383,11 +385,13 @@ export type Database = {
           created_at?: string
           description?: string | null
           farm_name: string
+          farm_type?: string | null
           lat?: number | null
           lng?: number | null
           products?: string[]
           state?: string | null
           updated_at?: string
+          usda_number?: string | null
           user_id: string
           verification_status?: string
           years_farming?: number | null
@@ -401,11 +405,13 @@ export type Database = {
           created_at?: string
           description?: string | null
           farm_name?: string
+          farm_type?: string | null
           lat?: number | null
           lng?: number | null
           products?: string[]
           state?: string | null
           updated_at?: string
+          usda_number?: string | null
           user_id?: string
           verification_status?: string
           years_farming?: number | null
@@ -714,6 +720,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      otp_send_events: {
+        Row: {
+          created_at: string
+          id: string
+          ip: string
+          phone: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip: string
+          phone: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip?: string
+          phone?: string
+        }
+        Relationships: []
+      }
+      phone_otps: {
+        Row: {
+          attempts: number
+          code_hash: string
+          created_at: string
+          expires_at: string
+          last_sent_at: string
+          phone: string
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          created_at?: string
+          expires_at: string
+          last_sent_at?: string
+          phone: string
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          created_at?: string
+          expires_at?: string
+          last_sent_at?: string
+          phone?: string
+          verified_at?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
