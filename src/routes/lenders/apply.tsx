@@ -165,6 +165,18 @@ function LenderApplyPage() {
 
         <WaitlistBanner className="mt-6" />
 
+        <p className="mt-4 rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">
+          Representing a bank, credit union, CDFI or fund?{" "}
+          <Link
+            to="/lenders/apply-institution"
+            className="font-semibold text-foreground hover:underline"
+          >
+            Use the institutional application
+          </Link>{" "}
+          instead — it captures charter, lending states and loan sizes for manual review.
+        </p>
+
+
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div className="space-y-2">
             <Label htmlFor="name">Full name</Label>
