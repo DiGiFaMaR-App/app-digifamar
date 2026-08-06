@@ -10,3 +10,8 @@ verify_jwt = false
 # check against PAYMENTS_*_WEBHOOK_SECRET, performed before any payload is read.
 [functions.stripe-webhook]
 verify_jwt = false
+# Runs immediately after signUp() while email confirmation is still pending, so
+# there is no user JWT yet. It authorizes itself by re-checking the auth user's
+# age, farmer role metadata, and a recently verified phone_otps row.
+[functions.farmer-onboard]
+verify_jwt = false
