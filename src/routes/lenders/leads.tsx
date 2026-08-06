@@ -123,16 +123,32 @@ function LenderLeadsAdmin() {
     const previous = leads;
     setSaving(id);
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
-    const { error } = await supabase.from("lender_leads").update({ status }).eq("id", id);
-    setSaving(null);
-    if (error) {
+    try {
+      // Status changes go through the server so contacted/qualified transitions
+      // notify the platform admins (in-app + email) and get audit-logged.
+      const res = await updateLeadStatusFn({ data: { kind: "lender_lead", id, status } });
+      if (res.notified && !res.emailSent) {
+        toast.success(`Marked as ${status}`, {
+          description: `Admins notified in-app. Email not sent: ${res.emailError ?? "unknown reason"}`,
+        });
+      } else if (res.notified) {
+        toast.success(`Marked as ${status}`, {
+          description: `${res.adminsNotified} admin notification(s) sent.`,
+        });
+      } else {
+        toast.success(`Marked as ${status}`);
+      }
+    } catch (e) {
       // Never swallow a write failure — roll back and tell the admin.
       setLeads(previous);
-      toast.error("Status update failed", { description: error.message });
-      return;
+      toast.error("Status update failed", {
+        description: e instanceof Error ? e.message : "Unknown error",
+      });
+    } finally {
+      setSaving(null);
     }
-    toast.success(`Marked as ${status}`);
   };
+
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
