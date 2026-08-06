@@ -72,6 +72,8 @@ function CheckoutPage() {
   const [fundingSource, setFundingSource] = useState<FundingSource>("card");
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(false);
+  // Orders that exist in the DB but still need their escrow funded with a card.
+  const [pendingOrders, setPendingOrders] = useState<PayableOrder[]>([]);
 
   const addressValid = shippingAddress.trim().length >= 5;
 
