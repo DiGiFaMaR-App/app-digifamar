@@ -369,8 +369,16 @@ function LenderLeadsAdmin() {
 
       <p className="mt-3 text-xs text-slate-500">
         Showing {filtered.length} of {leads.length} leads. CSV export includes exactly the rows
-        currently visible under your filters.
+        currently visible under your filters. Select a row to open the full lead profile.
       </p>
+
+      <LeadDrawer
+        lead={leads.find((l) => l.id === selectedId) ?? null}
+        open={selectedId !== null}
+        onOpenChange={(o) => !o && setSelectedId(null)}
+        onStatusChange={updateStatus}
+        saving={saving !== null && saving === selectedId}
+      />
     </LenderShell>
   );
 }
