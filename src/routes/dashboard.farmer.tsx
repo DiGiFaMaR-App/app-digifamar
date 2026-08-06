@@ -467,7 +467,7 @@ function FarmerDashboard() {
             <StatsRow stats={stats} loading={loading} />
 
             {/* Lending milestone */}
-            <LendingMilestone salesCount={stats.totalSales} />
+            <LendingMilestone salesCount={stats.totalSales} farmerId={user?.id ?? null} />
 
             {/* Listings section */}
             <SectionWrapper
