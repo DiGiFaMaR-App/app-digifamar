@@ -261,24 +261,24 @@ function OrderDetailPage() {
             </h2>
           </div>
 
-          {/* BUYER · pending → fund */}
+          {/* BUYER · pending → collect a real card and fund escrow */}
           {role === "buyer" && ["pending", "negotiating"].includes(order.status) && (
             <div className="mt-4 space-y-3">
               <p className="text-sm text-muted-foreground">
                 Move {dollars(order.total_cents)} into escrow. The farmer cannot withdraw funds
                 until you confirm delivery — or 48h after delivery if you take no action.
               </p>
-              <Button
-                disabled={busy}
-                onClick={() =>
-                  wrap(() => fund({ data: { orderId: order.id } }), "Funds placed in escrow")
-                }
-                className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
-              >
-                <ShieldCheck className="mr-2 h-4 w-4" /> Fund escrow {dollars(order.total_cents)}
-              </Button>
+              <EscrowPaymentForm
+                orders={[{ id: order.id, totalCents: order.total_cents }]}
+                totalCents={order.total_cents}
+                onFunded={() => {
+                  toast.success("Funds placed in escrow");
+                  void load();
+                }}
+              />
             </div>
           )}
+
 
           {/* FARMER · funded → request OTP */}
           {role === "farmer" &&
