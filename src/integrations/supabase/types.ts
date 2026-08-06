@@ -359,7 +359,6 @@ export type Database = {
       farmer_profiles: {
         Row: {
           acres: number | null
-          address: string | null
           certifications: string[]
           city: string | null
           created_at: string
@@ -371,7 +370,6 @@ export type Database = {
           products: string[]
           state: string | null
           updated_at: string
-          usda_number: string | null
           user_id: string
           verification_status: string
           years_farming: number | null
@@ -379,7 +377,6 @@ export type Database = {
         }
         Insert: {
           acres?: number | null
-          address?: string | null
           certifications?: string[]
           city?: string | null
           created_at?: string
@@ -391,7 +388,6 @@ export type Database = {
           products?: string[]
           state?: string | null
           updated_at?: string
-          usda_number?: string | null
           user_id: string
           verification_status?: string
           years_farming?: number | null
@@ -399,7 +395,6 @@ export type Database = {
         }
         Update: {
           acres?: number | null
-          address?: string | null
           certifications?: string[]
           city?: string | null
           created_at?: string
@@ -411,11 +406,34 @@ export type Database = {
           products?: string[]
           state?: string | null
           updated_at?: string
-          usda_number?: string | null
           user_id?: string
           verification_status?: string
           years_farming?: number | null
           zip?: string | null
+        }
+        Relationships: []
+      }
+      farmer_profiles_private: {
+        Row: {
+          address: string | null
+          created_at: string
+          updated_at: string
+          usda_number: string | null
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          updated_at?: string
+          usda_number?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          updated_at?: string
+          usda_number?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -934,25 +952,6 @@ export type Database = {
           zip?: string | null
         }
         Relationships: []
-      }
-      public_reviews: {
-        Row: {
-          body: string | null
-          created_at: string | null
-          farmer_id: string | null
-          id: string | null
-          order_id: string | null
-          rating: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: true
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Functions: {
