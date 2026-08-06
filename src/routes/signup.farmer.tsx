@@ -370,30 +370,56 @@ function FarmerSignup() {
       const userId = data.user?.id;
       if (!userId) throw new Error("Signup failed — please try again.");
 
-      // Store farmer profile data (types not regenerated yet for new cols).
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const profileInsert: any = {
-        user_id: userId,
-        farm_name: step2.farmName,
-        address: step2.address,
-        city: step2.city,
-        state: step2.state,
-        zip: step2.zip,
-        lat: coords.lat,
-        lng: coords.lng,
-        acres: step2.acreage ? parseFloat(step2.acreage) : null,
-        years_farming: step2.yearsActive ? parseInt(step2.yearsActive) : null,
-        verification_status: "pending",
-        farm_type: step2.farmType,
-        usda_number: step2.usdaNumber || null,
-      };
-      await supabase.from("farmer_profiles").insert(profileInsert);
+      // Email confirmation is ON, so signUp() returns no session and the
+      // client cannot satisfy the farmer_profiles RLS policy. The
+      // farmer-onboard function writes it with the service role after
+      // independently re-verifying the account + phone OTP.
+      const { data: onboard, error: onboardError } = await supabase.functions.invoke(
+        "farmer-onboard",
+        {
+          body: {
+            userId,
+            farmName: step2.farmName,
+            address: step2.address,
+            city: step2.city,
+            state: step2.state,
+            zip: step2.zip,
+            lat: coords.lat,
+            lng: coords.lng,
+            acres: step2.acreage ? parseFloat(step2.acreage) : null,
+            yearsFarming: step2.yearsActive ? parseInt(step2.yearsActive) : null,
+            farmType: step2.farmType,
+            usdaNumber: step2.usdaNumber || null,
+          },
+        },
+      );
+      // Never fall through to the success screen on a failed profile write —
+      // the account would exist with no farm record and no way to be approved.
+      if (onboardError) {
+        const detail = await (async () => {
+          const ctx = (onboardError as { context?: Response }).context;
+          if (!ctx || typeof ctx.json !== "function") return null;
+          try {
+            const b = (await ctx.json()) as { error?: string };
+            return b?.error ?? null;
+          } catch {
+            return null;
+          }
+        })();
+        throw new Error(
+          detail ?? "We created your account but couldn't save your farm details. Contact support.",
+        );
+      }
+      if (!onboard?.ok) {
+        throw new Error("We couldn't save your farm details. Please contact support.");
+      }
 
       // The 'farmer' role is assigned server-side by the handle_new_user
       // trigger from the signUp metadata above; the client cannot write
       // user_roles (INSERT is RLS-revoked for authenticated).
 
       setStep(5);
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed. Please try again.");
     } finally {
