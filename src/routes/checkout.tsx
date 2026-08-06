@@ -89,7 +89,9 @@ function CheckoutPage() {
   const deliveryFeeCents = computeDeliveryFee(feeDistance, deliveryMethod);
   const fees = computeFees(subtotalCents, deliveryFeeCents);
 
-  const handlePay = async () => {
+  // Step 1 — create the real `orders` rows (status `pending`, priced by the DB
+  // trigger). Step 2 — collect a card and fund escrow for real via Stripe.
+  const handlePlaceOrder = async () => {
     if (!addressValid) {
       toast.error("Enter a delivery address (at least 5 characters).");
       return;
@@ -100,23 +102,26 @@ function CheckoutPage() {
         items.map((i) => ({ slug: i.productId, qty: i.quantity })),
         shippingAddress.trim(),
       );
-
       setPlaced(true);
       clear();
-      // Orders are recorded (status `pending`); escrow funding is enabled by the
-      // Phase 2b Edge Function, so surface the total the database actually saved.
-      const totalCents = orders.reduce((sum, o) => sum + o.total_cents, 0);
-      toast.success(orders.length > 1 ? `${orders.length} orders placed.` : "Order placed.");
-      navigate({
-        to: "/payment-success",
-        search: { orderId: orders[0]?.id ?? "", amount: totalCents / 100 },
-      });
+      setPendingOrders(orders.map((o) => ({ id: o.id, totalCents: o.total_cents })));
     } catch (err) {
       const message = err instanceof Error ? err.message : "Checkout failed. Please try again.";
       toast.error(/unauthorized/i.test(message) ? "Please sign in to complete checkout." : message);
+    } finally {
       setSubmitting(false);
     }
   };
+
+  const goToConfirmation = (funded: boolean) => {
+    const total = pendingOrders.reduce((sum, o) => sum + o.totalCents, 0);
+    if (funded) toast.success(pendingOrders.length > 1 ? "Orders funded." : "Order funded.");
+    navigate({
+      to: "/payment-success",
+      search: { orderId: pendingOrders[0]?.id ?? "", amount: total / 100 },
+    });
+  };
+
 
   // Empty cart (and we didn't just clear it after a successful order).
   if (isEmpty && !placed) {
