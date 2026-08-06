@@ -39,10 +39,15 @@ async function audit(entry: {
 export const verifyAdminSessionFn = async (): Promise<{ ok: true }> => {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) throw new Error("Not signed in");
-  const { data, error } = await supabase.rpc("has_role", {
-    _user_id: auth.user.id,
-    _role: "admin",
-  });
+  // The role helper is no longer callable by signed-in users (it lives in a
+  // non-exposed schema now); read the caller's own role rows instead — allowed
+  // by the "Users view own roles" policy.
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", auth.user.id)
+    .eq("role", "admin")
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Forbidden");
   return { ok: true };
