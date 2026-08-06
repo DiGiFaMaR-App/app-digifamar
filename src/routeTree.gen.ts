@@ -56,6 +56,7 @@ import { Route as LendersIndexRouteImport } from './routes/lenders/index'
 import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
 import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
 import { Route as LendersDashboardRouteImport } from './routes/lenders/dashboard'
+import { Route as LendersDemoRouteImport } from './routes/lenders/demo'
 import { Route as LendersLoginRouteImport } from './routes/lenders/login'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
@@ -310,6 +311,11 @@ const LendersDashboardRoute = LendersDashboardRouteImport.update({
   path: '/lenders/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LendersDemoRoute = LendersDemoRouteImport.update({
+  id: '/lenders/demo',
+  path: '/lenders/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LendersLoginRoute = LendersLoginRouteImport.update({
   id: '/lenders/login',
   path: '/lenders/login',
@@ -438,6 +444,7 @@ export interface FileRoutesByFullPath {
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/demo': typeof LendersDemoRoute
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -503,6 +510,7 @@ export interface FileRoutesByTo {
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/demo': typeof LendersDemoRoute
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -569,6 +577,7 @@ export interface FileRoutesById {
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/dashboard': typeof LendersDashboardRoute
+  '/lenders/demo': typeof LendersDemoRoute
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
@@ -636,6 +645,7 @@ export interface FileRouteTypes {
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/dashboard'
+    | '/lenders/demo'
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
@@ -701,6 +711,7 @@ export interface FileRouteTypes {
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/dashboard'
+    | '/lenders/demo'
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
@@ -766,6 +777,7 @@ export interface FileRouteTypes {
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/dashboard'
+    | '/lenders/demo'
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
@@ -832,6 +844,7 @@ export interface RootRouteChildren {
   LendersAdminRoute: typeof LendersAdminRoute
   LendersApplyRoute: typeof LendersApplyRoute
   LendersDashboardRoute: typeof LendersDashboardRoute
+  LendersDemoRoute: typeof LendersDemoRoute
   LendersLoginRoute: typeof LendersLoginRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -1183,6 +1196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LendersDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lenders/demo': {
+      id: '/lenders/demo'
+      path: '/lenders/demo'
+      fullPath: '/lenders/demo'
+      preLoaderRoute: typeof LendersDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lenders/login': {
       id: '/lenders/login'
       path: '/lenders/login'
@@ -1356,6 +1376,7 @@ const rootRouteChildren: RootRouteChildren = {
   LendersAdminRoute: LendersAdminRoute,
   LendersApplyRoute: LendersApplyRoute,
   LendersDashboardRoute: LendersDashboardRoute,
+  LendersDemoRoute: LendersDemoRoute,
   LendersLoginRoute: LendersLoginRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
