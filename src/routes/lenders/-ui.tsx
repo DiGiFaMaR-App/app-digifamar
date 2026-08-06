@@ -2,7 +2,7 @@
 // The portal is themed in isolation with arbitrary Tailwind values + inline
 // styles so it never depends on (or mutates) the app's global green theme.
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react";
+import { Inbox, LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react";
 import { type ReactNode } from "react";
 import logoSrc from "@/assets/logo.jpg";
 import { NAVY, scoreTier, TIER_META } from "./-data";
@@ -10,6 +10,7 @@ import { NAVY, scoreTier, TIER_META } from "./-data";
 const navItems: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/lenders/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/lenders/admin", label: "Admin", icon: ShieldCheck },
+  { to: "/lenders/leads", label: "Leads", icon: Inbox },
 ];
 
 /** Full-page navy chrome shared by every lender route. */
