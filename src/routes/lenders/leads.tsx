@@ -334,7 +334,8 @@ function LenderLeadsAdmin() {
                           {l.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+
                         <div className="flex items-center justify-end gap-2">
                           {saving === l.id && (
                             <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
