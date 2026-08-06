@@ -33,6 +33,10 @@ import {
   PLATFORM_FEE_RATE,
 } from "@/lib/cart/fees";
 import { createOrdersFromCart } from "@/lib/orders/orders.queries";
+import {
+  EscrowPaymentForm,
+  type PayableOrder,
+} from "@/components/checkout/EscrowPaymentForm";
 
 type FundingSource = "card" | "bank";
 
