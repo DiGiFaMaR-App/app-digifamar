@@ -15,10 +15,10 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
+import { EscrowPaymentForm } from "@/components/checkout/EscrowPaymentForm";
 import { useAuth } from "@/hooks/use-auth";
 import {
   confirmDeliveryFn,
-  fundEscrowFn,
   generateDeliveryOtpFn,
   releaseEscrowFn,
 } from "@/lib/escrow-v2/escrow.functions";
@@ -95,7 +95,6 @@ function OrderDetailPage() {
   const [smsMasked, setSmsMasked] = useState<string | null>(null);
   const [otpInput, setOtpInput] = useState("");
 
-  const fund = fundEscrowFn;
   const genOtp = generateDeliveryOtpFn;
   const confirmDelivery = confirmDeliveryFn;
   const release = releaseEscrowFn;
