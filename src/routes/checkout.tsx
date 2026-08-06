@@ -248,41 +248,8 @@ function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment method (funding source) */}
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                Payment method
-              </h2>
-              <div className="mt-3 grid grid-cols-2 gap-2">
-                {FUNDING_SOURCES.map((source) => {
-                  const Icon = source.icon;
-                  const selected = fundingSource === source.id;
-                  return (
-                    <button
-                      key={source.id}
-                      type="button"
-                      onClick={() => setFundingSource(source.id)}
-                      aria-pressed={selected}
-                      className={`flex flex-col gap-1 rounded-xl border p-3 text-left transition ${
-                        selected
-                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                          : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      <Icon
-                        className={`h-5 w-5 ${selected ? "text-primary" : "text-muted-foreground"}`}
-                      />
-                      <span className="text-sm font-semibold">{source.label}</span>
-                      <span className="text-xs text-muted-foreground">{source.hint}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-                Whichever source you choose, your funds are held by Escrow.com and released to the
-                farmer only after you confirm delivery.
-              </p>
-            </div>
+            {/* Payment method is collected by Stripe's PaymentElement in the
+                summary panel once the order rows exist. */}
 
             {/* Items recap */}
             <div className="rounded-2xl border border-border bg-card p-5">
