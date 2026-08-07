@@ -1,27 +1,20 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { WhatsAppFab } from "./WhatsAppFab";
 
 describe("WhatsAppFab", () => {
-  it("renders a WhatsApp button", () => {
+  it("renders a WhatsApp link", () => {
     render(<WhatsAppFab />);
-    expect(screen.getByRole("button", { name: /whatsapp/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /whatsapp/i })).toBeInTheDocument();
   });
 
-  it("opens WhatsApp when clicked", async () => {
-    const openSpy = vi.spyOn(window, "open").mockReturnValue({} as unknown as Window);
+  it("points at the support WhatsApp chat", () => {
     render(<WhatsAppFab />);
-    await userEvent.click(screen.getByRole("button", { name: /whatsapp/i }));
-    // On desktop user agent (jsdom), it should top-navigate to the universal WhatsApp link.
-    const calledWith = openSpy.mock.calls.map((c) => c[0]).join(" ");
-    expect(calledWith).toContain("wa.me/14709848198");
-    expect(openSpy).toHaveBeenCalledWith(
-      expect.stringContaining("wa.me/14709848198"),
-      "_top",
-      "noopener,noreferrer",
+    const link = screen.getByRole("link", { name: /whatsapp/i });
+    expect(link).toHaveAttribute("href", expect.stringContaining("wa.me/14709848198"));
+    expect(link.getAttribute("href")).toContain(
+      encodeURIComponent("Hi, I'd like help with DiGiFaMaR"),
     );
-    expect(calledWith).toContain(encodeURIComponent("Hi, I'd like help with DiGiFaMaR"));
-    openSpy.mockRestore();
+    expect(link).toHaveAttribute("target", "_top");
   });
 });
