@@ -41,6 +41,7 @@ vi.mock("@/integrations/supabase/client", () => {
       select: () => chain,
       eq: () => chain,
       order: () => chain,
+      limit: () => chain,
       update: () => chain,
       insert: () => chain,
       maybeSingle: () => Promise.resolve({ data: profile(), error: null }),

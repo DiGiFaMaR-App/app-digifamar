@@ -43,7 +43,12 @@ type SampleStat = { label: string; value: string; sub: string; icon: typeof Wall
 
 const SAMPLE_STATS: SampleStat[] = [
   { label: "Total funded", value: "$1,240,000", sub: "Across 18 sample farms", icon: Banknote },
-  { label: "Outstanding balance", value: "$486,500", sub: "11 sample facilities open", icon: Wallet },
+  {
+    label: "Outstanding balance",
+    value: "$486,500",
+    sub: "11 sample facilities open",
+    icon: Wallet,
+  },
   { label: "Repaid to date", value: "$753,500", sub: "Sample repayment history", icon: PiggyBank },
   { label: "Avg. facility size", value: "$68,900", sub: "Illustrative figure", icon: Sprout },
 ];
@@ -136,8 +141,8 @@ function LenderDemoDashboard() {
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <h1 className="text-3xl font-extrabold sm:text-4xl">Lender dashboard preview</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          This is an illustration of what a lender's portfolio view could look like once the
-          program launches. It is not connected to any account, farm or transaction.
+          This is an illustration of what a lender's portfolio view could look like once the program
+          launches. It is not connected to any account, farm or transaction.
         </p>
 
         <WaitlistBanner className="mt-6" />

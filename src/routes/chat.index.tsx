@@ -111,7 +111,7 @@ function ChatList() {
     return () => {
       cancelled = true;
     };
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <RequireAuth>

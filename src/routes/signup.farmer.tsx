@@ -419,7 +419,6 @@ function FarmerSignup() {
       // user_roles (INSERT is RLS-revoked for authenticated).
 
       setStep(5);
-
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed. Please try again.");
     } finally {

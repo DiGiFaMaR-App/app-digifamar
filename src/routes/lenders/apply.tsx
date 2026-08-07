@@ -176,7 +176,6 @@ function LenderApplyPage() {
           instead — it captures charter, lending states and loan sizes for manual review.
         </p>
 
-
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           <div className="space-y-2">
             <Label htmlFor="name">Full name</Label>

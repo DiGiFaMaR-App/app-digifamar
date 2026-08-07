@@ -21,7 +21,6 @@ import { getFarm, type Product } from "@/lib/mock-data";
 
 type Step = "details" | "held" | "delivery" | "release" | "success";
 
-
 export function ProductSheet({
   product,
   open,
@@ -36,7 +35,6 @@ export function ProductSheet({
   const [active, setActive] = useState(0);
   const [step, setStep] = useState<Step>("details");
 
-
   const [added, setAdded] = useState(false);
   const farm = product ? getFarm(product.farmId) : null;
 
@@ -46,7 +44,6 @@ export function ProductSheet({
       // Small delay so the closing animation doesn't flash to step 1
       const t = setTimeout(() => {
         setStep("details");
-
 
         setActive(0);
         setAdded(false);
@@ -86,9 +83,6 @@ export function ProductSheet({
     setAdded(true);
     toast.success(`${product.name} added to cart`);
   };
-
-
-
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -296,7 +290,6 @@ export function ProductSheet({
               <TrustBadges />
             </div>
           )}
-
 
           {step === "success" && (
             <div className="mt-2 text-center">

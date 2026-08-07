@@ -1,15 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  Building2,
-  Check,
-  Clock,
-  Copy,
-  FileText,
-  Loader2,
-  Mail,
-  Phone,
-  User,
-} from "lucide-react";
+import { Building2, Check, Clock, Copy, FileText, Loader2, Mail, Phone, User } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { NAVY } from "./-data";

@@ -76,7 +76,8 @@ function InstitutionApplyPage() {
   const validate = (): boolean => {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (form.institutionName.trim().length < 2) e.institutionName = "Institution name is required.";
-    if (form.institutionName.trim().length > 200) e.institutionName = "Keep this under 200 characters.";
+    if (form.institutionName.trim().length > 200)
+      e.institutionName = "Keep this under 200 characters.";
     if (!INSTITUTION_TYPES.some((t) => t.value === form.institutionType))
       e.institutionType = "Choose an institution type.";
     if (form.charterNumber.length > 60) e.charterNumber = "Keep this under 60 characters.";

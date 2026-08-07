@@ -21,7 +21,10 @@ export const Route = createFileRoute("/lenders/admin")({
           "Human review queue for institutional lender applications on DiGiFaMaR. Approvals grant read-only portal access only.",
       },
       { property: "og:title", content: "Lender Applications — DiGiFaMaR Admin" },
-      { property: "og:description", content: "Review and decide institutional lender applications." },
+      {
+        property: "og:description",
+        content: "Review and decide institutional lender applications.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
