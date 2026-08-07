@@ -38,7 +38,7 @@ export const Route = createFileRoute("/signup/farmer")({
       {
         name: "description",
         content:
-          "Register as a farmer on DiGiFaMaR. Sell direct to buyers and keep 92% of every sale.",
+          "Register as a farmer on DiGiFaMaR. Sell direct to buyers and keep 90% of every sale.",
       },
     ],
   }),
@@ -1062,7 +1062,7 @@ const NEXT_STEPS = [
   {
     n: "4",
     title: "Start Receiving Orders",
-    body: "Accept orders, set your prices, and keep up to 92% of every sale.",
+    body: "Accept orders, set your prices, and keep up to 90% of every sale.",
   },
 ];
 

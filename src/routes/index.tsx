@@ -501,7 +501,7 @@ const TRADITIONAL_POINTS = [
 ];
 
 const DIGIFAMAR_POINTS = [
-  { icon: "📈", text: "Farmer keeps 92% of sale price", highlight: true },
+  { icon: "📈", text: "Farmer keeps 90% of sale price", highlight: true },
   { icon: "💰", text: "10% platform fee only", highlight: true },
   { icon: "⚡", text: "24–48 hour direct delivery" },
   { icon: "🤝", text: "Direct farmer relationship" },
@@ -604,7 +604,7 @@ function SupplyChainComparison() {
                 color: "#4ADE80",
               }}
             >
-              Farmer keeps 92%
+              Farmer keeps 90%
             </div>
           </div>
         </div>
@@ -721,7 +721,7 @@ function FarmerCTA() {
         <p className="text-5xl mb-6">🌾</p>
         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Sell Direct?</h2>
         <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-          Join 10,000+ verified American farmers already selling direct on DiGiFaMaR. Keep 92% of
+          Join 10,000+ verified American farmers already selling direct on DiGiFaMaR. Keep 90% of
           every sale — no middlemen, no surprises.
         </p>
 

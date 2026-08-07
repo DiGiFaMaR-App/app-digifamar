@@ -28,7 +28,7 @@ function About() {
         </p>
         <h2 className="mt-10 text-2xl font-bold">What we believe</h2>
         <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-          <li>• Farmers deserve 80-92% of every sale, not 50%.</li>
+          <li>• Farmers deserve 80-90% of every sale, not 50%.</li>
           <li>• Buyers deserve to know exactly where their food comes from.</li>
           <li>• Trust is built with verification, escrow, and same-day payouts.</li>
           <li>• Technology should remove friction, not add it.</li>
