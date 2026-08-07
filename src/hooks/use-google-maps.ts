@@ -96,12 +96,10 @@ export function loadGoogleMaps(): Promise<void> {
       document.head.appendChild(s);
     });
   })().catch((err) => {
-    const keySource =
-      typeof window !== "undefined" &&
-      window.localStorage?.getItem("dfm:gmaps_browser_key_override")
-        ? "browser-override"
-        : "managed-or-admin";
-    const { message, hint } = reportMapsFailure(err, { surface: "maps-js-loader", keySource });
+    const { message, hint } = reportMapsFailure(err, {
+      surface: "maps-js-loader",
+      keySource: "lovable-managed",
+    });
     // Allow a later retry to re-attempt loading.
     window.__dgfMapsLoader = undefined;
     throw new GoogleMapsKeyError(`${message} ${hint}`);
