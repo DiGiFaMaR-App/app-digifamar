@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260806183503_reconcile_main_branch_schema_gaps.
+-- Already applied on the remote database; intentionally a no-op locally.

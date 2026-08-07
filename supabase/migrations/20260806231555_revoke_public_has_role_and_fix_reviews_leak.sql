@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260806231555_revoke_public_has_role_and_fix_reviews_leak.
+-- Already applied on the remote database; intentionally a no-op locally.

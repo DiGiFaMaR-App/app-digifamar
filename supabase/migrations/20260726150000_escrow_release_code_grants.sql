@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260726150000_escrow_release_code_grants.
+-- Already applied on the remote database; intentionally a no-op locally.

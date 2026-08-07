@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260730203810_revoke_public_execute_on_escrow_functions.
+-- Already applied on the remote database; intentionally a no-op locally.

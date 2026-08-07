@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260806235526_tighten_lender_table_grants.
+-- Already applied on the remote database; intentionally a no-op locally.
