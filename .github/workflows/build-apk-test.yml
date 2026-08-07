@@ -139,7 +139,6 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon --build-cache --stacktrace 2>&1 | tee gradle_debug.log
 
-
       - name: Stage debug APK
         run: |
           set -e

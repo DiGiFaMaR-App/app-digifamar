@@ -14,9 +14,7 @@ export function adminClient(): SupabaseClient {
 
 /** Resolve the authenticated user from the request's Authorization header.
  *  Returns null when there is no valid session. */
-export async function getUser(
-  req: Request,
-): Promise<{ id: string; email: string | null } | null> {
+export async function getUser(req: Request): Promise<{ id: string; email: string | null } | null> {
   const authHeader = req.headers.get("Authorization") ?? "";
   const token = authHeader.replace(/^Bearer\s+/i, "").trim();
   if (!token) return null;

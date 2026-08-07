@@ -88,7 +88,8 @@ Deno.serve(async (req) => {
     }
 
     if (action === "status") {
-      if (!accountId) return jsonResponse({ connected: false, payoutsEnabled: false, status: "none" });
+      if (!accountId)
+        return jsonResponse({ connected: false, payoutsEnabled: false, status: "none" });
       const acct = await stripeRequest(`/accounts/${accountId}`);
       const status = accountStatus(acct);
       await sb.from("profiles").update({ stripe_account_status: status }).eq("id", user.id);
@@ -137,7 +138,11 @@ Deno.serve(async (req) => {
         // Transfer failed — restore the claimed balance so nothing is lost.
         await sb.rpc("wallet_credit", { p_user_id: user.id, p_amount: available });
         return errorResponse(
-          safeStripeError(e, `wallet payout ${user.id}`, "We couldn't send that payout. Your balance is unchanged."),
+          safeStripeError(
+            e,
+            `wallet payout ${user.id}`,
+            "We couldn't send that payout. Your balance is unchanged.",
+          ),
           400,
         );
       }
@@ -155,7 +160,8 @@ Deno.serve(async (req) => {
 
     return errorResponse(`Unknown action: ${action}`, 400);
   } catch (e) {
-    if (e instanceof StripeConfigError) return jsonResponse({ notConfigured: true, error: e.message }, 200);
+    if (e instanceof StripeConfigError)
+      return jsonResponse({ notConfigured: true, error: e.message }, 200);
     return errorResponse(safeStripeError(e, "create-payout", "Payout request failed."), 400);
   }
 });

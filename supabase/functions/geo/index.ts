@@ -53,14 +53,17 @@ Deno.serve(async (req) => {
         .filter(Boolean)
         .join(", ");
       if (!parts.trim()) return jsonResponse({ result: null });
-      const res = await fetch(`${GEOCODE_URL}?address=${encodeURIComponent(parts)}&region=us&key=${key}`);
+      const res = await fetch(
+        `${GEOCODE_URL}?address=${encodeURIComponent(parts)}&region=us&key=${key}`,
+      );
       if (!res.ok) return errorResponse(`Geocoding failed: ${res.status}`, 502);
       return jsonResponse({ result: parseTop(await res.json()) });
     }
 
     if (action === "reverse") {
       const { lat, lng } = body;
-      if (typeof lat !== "number" || typeof lng !== "number") return errorResponse("lat/lng required", 400);
+      if (typeof lat !== "number" || typeof lng !== "number")
+        return errorResponse("lat/lng required", 400);
       const res = await fetch(`${GEOCODE_URL}?latlng=${lat},${lng}&key=${key}`);
       if (!res.ok) return errorResponse(`Reverse geocoding failed: ${res.status}`, 502);
       return jsonResponse({ result: parseTop(await res.json()) });
@@ -87,11 +90,13 @@ Deno.serve(async (req) => {
           lat: p.location?.latitude ?? null,
           lng: p.location?.longitude ?? null,
           types: p.types ?? [],
-          addressComponents: (p.addressComponents ?? []).map((c: { longText?: string; shortText?: string; types?: string[] }) => ({
-            longText: c.longText ?? "",
-            shortText: c.shortText ?? "",
-            types: c.types ?? [],
-          })),
+          addressComponents: (p.addressComponents ?? []).map(
+            (c: { longText?: string; shortText?: string; types?: string[] }) => ({
+              longText: c.longText ?? "",
+              shortText: c.shortText ?? "",
+              types: c.types ?? [],
+            }),
+          ),
         },
       });
     }

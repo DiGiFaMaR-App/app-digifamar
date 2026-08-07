@@ -26,7 +26,11 @@ export function stripeEnv(): StripeEnv {
 
 export class StripeConfigError extends Error {}
 export class StripeApiError extends Error {
-  constructor(message: string, readonly code?: string, readonly status?: number) {
+  constructor(
+    message: string,
+    readonly code?: string,
+    readonly status?: number,
+  ) {
     super(message);
   }
 }
@@ -41,8 +45,9 @@ export function stripeConn(env: StripeEnv = stripeEnv()): Conn {
     );
   }
   const key =
-    (env === "live" ? Deno.env.get("STRIPE_LIVE_API_KEY") : Deno.env.get("STRIPE_SANDBOX_API_KEY")) ??
-    Deno.env.get("STRIPE_SECRET_KEY");
+    (env === "live"
+      ? Deno.env.get("STRIPE_LIVE_API_KEY")
+      : Deno.env.get("STRIPE_SANDBOX_API_KEY")) ?? Deno.env.get("STRIPE_SECRET_KEY");
   if (!key) throw new StripeConfigError("Stripe is not configured for this environment.");
 
   if (key.startsWith("sk_")) {
@@ -183,7 +188,11 @@ export async function verifyStripeSignature(
     false,
     ["sign"],
   );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${timestamp}.${payload}`));
+  const sig = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(`${timestamp}.${payload}`),
+  );
   const expected = Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
