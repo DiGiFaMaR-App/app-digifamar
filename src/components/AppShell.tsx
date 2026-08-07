@@ -103,7 +103,7 @@ export function AppShell({
 
       <button
         type="button"
-        onClick={openWhatsApp}
+        onClick={() => openWhatsApp("app_shell")}
         className="fixed bottom-20 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_0_24px_-4px_color-mix(in_oklab,var(--primary)_60%,transparent)] hover:bg-primary-hover md:bottom-6 md:right-6"
         aria-label="WhatsApp support"
       >
