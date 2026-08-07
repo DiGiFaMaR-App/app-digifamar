@@ -8,13 +8,7 @@ import { updateLeadStatusFn } from "@/lib/lenders/lead-notifications.functions";
 import { LenderCard, LenderShell } from "./-ui";
 import { NAVY } from "./-data";
 import { LoanInterestQueue } from "./-LoanInterestQueue";
-import {
-  LeadDrawer,
-  STATUSES,
-  STATUS_STYLE,
-  type Lead,
-  type LeadStatus,
-} from "./-LeadDrawer";
+import { LeadDrawer, STATUSES, STATUS_STYLE, type Lead, type LeadStatus } from "./-LeadDrawer";
 
 export const Route = createFileRoute("/lenders/leads")({
   head: () => ({
@@ -47,7 +41,6 @@ export const Route = createFileRoute("/lenders/leads")({
 });
 
 // Lead shape, status list and status colors are shared with the detail drawer.
-
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
@@ -149,7 +142,6 @@ function LenderLeadsAdmin() {
       setSaving(null);
     }
   };
-
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -334,7 +326,6 @@ function LenderLeadsAdmin() {
                       </td>
                       <td className="px-4 py-3 text-slate-300">{entityLabel(l.entity_type)}</td>
                       <td className="max-w-[280px] px-4 py-3 text-xs text-slate-400">
-
                         {l.interest_notes ? (
                           <span className="line-clamp-3">{l.interest_notes}</span>
                         ) : (
@@ -353,7 +344,6 @@ function LenderLeadsAdmin() {
                         </span>
                       </td>
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-
                         <div className="flex items-center justify-end gap-2">
                           {saving === l.id && (
                             <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
@@ -393,7 +383,6 @@ function LenderLeadsAdmin() {
       </p>
 
       <LoanInterestQueue />
-
 
       <LeadDrawer
         lead={leads.find((l) => l.id === selectedId) ?? null}

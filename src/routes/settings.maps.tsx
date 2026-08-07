@@ -23,8 +23,7 @@ export const Route = createFileRoute("/settings/maps")({
 });
 
 const MANAGED_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as
-  | string
-  | undefined;
+  string | undefined;
 const STORAGE_KEY = "dfm:gmaps_browser_key_override";
 
 function mask(key: string | undefined | null) {

@@ -9,11 +9,7 @@
  *  - recomputing informational farmer scores from marketplace data.
  */
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import {
-  computeTradeScore,
-  scoreReason,
-  type ScoreInputs,
-} from "@/lib/lenders/recommendations";
+import { computeTradeScore, scoreReason, type ScoreInputs } from "@/lib/lenders/recommendations";
 
 export async function assertAdmin(userId: string): Promise<void> {
   if (!userId) throw new Error("Forbidden");

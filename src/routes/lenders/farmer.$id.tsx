@@ -252,7 +252,10 @@ function FarmerProfile() {
           </SectionTitle>
           <div className="mt-3 h-60">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={detail.salesSeries} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+              <AreaChart
+                data={detail.salesSeries}
+                margin={{ top: 8, right: 8, left: -8, bottom: 0 }}
+              >
                 <defs>
                   <linearGradient id="lenderSales" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={NAVY.accent} stopOpacity={0.6} />
@@ -340,11 +343,16 @@ function FarmerProfile() {
           Ratings history
         </SectionTitle>
         {detail.ratingSeries.length === 0 ? (
-          <p className="py-8 text-center text-xs text-slate-500">No reviews in the last 12 months.</p>
+          <p className="py-8 text-center text-xs text-slate-500">
+            No reviews in the last 12 months.
+          </p>
         ) : (
           <div className="mt-3 h-48">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={detail.ratingSeries} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+              <LineChart
+                data={detail.ratingSeries}
+                margin={{ top: 8, right: 8, left: -8, bottom: 0 }}
+              >
                 <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
                 <XAxis
                   dataKey="month"

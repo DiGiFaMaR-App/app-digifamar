@@ -500,14 +500,7 @@ function Step2({
   onTogglePassword: () => void;
   onUpdate: <
     K extends
-      | "firstName"
-      | "lastName"
-      | "businessName"
-      | "email"
-      | "phone"
-      | "city"
-      | "state"
-      | "password",
+      "firstName" | "lastName" | "businessName" | "email" | "phone" | "city" | "state" | "password",
   >(
     key: K,
     value: string,

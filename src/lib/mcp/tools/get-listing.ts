@@ -4,21 +4,20 @@ import { z } from "zod";
 export default defineTool({
   name: "get_listing",
   title: "Get listing details",
-  description:
-    [
-      "Fetch full details for a single DiGiFaMaR marketplace listing by its id.",
-      "",
-      "Call this after `browse_listings` when the user wants price, stock, unit, description, or the owning farmer for a specific item. Do NOT guess ids — always pass an `id` returned by `browse_listings`.",
-      "",
-      "Returns a text summary plus `structuredContent.listing` with:",
-      "  - `id`, `name`, `category`, `price` (per `unit`), `unit`, `stock`, `description`, `farmerId`.",
-      "",
-      "If the id doesn't exist, the tool returns `isError: true` with an explanatory message — treat that as 'not found' rather than retrying with variants of the id.",
-      "",
-      "Examples:",
-      '  - Real listing:  { "id": "lst_01HZX9K3ABCDEF" }',
-      '  - Mock catalog:  { "id": "mock-tomato-01" }',
-    ].join("\n"),
+  description: [
+    "Fetch full details for a single DiGiFaMaR marketplace listing by its id.",
+    "",
+    "Call this after `browse_listings` when the user wants price, stock, unit, description, or the owning farmer for a specific item. Do NOT guess ids — always pass an `id` returned by `browse_listings`.",
+    "",
+    "Returns a text summary plus `structuredContent.listing` with:",
+    "  - `id`, `name`, `category`, `price` (per `unit`), `unit`, `stock`, `description`, `farmerId`.",
+    "",
+    "If the id doesn't exist, the tool returns `isError: true` with an explanatory message — treat that as 'not found' rather than retrying with variants of the id.",
+    "",
+    "Examples:",
+    '  - Real listing:  { "id": "lst_01HZX9K3ABCDEF" }',
+    '  - Mock catalog:  { "id": "mock-tomato-01" }',
+  ].join("\n"),
   inputSchema: {
     id: z
       .string()

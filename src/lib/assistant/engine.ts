@@ -13,12 +13,7 @@ import { ESCROW_FEE_RATE, formatRate, PLATFORM_FEE_RATE } from "@/lib/cart/fees"
 
 /** Param-less in-app routes the assistant is allowed to link to. */
 export type AssistantRoute =
-  | "/market"
-  | "/how-it-works"
-  | "/buyer-protection"
-  | "/hacks"
-  | "/signup/farmer"
-  | "/lending";
+  "/market" | "/how-it-works" | "/buyer-protection" | "/hacks" | "/signup/farmer" | "/lending";
 
 export type AssistantLink = { label: string; to: AssistantRoute };
 

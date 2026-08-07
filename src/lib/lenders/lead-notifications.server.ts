@@ -40,10 +40,7 @@ async function listAdmins(): Promise<AdminRecipient[]> {
   const { data: roles, error } = await db.from("user_roles").select("user_id").eq("role", "admin");
   if (error || !roles?.length) return [];
   const ids = roles.map((r) => r.user_id);
-  const { data: profiles } = await db
-    .from("profiles")
-    .select("id, email, full_name")
-    .in("id", ids);
+  const { data: profiles } = await db.from("profiles").select("id, email, full_name").in("id", ids);
   return (profiles ?? []) as AdminRecipient[];
 }
 
@@ -142,7 +139,13 @@ export async function updateLeadStatusAndNotify(input: {
   // Only an *actual* transition into contacted/qualified notifies anyone.
   const shouldNotify = isNotifiableStatus(input.status) && previousStatus !== input.status;
   if (!shouldNotify) {
-    return { id: input.id, status: input.status, notified: false, adminsNotified: 0, emailSent: false };
+    return {
+      id: input.id,
+      status: input.status,
+      notified: false,
+      adminsNotified: 0,
+      emailSent: false,
+    };
   }
   const status = input.status as NotifiableStatus;
 
@@ -193,7 +196,10 @@ export async function updateLeadStatusAndNotify(input: {
 
   // 3. Optional soft confirmation to the farmer (disabled for now).
   if (NOTIFY_FARMER_SOFT_CONFIRMATION && input.kind === "farmer_loan_interest") {
-    const farmerEmail = await farmerEmailOf(db, (before as { farmer_id?: string }).farmer_id ?? null);
+    const farmerEmail = await farmerEmailOf(
+      db,
+      (before as { farmer_id?: string }).farmer_id ?? null,
+    );
     if (farmerEmail) {
       await sendAdminEmail({
         to: [farmerEmail],
@@ -238,7 +244,11 @@ type Db = Awaited<ReturnType<typeof admin>>;
 
 async function farmerLabel(db: Db, farmerId: string | null): Promise<string> {
   if (!farmerId) return "Farmer";
-  const { data } = await db.from("profiles").select("full_name, email").eq("id", farmerId).maybeSingle();
+  const { data } = await db
+    .from("profiles")
+    .select("full_name, email")
+    .eq("id", farmerId)
+    .maybeSingle();
   return data?.full_name || data?.email || "Farmer";
 }
 

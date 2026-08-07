@@ -4,24 +4,23 @@ import { z } from "zod";
 export default defineTool({
   name: "browse_listings",
   title: "Browse marketplace listings",
-  description:
-    [
-      "Search active produce listings on the DiGiFaMaR farm-to-buyer marketplace.",
-      "",
-      "Use this tool to discover what farmers currently have available. All filters are optional; call with no arguments to get the newest listings across every category.",
-      "",
-      "Returns a text summary plus `structuredContent` with:",
-      "  - `total` (number): count of matching listings",
-      "  - `items` (array): each item has `id`, `name`, `category`, `price` (numeric, per `unit`), `unit` (e.g. 'kg', 'crate'), `stock`, `description`, `farmerId`.",
-      "",
-      "Use the returned `id` with the `get_listing` tool to fetch full details for a specific listing.",
-      "",
-      "Examples:",
-      '  - Newest 20 listings:            {}',
-      '  - Search by name:                { "search": "tomato" }',
-      '  - Filter by category:            { "category": "Vegetables" }',
-      '  - Combined + custom page size:   { "search": "organic", "category": "Fruits", "limit": 10 }',
-    ].join("\n"),
+  description: [
+    "Search active produce listings on the DiGiFaMaR farm-to-buyer marketplace.",
+    "",
+    "Use this tool to discover what farmers currently have available. All filters are optional; call with no arguments to get the newest listings across every category.",
+    "",
+    "Returns a text summary plus `structuredContent` with:",
+    "  - `total` (number): count of matching listings",
+    "  - `items` (array): each item has `id`, `name`, `category`, `price` (numeric, per `unit`), `unit` (e.g. 'kg', 'crate'), `stock`, `description`, `farmerId`.",
+    "",
+    "Use the returned `id` with the `get_listing` tool to fetch full details for a specific listing.",
+    "",
+    "Examples:",
+    "  - Newest 20 listings:            {}",
+    '  - Search by name:                { "search": "tomato" }',
+    '  - Filter by category:            { "category": "Vegetables" }',
+    '  - Combined + custom page size:   { "search": "organic", "category": "Fruits", "limit": 10 }',
+  ].join("\n"),
   inputSchema: {
     search: z
       .string()

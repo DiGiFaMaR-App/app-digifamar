@@ -146,7 +146,6 @@ export type LenderApplication = {
   submittedAt: string;
 };
 
-
 export const institutionTypeLabel = (value: string) =>
   INSTITUTION_TYPES.find((t) => t.value === value)?.label ?? value;
 

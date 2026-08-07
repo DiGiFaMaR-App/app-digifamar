@@ -1,15 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import {
-  ArrowUpRight,
-  Info,
-  MapPin,
-  Search,
-  Star,
-  TrendingUp,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { ArrowUpRight, Info, MapPin, Search, Star, TrendingUp, Users, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ensureLenderProfileFn } from "@/lib/lenders/lenders.functions";
 import { INFORMATIONAL_DISCLAIMER } from "@/lib/lenders/recommendations";
@@ -166,9 +157,7 @@ function LenderDashboard() {
 
   const portfolio = useMemo(() => {
     const count = rows.length;
-    const avgScore = count
-      ? Math.round(rows.reduce((s, f) => s + f.tradeScore, 0) / count)
-      : 0;
+    const avgScore = count ? Math.round(rows.reduce((s, f) => s + f.tradeScore, 0) / count) : 0;
     const pipeline = rows.reduce((s, f) => s + f.recommendedAmount, 0);
     const prime = rows.filter((f) => scoreTier(f.tradeScore) === "prime").length;
     return { count, avgScore, pipeline, prime };
@@ -200,9 +189,7 @@ function LenderDashboard() {
         </p>
       </LenderCard>
 
-      {error ? (
-        <LenderCard className="mt-4 p-6 text-sm text-slate-300">{error}</LenderCard>
-      ) : null}
+      {error ? <LenderCard className="mt-4 p-6 text-sm text-slate-300">{error}</LenderCard> : null}
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Users} label="Farms with insights" value={portfolio.count} accent />

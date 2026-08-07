@@ -101,9 +101,13 @@ export function DisputePanel({
   const claimInputRef = useRef<HTMLInputElement>(null);
   const replyInputRef = useRef<HTMLInputElement>(null);
 
-  const canFile = ["escrow_funded", "awaiting_delivery", "shipped", "delivered", "inspection"].includes(
-    orderStatus,
-  );
+  const canFile = [
+    "escrow_funded",
+    "awaiting_delivery",
+    "shipped",
+    "delivered",
+    "inspection",
+  ].includes(orderStatus);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -256,9 +260,7 @@ export function DisputePanel({
         <div className="mt-4 space-y-4">
           <div
             className={`flex items-start gap-3 rounded-xl border p-4 ${
-              closed
-                ? "border-primary/30 bg-primary/10"
-                : "border-amber-500/30 bg-amber-500/10"
+              closed ? "border-primary/30 bg-primary/10" : "border-amber-500/30 bg-amber-500/10"
             }`}
           >
             {closed ? (
@@ -267,9 +269,7 @@ export function DisputePanel({
               <AlertTriangle className="mt-0.5 h-5 w-5 text-amber-400" />
             )}
             <div className="min-w-0">
-              <p className="text-sm font-semibold">
-                {STATE_LABEL[dispute.state] ?? dispute.state}
-              </p>
+              <p className="text-sm font-semibold">{STATE_LABEL[dispute.state] ?? dispute.state}</p>
               <p className="text-xs text-muted-foreground">
                 {isClaimant ? "You" : roleLabel(role === "buyer" ? "farmer" : "buyer")} filed this
                 dispute on {new Date(dispute.created_at).toLocaleString()}.

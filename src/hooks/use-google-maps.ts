@@ -5,8 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { resolveGoogleMapsKey } from "@/lib/gmaps-key";
 
 const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
-  | string
-  | undefined;
+  string | undefined;
 
 export class GoogleMapsKeyError extends Error {
   constructor(message: string) {

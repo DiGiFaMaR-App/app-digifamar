@@ -112,9 +112,9 @@ function LendersLanding() {
             lenders rather than by DiGiFaMaR itself.
           </p>
           <p className="mt-3 max-w-3xl text-muted-foreground">
-            Nothing here originates a loan, moves money, prices interest, or makes a credit decision.
-            It is a waitlist for a product we intend to launch once the lending structure is in
-            place.
+            Nothing here originates a loan, moves money, prices interest, or makes a credit
+            decision. It is a waitlist for a product we intend to launch once the lending structure
+            is in place.
           </p>
         </section>
 

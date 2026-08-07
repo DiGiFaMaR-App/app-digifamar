@@ -23,9 +23,7 @@ export default defineConfig(({ mode }) => {
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
         env.VITE_SUPABASE_PUBLISHABLE_KEY,
       ),
-      "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(
-        env.VITE_SUPABASE_PROJECT_ID,
-      ),
+      "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(env.VITE_SUPABASE_PROJECT_ID),
     },
     plugins: [
       tsConfigPaths(),

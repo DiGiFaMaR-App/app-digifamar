@@ -121,7 +121,7 @@ function ChatThread() {
     return () => {
       cancelled = true;
     };
-  }, [conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [conversationId]);
 
   // Mark unread messages as read
   useEffect(() => {
@@ -132,7 +132,7 @@ function ChatThread() {
       .eq("conversation_id", conversationId)
       .neq("sender_id", user.id)
       .eq("is_read", false);
-  }, [messages, user, conversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [messages, user, conversationId]);
 
   // Supabase Realtime subscription
   useEffect(() => {
