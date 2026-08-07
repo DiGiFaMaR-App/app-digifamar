@@ -26,10 +26,13 @@ function openExternalUrl(url: string, target: "_top" | "_blank" = "_top") {
   link.remove();
 }
 
-export function openWhatsApp() {
+export function openWhatsApp(source: WhatsAppClickSource = "app_shell") {
   const text = encodeURIComponent(MESSAGE);
   const webUrl = getWhatsAppWebUrl();
   const appUrl = `whatsapp://send?phone=${PHONE}&text=${text}`;
+
+  trackWhatsAppClick(source);
+
 
   // Try to open the native WhatsApp app first on mobile, fall back to web.
   const isMobile = /Android|iPhone|iPad|iPod/i.test(
