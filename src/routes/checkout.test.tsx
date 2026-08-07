@@ -47,21 +47,21 @@ describe("Checkout route", () => {
     setRouterMockState({ navigate: vi.fn() });
   });
 
-  it("shows the 8% platform fee, 3.25% escrow fee, and total breakdown", () => {
+  it("shows the 10% platform fee, 3.25% escrow fee, and total breakdown", () => {
     seedCart();
     render(<Page />);
 
     expect(screen.getByText("Subtotal")).toBeInTheDocument();
     // $11.00 shows twice: the item line total and the subtotal row.
     expect(screen.getAllByText("$11.00").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Platform fee (8%)")).toBeInTheDocument();
-    expect(screen.getByText("$0.88")).toBeInTheDocument(); // 8% of $11.00
+    expect(screen.getByText("Platform fee (10%)")).toBeInTheDocument();
+    expect(screen.getByText("$1.10")).toBeInTheDocument(); // 10% of $11.00
     expect(screen.getByText("Escrow fee (3.25%)")).toBeInTheDocument();
     expect(screen.getByText("$0.36")).toBeInTheDocument(); // round(3.25% of $11.00)
     // No geolocation in jsdom → standard delivery falls back to its flat fee.
     expect(screen.getByText("Delivery (Standard delivery)")).toBeInTheDocument();
     expect(screen.getByText("Total due")).toBeInTheDocument();
-    expect(screen.getByText("$21.23")).toBeInTheDocument(); // 1100 + 88 + 36 + 899
+    expect(screen.getByText("$21.45")).toBeInTheDocument(); // 1100 + 110 + 36 + 899
   });
 
   it("recomputes the total when a different delivery method is chosen", () => {

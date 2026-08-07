@@ -53,7 +53,7 @@ const tiers = [
     name: "Elite",
     price: "$79",
     note: "/month",
-    fee: "8% platform fee",
+    fee: "10% platform fee",
     features: [
       "Unlimited listings",
       "Top search placement",
