@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { resolveGoogleMapsKey } from "@/lib/gmaps-key";
+import { reportMapsFailure } from "@/lib/maps-diagnostics";
 
 const TRACKING_ID = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as
   string | undefined;
@@ -94,7 +95,17 @@ export function loadGoogleMaps(): Promise<void> {
       };
       document.head.appendChild(s);
     });
-  })();
+  })().catch((err) => {
+    const keySource =
+      typeof window !== "undefined" &&
+      window.localStorage?.getItem("dfm:gmaps_browser_key_override")
+        ? "browser-override"
+        : "managed-or-admin";
+    const { message, hint } = reportMapsFailure(err, { surface: "maps-js-loader", keySource });
+    // Allow a later retry to re-attempt loading.
+    window.__dgfMapsLoader = undefined;
+    throw new GoogleMapsKeyError(`${message} ${hint}`);
+  });
   return window.__dgfMapsLoader;
 }
 
@@ -153,8 +164,9 @@ export function usePlacesAutocomplete(input: string, debounceMs = 250) {
           }));
         setSuggestions(mapped);
       } catch (e) {
+        const diagnosis = reportMapsFailure(e, { surface: "places-autocomplete" });
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Autocomplete failed");
+          setError(`${diagnosis.message} ${diagnosis.hint}`);
           setSuggestions([]);
         }
       } finally {
