@@ -1,0 +1,8 @@
+GRANT SELECT (key, value, updated_at) ON public.app_settings TO authenticated;
+
+DROP POLICY IF EXISTS "Public can read Google Maps browser key" ON public.app_settings;
+CREATE POLICY "Visitors can read Google Maps browser key"
+ON public.app_settings
+FOR SELECT
+TO anon, authenticated
+USING (key = 'gmaps_browser_key');
