@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { formatUSInput, normalizeToE164 } from "@/lib/phone";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/lenders/apply")({
   head: () => ({
@@ -112,6 +113,11 @@ function LenderApplyPage() {
         status: "new",
       });
       if (insertError) throw new Error(insertError.message);
+      captureEvent("lender_waitlist_joined", {
+        entity_type: form.entityType,
+        has_phone: phone !== null,
+        has_interest_notes: Boolean(form.interestNotes.trim()),
+      });
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");

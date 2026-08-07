@@ -32,6 +32,7 @@ import {
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { formatUSInput, isValidPhone, normalizeToE164 } from "@/lib/phone";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/signup/buyer")({
   head: () => ({
@@ -298,6 +299,10 @@ function BuyerSignup() {
         role: "buyer" as const,
       });
 
+      captureEvent("buyer_signup_completed", {
+        buyer_type: buyerType,
+        has_business_profile: !isIndividual,
+      });
       setStep(4);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed. Please try again.");

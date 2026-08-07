@@ -32,6 +32,7 @@ import {
 } from "@/lib/cart/fees";
 import { createOrdersFromCart } from "@/lib/orders/orders.queries";
 import { EscrowPaymentForm, type PayableOrder } from "@/components/checkout/EscrowPaymentForm";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 const DELIVERY_ORDER: DeliveryMethod[] = ["standard", "express", "pickup"];
 
@@ -90,6 +91,11 @@ function CheckoutPage() {
         items.map((i) => ({ slug: i.productId, qty: i.quantity })),
         shippingAddress.trim(),
       );
+      captureEvent("checkout_order_created", {
+        order_count: orders.length,
+        delivery_method: deliveryMethod,
+        total_cents: orders.reduce((sum, order) => sum + order.total_cents, 0),
+      });
       setPlaced(true);
       clear();
       setPendingOrders(orders.map((o) => ({ id: o.id, totalCents: o.total_cents })));

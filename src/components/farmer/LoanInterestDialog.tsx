@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { WaitlistBanner } from "@/components/lenders/WaitlistBanner";
 import { supabase } from "@/integrations/supabase/client";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 const AMOUNT_RANGES = [
   "Under $10,000",
@@ -81,6 +82,10 @@ export function LoanInterestDialog({ farmerId }: { farmerId: string | null }) {
     }
     setAlreadySubmitted(true);
     setOpen(false);
+    captureEvent("farmer_loan_interest_submitted", {
+      amount_range: range,
+      has_purpose_notes: Boolean(notes.trim()),
+    });
     toast.success("Interest recorded — we'll be in touch.");
   };
 

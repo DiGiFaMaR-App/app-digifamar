@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCents } from "@/lib/cart/fees";
 import { getStripe, isStripeConfigured } from "@/lib/payments/stripe-client";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 export type PayableOrder = { id: string; totalCents: number };
 
@@ -149,6 +150,10 @@ function PaymentForm({
       }
 
       setProgress(null);
+      captureEvent("escrow_funding_completed", {
+        order_count: orders.length,
+        total_cents: totalCents,
+      });
       onFunded();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Payment failed. Please try again.");

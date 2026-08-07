@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { raiseDisputeFn } from "@/lib/escrow-v2/escrow.functions";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 const EVIDENCE_BUCKET = "dispute-evidence";
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
@@ -171,6 +172,11 @@ export function DisputePanel({
         kind: "claim",
         body: reason.trim(),
         evidence_urls: evidenceUrls,
+      });
+      captureEvent("dispute_filed", {
+        actor_role: role,
+        evidence_count: evidenceUrls.length,
+        order_status: orderStatus,
       });
       toast.success("Dispute filed — release is paused until it's resolved");
       setFileOpen(false);

@@ -15,6 +15,7 @@ import {
   releaseEscrowFn,
 } from "@/lib/escrow-v2/escrow.functions";
 import { DisputePanel } from "@/components/order/DisputePanel";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/orders/$id")({
   head: () => ({
@@ -288,6 +289,10 @@ function OrderDetailPage() {
                           setCodeIssued(true);
                           setOtpShown(r.otp);
                           setSmsMasked(r.smsDelivered ? r.maskedPhone : null);
+                          captureEvent("delivery_code_generated", {
+                            order_status: order.status,
+                            sms_delivered: r.smsDelivered,
+                          });
                         }, "Delivery code issued")
                       }
                       className="w-full"
@@ -347,10 +352,12 @@ function OrderDetailPage() {
                       <Button
                         disabled={busy || otpInput.length !== 6}
                         onClick={() =>
-                          wrap(
-                            () => confirmDelivery({ data: { orderId: order.id, otp: otpInput } }),
-                            "Delivery confirmed — inspection window open",
-                          )
+                          wrap(async () => {
+                            await confirmDelivery({ data: { orderId: order.id, otp: otpInput } });
+                            captureEvent("delivery_confirmed", {
+                              order_status: order.status,
+                            });
+                          }, "Delivery confirmed — inspection window open")
                         }
                         className="mt-3 w-full"
                       >
@@ -375,7 +382,12 @@ function OrderDetailPage() {
               <Button
                 disabled={busy}
                 onClick={() =>
-                  wrap(() => release({ data: { orderId: order.id } }), "Funds released to farmer")
+                  wrap(async () => {
+                    await release({ data: { orderId: order.id } });
+                    captureEvent("escrow_released", {
+                      total_cents: order.total_cents,
+                    });
+                  }, "Funds released to farmer")
                 }
                 className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
               >
