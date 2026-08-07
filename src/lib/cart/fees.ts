@@ -114,7 +114,7 @@ export function formatCents(cents: number): string {
   });
 }
 
-/** Human-readable fee rate, e.g. 0.08 → "8%". */
+/** Human-readable fee rate, e.g. 0.10 → "10%". */
 export function formatRate(rate: number): string {
   return `${(rate * 100).toFixed(2).replace(/\.?0+$/, "")}%`;
 }
