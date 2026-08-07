@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { getWhatsAppWebUrl, SUPPORT_PHONE_E164 } from "@/components/WhatsAppFab";
+import { trackWhatsAppClick } from "@/lib/analytics/whatsapp";
 import { formatE164Display, toTelHref } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +57,7 @@ function Contact() {
               href={getWhatsAppWebUrl()}
               target="_top"
               rel="noreferrer"
+              onClick={() => trackWhatsAppClick("contact")}
               className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4"
             >
               <MessageCircle className="h-6 w-6 text-primary" />
