@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260726170000_escrow_lifecycle.
+-- Already applied on the remote database; intentionally a no-op locally.

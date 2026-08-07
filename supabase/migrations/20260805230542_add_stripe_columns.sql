@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260805230542_add_stripe_columns.
+-- Already applied on the remote database; intentionally a no-op locally.

@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260730203941_fix_null_auth_bypass_in_escrow_functions.
+-- Already applied on the remote database; intentionally a no-op locally.

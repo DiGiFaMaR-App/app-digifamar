@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260806190158_repoint_policies_to_private_has_role.
+-- Already applied on the remote database; intentionally a no-op locally.

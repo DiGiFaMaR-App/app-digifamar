@@ -1,0 +1,2 @@
+-- History reconciliation stub for remote migration 20260806185043_add_farmer_onboard_schema.
+-- Already applied on the remote database; intentionally a no-op locally.
