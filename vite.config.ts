@@ -21,6 +21,12 @@ const mapsTrackingId =
   process.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID"] ||
   "864c0baff8aba230d11fdab98fc4f8c5";
 
+// PostHog project token and host (public, browser-exposed — safe to embed).
+const posthogToken =
+  process.env["VITE_PUBLIC_POSTHOG_PROJECT_TOKEN"] ||
+  "phc_mUxmrLDkwy3XKWHrFowKjfF6UJidEBgV9P8BWTunEF2W";
+const posthogHost = process.env["VITE_PUBLIC_POSTHOG_HOST"] || "https://us.i.posthog.com";
+
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
@@ -36,6 +42,8 @@ export default defineConfig({
         JSON.stringify(mapsBrowserKey),
       "import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID":
         JSON.stringify(mapsTrackingId),
+      "import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN": JSON.stringify(posthogToken),
+      "import.meta.env.VITE_PUBLIC_POSTHOG_HOST": JSON.stringify(posthogHost),
     },
   },
 });
