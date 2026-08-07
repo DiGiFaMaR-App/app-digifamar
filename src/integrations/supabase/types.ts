@@ -408,7 +408,9 @@ export type Database = {
           farm_name: string
           farm_type: string | null
           lat: number | null
+          lat_approx: number | null
           lng: number | null
+          lng_approx: number | null
           products: string[]
           state: string | null
           updated_at: string
@@ -426,7 +428,9 @@ export type Database = {
           farm_name: string
           farm_type?: string | null
           lat?: number | null
+          lat_approx?: number | null
           lng?: number | null
+          lng_approx?: number | null
           products?: string[]
           state?: string | null
           updated_at?: string
@@ -444,7 +448,9 @@ export type Database = {
           farm_name?: string
           farm_type?: string | null
           lat?: number | null
+          lat_approx?: number | null
           lng?: number | null
+          lng_approx?: number | null
           products?: string[]
           state?: string | null
           updated_at?: string
