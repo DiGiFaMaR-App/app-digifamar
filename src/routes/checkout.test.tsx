@@ -69,7 +69,7 @@ describe("Checkout route", () => {
     render(<Page />);
     // Switch to farm pickup → delivery is free.
     fireEvent.click(screen.getByRole("button", { name: /farm pickup/i }));
-    expect(screen.getByText("$12.24")).toBeInTheDocument(); // 1100 + 88 + 36 + 0
+    expect(screen.getByText("$12.46")).toBeInTheDocument(); // 1100 + 110 + 36 + 0
   });
 
   it("creates orders from the cart lines and clears the cart on success", async () => {
