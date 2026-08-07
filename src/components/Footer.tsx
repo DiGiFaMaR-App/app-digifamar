@@ -71,8 +71,10 @@ export function Footer() {
               href={getWhatsAppWebUrl()}
               target="_top"
               rel="noreferrer"
+              onClick={() => trackWhatsAppClick("footer")}
               className="hover:text-primary"
             >
+
               WhatsApp: {SUPPORT_DISPLAY}
             </a>
           </div>
