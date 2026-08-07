@@ -267,18 +267,16 @@ async function generateOtp(userId: string, orderId: string) {
   }
   const otp = generateOtpCode();
   const expiresAt = new Date(Date.now() + OTP_TTL_HOURS * 3600 * 1000).toISOString();
-  const { error } = await sb
-    .from("delivery_confirmations")
-    .upsert(
-      {
-        order_id: orderId,
-        otp_hash: await sha256Hex(otp),
-        otp_expires_at: expiresAt,
-        confirmed_at: null,
-        attempts: 0,
-      },
-      { onConflict: "order_id" },
-    );
+  const { error } = await sb.from("delivery_confirmations").upsert(
+    {
+      order_id: orderId,
+      otp_hash: await sha256Hex(otp),
+      otp_expires_at: expiresAt,
+      confirmed_at: null,
+      attempts: 0,
+    },
+    { onConflict: "order_id" },
+  );
   if (error) throw new Error(error.message);
   await sb.from("orders").update({ status: "awaiting_delivery" }).eq("id", orderId);
 
@@ -340,17 +338,15 @@ async function confirmDelivery(userId: string, orderId: string, otp: string) {
     .from("delivery_confirmations")
     .update({ confirmed_at: now.toISOString() })
     .eq("order_id", orderId);
-  await sb
-    .from("inspection_windows")
-    .upsert(
-      {
-        order_id: orderId,
-        opens_at: now.toISOString(),
-        closes_at: closesAt.toISOString(),
-        auto_release_at: closesAt.toISOString(),
-      },
-      { onConflict: "order_id" },
-    );
+  await sb.from("inspection_windows").upsert(
+    {
+      order_id: orderId,
+      opens_at: now.toISOString(),
+      closes_at: closesAt.toISOString(),
+      auto_release_at: closesAt.toISOString(),
+    },
+    { onConflict: "order_id" },
+  );
   await sb.from("orders").update({ status: "inspection" }).eq("id", orderId);
   await notify(
     order.buyer_id,
