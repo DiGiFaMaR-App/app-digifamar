@@ -13,8 +13,12 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { initAnalytics } from "@/lib/analytics/posthog";
-
+import {
+  captureException,
+  identifyUser,
+  initAnalytics,
+  resetAnalytics,
+} from "@/lib/analytics/posthog";
 
 import appCss from "../styles.css?url";
 
@@ -111,14 +115,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  useEffect(() => {
-    initAnalytics();
-  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <SplashScreen />
       <AuthSync />
-      
+
       <SmoothScroll>
         <div className="pb-16 md:pb-0">
           <Outlet />
@@ -134,9 +135,15 @@ function AuthSync() {
   const router = useRouter();
   const queryClient = useQueryClient();
   useEffect(() => {
+    initAnalytics();
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        identifyUser(session.user);
+      } else {
+        resetAnalytics();
+      }
       router.invalidate();
       queryClient.invalidateQueries();
     });
@@ -166,8 +173,11 @@ function NotFound() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
+  useEffect(() => {
+    captureException(error);
+    console.error(error);
+  }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">

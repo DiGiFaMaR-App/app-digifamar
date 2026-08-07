@@ -30,6 +30,7 @@ import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { formatUSInput, isValidPhone, normalizeToE164 } from "@/lib/phone";
 import { geocodeAddress } from "@/lib/geocode.functions";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 export const Route = createFileRoute("/signup/farmer")({
   head: () => ({
@@ -418,6 +419,10 @@ function FarmerSignup() {
       // trigger from the signUp metadata above; the client cannot write
       // user_roles (INSERT is RLS-revoked for authenticated).
 
+      captureEvent("farmer_signup_completed", {
+        farm_type: step2.farmType,
+        has_geocoded_location: coords.lat !== null && coords.lng !== null,
+      });
       setStep(5);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Registration failed. Please try again.");
