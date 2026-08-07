@@ -1065,6 +1065,33 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_click_events: {
+        Row: {
+          created_at: string
+          id: string
+          path: string | null
+          referrer: string | null
+          source: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          path?: string | null
+          referrer?: string | null
+          source?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          path?: string | null
+          referrer?: string | null
+          source?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_farms: {
