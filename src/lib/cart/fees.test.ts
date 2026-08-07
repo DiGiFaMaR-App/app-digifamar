@@ -12,7 +12,7 @@ import {
 
 describe("checkout fees", () => {
   it("uses a 10% platform fee and a 3.25% escrow fee", () => {
-    expect(PLATFORM_FEE_RATE).toBe(0.10);
+    expect(PLATFORM_FEE_RATE).toBe(0.1);
     expect(ESCROW_FEE_RATE).toBe(0.0325);
   });
 

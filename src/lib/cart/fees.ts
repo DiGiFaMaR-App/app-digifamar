@@ -10,7 +10,7 @@
  * formatted for display at the edges.
  */
 
-export const PLATFORM_FEE_RATE = 0.10;
+export const PLATFORM_FEE_RATE = 0.1;
 export const ESCROW_FEE_RATE = 0.0325;
 
 export type FeeBreakdown = {
