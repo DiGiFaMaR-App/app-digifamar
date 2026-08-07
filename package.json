@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:e2e:whatsapp": "node scripts/e2e-whatsapp-fab.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.105.0",
