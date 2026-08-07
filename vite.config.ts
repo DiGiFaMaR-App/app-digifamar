@@ -13,6 +13,14 @@ const publicBackendUrl = "https://qegnvdgnlhnzfnzaifaw.supabase.co";
 const publicBackendKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ252ZGdubGhuemZuemFpZmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTYzOTAsImV4cCI6MjA5NTQ5MjM5MH0.jeCglDR6bbZbgUtHlo7jLAqr9CGjlVrlqVtVDBsi0lo";
 
+// Lovable-managed Google Maps browser key (referrer-restricted, safe to embed).
+const mapsBrowserKey =
+  process.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] ||
+  "AIzaSyBmvJph4LmrbtW7skeczzpBIyb9WWzFKo4";
+const mapsTrackingId =
+  process.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID"] ||
+  "864c0baff8aba230d11fdab98fc4f8c5";
+
 // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
 // @cloudflare/vite-plugin builds from this — wrangler.jsonc main alone is insufficient.
 export default defineConfig({
@@ -24,6 +32,11 @@ export default defineConfig({
     define: {
       "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(publicBackendUrl),
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(publicBackendKey),
+      "import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY":
+        JSON.stringify(mapsBrowserKey),
+      "import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID":
+        JSON.stringify(mapsTrackingId),
     },
   },
 });
+
