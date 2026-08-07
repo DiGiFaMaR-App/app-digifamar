@@ -502,7 +502,7 @@ const TRADITIONAL_POINTS = [
 
 const DIGIFAMAR_POINTS = [
   { icon: "📈", text: "Farmer keeps 92% of sale price", highlight: true },
-  { icon: "💰", text: "8% platform fee only", highlight: true },
+  { icon: "💰", text: "10% platform fee only", highlight: true },
   { icon: "⚡", text: "24–48 hour direct delivery" },
   { icon: "🤝", text: "Direct farmer relationship" },
   { icon: "🔒", text: "Full escrow protection on every order" },

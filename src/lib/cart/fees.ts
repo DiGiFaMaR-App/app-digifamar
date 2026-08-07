@@ -3,14 +3,14 @@
  *
  * Every order carries two fees on top of the item subtotal, both shown to the
  * buyer at checkout and both computed on the item subtotal:
- *   - Platform fee: 8%   (DiGiFaMaR marketplace fee)
+ *   - Platform fee: 10%  (DiGiFaMaR marketplace fee)
  *   - Escrow fee:   3.25% (Escrow.com-protected settlement)
  *
  * All math is done in integer cents to avoid floating-point drift, then
  * formatted for display at the edges.
  */
 
-export const PLATFORM_FEE_RATE = 0.08;
+export const PLATFORM_FEE_RATE = 0.1;
 export const ESCROW_FEE_RATE = 0.0325;
 
 export type FeeBreakdown = {
@@ -114,7 +114,7 @@ export function formatCents(cents: number): string {
   });
 }
 
-/** Human-readable fee rate, e.g. 0.08 → "8%". */
+/** Human-readable fee rate, e.g. 0.10 → "10%". */
 export function formatRate(rate: number): string {
   return `${(rate * 100).toFixed(2).replace(/\.?0+$/, "")}%`;
 }
