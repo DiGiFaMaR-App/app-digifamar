@@ -34,7 +34,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         property: "og:description",
         content:
-          "Skip the middleman. Farmers keep 80-92% of every sale. Verified farms, escrow checkout, all 50 states.",
+          "Skip the middleman. Farmers keep 80-90% of every sale. Verified farms, escrow checkout, all 50 states.",
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "DiGiFaMaR" },
@@ -48,7 +48,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "twitter:description",
         content:
-          "Skip the middleman. Farmers keep 80-92% of every sale. Verified farms, escrow checkout, all 50 states.",
+          "Skip the middleman. Farmers keep 80-90% of every sale. Verified farms, escrow checkout, all 50 states.",
       },
       {
         name: "twitter:image",

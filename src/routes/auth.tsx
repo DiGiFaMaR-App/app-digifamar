@@ -99,7 +99,7 @@ function SignUpPanel() {
           <div className="flex-1 min-w-0">
             <p className="font-bold text-white text-base">I'm a Farmer</p>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Sell direct to buyers · keep 92% of every sale
+              Sell direct to buyers · keep 90% of every sale
             </p>
           </div>
           <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
