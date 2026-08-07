@@ -13,6 +13,8 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { initAnalytics } from "@/lib/analytics/posthog";
+
 
 import appCss from "../styles.css?url";
 
