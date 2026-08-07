@@ -15,9 +15,9 @@ describe("WhatsAppFab", () => {
     await userEvent.click(screen.getByRole("button", { name: /whatsapp/i }));
     // On desktop user agent (jsdom), it should top-navigate to the universal WhatsApp link.
     const calledWith = openSpy.mock.calls.map((c) => c[0]).join(" ");
-    expect(calledWith).toContain("wa.me/16673619136");
+    expect(calledWith).toContain("wa.me/14709848198");
     expect(openSpy).toHaveBeenCalledWith(
-      expect.stringContaining("wa.me/16673619136"),
+      expect.stringContaining("wa.me/14709848198"),
       "_top",
       "noopener,noreferrer",
     );
