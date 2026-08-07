@@ -16,10 +16,15 @@ import { resolve } from "node:path";
 const root = process.cwd();
 const viteBin = resolve(root, "node_modules", "vite", "bin", "vite.js");
 
-execFileSync("node", [viteBin, "build", "--config", "vite.config.mobile.ts"], {
+// Extra CLI args are forwarded to vite (e.g. `--sourcemap` in CI, where the
+// maps are uploaded to PostHog and then deleted before `cap sync`).
+const extraArgs = process.argv.slice(2);
+
+execFileSync("node", [viteBin, "build", "--config", "vite.config.mobile.ts", ...extraArgs], {
   stdio: "inherit",
   cwd: root,
 });
+
 
 const shell = resolve(root, "dist", "client", "_shell.html");
 const index = resolve(root, "dist", "client", "index.html");

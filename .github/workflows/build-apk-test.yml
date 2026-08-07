@@ -85,15 +85,44 @@ jobs:
           sed -i -E "s/versionName[[:space:]]+\"[^\"]*\"/versionName \"${{ steps.version.outputs.version_name }}\"/" android/app/build.gradle
           grep -nE 'versionCode|versionName' android/app/build.gradle
 
+      # CI-only: source maps are generated here (never in the default
+      # `bun run build:mobile`), uploaded to PostHog, then deleted before
+      # `cap sync` so no .map file ever ships inside the APK.
       - name: Build mobile SPA
         run: |
           set -o pipefail
-          bun run build:mobile 2>&1 | tee build_mobile.log
+          bun run build:mobile --sourcemap 2>&1 | tee build_mobile.log
+
+      - name: PostHog sourcemap inject
+        continue-on-error: true
+        env:
+          POSTHOG_CLI_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+          POSTHOG_CLI_ENV_ID: "547025"
+        run: npx --yes @posthog/cli@latest --host https://us.posthog.com sourcemap inject --directory dist/client/assets
+
+      - name: PostHog sourcemap upload
+        continue-on-error: true
+        env:
+          POSTHOG_CLI_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+          POSTHOG_CLI_ENV_ID: "547025"
+        run: |
+          npx --yes @posthog/cli@latest --host https://us.posthog.com sourcemap upload \
+            --directory dist/client/assets \
+            --delete-after \
+            --release-name digifamar-android \
+            --release-version "${{ steps.version.outputs.version_name }}+${{ steps.version.outputs.version_code }}"
+
+      # Safety net: if either PostHog step failed, maps may still be on disk.
+      - name: Strip source maps before packaging
+        if: always()
+        run: |
+          find dist/client -name '*.map' -type f -print -delete || true
 
       - name: Sync Capacitor (Android)
         run: |
           set -o pipefail
           npx cap sync android 2>&1 | tee cap_sync.log
+
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
