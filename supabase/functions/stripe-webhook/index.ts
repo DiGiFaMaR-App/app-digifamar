@@ -72,7 +72,9 @@ async function handlePaymentSucceeded(intent: Obj) {
   if (!order) throw new Error(`order ${orderId} not found for ${intent.id}`);
 
   const chargeId =
-    typeof intent.latest_charge === "string" ? intent.latest_charge : intent.latest_charge?.id ?? null;
+    typeof intent.latest_charge === "string"
+      ? intent.latest_charge
+      : (intent.latest_charge?.id ?? null);
 
   // Idempotent: if a fund entry already exists for this order, only backfill ids.
   const { data: existing } = await sb
@@ -102,7 +104,11 @@ async function handlePaymentSucceeded(intent: Obj) {
 
   const { error: oErr } = await sb
     .from("orders")
-    .update({ status: "escrow_funded", stripe_payment_intent_id: intent.id, stripe_charge_id: chargeId })
+    .update({
+      status: "escrow_funded",
+      stripe_payment_intent_id: intent.id,
+      stripe_charge_id: chargeId,
+    })
     .eq("id", orderId);
   if (oErr) throw new Error(oErr.message);
 
@@ -115,10 +121,16 @@ async function handlePaymentFailed(intent: Obj) {
   const orderId = intent.metadata?.order_id ?? null;
   const buyerId = intent.metadata?.buyer_id ?? null;
   console.warn("[stripe-webhook] payment failed", intent.id, intent.last_payment_error?.code);
-  await notify(buyerId, "payment", "Payment failed", "Your payment didn't go through. No funds were held.", {
-    order_id: orderId,
-    payment_intent_id: intent.id,
-  });
+  await notify(
+    buyerId,
+    "payment",
+    "Payment failed",
+    "Your payment didn't go through. No funds were held.",
+    {
+      order_id: orderId,
+      payment_intent_id: intent.id,
+    },
+  );
 }
 
 async function handleTransferReversed(transfer: Obj) {
@@ -148,13 +160,25 @@ async function handleTransferReversed(transfer: Obj) {
   const { error: oErr } = await sb.from("orders").update({ status: "disputed" }).eq("id", order.id);
   if (oErr) throw new Error(oErr.message);
 
-  await notify(order.farmer_id, "funds", "Payout reversed", "A payout for one of your orders was reversed.", {
-    order_id: order.id,
-    transfer_id: transfer.id,
-  });
-  await notify(order.buyer_id, "funds", "Order payout reversed", "A payout on your order was reversed and it is under review.", {
-    order_id: order.id,
-  });
+  await notify(
+    order.farmer_id,
+    "funds",
+    "Payout reversed",
+    "A payout for one of your orders was reversed.",
+    {
+      order_id: order.id,
+      transfer_id: transfer.id,
+    },
+  );
+  await notify(
+    order.buyer_id,
+    "funds",
+    "Order payout reversed",
+    "A payout on your order was reversed and it is under review.",
+    {
+      order_id: order.id,
+    },
+  );
 }
 
 function statusFromAccount(acct: Obj): "pending" | "active" | "restricted" {
@@ -178,7 +202,11 @@ async function handleCapabilityUpdated(capability: Obj, accountId: string | null
   const id = accountId ?? capability.account;
   if (!id || capability.id !== "transfers") return;
   const status =
-    capability.status === "active" ? "active" : capability.status === "inactive" ? "restricted" : "pending";
+    capability.status === "active"
+      ? "active"
+      : capability.status === "inactive"
+        ? "restricted"
+        : "pending";
   const { error } = await sb
     .from("profiles")
     .update({ stripe_account_status: status })
@@ -193,13 +221,26 @@ async function handleChargeDispute(dispute: Obj) {
     .select("id, buyer_id, farmer_id")
     .eq("stripe_charge_id", dispute.charge)
     .maybeSingle();
-  console.warn("[stripe-webhook] chargeback", dispute.id, "charge", dispute.charge, "order", order?.id);
+  console.warn(
+    "[stripe-webhook] chargeback",
+    dispute.id,
+    "charge",
+    dispute.charge,
+    "order",
+    order?.id,
+  );
   if (!order) return;
-  await notify(order.farmer_id, "dispute", "Card chargeback opened", "The buyer's bank opened a chargeback on this order.", {
-    order_id: order.id,
-    chargeback_id: dispute.id,
-    reason: dispute.reason ?? null,
-  });
+  await notify(
+    order.farmer_id,
+    "dispute",
+    "Card chargeback opened",
+    "The buyer's bank opened a chargeback on this order.",
+    {
+      order_id: order.id,
+      chargeback_id: dispute.id,
+      reason: dispute.reason ?? null,
+    },
+  );
 }
 
 Deno.serve(async (req) => {

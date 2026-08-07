@@ -52,7 +52,9 @@ function generateOtpCode(): string {
 async function loadOrder(orderId: string): Promise<OrderRow> {
   const { data, error } = await sb
     .from("orders")
-    .select("id, buyer_id, farmer_id, total_cents, platform_fee_cents, status, delivery_deadline, stripe_payment_intent_id, stripe_charge_id, stripe_transfer_id")
+    .select(
+      "id, buyer_id, farmer_id, total_cents, platform_fee_cents, status, delivery_deadline, stripe_payment_intent_id, stripe_charge_id, stripe_transfer_id",
+    )
     .eq("id", orderId)
     .maybeSingle();
   if (error) throw new Error(error.message);
@@ -147,7 +149,9 @@ async function fund(userId: string, orderId: string, paymentMethodId: string) {
   // "requires_action" body and the buyer would loop forever.
   if (order.stripe_payment_intent_id) {
     try {
-      const existing: Intent = await stripeRequest(`/payment_intents/${order.stripe_payment_intent_id}`);
+      const existing: Intent = await stripeRequest(
+        `/payment_intents/${order.stripe_payment_intent_id}`,
+      );
       if (["succeeded", "requires_action", "requires_confirmation"].includes(existing.status)) {
         intent = existing;
       }
@@ -177,14 +181,20 @@ async function fund(userId: string, orderId: string, paymentMethodId: string) {
       });
     } catch (e) {
       throw new Error(
-        safeStripeError(e, `fund order ${orderId}`, "We couldn't process that payment. Please try another card."),
+        safeStripeError(
+          e,
+          `fund order ${orderId}`,
+          "We couldn't process that payment. Please try another card.",
+        ),
       );
     }
   }
   if (!intent) throw new Error("We couldn't start that payment. Please try again.");
 
   const chargeId =
-    typeof intent.latest_charge === "string" ? intent.latest_charge : intent.latest_charge?.id ?? null;
+    typeof intent.latest_charge === "string"
+      ? intent.latest_charge
+      : (intent.latest_charge?.id ?? null);
 
   // 3-D Secure / SCA: the card issuer wants the buyer to authenticate. Hand the
   // client secret back so the browser can run the challenge, then the client
@@ -211,7 +221,11 @@ async function fund(userId: string, orderId: string, paymentMethodId: string) {
       .from("orders")
       .update({ stripe_payment_intent_id: intent.id, stripe_charge_id: chargeId })
       .eq("id", orderId);
-    console.error(`[escrow] fund ${orderId} not succeeded:`, intent.status, intent.last_payment_error?.message);
+    console.error(
+      `[escrow] fund ${orderId} not succeeded:`,
+      intent.status,
+      intent.last_payment_error?.message,
+    );
     throw new Error("The payment was not completed. No funds were placed in escrow.");
   }
 
@@ -228,10 +242,20 @@ async function fund(userId: string, orderId: string, paymentMethodId: string) {
   );
   const { error } = await sb
     .from("orders")
-    .update({ status: "escrow_funded", stripe_payment_intent_id: intent.id, stripe_charge_id: chargeId })
+    .update({
+      status: "escrow_funded",
+      stripe_payment_intent_id: intent.id,
+      stripe_charge_id: chargeId,
+    })
     .eq("id", orderId);
   if (error) throw new Error(error.message);
-  await notify(order.farmer_id, "order", "Order funded", "A buyer funded escrow for an order.", orderId);
+  await notify(
+    order.farmer_id,
+    "order",
+    "Order funded",
+    "A buyer funded escrow for an order.",
+    orderId,
+  );
   return { orderId, status: "escrow_funded", heldCents: balanceAfter, paymentIntentId: intent.id };
 }
 
@@ -243,21 +267,39 @@ async function generateOtp(userId: string, orderId: string) {
   }
   const otp = generateOtpCode();
   const expiresAt = new Date(Date.now() + OTP_TTL_HOURS * 3600 * 1000).toISOString();
-  const { error } = await sb.from("delivery_confirmations").upsert(
-    { order_id: orderId, otp_hash: await sha256Hex(otp), otp_expires_at: expiresAt, confirmed_at: null, attempts: 0 },
-    { onConflict: "order_id" },
-  );
+  const { error } = await sb
+    .from("delivery_confirmations")
+    .upsert(
+      {
+        order_id: orderId,
+        otp_hash: await sha256Hex(otp),
+        otp_expires_at: expiresAt,
+        confirmed_at: null,
+        attempts: 0,
+      },
+      { onConflict: "order_id" },
+    );
   if (error) throw new Error(error.message);
   await sb.from("orders").update({ status: "awaiting_delivery" }).eq("id", orderId);
 
-  const { data: buyer } = await sb.from("profiles").select("phone").eq("id", order.buyer_id).maybeSingle();
+  const { data: buyer } = await sb
+    .from("profiles")
+    .select("phone")
+    .eq("id", order.buyer_id)
+    .maybeSingle();
   const phone = buyer?.phone ?? null;
   const smsDelivered = await sendSms(
     phone,
     `DiGiFaMaR: your delivery code for order ${orderId.slice(0, 8)} is ${otp}. Share it with the farmer at handover. Expires in ${OTP_TTL_HOURS}h.`,
   );
   const maskedPhone = phone ? phone.replace(/.(?=.{2})/g, "•") : null;
-  await notify(order.buyer_id, "otp", "Delivery code ready", "Your delivery code is ready for handover.", orderId);
+  await notify(
+    order.buyer_id,
+    "otp",
+    "Delivery code ready",
+    "Your delivery code is ready for handover.",
+    orderId,
+  );
   return {
     orderId,
     expiresAt,
@@ -281,8 +323,10 @@ async function confirmDelivery(userId: string, orderId: string, otp: string) {
   if (error) throw new Error(error.message);
   if (!conf) throw new Error("No delivery code generated for this order");
   if (conf.confirmed_at) throw new Error("Delivery already confirmed");
-  if (new Date(conf.otp_expires_at).getTime() < Date.now()) throw new Error("Delivery code has expired");
-  if (Number(conf.attempts ?? 0) >= 5) throw new Error("Too many failed attempts. Ask the buyer for a new code.");
+  if (new Date(conf.otp_expires_at).getTime() < Date.now())
+    throw new Error("Delivery code has expired");
+  if (Number(conf.attempts ?? 0) >= 5)
+    throw new Error("Too many failed attempts. Ask the buyer for a new code.");
   if ((await sha256Hex(otp)) !== conf.otp_hash) {
     await sb
       .from("delivery_confirmations")
@@ -292,13 +336,29 @@ async function confirmDelivery(userId: string, orderId: string, otp: string) {
   }
   const now = new Date();
   const closesAt = new Date(now.getTime() + INSPECTION_WINDOW_HOURS * 3600 * 1000);
-  await sb.from("delivery_confirmations").update({ confirmed_at: now.toISOString() }).eq("order_id", orderId);
-  await sb.from("inspection_windows").upsert(
-    { order_id: orderId, opens_at: now.toISOString(), closes_at: closesAt.toISOString(), auto_release_at: closesAt.toISOString() },
-    { onConflict: "order_id" },
-  );
+  await sb
+    .from("delivery_confirmations")
+    .update({ confirmed_at: now.toISOString() })
+    .eq("order_id", orderId);
+  await sb
+    .from("inspection_windows")
+    .upsert(
+      {
+        order_id: orderId,
+        opens_at: now.toISOString(),
+        closes_at: closesAt.toISOString(),
+        auto_release_at: closesAt.toISOString(),
+      },
+      { onConflict: "order_id" },
+    );
   await sb.from("orders").update({ status: "inspection" }).eq("id", orderId);
-  await notify(order.buyer_id, "order", "Delivery confirmed", "Inspect your order; funds auto-release after the window.", orderId);
+  await notify(
+    order.buyer_id,
+    "order",
+    "Delivery confirmed",
+    "Inspect your order; funds auto-release after the window.",
+    orderId,
+  );
   return { orderId, status: "inspection", autoReleaseAt: closesAt.toISOString() };
 }
 
@@ -319,7 +379,9 @@ async function release(userId: string, orderId: string) {
     .eq("id", order.farmer_id)
     .maybeSingle();
   if (!farmer?.stripe_account_id || farmer.stripe_account_status !== "active") {
-    throw new Error("The farmer's payout account isn't ready yet. Funds stay in escrow until it is.");
+    throw new Error(
+      "The farmer's payout account isn't ready yet. Funds stay in escrow until it is.",
+    );
   }
 
   // Farmer receives the total minus the platform fee. The escrow fee stays on
@@ -341,7 +403,11 @@ async function release(userId: string, orderId: string) {
     });
   } catch (e) {
     throw new Error(
-      safeStripeError(e, `release order ${orderId}`, "We couldn't pay out this order right now. Funds remain in escrow."),
+      safeStripeError(
+        e,
+        `release order ${orderId}`,
+        "We couldn't pay out this order right now. Funds remain in escrow.",
+      ),
     );
   }
 
@@ -350,9 +416,24 @@ async function release(userId: string, orderId: string) {
     .from("orders")
     .update({ status: "released", stripe_transfer_id: transfer.id })
     .eq("id", orderId);
-  await sb.from("inspection_windows").update({ released_at: new Date().toISOString() }).eq("order_id", orderId);
-  await notify(order.farmer_id, "funds", "Funds released", "Escrow funds were paid out to your Stripe account.", orderId);
-  return { orderId, status: "released", releasedCents: held, transferredCents: transferAmount, transferId: transfer.id };
+  await sb
+    .from("inspection_windows")
+    .update({ released_at: new Date().toISOString() })
+    .eq("order_id", orderId);
+  await notify(
+    order.farmer_id,
+    "funds",
+    "Funds released",
+    "Escrow funds were paid out to your Stripe account.",
+    orderId,
+  );
+  return {
+    orderId,
+    status: "released",
+    releasedCents: held,
+    transferredCents: transferAmount,
+    transferId: transfer.id,
+  };
 }
 
 async function raiseDispute(
@@ -378,13 +459,24 @@ async function raiseDispute(
   if (error) throw new Error(error.message);
   await sb.from("orders").update({ status: "disputed" }).eq("id", input.orderId);
   const other = order.buyer_id === userId ? order.farmer_id : order.buyer_id;
-  await notify(other, "dispute", "Dispute raised", "A dispute was opened on your order.", input.orderId);
+  await notify(
+    other,
+    "dispute",
+    "Dispute raised",
+    "A dispute was opened on your order.",
+    input.orderId,
+  );
   return data;
 }
 
 async function resolveDispute(
   adminId: string,
-  input: { disputeId: string; outcome: "release" | "refund" | "split"; buyerRefundCents?: number; resolution: string },
+  input: {
+    disputeId: string;
+    outcome: "release" | "refund" | "split";
+    buyerRefundCents?: number;
+    resolution: string;
+  },
 ) {
   if (!(await hasRole(adminId, "admin"))) throw new Error("Forbidden");
   if (!["release", "refund", "split"].includes(input.outcome)) {
@@ -418,7 +510,14 @@ async function resolveDispute(
     const refund = Math.max(0, Math.min(held, input.buyerRefundCents ?? 0));
     const rel = held - refund;
     if (refund > 0) {
-      await appendLedger(order.id, "refund", refund, held - refund, adminId, "admin: partial refund");
+      await appendLedger(
+        order.id,
+        "refund",
+        refund,
+        held - refund,
+        adminId,
+        "admin: partial refund",
+      );
       await creditAvailable(order.buyer_id, refund);
     }
     if (rel > 0) {
@@ -429,7 +528,12 @@ async function resolveDispute(
   }
   await sb
     .from("disputes")
-    .update({ state: "resolved", resolution: input.resolution, resolved_by: adminId, resolved_at: new Date().toISOString() })
+    .update({
+      state: "resolved",
+      resolution: input.resolution,
+      resolved_by: adminId,
+      resolved_at: new Date().toISOString(),
+    })
     .eq("id", input.disputeId);
   return { ok: true };
 }
@@ -444,7 +548,9 @@ Deno.serve(async (req) => {
     const action = String(body.action ?? "");
     switch (action) {
       case "fund":
-        return jsonResponse(await fund(user.id, String(body.orderId), String(body.paymentMethodId ?? "")));
+        return jsonResponse(
+          await fund(user.id, String(body.orderId), String(body.paymentMethodId ?? "")),
+        );
       case "generate-otp":
         return jsonResponse(await generateOtp(user.id, String(body.orderId)));
       case "confirm-delivery":

@@ -18,7 +18,11 @@ type Msg = { role: "user" | "assistant"; content: string };
 async function loadUserContext(userId: string) {
   const [{ data: profile }, { data: farm }] = await Promise.all([
     sb.from("profiles").select("full_name").eq("id", userId).maybeSingle(),
-    sb.from("farmer_profiles").select("farm_name, products, city, state").eq("user_id", userId).maybeSingle(),
+    sb
+      .from("farmer_profiles")
+      .select("farm_name, products, city, state")
+      .eq("user_id", userId)
+      .maybeSingle(),
   ]);
   const location = farm ? [farm.city, farm.state].filter(Boolean).join(", ") || null : null;
   return {
@@ -30,7 +34,10 @@ async function loadUserContext(userId: string) {
   };
 }
 
-function buildSystemPrompt(user: Awaited<ReturnType<typeof loadUserContext>>, context?: string): string {
+function buildSystemPrompt(
+  user: Awaited<ReturnType<typeof loadUserContext>>,
+  context?: string,
+): string {
   const who: string[] = [];
   if (user.fullName) who.push(`Name: ${user.fullName}.`);
   if (user.role !== "buyer") who.push(`Platform role: ${user.role}.`);
