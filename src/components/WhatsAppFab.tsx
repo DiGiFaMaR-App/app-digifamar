@@ -1,4 +1,5 @@
 import { normalizeToE164, toWhatsAppNumber } from "@/lib/phone";
+import { trackWhatsAppClick, type WhatsAppClickSource } from "@/lib/analytics/whatsapp";
 
 // Canonical support number stored as raw input — normalized via the shared util
 // so we get one source of truth for every place WhatsApp/tel links are built.
