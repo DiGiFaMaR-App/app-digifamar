@@ -164,8 +164,9 @@ export function usePlacesAutocomplete(input: string, debounceMs = 250) {
           }));
         setSuggestions(mapped);
       } catch (e) {
+        const diagnosis = reportMapsFailure(e, { surface: "places-autocomplete" });
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Autocomplete failed");
+          setError(`${diagnosis.message} ${diagnosis.hint}`);
           setSuggestions([]);
         }
       } finally {
