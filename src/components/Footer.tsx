@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Linkedin, Lock, Shield, Twitter, Youtube } from "lucide-react";
 import { Logo } from "./Logo";
 import { getWhatsAppWebUrl, SUPPORT_PHONE_E164 } from "./WhatsAppFab";
+import { trackWhatsAppClick } from "@/lib/analytics/whatsapp";
 import { formatE164Display } from "@/lib/phone";
 
 const SUPPORT_DISPLAY = formatE164Display(SUPPORT_PHONE_E164);
