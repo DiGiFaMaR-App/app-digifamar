@@ -47,6 +47,20 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      # Writes an untracked .env consumed by vite.config.mobile.ts (loadEnv).
+      # Never committed: .env is gitignored and no step commits anything.
+      - name: Write mobile env file
+        run: |
+          cat > .env <<EOF
+          VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_PROJECT_ID=${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          VITE_PAYMENTS_CLIENT_TOKEN=${{ secrets.VITE_PAYMENTS_CLIENT_TOKEN }}
+          VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY=${{ secrets.VITE_MAPS_KEY }}
+          EOF
+
+
+
       - name: Resolve app version
         id: version
         env:
