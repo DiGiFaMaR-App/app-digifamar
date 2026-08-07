@@ -46,7 +46,12 @@ function makeQuery(result: { data: unknown; error: unknown }) {
   const q: Record<string, unknown> = {};
   q.select = () => q;
   q.eq = () => q;
+  q.order = () => q;
+  q.limit = () => q;
+  q.single = () => Promise.resolve(result);
   q.maybeSingle = () => Promise.resolve(result);
+  q.then = (onF: (v: { data: unknown[]; error: unknown }) => unknown) =>
+    Promise.resolve({ data: [], error: null }).then(onF);
   return q;
 }
 
