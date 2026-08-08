@@ -13,8 +13,11 @@ const publicBackendUrl = "https://qegnvdgnlhnzfnzaifaw.supabase.co";
 const publicBackendKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ252ZGdubGhuemZuemFpZmF3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTYzOTAsImV4cCI6MjA5NTQ5MjM5MH0.jeCglDR6bbZbgUtHlo7jLAqr9CGjlVrlqVtVDBsi0lo";
 
-// Lovable-managed Google Maps browser key (referrer-restricted, safe to embed).
+// Google Maps browser key. Prefer the project's own key (GOOGLE_API_KEY), which is
+// referrer-allowed for the custom domain; fall back to the Lovable-managed connector key
+// (only valid on *.lovable.app / *.lovableproject.com).
 const mapsBrowserKey =
+  process.env["GOOGLE_API_KEY"] ||
   process.env["VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY"] ||
   "AIzaSyBmvJph4LmrbtW7skeczzpBIyb9WWzFKo4";
 const mapsTrackingId =
