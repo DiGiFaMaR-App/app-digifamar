@@ -77,8 +77,11 @@ export function BrowseMap({ origin }: BrowseMapProps) {
   if (error || authFailed) {
     return (
       <MapErrorFallback
-        title="Location map unavailable"
-        reason={error}
+        title="Map view is unavailable right now"
+        description="You can still search by address and see nearby farms in the list — only the map is affected."
+        reason={
+          error ?? "Google Maps rejected the request for this domain (referrer or API key issue)."
+        }
         onRetry={() => {
           invalidateGoogleMapsLoader();
           initMap();
