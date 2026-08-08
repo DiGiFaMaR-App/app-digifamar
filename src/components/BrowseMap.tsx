@@ -74,7 +74,7 @@ export function BrowseMap({ origin }: BrowseMapProps) {
     }
   }, [origin, ready]);
 
-  if (error) {
+  if (error || authFailed) {
     return (
       <MapErrorFallback
         title="Location map unavailable"
