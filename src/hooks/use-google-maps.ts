@@ -63,11 +63,12 @@ export function loadGoogleMaps(): Promise<void> {
         }
       };
 
-      const previousGmAuthFailure = window.gm_authFailure;
+      // Google calls this on any auth/referrer rejection — including AFTER the
+      // script has loaded successfully, which is the common custom-domain case.
       window.gm_authFailure = () => {
+        notifyMapsAuthFailure();
         if (settled) return;
         cleanup();
-        window.gm_authFailure = previousGmAuthFailure ?? undefined;
         reject(
           new GoogleMapsKeyError(
             "Google Maps key rejected for this domain. Add this domain to the key's HTTP referrer allowlist, or switch to a different key in Map settings.",
