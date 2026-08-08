@@ -24,6 +24,40 @@ declare global {
   }
 }
 
+// ── Auth-failure broadcast ────────────────────────────────────────
+// Google can reject the key AFTER the script loads (referrer errors), so the
+// loader promise resolves while the map stays blank. Components subscribe here
+// to swap in a friendly fallback whenever that happens.
+const authFailureListeners = new Set<() => void>();
+let mapsAuthFailed = false;
+
+export function notifyMapsAuthFailure() {
+  mapsAuthFailed = true;
+  authFailureListeners.forEach((fn) => fn());
+}
+
+export function hasMapsAuthFailed() {
+  return mapsAuthFailed;
+}
+
+export function onMapsAuthFailure(fn: () => void) {
+  authFailureListeners.add(fn);
+  return () => authFailureListeners.delete(fn);
+}
+
+/** Clears the remembered auth failure so a retry can succeed. */
+export function resetMapsAuthFailure() {
+  mapsAuthFailed = false;
+}
+
+/** React helper: true once Google rejects the key for this domain. */
+export function useMapsAuthFailure() {
+  const [failed, setFailed] = useState(hasMapsAuthFailed);
+  useEffect(() => onMapsAuthFailure(() => setFailed(true)), []);
+  return failed;
+}
+
+
 /** Loads the Maps JS API (with places library) exactly once. */
 export function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
