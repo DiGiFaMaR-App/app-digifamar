@@ -53,7 +53,12 @@ export function resetMapsAuthFailure() {
 /** React helper: true once Google rejects the key for this domain. */
 export function useMapsAuthFailure() {
   const [failed, setFailed] = useState(hasMapsAuthFailed);
-  useEffect(() => onMapsAuthFailure(() => setFailed(true)), []);
+  useEffect(() => {
+    const unsubscribe = onMapsAuthFailure(() => setFailed(true));
+    return () => {
+      unsubscribe();
+    };
+  }, []);
   return failed;
 }
 
