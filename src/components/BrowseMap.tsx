@@ -17,6 +17,7 @@ export function BrowseMap({ origin }: BrowseMapProps) {
   const markerRef = useRef<google.maps.Marker | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const authFailed = useMapsAuthFailure();
 
   const initMap = () => {
     setError(null);
