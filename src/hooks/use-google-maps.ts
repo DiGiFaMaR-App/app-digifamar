@@ -149,6 +149,7 @@ export function loadGoogleMaps(): Promise<void> {
 
 /** Resets the singleton loader so the next call attempts a fresh load. */
 export function invalidateGoogleMapsLoader() {
+  resetMapsAuthFailure();
   if (typeof window !== "undefined") {
     window.__dgfMapsLoader = undefined;
     window.__dgfMapsCallback = undefined;
