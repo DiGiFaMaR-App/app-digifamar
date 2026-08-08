@@ -1,6 +1,10 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
-import { loadGoogleMaps, invalidateGoogleMapsLoader } from "@/hooks/use-google-maps";
+import {
+  loadGoogleMaps,
+  invalidateGoogleMapsLoader,
+  useMapsAuthFailure,
+} from "@/hooks/use-google-maps";
 import { MapErrorFallback } from "@/components/MapErrorFallback";
 
 interface BrowseMapProps {
@@ -13,6 +17,7 @@ export function BrowseMap({ origin }: BrowseMapProps) {
   const markerRef = useRef<google.maps.Marker | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const authFailed = useMapsAuthFailure();
 
   const initMap = () => {
     setError(null);
@@ -69,11 +74,14 @@ export function BrowseMap({ origin }: BrowseMapProps) {
     }
   }, [origin, ready]);
 
-  if (error) {
+  if (error || authFailed) {
     return (
       <MapErrorFallback
-        title="Location map unavailable"
-        reason={error}
+        title="Map view is unavailable right now"
+        description="You can still search by address and see nearby farms in the list — only the map is affected."
+        reason={
+          error ?? "Google Maps rejected the request for this domain (referrer or API key issue)."
+        }
         onRetry={() => {
           invalidateGoogleMapsLoader();
           initMap();

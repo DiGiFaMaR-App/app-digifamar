@@ -24,6 +24,45 @@ declare global {
   }
 }
 
+// ── Auth-failure broadcast ────────────────────────────────────────
+// Google can reject the key AFTER the script loads (referrer errors), so the
+// loader promise resolves while the map stays blank. Components subscribe here
+// to swap in a friendly fallback whenever that happens.
+const authFailureListeners = new Set<() => void>();
+let mapsAuthFailed = false;
+
+export function notifyMapsAuthFailure() {
+  mapsAuthFailed = true;
+  authFailureListeners.forEach((fn) => fn());
+}
+
+export function hasMapsAuthFailed() {
+  return mapsAuthFailed;
+}
+
+export function onMapsAuthFailure(fn: () => void) {
+  authFailureListeners.add(fn);
+  return () => authFailureListeners.delete(fn);
+}
+
+/** Clears the remembered auth failure so a retry can succeed. */
+export function resetMapsAuthFailure() {
+  mapsAuthFailed = false;
+}
+
+/** React helper: true once Google rejects the key for this domain. */
+export function useMapsAuthFailure() {
+  const [failed, setFailed] = useState(hasMapsAuthFailed);
+  useEffect(() => {
+    const unsubscribe = onMapsAuthFailure(() => setFailed(true));
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+  return failed;
+}
+
+
 /** Loads the Maps JS API (with places library) exactly once. */
 export function loadGoogleMaps(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
@@ -63,11 +102,12 @@ export function loadGoogleMaps(): Promise<void> {
         }
       };
 
-      const previousGmAuthFailure = window.gm_authFailure;
+      // Google calls this on any auth/referrer rejection — including AFTER the
+      // script has loaded successfully, which is the common custom-domain case.
       window.gm_authFailure = () => {
+        notifyMapsAuthFailure();
         if (settled) return;
         cleanup();
-        window.gm_authFailure = previousGmAuthFailure ?? undefined;
         reject(
           new GoogleMapsKeyError(
             "Google Maps key rejected for this domain. Add this domain to the key's HTTP referrer allowlist, or switch to a different key in Map settings.",
@@ -90,7 +130,7 @@ export function loadGoogleMaps(): Promise<void> {
       s.onerror = () => {
         if (settled) return;
         cleanup();
-        window.gm_authFailure = previousGmAuthFailure ?? undefined;
+        window.gm_authFailure = undefined;
         reject(new GoogleMapsKeyError("Failed to load Google Maps script."));
       };
       document.head.appendChild(s);
@@ -109,6 +149,7 @@ export function loadGoogleMaps(): Promise<void> {
 
 /** Resets the singleton loader so the next call attempts a fresh load. */
 export function invalidateGoogleMapsLoader() {
+  resetMapsAuthFailure();
   if (typeof window !== "undefined") {
     window.__dgfMapsLoader = undefined;
     window.__dgfMapsCallback = undefined;

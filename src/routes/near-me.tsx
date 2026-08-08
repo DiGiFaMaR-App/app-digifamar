@@ -158,17 +158,29 @@ function NearMe() {
             </div>
           )}
 
-          {!geo.error && !geo.loading && !hasCoords && (
-            <div className="mt-3">
-              <LocationAutocompleteInput
-                id="manual-loc"
-                loading={geo.loading}
-                onSubmit={(v) => {
-                  void geo.setManualLocation(v);
-                }}
-              />
-            </div>
-          )}
+          <div className="mt-4 max-w-xl">
+            <label
+              htmlFor="near-me-place-search"
+              className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+            >
+              Search an address, city or ZIP
+            </label>
+            <LocationAutocompleteInput
+              id="near-me-place-search"
+              label="Address, city or ZIP"
+              placeholder="Start typing an address, city or ZIP…"
+              loading={geo.loading}
+              onSubmit={(v) => {
+                void geo.setManualLocation(v);
+              }}
+            />
+            {hasCoords && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Showing farms near {origin?.formatted}. Pick another place to move the search.
+              </p>
+            )}
+          </div>
+
         </div>
       </section>
 
