@@ -130,7 +130,7 @@ export function loadGoogleMaps(): Promise<void> {
       s.onerror = () => {
         if (settled) return;
         cleanup();
-        window.gm_authFailure = previousGmAuthFailure ?? undefined;
+        window.gm_authFailure = undefined;
         reject(new GoogleMapsKeyError("Failed to load Google Maps script."));
       };
       document.head.appendChild(s);
