@@ -1,6 +1,10 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
-import { loadGoogleMaps, invalidateGoogleMapsLoader } from "@/hooks/use-google-maps";
+import {
+  loadGoogleMaps,
+  invalidateGoogleMapsLoader,
+  useMapsAuthFailure,
+} from "@/hooks/use-google-maps";
 import { MapErrorFallback } from "@/components/MapErrorFallback";
 
 interface BrowseMapProps {
