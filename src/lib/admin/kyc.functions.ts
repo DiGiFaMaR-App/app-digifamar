@@ -7,17 +7,12 @@
  * changes into in-app notifications for the farmer.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { computeVerification, rollUpVerification } from "@/lib/kyc/status";
+import type { KycDocLike, VerificationStatus } from "@/lib/kyc/status";
 
 export type KycDecision = "approved" | "rejected";
-export type VerificationStatus = "pending" | "under_review" | "approved" | "rejected";
-
-/** Overall verification derived from the farmer's document set. */
-export function rollUpVerification(statuses: string[]): VerificationStatus {
-  if (statuses.length === 0) return "pending";
-  if (statuses.includes("rejected")) return "rejected";
-  if (statuses.every((s) => s === "approved")) return "approved";
-  return "under_review";
-}
+export type { VerificationStatus };
+export { rollUpVerification };
 
 export async function reviewKycDocument(input: {
   docId: string;
@@ -38,14 +33,14 @@ export async function reviewKycDocument(input: {
     .eq("id", input.docId);
   if (error) throw new Error(error.message);
 
-  // Recompute the farmer's overall verification from every document.
+  // Recompute the farmer's overall verification from their effective documents.
   const { data: docs, error: readError } = await supabase
     .from("farmer_kyc_documents")
-    .select("status")
+    .select("doc_type, status, created_at")
     .eq("user_id", input.userId);
   if (readError) throw new Error(readError.message);
 
-  const verification = rollUpVerification((docs ?? []).map((d) => d.status));
+  const verification = computeVerification((docs ?? []) as KycDocLike[]);
 
   const patch: { verification_status: string; rejection_reason: string | null } = {
     verification_status: verification,
