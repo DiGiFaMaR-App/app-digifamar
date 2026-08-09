@@ -7,6 +7,8 @@ import {
 } from "@/hooks/use-google-maps";
 import { MapErrorFallback } from "@/components/MapErrorFallback";
 import { OsmMap } from "@/components/OsmMap";
+import { MapProviderToggle } from "@/components/MapProviderToggle";
+import { useMapProvider } from "@/hooks/use-map-provider";
 
 
 interface BrowseMapProps {
@@ -20,6 +22,7 @@ export function BrowseMap({ origin }: BrowseMapProps) {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const authFailed = useMapsAuthFailure();
+  const { provider, setProvider } = useMapProvider();
 
   const initMap = () => {
     setError(null);
@@ -47,17 +50,22 @@ export function BrowseMap({ origin }: BrowseMapProps) {
     };
   };
 
-  // One-time init: load the map centered on a default US view.
+  // Init (or re-init) the Google map whenever Google is the selected provider.
   useEffect(() => {
+    if (provider !== "google") {
+      mapRef.current = null;
+      markerRef.current = null;
+      return;
+    }
     const cleanup = initMap();
     return cleanup;
-  }, []);
+  }, [provider]);
 
   // Pan + marker update when origin changes.
   useEffect(() => {
     const g = window.google;
     const map = mapRef.current;
-    if (!ready || !g?.maps || !map || !origin) return;
+    if (provider !== "google" || !ready || !g?.maps || !map || !origin) return;
 
     const pos = { lat: origin.lat, lng: origin.lng };
     map.setCenter(pos);
@@ -74,11 +82,33 @@ export function BrowseMap({ origin }: BrowseMapProps) {
       markerRef.current.setPosition(pos);
       markerRef.current.setTitle(origin.formatted ?? "Selected location");
     }
-  }, [origin, ready]);
+  }, [origin, ready, provider]);
 
-  if (error || authFailed) {
+  const googleUnavailable = Boolean(error) || authFailed;
+
+  // Explicit OpenStreetMap choice.
+  if (provider === "osm") {
     return (
       <div className="space-y-2">
+        <MapProviderToggle value={provider} onChange={setProvider} />
+        {origin ? (
+          <OsmMap
+            points={[{ lat: origin.lat, lng: origin.lng, label: origin.formatted ?? undefined }]}
+            ariaLabel="Browse location map (OpenStreetMap)"
+          />
+        ) : (
+          <div className="flex h-64 w-full items-center justify-center rounded-xl border border-dashed border-border bg-card/50 p-6 text-center text-sm text-muted-foreground">
+            Search an address or share your location to see it on the map.
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (googleUnavailable) {
+    return (
+      <div className="space-y-2">
+        <MapProviderToggle value={provider} onChange={setProvider} fallbackActive />
         {origin && (
           <OsmMap
             points={[{ lat: origin.lat, lng: origin.lng, label: origin.formatted ?? undefined }]}
@@ -110,11 +140,14 @@ export function BrowseMap({ origin }: BrowseMapProps) {
 
 
   return (
-    <div
-      ref={containerRef}
-      className="h-64 w-full rounded-xl overflow-hidden border border-border bg-muted"
-      role="img"
-      aria-label="Browse location map"
-    />
+    <div className="space-y-2">
+      <MapProviderToggle value={provider} onChange={setProvider} />
+      <div
+        ref={containerRef}
+        className="h-64 w-full rounded-xl overflow-hidden border border-border bg-muted"
+        role="img"
+        aria-label="Browse location map"
+      />
+    </div>
   );
 }
