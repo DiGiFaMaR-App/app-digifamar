@@ -1,5 +1,6 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   loadGoogleMaps,
   invalidateGoogleMapsLoader,
@@ -10,6 +11,7 @@ import { OsmMap } from "@/components/OsmMap";
 import { MapProviderToggle } from "@/components/MapProviderToggle";
 import { FarmDetailDrawer, type MapFarm } from "@/components/FarmDetailDrawer";
 import { useMapProvider } from "@/hooks/use-map-provider";
+import { farmDetailQueryOptions } from "@/lib/farm-detail";
 import {
   trackFirstMarkerRender,
   trackMapDeepLinkOpened,
