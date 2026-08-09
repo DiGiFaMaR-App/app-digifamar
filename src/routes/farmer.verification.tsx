@@ -243,8 +243,16 @@ function VerificationPage() {
               </button>
             ))}
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Required: pick a document type, then choose a PDF, JPG, PNG, WEBP or HEIC file under
+            10MB.
+          </p>
 
-          <label className="mt-4 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 px-4 py-6 text-sm font-medium hover:bg-accent">
+          <label
+            className={`mt-4 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/20 px-4 py-6 text-sm font-medium hover:bg-accent ${
+              uploadError ? "border-destructive" : "border-border"
+            }`}
+          >
             {uploading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -255,12 +263,26 @@ function VerificationPage() {
               type="file"
               ref={uploadRef}
               className="sr-only"
-              accept="image/*,application/pdf"
+              accept={ACCEPT}
               disabled={uploading}
+              aria-invalid={uploadError ? true : undefined}
+              aria-describedby={uploadError ? "kyc-upload-error" : undefined}
               onChange={(e) => void onFile(e.target.files?.[0])}
             />
           </label>
+
+          {uploadError && (
+            <p
+              id="kyc-upload-error"
+              role="alert"
+              className="mt-2 flex items-start gap-2 text-sm text-destructive"
+            >
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {uploadError}
+            </p>
+          )}
         </div>
+
 
         <div className="mt-6">
           <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
