@@ -84,7 +84,8 @@ function Browse() {
   const { farm: farmParam } = Route.useSearch();
   const navigate = Route.useNavigate();
   const selectFarm = (farmId: string | null) =>
-    navigate({ search: (prev) => ({ ...prev, farm: farmId ?? undefined }), replace: true });
+    navigate({ search: { farm: farmId ?? undefined }, replace: true });
+
 
 
   const [input, setInput] = useState("");
