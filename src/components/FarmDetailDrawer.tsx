@@ -53,7 +53,8 @@ export function FarmDetailDrawer({
     : (detail?.certifications ?? []);
   const city = farm?.city ?? detail?.city ?? null;
   const state = farm?.state ?? detail?.state ?? null;
-  const verified = (farm?.verification_status ?? detail?.verification_status) === "verified";
+  const status = farm?.verification_status ?? detail?.verification_status;
+  const verified = status === "verified" || status === "approved";
 
   const shareLink = async () => {
     if (!farm || typeof window === "undefined") return;
