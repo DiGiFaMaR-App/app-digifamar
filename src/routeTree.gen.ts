@@ -53,6 +53,7 @@ import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
+import { Route as FarmerVerificationRouteImport } from './routes/farmer.verification'
 import { Route as LendersIndexRouteImport } from './routes/lenders/index'
 import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
 import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
@@ -299,6 +300,11 @@ const FarmIdRoute = FarmIdRouteImport.update({
   path: '/farm/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FarmerVerificationRoute = FarmerVerificationRouteImport.update({
+  id: '/farmer/verification',
+  path: '/farmer/verification',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LendersIndexRoute = LendersIndexRouteImport.update({
   id: '/lenders/',
   path: '/lenders/',
@@ -460,6 +466,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
@@ -529,6 +536,7 @@ export interface FileRoutesByTo {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
@@ -599,6 +607,7 @@ export interface FileRoutesById {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
@@ -670,6 +679,7 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/farmer/verification'
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/apply-institution'
@@ -739,6 +749,7 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/farmer/verification'
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/apply-institution'
@@ -808,6 +819,7 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/farmer/verification'
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/apply-institution'
@@ -878,6 +890,7 @@ export interface RootRouteChildren {
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
   FarmIdRoute: typeof FarmIdRoute
+  FarmerVerificationRoute: typeof FarmerVerificationRoute
   LendersAdminRoute: typeof LendersAdminRoute
   LendersApplyRoute: typeof LendersApplyRoute
   LendersApplyInstitutionRoute: typeof LendersApplyInstitutionRoute
@@ -1214,6 +1227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FarmIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/farmer/verification': {
+      id: '/farmer/verification'
+      path: '/farmer/verification'
+      fullPath: '/farmer/verification'
+      preLoaderRoute: typeof FarmerVerificationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lenders/': {
       id: '/lenders/'
       path: '/lenders'
@@ -1434,6 +1454,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
   FarmIdRoute: FarmIdRoute,
+  FarmerVerificationRoute: FarmerVerificationRoute,
   LendersAdminRoute: LendersAdminRoute,
   LendersApplyRoute: LendersApplyRoute,
   LendersApplyInstitutionRoute: LendersApplyInstitutionRoute,
