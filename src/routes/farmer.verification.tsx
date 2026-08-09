@@ -1,12 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { BadgeCheck, FileUp, Loader2, ShieldCheck, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { refreshVerificationAfterResubmit } from "@/lib/kyc/resubmit";
+import { latestPerType } from "@/lib/kyc/status";
 
 export const Route = createFileRoute("/farmer/verification")({
   head: () => ({
@@ -68,6 +70,7 @@ function VerificationPage() {
   const [docType, setDocType] = useState<string>("government_id");
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const uploadRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
@@ -120,7 +123,14 @@ function VerificationPage() {
         file_name: file.name.slice(0, 120),
       });
       if (error) throw new Error(error.message);
-      toast.success("Document uploaded — an admin will review it");
+
+      // A replacement supersedes an earlier rejection — move back into review.
+      const next = await refreshVerificationAfterResubmit(user.id);
+      toast.success(
+        next === "under_review"
+          ? "Document resubmitted — your farm is back under review"
+          : "Document uploaded — an admin will review it",
+      );
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -128,6 +138,7 @@ function VerificationPage() {
       setUploading(false);
     }
   };
+
 
   const removeDoc = async (doc: DocRow) => {
     try {
@@ -142,6 +153,14 @@ function VerificationPage() {
   };
 
   const verified = farmStatus === "approved" || farmStatus === "verified";
+  const effective = latestPerType(docs);
+  const effectiveIds = new Set(effective.map((d) => d.id));
+  const rejectedDocs = effective.filter((d) => d.status === "rejected");
+
+  const startResubmit = (doc: DocRow) => {
+    setDocType(doc.doc_type);
+    uploadRef.current?.click();
+  };
 
   return (
     <SiteLayout>
@@ -168,7 +187,35 @@ function VerificationPage() {
             Reviews are done manually by our team. You'll get a notification the moment your status
             changes.
           </p>
+
+          {rejectedDocs.length > 0 && (
+            <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-4">
+              <p className="flex items-center gap-2 text-sm font-bold text-destructive">
+                <RefreshCw className="h-4 w-4" /> Resubmission needed
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Upload a replacement for each rejected document. As soon as you do, your farm goes
+                straight back under review.
+              </p>
+              <ul className="mt-3 space-y-2">
+                {rejectedDocs.map((d) => (
+                  <li key={d.id} className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm">
+                      {DOC_TYPES.find((t) => t.value === d.doc_type)?.label ?? d.doc_type}
+                      {d.review_notes && (
+                        <span className="block text-xs text-muted-foreground">{d.review_notes}</span>
+                      )}
+                    </span>
+                    <Button size="sm" disabled={uploading} onClick={() => startResubmit(d)}>
+                      Upload replacement
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
+
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <p className="text-sm font-bold">Upload a document</p>
@@ -199,6 +246,7 @@ function VerificationPage() {
             {uploading ? "Uploading…" : "Choose a file (PDF or image, max 10MB)"}
             <input
               type="file"
+              ref={uploadRef}
               className="sr-only"
               accept="image/*,application/pdf"
               disabled={uploading}
@@ -240,6 +288,20 @@ function VerificationPage() {
                   >
                     {d.status}
                   </span>
+                  {!effectiveIds.has(d.id) && (
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
+                      Superseded
+                    </span>
+                  )}
+                  {effectiveIds.has(d.id) && d.status === "rejected" && (
+                    <button
+                      type="button"
+                      onClick={() => startResubmit(d)}
+                      className="rounded-md px-2 py-1 text-xs font-semibold text-primary hover:bg-accent"
+                    >
+                      Replace
+                    </button>
+                  )}
                   {d.status === "pending" && (
                     <button
                       type="button"
