@@ -416,6 +416,14 @@ function OrderDetailPage() {
           )}
         </div>
 
+        <div className="mt-6">
+          <OrderTimeline
+            orderId={order.id}
+            canUpdate={role === "farmer"}
+            placedAt={order.created_at}
+          />
+        </div>
+
         <DisputePanel
           orderId={order.id}
           role={role}
