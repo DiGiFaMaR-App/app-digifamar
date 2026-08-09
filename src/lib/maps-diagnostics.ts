@@ -3,6 +3,7 @@
  * both to the browser console and to the server (structured log).
  */
 import { logMapsFailureFn } from "@/lib/maps-log.functions";
+import { trackMapsFailure } from "@/lib/analytics/maps";
 
 export type MapsDiagnosis = {
   code:
@@ -78,6 +79,13 @@ export function reportMapsFailure(
       error,
     );
   }
+
+  trackMapsFailure({
+    surface: opts.surface,
+    code: diagnosis.code,
+    message: diagnosis.message,
+    hostname,
+  });
 
   void logMapsFailureFn({
     data: {

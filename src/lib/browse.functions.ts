@@ -30,6 +30,9 @@ export type BrowseFarm = {
   certifications: string[];
   verification_status: string;
   distance_mi: number | null;
+  /** Approximate public coordinates (may be null when a farm has no location). */
+  lat: number | null;
+  lng: number | null;
 };
 
 export type BrowseListing = {
@@ -98,16 +101,13 @@ export const searchBrowse = async ({ data }: { data: unknown }): Promise<BrowseR
     .range(farmsRangeStart, farmsRangeEnd);
   if (farmErr) throw new Error(farmErr.message);
 
-  type FarmRow = BrowseFarm & { lat: number | null; lng: number | null };
+  type FarmRow = BrowseFarm;
   let farms: BrowseFarm[] = ((farmRows ?? []) as FarmRow[]).map((r) => {
     const distance_mi =
       hasOrigin && r.lat != null && r.lng != null
         ? haversineMiles(input.originLat!, input.originLng!, r.lat, r.lng)
         : null;
-    const { lat: _lat, lng: _lng, ...rest } = r;
-    void _lat;
-    void _lng;
-    return { ...rest, certifications: rest.certifications ?? [], distance_mi };
+    return { ...r, certifications: r.certifications ?? [], distance_mi };
   });
   let totalFarms = farmCount ?? farms.length;
   if (hasOrigin) {
