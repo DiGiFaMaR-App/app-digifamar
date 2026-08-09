@@ -59,7 +59,98 @@ const spendSeries = [
   { month: "Aug", spend: 246 },
 ];
 
-const favFarms = [farms[0], farms[2], farms[4]];
+type BuyerOrderRow = { id: string; status: string; total_cents: number; created_at: string };
+
+/** Real, escrow-backed orders for the signed-in buyer, with their delivery timeline. */
+function LiveOrdersSection() {
+  const { data, isLoading } = useQuery({
+    queryKey: ["buyer-live-orders"],
+    queryFn: async () => {
+      const { data: rows, error } = await supabase
+        .from("orders")
+        .select("id, status, total_cents, created_at")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (error) throw new Error(error.message);
+      return (rows ?? []) as BuyerOrderRow[];
+    },
+    retry: false,
+  });
+
+  if (isLoading || !data || data.length === 0) return null;
+
+  return (
+    <Section title="Order tracking">
+      {data.map((o) => (
+        <div key={o.id} className="rounded-xl border border-border bg-card p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">Order #{o.id.slice(-8)}</p>
+              <p className="text-[11px] text-muted-foreground">
+                {new Date(o.created_at).toLocaleDateString()} · $
+                {(o.total_cents / 100).toFixed(2)}
+              </p>
+            </div>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/orders/$id" params={{ id: o.id }}>
+                Details
+              </Link>
+            </Button>
+          </div>
+          <div className="mt-3">
+            <OrderTimeline orderId={o.id} compact placedAt={o.created_at} />
+          </div>
+        </div>
+      ))}
+    </Section>
+  );
+}
+
+/** Farms the buyer hearted, read from `saved_farms`. */
+function SavedFarmsGrid() {
+  const { data, isLoading } = useQuery(savedFarmsQueryOptions());
+
+  if (isLoading) return <p className="text-sm text-muted-foreground">Loading saved farms…</p>;
+  if (!data || data.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">
+        <Heart className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">
+          No saved farms yet — tap the heart on any farm to keep it here.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-3">
+        {data.slice(0, 6).map((f) => (
+          <div
+            key={f.farm_id}
+            className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
+          >
+            <Link
+              to="/farm/$id"
+              params={{ id: f.farm_id }}
+              className="min-w-0 flex-1"
+            >
+              <p className="line-clamp-1 text-sm font-semibold">{f.farm_name}</p>
+              <p className="text-[11px] text-muted-foreground">
+                {[f.city, f.state].filter(Boolean).join(", ") || "Farm"}
+              </p>
+            </Link>
+            <SaveFarmButton farmId={f.farm_id} farmName={f.farm_name} className="px-2" />
+          </div>
+        ))}
+      </div>
+      <Button asChild variant="outline" size="sm">
+        <Link to="/saved">View all saved farms</Link>
+      </Button>
+    </div>
+  );
+}
+
 
 function BuyerDashboard() {
   const totalSpend = spendSeries.reduce((s, x) => s + x.spend, 0);
