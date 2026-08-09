@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { SaveFarmButton } from "@/components/SaveFarmButton";
 import { farmDetailQueryOptions } from "@/lib/farm-detail";
 
 export type MapFarm = {
