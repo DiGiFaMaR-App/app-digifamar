@@ -21,7 +21,7 @@ export async function refreshVerificationAfterResubmit(
 
   const patch: { verification_status: string; rejection_reason: string | null } = {
     verification_status: verification,
-    rejection_reason: verification === "rejected" ? undefined ?? null : null,
+    rejection_reason: null,
   };
   const fp = supabase.from("farmer_profiles") as unknown as {
     update: (p: typeof patch) => {
