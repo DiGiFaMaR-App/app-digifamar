@@ -46,18 +46,29 @@ export function BrowseMap({
   const loadStartRef = useRef<number>(0);
   const firstMarkersLoggedRef = useRef(false);
   const deepLinkLoggedRef = useRef<string | null>(null);
+  const listItemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<MapFarm | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const authFailed = useMapsAuthFailure();
   const { provider, setProvider } = useMapProvider();
+  const queryClient = useQueryClient();
 
-  const openFarm = (farm: MapFarm, from: "google" | "osm") => {
+  const openFarm = (farm: MapFarm, from: "google" | "osm" | "list") => {
+    // Focus returns to the farm's list entry when the drawer closes, so a map
+    // marker click also lands the user somewhere keyboard-reachable.
+    returnFocusRef.current = listItemRefs.current[farm.user_id] ?? null;
     setSelected(farm);
     setDrawerOpen(true);
     onSelectFarm?.(farm.user_id);
-    trackMapMarkerClick({ surface: SURFACE, provider: from, farmId: farm.user_id });
+    void queryClient.prefetchQuery(farmDetailQueryOptions(farm.user_id));
+    trackMapMarkerClick({
+      surface: SURFACE,
+      provider: from === "list" ? provider : from,
+      farmId: farm.user_id,
+    });
   };
 
   const closeDrawer = () => {
@@ -65,6 +76,13 @@ export function BrowseMap({
     setSelected(null);
     onSelectFarm?.(null);
   };
+
+  // Deep link: prefetch the farm detail as soon as ?farm=<id> appears so the
+  // drawer renders from cache instead of waiting on a request.
+  useEffect(() => {
+    if (!selectedFarmId) return;
+    void queryClient.prefetchQuery(farmDetailQueryOptions(selectedFarmId));
+  }, [selectedFarmId, queryClient]);
 
   // Deep link: open the drawer for ?farm=<id> as soon as the farm is known.
   useEffect(() => {
@@ -76,6 +94,7 @@ export function BrowseMap({
     }
     const match = farms.find((f) => f.user_id === selectedFarmId) ?? null;
     if (match) {
+      returnFocusRef.current = listItemRefs.current[match.user_id] ?? null;
       setSelected(match);
       setDrawerOpen(true);
     }
