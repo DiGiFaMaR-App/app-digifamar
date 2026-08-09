@@ -10,12 +10,17 @@ import {
   Radio,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
+import { OrderTimeline } from "@/components/order/OrderTimeline";
+import { SaveFarmButton } from "@/components/SaveFarmButton";
+import { savedFarmsQueryOptions } from "@/lib/saved-farms";
+import { supabase } from "@/integrations/supabase/client";
 import { useReveal } from "@/hooks/use-reveal";
-import { products, farms, getFarm } from "@/lib/mock-data";
+import { products, getFarm } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/buyer")({
   head: () => ({ meta: [{ title: "My Orders — DiGiFaMaR" }] }),
