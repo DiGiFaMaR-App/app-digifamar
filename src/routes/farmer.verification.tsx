@@ -152,6 +152,14 @@ function VerificationPage() {
   };
 
   const verified = farmStatus === "approved" || farmStatus === "verified";
+  const effective = latestPerType(docs);
+  const effectiveIds = new Set(effective.map((d) => d.id));
+  const rejectedDocs = effective.filter((d) => d.status === "rejected");
+
+  const startResubmit = (doc: DocRow) => {
+    setDocType(doc.doc_type);
+    uploadRef.current?.click();
+  };
 
   return (
     <SiteLayout>
@@ -178,7 +186,35 @@ function VerificationPage() {
             Reviews are done manually by our team. You'll get a notification the moment your status
             changes.
           </p>
+
+          {rejectedDocs.length > 0 && (
+            <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 p-4">
+              <p className="flex items-center gap-2 text-sm font-bold text-destructive">
+                <RefreshCw className="h-4 w-4" /> Resubmission needed
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Upload a replacement for each rejected document. As soon as you do, your farm goes
+                straight back under review.
+              </p>
+              <ul className="mt-3 space-y-2">
+                {rejectedDocs.map((d) => (
+                  <li key={d.id} className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm">
+                      {DOC_TYPES.find((t) => t.value === d.doc_type)?.label ?? d.doc_type}
+                      {d.review_notes && (
+                        <span className="block text-xs text-muted-foreground">{d.review_notes}</span>
+                      )}
+                    </span>
+                    <Button size="sm" disabled={uploading} onClick={() => startResubmit(d)}>
+                      Upload replacement
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
+
 
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <p className="text-sm font-bold">Upload a document</p>
