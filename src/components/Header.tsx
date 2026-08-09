@@ -36,7 +36,7 @@ export function Header() {
 
         <div className="hidden items-center gap-2 md:flex">
           <Button variant="ghost" size="icon" asChild>
-            <Link to="/browse" aria-label="Search">
+            <Link to="/browse" search={{ farm: undefined }} aria-label="Search">
               <Search className="h-5 w-5" />
             </Link>
           </Button>

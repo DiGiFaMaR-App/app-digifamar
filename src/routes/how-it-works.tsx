@@ -62,7 +62,9 @@ function HowItWorks() {
 
         <div className="mt-10 flex gap-3">
           <Button asChild>
-            <Link to="/browse">Start shopping</Link>
+            <Link to="/browse" search={{ farm: undefined }}>
+              Start shopping
+            </Link>
           </Button>
           <Button asChild variant="outline">
             <Link to="/signup/farmer">Become a farmer</Link>

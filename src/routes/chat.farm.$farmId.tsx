@@ -664,7 +664,7 @@ function FarmChatPage() {
       <AppShell>
         <div className="p-10 text-center text-muted-foreground">
           Farm not found.{" "}
-          <Link to="/browse" className="text-primary underline">
+          <Link to="/browse" search={{ farm: undefined }} className="text-primary underline">
             Browse farms
           </Link>
         </div>
