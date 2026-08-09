@@ -329,6 +329,48 @@ export type Database = {
           },
         ]
       }
+      farmer_kyc_documents: {
+        Row: {
+          created_at: string
+          doc_type: string
+          file_name: string | null
+          id: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          doc_type: string
+          file_name?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          storage_path: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          doc_type?: string
+          file_name?: string | null
+          id?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       farmer_lender_recommendations: {
         Row: {
           avg_rating: number
@@ -818,6 +860,47 @@ export type Database = {
           },
         ]
       }
+      order_tracking: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string | null
+          order_id: string
+          status: string
+          tracking_number: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          status: string
+          tracking_number?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          status?: string
+          tracking_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_tracking_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           buyer_id: string
@@ -1016,6 +1099,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_farms: {
+        Row: {
+          created_at: string
+          farm_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          farm_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          farm_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

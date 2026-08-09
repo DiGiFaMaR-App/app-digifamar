@@ -15,6 +15,7 @@ import {
   releaseEscrowFn,
 } from "@/lib/escrow-v2/escrow.functions";
 import { DisputePanel } from "@/components/order/DisputePanel";
+import { OrderTimeline } from "@/components/order/OrderTimeline";
 
 export const Route = createFileRoute("/orders/$id")({
   head: () => ({
@@ -414,6 +415,14 @@ function OrderDetailPage() {
               Farmer ghosted — buyer refunded, penalty applied to escrow.
             </div>
           )}
+        </div>
+
+        <div className="mt-6">
+          <OrderTimeline
+            orderId={order.id}
+            canUpdate={role === "farmer"}
+            placedAt={order.created_at}
+          />
         </div>
 
         <DisputePanel

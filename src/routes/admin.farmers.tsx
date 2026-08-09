@@ -7,6 +7,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { listFarmerProfilesFn, setFarmerVerificationFn } from "@/lib/admin/admin.functions";
+import { KycDocList } from "@/components/admin/KycDocList";
 
 export const Route = createFileRoute("/admin/farmers")({
   head: () => ({ meta: [{ title: "Admin · Farmers" }, { name: "robots", content: "noindex" }] }),
@@ -25,6 +26,7 @@ const FILTERS: StatusFilter[] = ["pending", "under_review", "approved", "rejecte
 
 function Body() {
   const [filter, setFilter] = useState<StatusFilter>("pending");
+  const [expanded, setExpanded] = useState<string | null>(null);
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "farmers", filter],
     queryFn: () => listFarmerProfilesFn({ data: filter === "all" ? {} : { status: filter } }),
@@ -126,7 +128,19 @@ function Body() {
                           Reject
                         </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setExpanded(expanded === f.user_id ? null : f.user_id)}
+                      >
+                        {expanded === f.user_id ? "Hide docs" : "KYC docs"}
+                      </Button>
                     </div>
+                    {expanded === f.user_id && (
+                      <div className="mt-2 max-w-md">
+                        <KycDocList userId={f.user_id} />
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

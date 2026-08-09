@@ -10,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { SaveFarmButton } from "@/components/SaveFarmButton";
 import { farmDetailQueryOptions } from "@/lib/farm-detail";
 
 export type MapFarm = {
@@ -53,7 +54,8 @@ export function FarmDetailDrawer({
     : (detail?.certifications ?? []);
   const city = farm?.city ?? detail?.city ?? null;
   const state = farm?.state ?? detail?.state ?? null;
-  const verified = (farm?.verification_status ?? detail?.verification_status) === "verified";
+  const status = farm?.verification_status ?? detail?.verification_status;
+  const verified = status === "verified" || status === "approved";
 
   const shareLink = async () => {
     if (!farm || typeof window === "undefined") return;
@@ -130,19 +132,27 @@ export function FarmDetailDrawer({
                     View farm profile
                   </Link>
                 </Button>
+                <SaveFarmButton
+                  farmId={farm.user_id}
+                  farmName={farm.farm_name}
+                  withLabel
+                  className="w-full"
+                />
                 <Button variant="outline" onClick={shareLink} className="gap-1.5">
                   {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
                   {copied ? "Link copied" : "Copy share link"}
                 </Button>
-                <Button asChild variant="outline">
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${farm.lat},${farm.lng}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Get directions
-                  </a>
-                </Button>
+                {Boolean(farm.lat || farm.lng) && (
+                  <Button asChild variant="outline">
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${farm.lat},${farm.lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Get directions
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           </>

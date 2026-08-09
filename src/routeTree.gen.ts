@@ -30,6 +30,7 @@ import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -52,6 +53,7 @@ import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
+import { Route as FarmerVerificationRouteImport } from './routes/farmer.verification'
 import { Route as LendersIndexRouteImport } from './routes/lenders/index'
 import { Route as LendersAdminRouteImport } from './routes/lenders/admin'
 import { Route as LendersApplyRouteImport } from './routes/lenders/apply'
@@ -181,6 +183,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
   path: '/signin',
@@ -291,6 +298,11 @@ const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
 const FarmIdRoute = FarmIdRouteImport.update({
   id: '/farm/$id',
   path: '/farm/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FarmerVerificationRoute = FarmerVerificationRouteImport.update({
+  id: '/farmer/verification',
+  path: '/farmer/verification',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LendersIndexRoute = LendersIndexRouteImport.update({
@@ -433,6 +445,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/saved': typeof SavedRoute
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -453,6 +466,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
@@ -501,6 +515,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/saved': typeof SavedRoute
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -521,6 +536,7 @@ export interface FileRoutesByTo {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
@@ -570,6 +586,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/saved': typeof SavedRoute
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
@@ -590,6 +607,7 @@ export interface FileRoutesById {
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
   '/farm/$id': typeof FarmIdRoute
+  '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
   '/lenders/apply': typeof LendersApplyRoute
   '/lenders/apply-institution': typeof LendersApplyInstitutionRoute
@@ -640,6 +658,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/reset-password'
+    | '/saved'
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
@@ -660,6 +679,7 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/farmer/verification'
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/apply-institution'
@@ -708,6 +728,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/reset-password'
+    | '/saved'
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
@@ -728,6 +749,7 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/farmer/verification'
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/apply-institution'
@@ -776,6 +798,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/reset-password'
+    | '/saved'
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
@@ -796,6 +819,7 @@ export interface FileRouteTypes {
     | '/dashboard/buyer'
     | '/dashboard/farmer'
     | '/farm/$id'
+    | '/farmer/verification'
     | '/lenders/admin'
     | '/lenders/apply'
     | '/lenders/apply-institution'
@@ -845,6 +869,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SavedRoute: typeof SavedRoute
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
@@ -865,6 +890,7 @@ export interface RootRouteChildren {
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
   FarmIdRoute: typeof FarmIdRoute
+  FarmerVerificationRoute: typeof FarmerVerificationRoute
   LendersAdminRoute: typeof LendersAdminRoute
   LendersApplyRoute: typeof LendersApplyRoute
   LendersApplyInstitutionRoute: typeof LendersApplyInstitutionRoute
@@ -1040,6 +1066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signin': {
       id: '/signin'
       path: '/signin'
@@ -1192,6 +1225,13 @@ declare module '@tanstack/react-router' {
       path: '/farm/$id'
       fullPath: '/farm/$id'
       preLoaderRoute: typeof FarmIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/farmer/verification': {
+      id: '/farmer/verification'
+      path: '/farmer/verification'
+      fullPath: '/farmer/verification'
+      preLoaderRoute: typeof FarmerVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lenders/': {
@@ -1392,6 +1432,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SavedRoute: SavedRoute,
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
@@ -1413,6 +1454,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
   FarmIdRoute: FarmIdRoute,
+  FarmerVerificationRoute: FarmerVerificationRoute,
   LendersAdminRoute: LendersAdminRoute,
   LendersApplyRoute: LendersApplyRoute,
   LendersApplyInstitutionRoute: LendersApplyInstitutionRoute,
