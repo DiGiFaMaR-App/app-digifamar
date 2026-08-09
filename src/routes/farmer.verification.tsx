@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { BadgeCheck, FileUp, Loader2, ShieldCheck, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -70,6 +70,7 @@ function VerificationPage() {
   const [docType, setDocType] = useState<string>("government_id");
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const uploadRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
@@ -245,6 +246,7 @@ function VerificationPage() {
             {uploading ? "Uploading…" : "Choose a file (PDF or image, max 10MB)"}
             <input
               type="file"
+              ref={uploadRef}
               className="sr-only"
               accept="image/*,application/pdf"
               disabled={uploading}
