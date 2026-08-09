@@ -159,6 +159,17 @@ function VerificationPage() {
     }
   };
 
+  const downloadDoc = async (doc: DocRow) => {
+    const { data: signed, error } = await supabase.storage
+      .from("kyc-documents")
+      .createSignedUrl(doc.storage_path, 300);
+    if (error || !signed?.signedUrl) {
+      toast.error(error?.message ?? "Could not open document");
+      return;
+    }
+    window.open(signed.signedUrl, "_blank", "noopener");
+  };
+
   const verified = farmStatus === "approved" || farmStatus === "verified";
   const effective = latestPerType(docs);
   const effectiveIds = new Set(effective.map((d) => d.id));
