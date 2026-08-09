@@ -268,7 +268,7 @@ function NearMe() {
                         {dist.toFixed(1)} mi
                       </span>
                     )}
-                  </Link>
+                  </button>
                 </li>
               );
             })}
