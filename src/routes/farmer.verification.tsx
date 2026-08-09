@@ -288,6 +288,20 @@ function VerificationPage() {
                   >
                     {d.status}
                   </span>
+                  {!effectiveIds.has(d.id) && (
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
+                      Superseded
+                    </span>
+                  )}
+                  {effectiveIds.has(d.id) && d.status === "rejected" && (
+                    <button
+                      type="button"
+                      onClick={() => startResubmit(d)}
+                      className="rounded-md px-2 py-1 text-xs font-semibold text-primary hover:bg-accent"
+                    >
+                      Replace
+                    </button>
+                  )}
                   {d.status === "pending" && (
                     <button
                       type="button"
