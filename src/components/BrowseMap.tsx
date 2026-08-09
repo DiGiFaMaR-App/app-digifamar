@@ -366,9 +366,10 @@ export function BrowseMap({
       />
       {farms.length > 0 && (
         <p className="text-[11px] text-muted-foreground">
-          Tap a green pin to see farm details.
+          Tap a green pin — or use the farm buttons below — to see farm details.
         </p>
       )}
+      {farmList}
       {drawer}
     </div>
   );
