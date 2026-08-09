@@ -7,6 +7,8 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { refreshVerificationAfterResubmit } from "@/lib/kyc/resubmit";
+import { latestPerType } from "@/lib/kyc/status";
 
 export const Route = createFileRoute("/farmer/verification")({
   head: () => ({
