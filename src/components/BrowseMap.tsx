@@ -1,5 +1,6 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   loadGoogleMaps,
   invalidateGoogleMapsLoader,
@@ -10,6 +11,7 @@ import { OsmMap } from "@/components/OsmMap";
 import { MapProviderToggle } from "@/components/MapProviderToggle";
 import { FarmDetailDrawer, type MapFarm } from "@/components/FarmDetailDrawer";
 import { useMapProvider } from "@/hooks/use-map-provider";
+import { farmDetailQueryOptions } from "@/lib/farm-detail";
 import {
   trackFirstMarkerRender,
   trackMapDeepLinkOpened,
@@ -44,18 +46,29 @@ export function BrowseMap({
   const loadStartRef = useRef<number>(0);
   const firstMarkersLoggedRef = useRef(false);
   const deepLinkLoggedRef = useRef<string | null>(null);
+  const listItemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<MapFarm | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const authFailed = useMapsAuthFailure();
   const { provider, setProvider } = useMapProvider();
+  const queryClient = useQueryClient();
 
-  const openFarm = (farm: MapFarm, from: "google" | "osm") => {
+  const openFarm = (farm: MapFarm, from: "google" | "osm" | "list") => {
+    // Focus returns to the farm's list entry when the drawer closes, so a map
+    // marker click also lands the user somewhere keyboard-reachable.
+    returnFocusRef.current = listItemRefs.current[farm.user_id] ?? null;
     setSelected(farm);
     setDrawerOpen(true);
     onSelectFarm?.(farm.user_id);
-    trackMapMarkerClick({ surface: SURFACE, provider: from, farmId: farm.user_id });
+    void queryClient.prefetchQuery(farmDetailQueryOptions(farm.user_id));
+    trackMapMarkerClick({
+      surface: SURFACE,
+      provider: from === "list" ? provider : from,
+      farmId: farm.user_id,
+    });
   };
 
   const closeDrawer = () => {
@@ -63,6 +76,13 @@ export function BrowseMap({
     setSelected(null);
     onSelectFarm?.(null);
   };
+
+  // Deep link: prefetch the farm detail as soon as ?farm=<id> appears so the
+  // drawer renders from cache instead of waiting on a request.
+  useEffect(() => {
+    if (!selectedFarmId) return;
+    void queryClient.prefetchQuery(farmDetailQueryOptions(selectedFarmId));
+  }, [selectedFarmId, queryClient]);
 
   // Deep link: open the drawer for ?farm=<id> as soon as the farm is known.
   useEffect(() => {
@@ -74,6 +94,7 @@ export function BrowseMap({
     }
     const match = farms.find((f) => f.user_id === selectedFarmId) ?? null;
     if (match) {
+      returnFocusRef.current = listItemRefs.current[match.user_id] ?? null;
       setSelected(match);
       setDrawerOpen(true);
     }
@@ -244,6 +265,7 @@ export function BrowseMap({
     <FarmDetailDrawer
       farm={selected}
       open={drawerOpen}
+      returnFocusRef={returnFocusRef}
       onOpenChange={(o) => {
         if (o) setDrawerOpen(true);
         else closeDrawer();
@@ -251,25 +273,36 @@ export function BrowseMap({
     />
   );
 
-  // Marker clicks aren't possible inside the OSM embed, so expose the same
-  // farms as a clickable list that opens the identical detail drawer.
-  const osmFarmList = farms.length > 0 && (
-    <div className="flex flex-wrap gap-1.5">
-      {farms.map((f) => (
-        <button
-          key={f.user_id}
-          type="button"
-          onClick={() => openFarm(f, "osm")}
-          className="rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium transition hover:border-primary/60 hover:text-primary"
-        >
-          {f.farm_name}
-          {f.distance_mi != null && (
-            <span className="ml-1 text-muted-foreground">{f.distance_mi.toFixed(1)} mi</span>
-          )}
-        </button>
-      ))}
-    </div>
+  // Keyboard-accessible equivalent of the map pins: every marker is also a
+  // real button here, so the map canvas is never the only way to pick a farm.
+  const farmList = farms.length > 0 && (
+    <nav aria-label="Farm markers on the map">
+      <ul className="flex flex-wrap gap-1.5">
+        {farms.map((f) => (
+          <li key={f.user_id}>
+            <button
+              type="button"
+              ref={(el) => {
+                listItemRefs.current[f.user_id] = el;
+              }}
+              onClick={() => openFarm(f, "list")}
+              onMouseEnter={() => void queryClient.prefetchQuery(farmDetailQueryOptions(f.user_id))}
+              onFocus={() => void queryClient.prefetchQuery(farmDetailQueryOptions(f.user_id))}
+              aria-haspopup="dialog"
+              aria-expanded={drawerOpen && selected?.user_id === f.user_id}
+              className="inline-flex min-h-11 items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium transition hover:border-primary/60 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              {f.farm_name}
+              {f.distance_mi != null && (
+                <span className="ml-1 text-muted-foreground">{f.distance_mi.toFixed(1)} mi</span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
+
 
   const osmPoints = [
     ...(origin ? [{ lat: origin.lat, lng: origin.lng, label: origin.formatted ?? undefined }] : []),
@@ -288,7 +321,7 @@ export function BrowseMap({
             Search an address or share your location to see it on the map.
           </div>
         )}
-        {osmFarmList}
+        {farmList}
         {drawer}
       </div>
     );
@@ -301,7 +334,7 @@ export function BrowseMap({
         {osmPoints.length > 0 && (
           <OsmMap points={osmPoints} ariaLabel="Browse location map (OpenStreetMap)" />
         )}
-        {osmFarmList}
+        {farmList}
         <MapErrorFallback
           title={origin ? "Showing a backup map" : "Map view is unavailable right now"}
           description={
@@ -333,9 +366,10 @@ export function BrowseMap({
       />
       {farms.length > 0 && (
         <p className="text-[11px] text-muted-foreground">
-          Tap a green pin to see farm details.
+          Tap a green pin — or use the farm buttons below — to see farm details.
         </p>
       )}
+      {farmList}
       {drawer}
     </div>
   );

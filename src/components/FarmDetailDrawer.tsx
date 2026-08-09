@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, Check, Link2, MapPin, Navigation } from "lucide-react";
 import {
   Sheet,
@@ -9,6 +10,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { farmDetailQueryOptions } from "@/lib/farm-detail";
 
 export type MapFarm = {
   user_id: string;
@@ -27,10 +29,31 @@ interface FarmDetailDrawerProps {
   farm: MapFarm | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Element that opened the drawer — focus returns here on close. */
+  returnFocusRef?: React.RefObject<HTMLElement | null>;
 }
 
-export function FarmDetailDrawer({ farm, open, onOpenChange }: FarmDetailDrawerProps) {
+export function FarmDetailDrawer({
+  farm,
+  open,
+  onOpenChange,
+  returnFocusRef,
+}: FarmDetailDrawerProps) {
   const [copied, setCopied] = useState(false);
+
+  // Served from cache when the map prefetched this farm from ?farm=<id>.
+  const { data: detail } = useQuery({
+    ...farmDetailQueryOptions(farm?.user_id ?? ""),
+    enabled: Boolean(farm?.user_id) && open,
+  });
+
+  const description = farm?.description ?? detail?.description ?? null;
+  const certifications = farm?.certifications?.length
+    ? farm.certifications
+    : (detail?.certifications ?? []);
+  const city = farm?.city ?? detail?.city ?? null;
+  const state = farm?.state ?? detail?.state ?? null;
+  const verified = (farm?.verification_status ?? detail?.verification_status) === "verified";
 
   const shareLink = async () => {
     if (!farm || typeof window === "undefined") return;
@@ -49,21 +72,31 @@ export function FarmDetailDrawer({ farm, open, onOpenChange }: FarmDetailDrawerP
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-md"
+        onCloseAutoFocus={(event) => {
+          const target = returnFocusRef?.current;
+          if (target) {
+            event.preventDefault();
+            target.focus();
+          }
+        }}
+      >
         {farm && (
           <>
             <SheetHeader>
               <SheetTitle className="flex items-center gap-1.5">
                 <span className="truncate">{farm.farm_name}</span>
-                {farm.verification_status === "verified" && (
+                {verified && (
                   <BadgeCheck className="h-4 w-4 shrink-0 text-primary" aria-label="Verified" />
                 )}
               </SheetTitle>
               <SheetDescription className="flex flex-wrap items-center gap-2">
-                {(farm.city || farm.state) && (
+                {(city || state) && (
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
-                    {[farm.city, farm.state].filter(Boolean).join(", ")}
+                    {[city, state].filter(Boolean).join(", ")}
                   </span>
                 )}
                 {farm.distance_mi != null && (
@@ -76,13 +109,11 @@ export function FarmDetailDrawer({ farm, open, onOpenChange }: FarmDetailDrawerP
             </SheetHeader>
 
             <div className="mt-4 space-y-4">
-              {farm.description && (
-                <p className="text-sm text-muted-foreground">{farm.description}</p>
-              )}
+              {description && <p className="text-sm text-muted-foreground">{description}</p>}
 
-              {farm.certifications && farm.certifications.length > 0 && (
+              {certifications.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {farm.certifications.map((c) => (
+                  {certifications.map((c) => (
                     <span
                       key={c}
                       className="rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
