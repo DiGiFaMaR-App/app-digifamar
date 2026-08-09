@@ -157,27 +157,12 @@ function BuyerDashboard() {
             ))}
           </Section>
 
-          <Section title="Favorite farms">
-            <div className="grid gap-3 sm:grid-cols-3">
-              {favFarms.map((f) => (
-                <Link
-                  key={f.id}
-                  to="/farm/$id"
-                  params={{ id: f.id }}
-                  className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-3"
-                >
-                  <img src={f.image} alt="" className="h-12 w-12 rounded-lg object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-1 text-sm font-semibold">{f.name}</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      ★ {f.rating} · {f.location}
-                    </p>
-                  </div>
-                  <Heart className="h-4 w-4 fill-primary text-primary" />
-                </Link>
-              ))}
-            </div>
+          <LiveOrdersSection />
+
+          <Section title="Saved farms">
+            <SavedFarmsGrid />
           </Section>
+
 
           <Section title="Past purchases">
             {history.map((o) => (
