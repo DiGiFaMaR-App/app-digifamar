@@ -321,6 +321,15 @@ function VerificationPage() {
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void downloadDoc(d)}
+                    aria-label="Open submitted document"
+                    className="rounded-md p-2 text-muted-foreground hover:bg-accent"
+                    title="Open document"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
                   <span
                     className={`rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ${
                       STATUS_STYLES[d.status] ?? STATUS_STYLES['pending']
