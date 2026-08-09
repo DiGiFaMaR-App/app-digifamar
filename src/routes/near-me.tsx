@@ -13,6 +13,9 @@ import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
 const RADIUS_OPTIONS = [10, 25, 50, 100] as const;
 
 export const Route = createFileRoute("/near-me")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    farm: typeof search.farm === "string" && search.farm ? search.farm : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Find farms near me | DiGiFaMaR" },
@@ -51,6 +54,10 @@ export const Route = createFileRoute("/near-me")({
 
 function NearMe() {
   const geo = useGeolocation();
+  const { farm: farmParam } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const selectFarm = (farmId: string | null) =>
+    navigate({ search: { farm: farmId ?? undefined }, replace: true });
   const [radius, setRadius] = useState<(typeof RADIUS_OPTIONS)[number]>(25);
 
   const hasCoords = geo.lat != null && geo.lng != null;
@@ -226,10 +233,10 @@ function NearMe() {
                   key={f.user_id}
                   className="group rounded-xl border border-border bg-card p-4 transition hover:border-primary/60 hover:shadow-md"
                 >
-                  <Link
-                    to="/farm/$id"
-                    params={{ id: f.user_id }}
-                    className="flex items-start justify-between gap-3"
+                  <button
+                    type="button"
+                    onClick={() => selectFarm(f.user_id)}
+                    className="flex w-full items-start justify-between gap-3 text-left"
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
@@ -269,7 +276,12 @@ function NearMe() {
         </div>
 
         <div className="order-1 lg:order-2 lg:sticky lg:top-20 lg:h-fit">
-          <BrowseMap origin={origin} farms={mapFarms} />
+          <BrowseMap
+            origin={origin}
+            farms={mapFarms}
+            selectedFarmId={farmParam ?? null}
+            onSelectFarm={selectFarm}
+          />
           {origin && (
             <p className="mt-2 text-xs text-muted-foreground">
               Centered on {origin.formatted} · {radius}-mile radius
