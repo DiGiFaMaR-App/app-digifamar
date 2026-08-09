@@ -15,6 +15,7 @@ import {
   releaseEscrowFn,
 } from "@/lib/escrow-v2/escrow.functions";
 import { DisputePanel } from "@/components/order/DisputePanel";
+import { OrderTimeline } from "@/components/order/OrderTimeline";
 
 export const Route = createFileRoute("/orders/$id")({
   head: () => ({
