@@ -265,6 +265,7 @@ export function BrowseMap({
     <FarmDetailDrawer
       farm={selected}
       open={drawerOpen}
+      returnFocusRef={returnFocusRef}
       onOpenChange={(o) => {
         if (o) setDrawerOpen(true);
         else closeDrawer();
@@ -272,25 +273,36 @@ export function BrowseMap({
     />
   );
 
-  // Marker clicks aren't possible inside the OSM embed, so expose the same
-  // farms as a clickable list that opens the identical detail drawer.
-  const osmFarmList = farms.length > 0 && (
-    <div className="flex flex-wrap gap-1.5">
-      {farms.map((f) => (
-        <button
-          key={f.user_id}
-          type="button"
-          onClick={() => openFarm(f, "osm")}
-          className="rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium transition hover:border-primary/60 hover:text-primary"
-        >
-          {f.farm_name}
-          {f.distance_mi != null && (
-            <span className="ml-1 text-muted-foreground">{f.distance_mi.toFixed(1)} mi</span>
-          )}
-        </button>
-      ))}
-    </div>
+  // Keyboard-accessible equivalent of the map pins: every marker is also a
+  // real button here, so the map canvas is never the only way to pick a farm.
+  const farmList = farms.length > 0 && (
+    <nav aria-label="Farm markers on the map">
+      <ul className="flex flex-wrap gap-1.5">
+        {farms.map((f) => (
+          <li key={f.user_id}>
+            <button
+              type="button"
+              ref={(el) => {
+                listItemRefs.current[f.user_id] = el;
+              }}
+              onClick={() => openFarm(f, "list")}
+              onMouseEnter={() => void queryClient.prefetchQuery(farmDetailQueryOptions(f.user_id))}
+              onFocus={() => void queryClient.prefetchQuery(farmDetailQueryOptions(f.user_id))}
+              aria-haspopup="dialog"
+              aria-expanded={drawerOpen && selected?.user_id === f.user_id}
+              className="inline-flex min-h-11 items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium transition hover:border-primary/60 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              {f.farm_name}
+              {f.distance_mi != null && (
+                <span className="ml-1 text-muted-foreground">{f.distance_mi.toFixed(1)} mi</span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
+
 
   const osmPoints = [
     ...(origin ? [{ lat: origin.lat, lng: origin.lng, label: origin.formatted ?? undefined }] : []),
