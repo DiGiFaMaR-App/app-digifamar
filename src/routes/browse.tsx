@@ -29,6 +29,9 @@ import { getPlaceDetails, type PlaceDetails } from "@/lib/places.functions";
 import { usePlacesAutocomplete } from "@/hooks/use-google-maps";
 
 export const Route = createFileRoute("/browse")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    farm: typeof search.farm === "string" && search.farm ? search.farm : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Browse verified farms & fresh produce near you | DiGiFaMaR" },
@@ -78,6 +81,12 @@ function useDebounced<T>(value: T, delay: number): T {
 
 function Browse() {
   const fetchPlaceDetails = getPlaceDetails;
+  const { farm: farmParam } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const selectFarm = (farmId: string | null) =>
+    navigate({ search: { farm: farmId ?? undefined }, replace: true });
+
+
 
   const [input, setInput] = useState("");
   const [page, setPage] = useState(1);
@@ -503,6 +512,8 @@ function Browse() {
               farms={(data?.farms ?? [])
                 .filter((f) => f.lat != null && f.lng != null)
                 .map((f) => ({ ...f, lat: f.lat as number, lng: f.lng as number }))}
+              selectedFarmId={farmParam ?? null}
+              onSelectFarm={selectFarm}
             />
           </section>
         )}
