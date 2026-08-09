@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { FileText, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { reviewKycDocument, type KycDecision } from "@/lib/admin/kyc.functions";
 
 type KycDoc = {
   id: string;
@@ -15,9 +17,19 @@ type KycDoc = {
   created_at: string;
 };
 
+const VERIFICATION_COPY: Record<string, string> = {
+  approved: "Farmer is now verified — the verified badge shows on their farm profile.",
+  rejected: "Farmer marked as rejected — they were notified with your reason.",
+  under_review: "Farmer is under review — remaining documents still need a decision.",
+  pending: "Farmer is back to pending.",
+};
+
 /** Admin-only list of a farmer's KYC documents with signed preview links. */
 export function KycDocList({ userId }: { userId: string }) {
   const [busy, setBusy] = useState<string | null>(null);
+  const [rejecting, setRejecting] = useState<string | null>(null);
+  const [reason, setReason] = useState("");
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["admin", "kyc-docs", userId],
     queryFn: async () => {
@@ -42,26 +54,20 @@ export function KycDocList({ userId }: { userId: string }) {
     window.open(signed.signedUrl, "_blank", "noopener");
   };
 
-  const review = async (doc: KycDoc, status: "approved" | "rejected") => {
+  const review = async (doc: KycDoc, decision: KycDecision, notes?: string) => {
     setBusy(doc.id);
     try {
-      let notes: string | null = null;
-      if (status === "rejected") {
-        notes = window.prompt("Why is this document rejected? (shown to the farmer)") ?? null;
-        if (notes === null) return;
-      }
-      const { data: auth } = await supabase.auth.getUser();
-      const { error } = await supabase
-        .from("farmer_kyc_documents")
-        .update({
-          status,
-          review_notes: notes,
-          reviewed_by: auth.user?.id ?? null,
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq("id", doc.id);
-      if (error) throw new Error(error.message);
-      toast.success(`Document ${status}`);
+      const { verification } = await reviewKycDocument({
+        docId: doc.id,
+        userId,
+        decision,
+        notes: notes ?? null,
+      });
+      toast.success(`Document ${decision}`, {
+        description: VERIFICATION_COPY[verification] ?? undefined,
+      });
+      setRejecting(null);
+      setReason("");
       await refetch();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Review failed");
@@ -106,13 +112,47 @@ export function KycDocList({ userId }: { userId: string }) {
                 size="sm"
                 variant="outline"
                 disabled={busy === d.id}
-                onClick={() => void review(d, "rejected")}
+                onClick={() => {
+                  setRejecting(rejecting === d.id ? null : d.id);
+                  setReason("");
+                }}
                 className="border-red-400/40 text-red-300 hover:bg-red-500/10"
               >
                 Reject doc
               </Button>
             )}
           </div>
+
+          {rejecting === d.id && (
+            <div className="mt-2 space-y-2">
+              <label className="text-[11px] text-white/50" htmlFor={`reason-${d.id}`}>
+                Reason shown to the farmer
+              </label>
+              <Textarea
+                id={`reason-${d.id}`}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                maxLength={280}
+                rows={2}
+                placeholder="e.g. The ID photo is blurry — please re-upload a clear scan."
+              />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  disabled={busy === d.id || reason.trim().length < 5}
+                  onClick={() => void review(d, "rejected", reason)}
+                  className="bg-red-500 text-white hover:bg-red-600"
+                >
+                  {busy === d.id && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                  Confirm rejection
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setRejecting(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
           {d.review_notes && <p className="mt-1 text-xs text-white/50">{d.review_notes}</p>}
         </li>
       ))}
