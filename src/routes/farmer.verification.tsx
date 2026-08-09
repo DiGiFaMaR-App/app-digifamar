@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
+import { AlertCircle, BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { refreshVerificationAfterResubmit } from "@/lib/kyc/resubmit";
 import { latestPerType } from "@/lib/kyc/status";
+import { ALLOWED_EXTENSIONS, validateKycUpload } from "@/lib/kyc/validate";
 
 export const Route = createFileRoute("/farmer/verification")({
   head: () => ({
@@ -44,7 +45,7 @@ const DOC_TYPES = [
   { value: "other", label: "Other" },
 ] as const;
 
-const MAX_BYTES = 10 * 1024 * 1024;
+const ACCEPT = ALLOWED_EXTENSIONS.map((e) => `.${e}`).join(",");
 
 type DocRow = {
   id: string;
@@ -70,6 +71,7 @@ function VerificationPage() {
   const [docType, setDocType] = useState<string>("government_id");
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -102,11 +104,16 @@ function VerificationPage() {
   }, [load]);
 
   const onFile = async (file: File | undefined) => {
-    if (!file || !user?.id) return;
-    if (file.size > MAX_BYTES) {
-      toast.error("File is larger than 10MB");
+    if (!user?.id) return;
+    const check = validateKycUpload({ docType, file });
+    if (!check.ok) {
+      setUploadError(check.message);
+      toast.error(check.message);
+      if (uploadRef.current) uploadRef.current.value = "";
       return;
     }
+    setUploadError(null);
+    if (!file) return;
     setUploading(true);
     try {
       const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
@@ -236,8 +243,16 @@ function VerificationPage() {
               </button>
             ))}
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Required: pick a document type, then choose a PDF, JPG, PNG, WEBP or HEIC file under
+            10MB.
+          </p>
 
-          <label className="mt-4 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-muted/20 px-4 py-6 text-sm font-medium hover:bg-accent">
+          <label
+            className={`mt-4 flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/20 px-4 py-6 text-sm font-medium hover:bg-accent ${
+              uploadError ? "border-destructive" : "border-border"
+            }`}
+          >
             {uploading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -248,12 +263,26 @@ function VerificationPage() {
               type="file"
               ref={uploadRef}
               className="sr-only"
-              accept="image/*,application/pdf"
+              accept={ACCEPT}
               disabled={uploading}
+              aria-invalid={uploadError ? true : undefined}
+              aria-describedby={uploadError ? "kyc-upload-error" : undefined}
               onChange={(e) => void onFile(e.target.files?.[0])}
             />
           </label>
+
+          {uploadError && (
+            <p
+              id="kyc-upload-error"
+              role="alert"
+              className="mt-2 flex items-start gap-2 text-sm text-destructive"
+            >
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {uploadError}
+            </p>
+          )}
         </div>
+
 
         <div className="mt-6">
           <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
