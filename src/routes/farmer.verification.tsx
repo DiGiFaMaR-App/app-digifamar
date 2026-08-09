@@ -120,7 +120,14 @@ function VerificationPage() {
         file_name: file.name.slice(0, 120),
       });
       if (error) throw new Error(error.message);
-      toast.success("Document uploaded — an admin will review it");
+
+      // A replacement supersedes an earlier rejection — move back into review.
+      const next = await refreshVerificationAfterResubmit(user.id);
+      toast.success(
+        next === "under_review"
+          ? "Document resubmitted — your farm is back under review"
+          : "Document uploaded — an admin will review it",
+      );
       await load();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -128,6 +135,7 @@ function VerificationPage() {
       setUploading(false);
     }
   };
+
 
   const removeDoc = async (doc: DocRow) => {
     try {
