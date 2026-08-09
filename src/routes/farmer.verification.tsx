@@ -104,11 +104,16 @@ function VerificationPage() {
   }, [load]);
 
   const onFile = async (file: File | undefined) => {
-    if (!file || !user?.id) return;
-    if (file.size > MAX_BYTES) {
-      toast.error("File is larger than 10MB");
+    if (!user?.id) return;
+    const check = validateKycUpload({ docType, file });
+    if (!check.ok) {
+      setUploadError(check.message);
+      toast.error(check.message);
+      if (uploadRef.current) uploadRef.current.value = "";
       return;
     }
+    setUploadError(null);
+    if (!file) return;
     setUploading(true);
     try {
       const ext = file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
