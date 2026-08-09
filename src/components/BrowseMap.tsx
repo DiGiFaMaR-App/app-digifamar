@@ -321,7 +321,7 @@ export function BrowseMap({
             Search an address or share your location to see it on the map.
           </div>
         )}
-        {osmFarmList}
+        {farmList}
         {drawer}
       </div>
     );
@@ -334,7 +334,7 @@ export function BrowseMap({
         {osmPoints.length > 0 && (
           <OsmMap points={osmPoints} ariaLabel="Browse location map (OpenStreetMap)" />
         )}
-        {osmFarmList}
+        {farmList}
         <MapErrorFallback
           title={origin ? "Showing a backup map" : "Map view is unavailable right now"}
           description={
