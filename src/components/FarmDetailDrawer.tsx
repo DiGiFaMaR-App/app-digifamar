@@ -131,19 +131,27 @@ export function FarmDetailDrawer({
                     View farm profile
                   </Link>
                 </Button>
+                <SaveFarmButton
+                  farmId={farm.user_id}
+                  farmName={farm.farm_name}
+                  withLabel
+                  className="w-full"
+                />
                 <Button variant="outline" onClick={shareLink} className="gap-1.5">
                   {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
                   {copied ? "Link copied" : "Copy share link"}
                 </Button>
-                <Button asChild variant="outline">
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${farm.lat},${farm.lng}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Get directions
-                  </a>
-                </Button>
+                {Boolean(farm.lat || farm.lng) && (
+                  <Button asChild variant="outline">
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${farm.lat},${farm.lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Get directions
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           </>
