@@ -11,7 +11,10 @@ import { MapProviderToggle } from "@/components/MapProviderToggle";
 import { FarmDetailDrawer, type MapFarm } from "@/components/FarmDetailDrawer";
 import { useMapProvider } from "@/hooks/use-map-provider";
 import {
+  trackFirstMarkerRender,
+  trackMapDeepLinkOpened,
   trackMapFallbackUsed,
+  trackMapLoadDuration,
   trackMapMarkerClick,
   trackMapProviderChanged,
 } from "@/lib/analytics/maps";
@@ -22,13 +25,25 @@ interface BrowseMapProps {
   origin: { lat: number; lng: number; formatted?: string | null } | null;
   /** Farms to plot as clickable markers. */
   farms?: MapFarm[];
+  /** Farm id from the URL — opens the detail drawer directly (deep link). */
+  selectedFarmId?: string | null;
+  /** Called when the selection changes so the route can sync the URL. */
+  onSelectFarm?: (farmId: string | null) => void;
 }
 
-export function BrowseMap({ origin, farms = [] }: BrowseMapProps) {
+export function BrowseMap({
+  origin,
+  farms = [],
+  selectedFarmId = null,
+  onSelectFarm,
+}: BrowseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.Marker | null>(null);
   const farmMarkersRef = useRef<google.maps.Marker[]>([]);
+  const loadStartRef = useRef<number>(0);
+  const firstMarkersLoggedRef = useRef(false);
+  const deepLinkLoggedRef = useRef<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<MapFarm | null>(null);
@@ -39,8 +54,38 @@ export function BrowseMap({ origin, farms = [] }: BrowseMapProps) {
   const openFarm = (farm: MapFarm, from: "google" | "osm") => {
     setSelected(farm);
     setDrawerOpen(true);
+    onSelectFarm?.(farm.user_id);
     trackMapMarkerClick({ surface: SURFACE, provider: from, farmId: farm.user_id });
   };
+
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+    setSelected(null);
+    onSelectFarm?.(null);
+  };
+
+  // Deep link: open the drawer for ?farm=<id> as soon as the farm is known.
+  useEffect(() => {
+    if (!selectedFarmId) {
+      deepLinkLoggedRef.current = null;
+      setDrawerOpen(false);
+      setSelected(null);
+      return;
+    }
+    const match = farms.find((f) => f.user_id === selectedFarmId) ?? null;
+    if (match) {
+      setSelected(match);
+      setDrawerOpen(true);
+    }
+    if (deepLinkLoggedRef.current !== selectedFarmId && (match || farms.length > 0)) {
+      deepLinkLoggedRef.current = selectedFarmId;
+      trackMapDeepLinkOpened({
+        surface: SURFACE,
+        farmId: selectedFarmId,
+        found: Boolean(match),
+      });
+    }
+  }, [selectedFarmId, farms]);
 
   const handleProviderChange = (next: "google" | "osm") => {
     setProvider(next);
@@ -51,6 +96,8 @@ export function BrowseMap({ origin, farms = [] }: BrowseMapProps) {
   const initMap = () => {
     setError(null);
     setReady(false);
+    firstMarkersLoggedRef.current = false;
+    loadStartRef.current = performance.now();
     let cancelled = false;
     loadGoogleMaps()
       .then(() => {
@@ -65,9 +112,22 @@ export function BrowseMap({ origin, farms = [] }: BrowseMapProps) {
         });
         mapRef.current = map;
         setReady(true);
+        trackMapLoadDuration({
+          surface: SURFACE,
+          provider: "google",
+          durationMs: performance.now() - loadStartRef.current,
+          success: true,
+        });
       })
       .catch((e: Error) => {
-        if (!cancelled) setError(e.message);
+        if (cancelled) return;
+        setError(e.message);
+        trackMapLoadDuration({
+          surface: SURFACE,
+          provider: "google",
+          durationMs: performance.now() - loadStartRef.current,
+          success: false,
+        });
       });
     return () => {
       cancelled = true;
@@ -159,6 +219,16 @@ export function BrowseMap({ origin, farms = [] }: BrowseMapProps) {
       farms.forEach((f) => bounds.extend({ lat: f.lat, lng: f.lng }));
       if (origin) bounds.extend({ lat: origin.lat, lng: origin.lng });
       map.fitBounds(bounds, 48);
+
+      if (!firstMarkersLoggedRef.current) {
+        firstMarkersLoggedRef.current = true;
+        trackFirstMarkerRender({
+          surface: SURFACE,
+          provider: "google",
+          markerCount: farms.length,
+          durationMs: performance.now() - loadStartRef.current,
+        });
+      }
     }
 
     return () => {
@@ -175,8 +245,8 @@ export function BrowseMap({ origin, farms = [] }: BrowseMapProps) {
       farm={selected}
       open={drawerOpen}
       onOpenChange={(o) => {
-        setDrawerOpen(o);
-        if (!o) setSelected(null);
+        if (o) setDrawerOpen(true);
+        else closeDrawer();
       }}
     />
   );
