@@ -38,3 +38,37 @@ export function trackMapMarkerClick(props: {
 }) {
   captureEvent("map_marker_clicked", props);
 }
+
+/** Time from map init start until the provider reported the map ready. */
+export function trackMapLoadDuration(props: {
+  surface: string;
+  provider: MapProviderName;
+  durationMs: number;
+  success: boolean;
+}) {
+  captureEvent("map_load_duration", {
+    ...props,
+    duration_ms: Math.round(props.durationMs),
+  });
+}
+
+/** First successful render of farm markers on a surface. */
+export function trackFirstMarkerRender(props: {
+  surface: string;
+  provider: MapProviderName;
+  markerCount: number;
+  durationMs: number;
+}) {
+  captureEvent("map_first_marker_render", {
+    surface: props.surface,
+    provider: props.provider,
+    marker_count: props.markerCount,
+    duration_ms: Math.round(props.durationMs),
+    success: props.markerCount > 0,
+  });
+}
+
+/** A farm detail drawer was opened from a shareable deep link. */
+export function trackMapDeepLinkOpened(props: { surface: string; farmId: string; found: boolean }) {
+  captureEvent("map_deep_link_opened", props);
+}
