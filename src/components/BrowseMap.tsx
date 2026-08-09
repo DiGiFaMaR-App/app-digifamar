@@ -6,6 +6,8 @@ import {
   useMapsAuthFailure,
 } from "@/hooks/use-google-maps";
 import { MapErrorFallback } from "@/components/MapErrorFallback";
+import { OsmMap } from "@/components/OsmMap";
+
 
 interface BrowseMapProps {
   origin: { lat: number; lng: number; formatted?: string | null } | null;

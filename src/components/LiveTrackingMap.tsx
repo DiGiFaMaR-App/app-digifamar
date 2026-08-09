@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { loadGoogleMaps, invalidateGoogleMapsLoader } from "@/hooks/use-google-maps";
 import { MapErrorFallback } from "@/components/MapErrorFallback";
+import { OsmMap } from "@/components/OsmMap";
+
 
 interface LiveTrackingMapProps {
   farmer: { lat: number; lng: number } | null;
