@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
+import { AlertCircle, BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { refreshVerificationAfterResubmit } from "@/lib/kyc/resubmit";
 import { latestPerType } from "@/lib/kyc/status";
+import { ALLOWED_EXTENSIONS, validateKycUpload } from "@/lib/kyc/validate";
 
 export const Route = createFileRoute("/farmer/verification")({
   head: () => ({
