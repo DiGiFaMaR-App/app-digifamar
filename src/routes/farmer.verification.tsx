@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertCircle, BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
+import { AlertCircle, BadgeCheck, Download, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { RequireAuth } from "@/components/RequireAuth";
