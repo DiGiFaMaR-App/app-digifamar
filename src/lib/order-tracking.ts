@@ -7,6 +7,7 @@
  */
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { notifyBuyerOfOrderStatusFn } from "@/lib/notifications/order-status.functions";
 
 export const TRACKING_STEPS = ["placed", "packed", "shipped", "delivered"] as const;
 export type TrackingStatus = (typeof TRACKING_STEPS)[number];
@@ -67,6 +68,23 @@ export function useAddTrackingUpdate(orderId: string) {
         created_by: userId,
       });
       if (error) throw new Error(error.message);
+
+      // Out-of-band buyer notifications (SMS + email). Best effort: the
+      // in-app notification is already written by a DB trigger, so a delivery
+      // problem must never fail the farmer's update.
+      try {
+        await notifyBuyerOfOrderStatusFn({
+          data: {
+            orderId,
+            status: input.status,
+            note: input.note?.trim() || undefined,
+            carrier: input.carrier?.trim() || undefined,
+            trackingNumber: input.trackingNumber?.trim() || undefined,
+          },
+        });
+      } catch (e) {
+        console.warn("[order-tracking] buyer notification failed", e);
+      }
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["order-tracking", orderId] });
