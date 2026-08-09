@@ -45,7 +45,7 @@ const DOC_TYPES = [
   { value: "other", label: "Other" },
 ] as const;
 
-const MAX_BYTES = 10 * 1024 * 1024;
+const ACCEPT = ALLOWED_EXTENSIONS.map((e) => `.${e}`).join(",");
 
 type DocRow = {
   id: string;
@@ -71,6 +71,7 @@ function VerificationPage() {
   const [docType, setDocType] = useState<string>("government_id");
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
