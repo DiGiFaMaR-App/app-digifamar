@@ -498,7 +498,12 @@ function Browse() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-10">
         {origin && (
           <section aria-label="Selected location map">
-            <BrowseMap origin={origin} />
+            <BrowseMap
+              origin={origin}
+              farms={(data?.farms ?? [])
+                .filter((f) => f.lat != null && f.lng != null)
+                .map((f) => ({ ...f, lat: f.lat as number, lng: f.lng as number }))}
+            />
           </section>
         )}
 

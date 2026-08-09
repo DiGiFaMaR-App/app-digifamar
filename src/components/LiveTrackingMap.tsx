@@ -9,6 +9,9 @@ import { MapErrorFallback } from "@/components/MapErrorFallback";
 import { OsmMap } from "@/components/OsmMap";
 import { MapProviderToggle } from "@/components/MapProviderToggle";
 import { useMapProvider } from "@/hooks/use-map-provider";
+import { trackMapFallbackUsed, trackMapProviderChanged } from "@/lib/analytics/maps";
+
+const SURFACE = "live-tracking-map";
 
 
 interface LiveTrackingMapProps {
@@ -31,6 +34,12 @@ export function LiveTrackingMap({
   const [ready, setReady] = useState(false);
   const authFailed = useMapsAuthFailure();
   const { provider, setProvider } = useMapProvider();
+
+  const handleProviderChange = (next: "google" | "osm") => {
+    setProvider(next);
+    trackMapProviderChanged({ surface: SURFACE, provider: next });
+    if (next === "osm") trackMapFallbackUsed({ surface: SURFACE, reason: "user-choice" });
+  };
 
   const initMap = () => {
     setError(null);
@@ -148,6 +157,12 @@ export function LiveTrackingMap({
     map.fitBounds(bounds, 48);
   }, [farmer, destination.lat, destination.lng, farmerLabel, ready, provider]);
 
+  useEffect(() => {
+    if (provider !== "google") return;
+    if (authFailed) trackMapFallbackUsed({ surface: SURFACE, reason: "auth-failure" });
+    else if (error) trackMapFallbackUsed({ surface: SURFACE, reason: "load-error" });
+  }, [authFailed, error, provider]);
+
   const osmPoints = [
     ...(farmer ? [{ lat: farmer.lat, lng: farmer.lng, label: farmerLabel }] : []),
     { lat: destination.lat, lng: destination.lng, label: destination.label },
@@ -156,7 +171,7 @@ export function LiveTrackingMap({
   if (provider === "osm") {
     return (
       <div className="space-y-2">
-        <MapProviderToggle value={provider} onChange={setProvider} />
+        <MapProviderToggle value={provider} onChange={handleProviderChange} />
         <OsmMap
           points={osmPoints}
           className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
@@ -169,7 +184,7 @@ export function LiveTrackingMap({
   if (error || authFailed) {
     return (
       <div className="space-y-2">
-        <MapProviderToggle value={provider} onChange={setProvider} fallbackActive />
+        <MapProviderToggle value={provider} onChange={handleProviderChange} fallbackActive />
         <OsmMap
           points={osmPoints}
           className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
@@ -193,7 +208,7 @@ export function LiveTrackingMap({
 
   return (
     <div className="space-y-2">
-      <MapProviderToggle value={provider} onChange={setProvider} />
+      <MapProviderToggle value={provider} onChange={handleProviderChange} />
       <div
         ref={containerRef}
         className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
