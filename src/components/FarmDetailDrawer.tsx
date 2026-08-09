@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { BadgeCheck, MapPin, Navigation } from "lucide-react";
+import { BadgeCheck, Check, Link2, MapPin, Navigation } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -29,6 +30,23 @@ interface FarmDetailDrawerProps {
 }
 
 export function FarmDetailDrawer({ farm, open, onOpenChange }: FarmDetailDrawerProps) {
+  const [copied, setCopied] = useState(false);
+
+  const shareLink = async () => {
+    if (!farm || typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("farm", farm.user_id);
+    const href = url.toString();
+    try {
+      if (navigator.share) await navigator.share({ title: farm.farm_name, url: href });
+      else await navigator.clipboard.writeText(href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* user cancelled or clipboard unavailable */
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md">
@@ -80,6 +98,10 @@ export function FarmDetailDrawer({ farm, open, onOpenChange }: FarmDetailDrawerP
                   <Link to="/farm/$id" params={{ id: farm.user_id }}>
                     View farm profile
                   </Link>
+                </Button>
+                <Button variant="outline" onClick={shareLink} className="gap-1.5">
+                  {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+                  {copied ? "Link copied" : "Copy share link"}
                 </Button>
                 <Button asChild variant="outline">
                   <a
