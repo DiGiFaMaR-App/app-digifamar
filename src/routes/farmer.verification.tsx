@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertCircle, BadgeCheck, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
+import { AlertCircle, BadgeCheck, Download, FileUp, Loader2, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/SiteLayout";
 import { RequireAuth } from "@/components/RequireAuth";
@@ -159,6 +159,17 @@ function VerificationPage() {
     }
   };
 
+  const downloadDoc = async (doc: DocRow) => {
+    const { data: signed, error } = await supabase.storage
+      .from("kyc-documents")
+      .createSignedUrl(doc.storage_path, 300);
+    if (error || !signed?.signedUrl) {
+      toast.error(error?.message ?? "Could not open document");
+      return;
+    }
+    window.open(signed.signedUrl, "_blank", "noopener");
+  };
+
   const verified = farmStatus === "approved" || farmStatus === "verified";
   const effective = latestPerType(docs);
   const effectiveIds = new Set(effective.map((d) => d.id));
@@ -310,6 +321,15 @@ function VerificationPage() {
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void downloadDoc(d)}
+                    aria-label="Open submitted document"
+                    className="rounded-md p-2 text-muted-foreground hover:bg-accent"
+                    title="Open document"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
                   <span
                     className={`rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ${
                       STATUS_STYLES[d.status] ?? STATUS_STYLES['pending']
