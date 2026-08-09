@@ -1,8 +1,14 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
-import { loadGoogleMaps, invalidateGoogleMapsLoader } from "@/hooks/use-google-maps";
+import {
+  loadGoogleMaps,
+  invalidateGoogleMapsLoader,
+  useMapsAuthFailure,
+} from "@/hooks/use-google-maps";
 import { MapErrorFallback } from "@/components/MapErrorFallback";
 import { OsmMap } from "@/components/OsmMap";
+import { MapProviderToggle } from "@/components/MapProviderToggle";
+import { useMapProvider } from "@/hooks/use-map-provider";
 
 
 interface LiveTrackingMapProps {
@@ -23,6 +29,8 @@ export function LiveTrackingMap({
   const routeRef = useRef<google.maps.Polyline | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const authFailed = useMapsAuthFailure();
+  const { provider, setProvider } = useMapProvider();
 
   const initMap = () => {
     setError(null);
@@ -70,17 +78,24 @@ export function LiveTrackingMap({
     };
   };
 
-  // One-time init
+  // Init when Google is the selected provider (and when the destination changes).
   useEffect(() => {
+    if (provider !== "google") {
+      mapRef.current = null;
+      farmerMarkerRef.current = null;
+      destMarkerRef.current = null;
+      routeRef.current = null;
+      return;
+    }
     const cleanup = initMap();
     return cleanup;
-  }, [destination.lat, destination.lng, destination.label]);
+  }, [provider, destination.lat, destination.lng, destination.label]);
 
   // Farmer marker + route + auto-fit on each update
   useEffect(() => {
     const g = window.google;
     const map = mapRef.current;
-    if (!ready || !g || !map || !farmer) return;
+    if (provider !== "google" || !ready || !g || !map || !farmer) return;
 
     const pos = { lat: farmer.lat, lng: farmer.lng };
 
@@ -131,23 +146,41 @@ export function LiveTrackingMap({
     bounds.extend(pos);
     bounds.extend({ lat: destination.lat, lng: destination.lng });
     map.fitBounds(bounds, 48);
-  }, [farmer, destination.lat, destination.lng, farmerLabel, ready]);
+  }, [farmer, destination.lat, destination.lng, farmerLabel, ready, provider]);
 
-  if (error) {
+  const osmPoints = [
+    ...(farmer ? [{ lat: farmer.lat, lng: farmer.lng, label: farmerLabel }] : []),
+    { lat: destination.lat, lng: destination.lng, label: destination.label },
+  ];
+
+  if (provider === "osm") {
     return (
       <div className="space-y-2">
+        <MapProviderToggle value={provider} onChange={setProvider} />
         <OsmMap
-          points={[
-            ...(farmer ? [{ lat: farmer.lat, lng: farmer.lng, label: farmerLabel }] : []),
-            { lat: destination.lat, lng: destination.lng, label: destination.label },
-          ]}
+          points={osmPoints}
+          className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
+          ariaLabel="Live farmer location map (OpenStreetMap)"
+        />
+      </div>
+    );
+  }
+
+  if (error || authFailed) {
+    return (
+      <div className="space-y-2">
+        <MapProviderToggle value={provider} onChange={setProvider} fallbackActive />
+        <OsmMap
+          points={osmPoints}
           className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
           ariaLabel="Live farmer location map (OpenStreetMap)"
         />
         <MapErrorFallback
           title="Showing a backup map"
           description="Google Maps is unavailable, so we're showing OpenStreetMap instead. Location updates still arrive normally."
-          reason={error}
+          reason={
+            error ?? "Google Maps rejected the request for this domain (referrer or API key issue)."
+          }
           onRetry={() => {
             invalidateGoogleMapsLoader();
             initMap();
@@ -159,11 +192,14 @@ export function LiveTrackingMap({
 
 
   return (
-    <div
-      ref={containerRef}
-      className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
-      role="img"
-      aria-label="Live farmer location map"
-    />
+    <div className="space-y-2">
+      <MapProviderToggle value={provider} onChange={setProvider} />
+      <div
+        ref={containerRef}
+        className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
+        role="img"
+        aria-label="Live farmer location map"
+      />
+    </div>
   );
 }
