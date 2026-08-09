@@ -90,6 +90,10 @@ function NearMe() {
     .filter((f) => f.distance_mi != null && (f.distance_mi as number) <= radius)
     .sort((a, b) => (a.distance_mi ?? 0) - (b.distance_mi ?? 0));
 
+  const mapFarms = farms
+    .filter((f) => f.lat != null && f.lng != null)
+    .map((f) => ({ ...f, lat: f.lat as number, lng: f.lng as number }));
+
   return (
     <SiteLayout>
       <h1 className="sr-only">Find verified farms near you</h1>
@@ -265,7 +269,7 @@ function NearMe() {
         </div>
 
         <div className="order-1 lg:order-2 lg:sticky lg:top-20 lg:h-fit">
-          <BrowseMap origin={origin} />
+          <BrowseMap origin={origin} farms={mapFarms} />
           {origin && (
             <p className="mt-2 text-xs text-muted-foreground">
               Centered on {origin.formatted} · {radius}-mile radius
