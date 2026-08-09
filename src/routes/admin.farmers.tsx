@@ -7,6 +7,7 @@ import { RequireAuth } from "@/components/RequireAuth";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { listFarmerProfilesFn, setFarmerVerificationFn } from "@/lib/admin/admin.functions";
+import { KycDocList } from "@/components/admin/KycDocList";
 
 export const Route = createFileRoute("/admin/farmers")({
   head: () => ({ meta: [{ title: "Admin · Farmers" }, { name: "robots", content: "noindex" }] }),
