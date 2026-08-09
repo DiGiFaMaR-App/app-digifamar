@@ -26,6 +26,7 @@ const FILTERS: StatusFilter[] = ["pending", "under_review", "approved", "rejecte
 
 function Body() {
   const [filter, setFilter] = useState<StatusFilter>("pending");
+  const [expanded, setExpanded] = useState<string | null>(null);
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin", "farmers", filter],
     queryFn: () => listFarmerProfilesFn({ data: filter === "all" ? {} : { status: filter } }),
