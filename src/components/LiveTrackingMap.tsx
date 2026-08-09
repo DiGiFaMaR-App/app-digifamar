@@ -133,16 +133,28 @@ export function LiveTrackingMap({
 
   if (error) {
     return (
-      <MapErrorFallback
-        title="Live tracking map unavailable"
-        reason={error}
-        onRetry={() => {
-          invalidateGoogleMapsLoader();
-          initMap();
-        }}
-      />
+      <div className="space-y-2">
+        <OsmMap
+          points={[
+            ...(farmer ? [{ lat: farmer.lat, lng: farmer.lng, label: farmerLabel }] : []),
+            { lat: destination.lat, lng: destination.lng, label: destination.label },
+          ]}
+          className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
+          ariaLabel="Live farmer location map (OpenStreetMap)"
+        />
+        <MapErrorFallback
+          title="Showing a backup map"
+          description="Google Maps is unavailable, so we're showing OpenStreetMap instead. Location updates still arrive normally."
+          reason={error}
+          onRetry={() => {
+            invalidateGoogleMapsLoader();
+            initMap();
+          }}
+        />
+      </div>
     );
   }
+
 
   return (
     <div
