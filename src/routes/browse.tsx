@@ -81,6 +81,11 @@ function useDebounced<T>(value: T, delay: number): T {
 
 function Browse() {
   const fetchPlaceDetails = getPlaceDetails;
+  const { farm: farmParam } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const selectFarm = (farmId: string | null) =>
+    navigate({ search: (prev) => ({ ...prev, farm: farmId ?? undefined }), replace: true });
+
 
   const [input, setInput] = useState("");
   const [page, setPage] = useState(1);
