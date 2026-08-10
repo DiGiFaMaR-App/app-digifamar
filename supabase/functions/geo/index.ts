@@ -8,6 +8,31 @@
 //
 // Returns { notConfigured: true } when no key is set, so callers can degrade.
 import { corsHeaders, errorResponse, jsonResponse } from "../_shared/cors.ts";
+import { adminClient } from "../_shared/supabase.ts";
+
+/** Admin-saved server geocoding key for the caller's environment, if any. */
+async function storedServerKey(req: Request): Promise<string | null> {
+  try {
+    const host = new URL(req.headers.get("origin") ?? "https://x").hostname.toLowerCase();
+    const env =
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host.endsWith(".lovableproject.com") ||
+      host.includes("-dev.lovable.app") ||
+      host.startsWith("id-preview--")
+        ? "preview"
+        : "production";
+    const { data } = await adminClient()
+      .from("app_settings")
+      .select("value")
+      .eq("key", `gmaps_server_key:${env}`)
+      .maybeSingle();
+    const value = (data?.value ?? "").trim();
+    return value || null;
+  } catch {
+    return null;
+  }
+}
 
 const GEOCODE_URL = "https://maps.googleapis.com/maps/api/geocode/json";
 const PLACES_URL = "https://places.googleapis.com/v1/places";
