@@ -10,6 +10,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { refreshVerificationAfterResubmit } from "@/lib/kyc/resubmit";
 import { latestPerType } from "@/lib/kyc/status";
 import { ALLOWED_EXTENSIONS, validateKycUpload } from "@/lib/kyc/validate";
+import { VipBadgeCard } from "@/components/subscription/VipBadgeCard";
+
 
 export const Route = createFileRoute("/farmer/verification")({
   head: () => ({
@@ -190,7 +192,12 @@ function VerificationPage() {
           Verified farms get a badge across DiGiFaMaR and rank higher in browse results.
         </p>
 
+        <div className="mt-6">
+          <VipBadgeCard />
+        </div>
+
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Current status
           </p>
