@@ -40,7 +40,17 @@ vi.mock("@/hooks/use-auth", () => ({
 // Server functions are network-bound; keep them inert for the unit test.
 vi.mock("@tanstack/react-start", () => ({
   useServerFn: (fn: unknown) => fn,
+  createMiddleware: () => ({ server: () => ({}), client: () => ({}) }),
+  createServerFn: () => ({
+    inputValidator: () => ({ handler: (fn: unknown) => fn }),
+    handler: (fn: unknown) => fn,
+    middleware: () => ({
+      inputValidator: () => ({ handler: (fn: unknown) => fn }),
+      handler: (fn: unknown) => fn,
+    }),
+  }),
 }));
+
 vi.mock("@/lib/escrow-v2/escrow.functions", () => ({
   fundEscrowFn: vi.fn(),
   generateDeliveryOtpFn: vi.fn(),

@@ -97,7 +97,7 @@ function SignUpPanel() {
             <Tractor className="h-7 w-7 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-white text-base">I'm a Farmer</p>
+            <p className="font-bold text-foreground text-base">I'm a Farmer</p>
             <p className="text-sm text-muted-foreground mt-0.5">
               Sell direct to buyers · keep 90% of every sale
             </p>
@@ -113,7 +113,7 @@ function SignUpPanel() {
             <ShoppingBasket className="h-7 w-7 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-white text-base">I'm a Buyer</p>
+            <p className="font-bold text-foreground text-base">I'm a Buyer</p>
             <p className="text-sm text-muted-foreground mt-0.5">
               Buy fresh produce direct · escrow-protected
             </p>
