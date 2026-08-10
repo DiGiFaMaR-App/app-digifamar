@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return errorResponse("Method not allowed", 405);
   try {
-    const key = Deno.env.get("GOOGLE_API_KEY");
+    const key = (await storedServerKey(req)) ?? Deno.env.get("GOOGLE_API_KEY");
     if (!key) return jsonResponse({ notConfigured: true, result: null });
 
     const body = await req.json().catch(() => ({}));
