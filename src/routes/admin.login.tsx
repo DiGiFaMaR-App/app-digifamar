@@ -104,9 +104,11 @@ function AdminLogin() {
 
       <div className="w-full max-w-md">
         <div className="mb-8 flex flex-col items-center text-center">
+          <Logo size="md" linked={false} className="mb-4" />
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/30">
             <Shield className="h-7 w-7 text-primary" />
           </div>
+
           <h1 className="text-2xl font-semibold tracking-tight">Admin sign in</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Restricted area. Staff accounts only.
