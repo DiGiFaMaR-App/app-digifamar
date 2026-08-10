@@ -147,7 +147,7 @@ function Marketplace() {
 
   return (
     <AppShell role="buyer">
-      <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
         <h1 className="sr-only">DiGiFaMaR Marketplace</h1>
         <div className="flex flex-col gap-3">
           {/* Location row */}
