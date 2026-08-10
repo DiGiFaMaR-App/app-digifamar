@@ -6,7 +6,7 @@ import { type Product, type Farm, getFarm } from "@/lib/mock-data";
 export function ProductCard({ product }: { product: Product }) {
   const farm = getFarm(product.farmId);
   return (
-    <div className="card-lift group flex flex-col overflow-hidden rounded-xl border border-border bg-card">
+    <div className="card-lift group flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
       <Link
         to="/product/$id"
         params={{ id: product.id }}
@@ -39,11 +39,12 @@ export function ProductCard({ product }: { product: Product }) {
             {product.delivery}
           </span>
         </div>
-        <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-card/95 px-2 py-0.5 text-[10px] font-bold text-primary">
+        <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/95 px-2 py-0.5 text-[10px] font-bold text-primary shadow-soft backdrop-blur">
           Grade {product.freshnessGrade}
         </span>
       </Link>
-      <div className="flex flex-1 flex-col gap-1.5 p-3">
+      <div className="flex flex-1 flex-col gap-1.5 p-4">
+
         <Link
           to="/product/$id"
           params={{ id: product.id }}
@@ -89,7 +90,7 @@ export function FarmCard({ farm }: { farm: Farm }) {
     <Link
       to="/farm/$id"
       params={{ id: farm.id }}
-      className="card-lift group flex flex-col overflow-hidden rounded-xl border border-border bg-card"
+      className="card-lift group flex flex-col overflow-hidden rounded-2xl border border-border bg-card"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         <img
@@ -109,7 +110,7 @@ export function FarmCard({ farm }: { farm: Farm }) {
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-4">
+      <div className="flex flex-1 flex-col gap-2 p-5">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-bold text-foreground group-hover:text-primary">{farm.name}</h3>
           <span className="flex shrink-0 items-center gap-0.5 text-sm font-semibold">

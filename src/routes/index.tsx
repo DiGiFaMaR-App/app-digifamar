@@ -1,11 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useState } from "react";
-import { MapPin, ArrowRight, Shield, CheckCircle2, Star, ShoppingCart } from "lucide-react";
+import {
+  MapPin,
+  ArrowRight,
+  Shield,
+  CheckCircle2,
+  Star,
+  ShoppingCart,
+  Sparkles,
+  Leaf,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SiteLayout } from "@/components/SiteLayout";
 import { products, getFarm } from "@/lib/mock-data";
+import heroFarm from "@/assets/hero-farm.jpg";
+import farmerPortrait from "@/assets/farmer-portrait.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +39,35 @@ export const Route = createFileRoute("/")({
   }),
   component: HomePage,
 });
+
+// ─────────────────────────────────────────────────────────────────
+// Shared bits
+// ─────────────────────────────────────────────────────────────────
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-sage">{children}</p>
+  );
+}
+
+function SectionHeading({
+  eyebrow,
+  title,
+  sub,
+  align = "center",
+}: {
+  eyebrow: string;
+  title: string;
+  sub?: string;
+  align?: "center" | "left";
+}) {
+  return (
+    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}>
+      <Eyebrow>{eyebrow}</Eyebrow>
+      <h2 className="text-3xl font-bold sm:text-4xl">{title}</h2>
+      {sub && <p className="mt-4 text-base leading-relaxed text-muted-foreground">{sub}</p>}
+    </div>
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────
 // HERO
@@ -57,113 +97,109 @@ function HeroSection() {
   }
 
   return (
-    <section
-      className="relative overflow-hidden px-4 py-24 sm:py-32 text-center"
-      style={{
-        background: "radial-gradient(ellipse at 50% -5%, #1e3d1e 0%, #060F06 65%)",
-      }}
-    >
-      {/* Ambient glow */}
+    <section className="relative overflow-hidden border-b border-border bg-surface-1">
       <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 40% at 50% 0%, rgba(45,122,46,0.18) 0%, transparent 70%)",
-        }}
+        aria-hidden
+        className="pointer-events-none absolute -top-40 left-1/2 h-[36rem] w-[64rem] -translate-x-1/2 rounded-full opacity-60"
+        style={{ background: "var(--gradient-radial-glow)" }}
       />
 
-      <div className="relative mx-auto max-w-3xl">
-        {/* Pre-badge */}
-        <div
-          className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-semibold"
-          style={{
-            borderColor: "rgba(45,122,46,0.45)",
-            backgroundColor: "rgba(45,122,46,0.12)",
-            color: "#4ADE80",
-          }}
-        >
-          <span
-            style={{
-              display: "inline-block",
-              width: 7,
-              height: 7,
-              borderRadius: "50%",
-              backgroundColor: "#4ADE80",
-            }}
-          />
-          10,000+ Verified Farmers Nationwide
+      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.05fr_1fr] lg:gap-20 lg:px-8">
+        <div>
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-primary shadow-soft">
+            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
+            10,000+ verified farmers nationwide
+          </div>
+
+          <h1 className="text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
+            From American farms,
+            <br />
+            <span className="text-primary">direct to you.</span>
+          </h1>
+
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            An escrow-protected marketplace connecting verified farmers with buyers across all 50
+            states — fair prices, traceable produce, zero middlemen.
+          </p>
+
+          {/* Geolocation search */}
+          <div className="mt-9 flex max-w-xl flex-col gap-3 rounded-2xl border border-border bg-background p-3 shadow-soft sm:flex-row">
+            <div className="relative flex-1">
+              <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Enter ZIP code or city…"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="h-12 border-transparent bg-transparent pl-10 shadow-none focus-visible:ring-0"
+              />
+            </div>
+            <Button
+              variant="secondary"
+              onClick={detectLocation}
+              disabled={detecting}
+              className="h-12 shrink-0 gap-2 whitespace-nowrap"
+            >
+              <MapPin className="h-4 w-4" />
+              {detecting ? "Detecting…" : "Detect location"}
+            </Button>
+          </div>
+
+          {/* CTAs */}
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <Button asChild size="lg">
+              <Link to="/market">
+                Browse marketplace
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/signup">Sell on DiGiFaMaR</Link>
+            </Button>
+          </div>
+
+          {/* Trust row */}
+          <dl className="mt-12 grid max-w-xl grid-cols-2 gap-x-6 gap-y-6 border-t border-border pt-8 sm:grid-cols-4">
+            {[
+              { v: "50", l: "States served" },
+              { v: "10k+", l: "Verified farms" },
+              { v: "98%", l: "Delivery rate" },
+              { v: "100%", l: "Escrow backed" },
+            ].map((s) => (
+              <div key={s.l}>
+                <dt className="text-2xl font-bold text-primary">{s.v}</dt>
+                <dd className="mt-0.5 text-xs text-muted-foreground">{s.l}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-5 leading-[1.1]">
-          From American Farms,
-          <br />
-          <span style={{ color: "#4ADE80" }}>Direct To You</span>
-        </h1>
-
-        <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-          Escrow-protected marketplace connecting verified farmers with buyers across all 50 states
-        </p>
-
-        {/* Geolocation search */}
-        <div className="flex flex-col sm:flex-row gap-2 max-w-xl mx-auto mb-8">
-          <div className="relative flex-1">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Enter ZIP code or city…"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="pl-9 h-12 bg-card border-border text-foreground"
+        {/* Editorial image stack */}
+        <div className="relative hidden lg:block">
+          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-lifted">
+            <img
+              src={heroFarm}
+              alt="Sunlit American farmland at harvest time"
+              className="h-[30rem] w-full object-cover"
             />
           </div>
-          <Button
-            variant="outline"
-            onClick={detectLocation}
-            disabled={detecting}
-            className="h-12 gap-2 whitespace-nowrap shrink-0"
-          >
-            <MapPin className="h-4 w-4" />
-            {detecting ? "Detecting…" : "Detect Location"}
-          </Button>
-        </div>
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-          <Button
-            asChild
-            size="lg"
-            className="h-12 px-8 font-bold text-[#060F06] hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#4ADE80" }}
-          >
-            <Link to="/market">
-              Browse Marketplace
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="h-12 px-8 font-semibold border-border hover:border-primary/40"
-          >
-            <Link to="/signup">Sell on DiGiFaMaR</Link>
-          </Button>
-        </div>
-
-        {/* Trust badges */}
-        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-          <span>🔒 Secured by Escrow.com</span>
-          <span className="hidden sm:inline" aria-hidden>
-            ·
-          </span>
-          <span>📍 50 States</span>
-          <span className="hidden sm:inline" aria-hidden>
-            ·
-          </span>
-          <span>🌾 10,000+ Verified Farmers</span>
-          <span className="hidden sm:inline" aria-hidden>
-            ·
-          </span>
-          <span>⭐ 98% Delivery Rate</span>
+          <div className="absolute -bottom-8 -left-10 w-64 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-lifted">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-leaf-soft text-primary">
+                <Shield className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="text-sm font-semibold">Escrow protected</p>
+                <p className="text-xs text-muted-foreground">Funds release on delivery</p>
+              </div>
+            </div>
+          </div>
+          <div className="absolute -right-6 top-10 w-52 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-lifted">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Farmer payout
+            </p>
+            <p className="mt-1 text-2xl font-bold text-primary">90%</p>
+            <p className="text-xs text-muted-foreground">of every sale</p>
+          </div>
         </div>
       </div>
     </section>
@@ -176,74 +212,45 @@ function HeroSection() {
 const HOW_STEPS = [
   {
     icon: "🗺️",
-    title: "Find Local Farms",
+    title: "Find local farms",
     desc: "Browse verified farms near you by product, distance, and certifications.",
   },
   {
     icon: "🔐",
-    title: "Order with Escrow",
+    title: "Order with escrow",
     desc: "Your payment is held securely by Escrow.com until delivery is confirmed.",
   },
   {
     icon: "🌾",
-    title: "Receive Farm Fresh",
+    title: "Receive farm fresh",
     desc: "Confirm delivery with your 6-digit code — funds release to the farmer automatically.",
   },
 ];
 
 function HowItWorks() {
   return (
-    <section className="py-20 px-4" style={{ backgroundColor: "#060F06" }}>
-      <div className="mx-auto max-w-5xl">
-        <div className="text-center mb-12">
-          <p
-            className="text-xs font-bold tracking-[0.2em] uppercase mb-3"
-            style={{ color: "#4ADE80" }}
-          >
-            Simple Process
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">How It Works</h2>
-        </div>
+    <section className="bg-background px-4 py-24 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        <SectionHeading
+          eyebrow="Simple process"
+          title="How it works"
+          sub="Three steps from browsing to a confirmed, protected delivery."
+        />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-3">
           {HOW_STEPS.map((step, i) => (
             <div
               key={step.title}
-              className="relative rounded-2xl p-7 border"
-              style={{
-                backgroundColor: "#132013",
-                borderColor: "rgba(45,122,46,0.25)",
-              }}
+              className="card-lift relative rounded-2xl border border-border bg-card p-8"
             >
-              {/* Step number + icon */}
-              <div className="flex items-center gap-3 mb-5">
-                <div
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold"
-                  style={{
-                    backgroundColor: "rgba(74,222,128,0.12)",
-                    color: "#4ADE80",
-                  }}
-                >
+              <div className="mb-6 flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-leaf-soft text-sm font-bold text-primary">
                   {i + 1}
-                </div>
+                </span>
                 <span className="text-2xl">{step.icon}</span>
               </div>
-              <h3 className="text-base font-semibold text-white mb-2">{step.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-
-              {/* Connector arrow between cards (desktop) */}
-              {i < HOW_STEPS.length - 1 && (
-                <div
-                  className="hidden md:flex absolute -right-5 top-1/2 -translate-y-1/2 h-8 w-8 items-center justify-center rounded-full border z-10 text-xs font-bold"
-                  style={{
-                    backgroundColor: "#132013",
-                    borderColor: "rgba(45,122,46,0.4)",
-                    color: "#4ADE80",
-                  }}
-                >
-                  →
-                </div>
-              )}
+              <h3 className="text-lg font-semibold">{step.title}</h3>
+              <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
             </div>
           ))}
         </div>
@@ -256,86 +263,56 @@ function HowItWorks() {
 // ESCROW SECTION
 // ─────────────────────────────────────────────────────────────────
 const ESCROW_STEPS = [
-  { icon: "💳", label: "Buyer Pays" },
-  { icon: "🔒", label: "Funds Escrowed" },
-  { icon: "🔢", label: "Buyer Gets 6-Digit Code" },
-  { icon: "🚚", label: "Farmer Delivers" },
-  { icon: "✅", label: "Buyer Confirms" },
-  { icon: "📤", label: "Release Code Sent" },
-  { icon: "⌨️", label: "Farmer Enters Code" },
-  { icon: "💰", label: "Funds Released" },
+  { icon: "💳", label: "Buyer pays" },
+  { icon: "🔒", label: "Funds escrowed" },
+  { icon: "🔢", label: "Buyer gets 6-digit code" },
+  { icon: "🚚", label: "Farmer delivers" },
+  { icon: "✅", label: "Buyer confirms" },
+  { icon: "📤", label: "Release code sent" },
+  { icon: "⌨️", label: "Farmer enters code" },
+  { icon: "💰", label: "Funds released" },
 ];
 
 function EscrowSection() {
   return (
-    <section
-      className="py-20 px-4"
-      style={{
-        background: "linear-gradient(180deg, #060F06 0%, #091409 50%, #060F06 100%)",
-      }}
-    >
+    <section className="border-y border-border bg-surface-1 px-4 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
-        <div className="text-center mb-12">
-          <div
-            className="inline-flex items-center gap-2 mb-5 rounded-full border px-4 py-1.5 text-sm font-semibold"
-            style={{
-              borderColor: "rgba(45,122,46,0.4)",
-              backgroundColor: "rgba(45,122,46,0.1)",
-              color: "#4ADE80",
-            }}
-          >
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-primary shadow-soft">
             <Shield className="h-4 w-4" />
             Powered by Escrow.com
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">
-            Every Transaction Protected by Escrow.com
+          <h2 className="text-3xl font-bold sm:text-4xl">
+            Every transaction protected by escrow
           </h2>
-          <p className="mt-3 text-muted-foreground max-w-md mx-auto text-sm">
+          <p className="mt-4 text-base text-muted-foreground">
             Funds are held in trust until you confirm receipt — no payment risk, ever.
           </p>
         </div>
 
-        {/* 8-step flow — scrollable on mobile */}
-        <div className="overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4">
-          <div className="flex items-center min-w-max mx-auto">
+        <div className="scrollbar-hide -mx-4 mt-14 overflow-x-auto px-4 pb-4">
+          <div className="mx-auto flex min-w-max items-start">
             {ESCROW_STEPS.map((step, i) => (
               <Fragment key={step.label}>
-                <div className="flex flex-col items-center gap-2.5 w-[100px] sm:w-28">
-                  <div
-                    className="flex h-14 w-14 items-center justify-center rounded-full text-2xl border-2"
-                    style={{
-                      borderColor: "#2D7A2E",
-                      backgroundColor: "#132013",
-                    }}
-                  >
+                <div className="flex w-[104px] flex-col items-center gap-3 sm:w-28">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-border bg-background text-2xl shadow-soft">
                     {step.icon}
                   </div>
-                  <span className="text-xs text-center text-muted-foreground leading-tight px-1">
+                  <span className="px-1 text-center text-xs leading-tight text-muted-foreground">
                     {step.label}
                   </span>
                 </div>
                 {i < ESCROW_STEPS.length - 1 && (
-                  <div
-                    className="w-5 h-0.5 shrink-0 mb-5"
-                    style={{ backgroundColor: "rgba(45,122,46,0.5)" }}
-                  />
+                  <div className="mt-7 h-px w-5 shrink-0 bg-border" />
                 )}
               </Fragment>
             ))}
           </div>
         </div>
 
-        {/* Auto-refund badge */}
-        <div className="mt-8 flex justify-center">
-          <div
-            className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold"
-            style={{
-              borderColor: "rgba(74,222,128,0.35)",
-              backgroundColor: "rgba(74,222,128,0.08)",
-              color: "#4ADE80",
-            }}
-          >
-            <CheckCircle2 className="h-4 w-4" />
+        <div className="mt-10 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-5 py-2.5 text-sm font-semibold text-primary shadow-soft">
+            <CheckCircle2 className="h-4 w-4 text-sage" />
             Auto refund if delivery exceeds 72 hours
           </div>
         </div>
@@ -349,7 +326,7 @@ function EscrowSection() {
 // ─────────────────────────────────────────────────────────────────
 type FeaturedProduct = (typeof products)[0];
 
-function ProductCard({
+function FeaturedCard({
   product,
   farmName,
   distance,
@@ -365,41 +342,30 @@ function ProductCard({
   }
 
   return (
-    <div
-      className="rounded-2xl overflow-hidden border flex flex-col card-lift"
-      style={{
-        backgroundColor: "#132013",
-        borderColor: "rgba(45,122,46,0.2)",
-      }}
-    >
-      <div className="relative h-44 overflow-hidden bg-muted">
-        <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+    <div className="card-lift flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="relative h-48 overflow-hidden bg-muted">
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+        />
         {product.organic && (
-          <span
-            className="absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-bold"
-            style={{ backgroundColor: "#2D7A2E", color: "#fff" }}
-          >
-            Organic
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-badge-organic px-2.5 py-0.5 text-[11px] font-semibold text-badge-organic-foreground">
+            <Leaf className="h-3 w-3" /> Organic
           </span>
         )}
-        <span
-          className="absolute top-2 right-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold border"
-          style={{
-            backgroundColor: "rgba(19,32,19,0.9)",
-            borderColor: "rgba(45,122,46,0.5)",
-            color: "#4ADE80",
-          }}
-        >
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/95 px-2.5 py-0.5 text-[11px] font-semibold text-primary shadow-soft backdrop-blur">
           🔒 Escrow
         </span>
       </div>
 
-      <div className="p-4 flex flex-col flex-1">
-        <p className="text-xs text-muted-foreground mb-0.5 truncate">{farmName}</p>
-        <h3 className="font-semibold text-white text-sm mb-2 leading-snug">{product.name}</h3>
+      <div className="flex flex-1 flex-col p-5">
+        <p className="truncate text-xs text-muted-foreground">{farmName}</p>
+        <h3 className="mt-1 text-sm font-semibold leading-snug">{product.name}</h3>
 
-        <div className="flex items-center gap-1 mb-4 text-xs text-muted-foreground">
-          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+        <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+          <Star className="h-3 w-3 fill-badge-gold text-badge-gold" />
           <span>
             {product.rating} ({product.reviews})
           </span>
@@ -409,17 +375,12 @@ function ProductCard({
           </span>
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-2">
-          <span className="text-lg font-bold text-white">
+        <div className="mt-5 flex items-center justify-between gap-2">
+          <span className="text-lg font-bold">
             ${product.price}
             <span className="text-xs font-normal text-muted-foreground">/{product.unit}</span>
           </span>
-          <Button
-            size="sm"
-            onClick={handleAddToCart}
-            className="h-8 px-3 text-xs font-bold text-[#060F06] gap-1.5 shrink-0 hover:opacity-90"
-            style={{ backgroundColor: "#4ADE80" }}
-          >
+          <Button size="sm" onClick={handleAddToCart} className="gap-1.5">
             <ShoppingCart className="h-3.5 w-3.5" />
             Add
           </Button>
@@ -442,32 +403,28 @@ function FeaturedProducts() {
   const featured = products.slice(0, 4);
 
   return (
-    <section className="py-20 px-4" style={{ backgroundColor: "#060F06" }}>
-      <div className="mx-auto max-w-6xl">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p
-              className="text-xs font-bold tracking-[0.2em] uppercase mb-2"
-              style={{ color: "#4ADE80" }}
-            >
-              Fresh Today
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold text-white">Featured Products</h2>
-          </div>
+    <section className="bg-background px-4 py-24 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionHeading
+            align="left"
+            eyebrow="Fresh today"
+            title="Featured products"
+            sub="Harvested in the last 24 hours and ready to ship."
+          />
           <Link
             to="/market"
-            className="hidden sm:flex items-center gap-1 text-sm font-semibold transition-opacity hover:opacity-80"
-            style={{ color: "#4ADE80" }}
+            className="hidden items-center gap-1 text-sm font-semibold text-primary hover:underline sm:flex"
           >
             View all <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((product) => {
             const farm = getFarm(product.farmId);
             return (
-              <ProductCard
+              <FeaturedCard
                 key={product.id}
                 product={product}
                 farmName={farm?.name ?? "Local Farm"}
@@ -477,10 +434,10 @@ function FeaturedProducts() {
           })}
         </div>
 
-        <div className="mt-8 flex justify-center sm:hidden">
+        <div className="mt-10 flex justify-center sm:hidden">
           <Button asChild variant="outline" className="gap-2">
             <Link to="/market">
-              View All Products <ArrowRight className="h-4 w-4" />
+              View all products <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -510,100 +467,65 @@ const DIGIFAMAR_POINTS = [
 
 function SupplyChainComparison() {
   return (
-    <section className="py-20 px-4" style={{ backgroundColor: "#060F06" }}>
-      <div className="mx-auto max-w-4xl">
-        <div className="text-center mb-12">
-          <p
-            className="text-xs font-bold tracking-[0.2em] uppercase mb-3"
-            style={{ color: "#4ADE80" }}
-          >
-            The DiGiFaMaR Difference
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white">
-            Why Direct Beats Traditional
-          </h2>
-          <p className="mt-3 text-muted-foreground text-sm">
-            See what cutting out the middleman means for farmers and buyers
-          </p>
-        </div>
+    <section className="border-y border-border bg-surface-1 px-4 py-24 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl">
+        <SectionHeading
+          eyebrow="The DiGiFaMaR difference"
+          title="Why direct beats traditional"
+          sub="See what cutting out the middleman means for farmers and buyers."
+        />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Traditional */}
-          <div
-            className="rounded-2xl p-6 border"
-            style={{
-              backgroundColor: "rgba(31,10,10,0.8)",
-              borderColor: "rgba(127,29,29,0.35)",
-            }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div
-                className="h-10 w-10 rounded-full flex items-center justify-center text-xl"
-                style={{ backgroundColor: "rgba(127,29,29,0.2)" }}
-              >
+          <div className="rounded-2xl border border-border bg-background p-8">
+            <div className="mb-7 flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-clay-soft text-xl">
                 ❌
-              </div>
-              <h3 className="text-lg font-semibold text-white">Traditional Supply Chain</h3>
+              </span>
+              <h3 className="text-lg font-semibold text-muted-foreground">
+                Traditional supply chain
+              </h3>
             </div>
-            <div className="space-y-3 mb-6">
-              {TRADITIONAL_POINTS.map((pt, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-2.5 text-sm"
-                  style={{ color: pt.highlight ? "#f87171" : "#6b7280" }}
+            <ul className="mb-7 space-y-3.5">
+              {TRADITIONAL_POINTS.map((pt) => (
+                <li
+                  key={pt.text}
+                  className={`flex items-start gap-2.5 text-sm ${
+                    pt.highlight ? "font-medium text-clay" : "text-muted-foreground"
+                  }`}
                 >
                   <span className="mt-0.5 shrink-0">{pt.icon}</span>
                   <span>{pt.text}</span>
-                </div>
+                </li>
               ))}
-            </div>
-            <div
-              className="rounded-xl py-3 text-center text-xl font-bold"
-              style={{
-                backgroundColor: "rgba(127,29,29,0.2)",
-                color: "#f87171",
-              }}
-            >
+            </ul>
+            <div className="rounded-xl bg-clay-soft py-3.5 text-center text-xl font-bold text-clay">
               Farmer keeps ~25%
             </div>
           </div>
 
           {/* DiGiFaMaR */}
-          <div
-            className="rounded-2xl p-6 border"
-            style={{
-              backgroundColor: "#132013",
-              borderColor: "rgba(45,122,46,0.45)",
-            }}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div
-                className="h-10 w-10 rounded-full flex items-center justify-center text-xl"
-                style={{ backgroundColor: "rgba(45,122,46,0.2)" }}
-              >
+          <div className="rounded-2xl border border-primary/25 bg-background p-8 shadow-lifted">
+            <div className="mb-7 flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-leaf-soft text-xl">
                 ✅
-              </div>
-              <h3 className="text-lg font-semibold text-white">DiGiFaMaR Direct</h3>
+              </span>
+              <h3 className="text-lg font-semibold">DiGiFaMaR direct</h3>
             </div>
-            <div className="space-y-3 mb-6">
-              {DIGIFAMAR_POINTS.map((pt, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-2.5 text-sm"
-                  style={{ color: pt.highlight ? "#4ADE80" : "#9ca3af" }}
+            <ul className="mb-7 space-y-3.5">
+              {DIGIFAMAR_POINTS.map((pt) => (
+                <li
+                  key={pt.text}
+                  className={`flex items-start gap-2.5 text-sm ${
+                    pt.highlight ? "font-medium text-primary" : "text-muted-foreground"
+                  }`}
                 >
                   <span className="mt-0.5 shrink-0">{pt.icon}</span>
                   <span>{pt.text}</span>
-                </div>
+                </li>
               ))}
-            </div>
-            <div
-              className="rounded-xl py-3 text-center text-xl font-bold"
-              style={{
-                backgroundColor: "rgba(45,122,46,0.18)",
-                color: "#4ADE80",
-              }}
-            >
+            </ul>
+            <div className="rounded-xl bg-leaf-soft py-3.5 text-center text-xl font-bold text-primary">
               Farmer keeps 90%
             </div>
           </div>
@@ -657,49 +579,39 @@ const TESTIMONIALS = [
 
 function Testimonials() {
   return (
-    <section className="py-20 overflow-hidden" style={{ backgroundColor: "#060F06" }}>
-      <div className="mx-auto max-w-6xl px-4 mb-12 text-center">
-        <p
-          className="text-xs font-bold tracking-[0.2em] uppercase mb-3"
-          style={{ color: "#4ADE80" }}
-        >
-          Trusted By Thousands
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white">What Our Community Says</h2>
+    <section className="overflow-hidden bg-background py-24">
+      <div className="mx-auto mb-14 max-w-6xl px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          eyebrow="Trusted by thousands"
+          title="What our community says"
+          sub="Farmers, ranchers and buyers building direct relationships every day."
+        />
       </div>
 
-      {/* Horizontally scrollable row */}
-      <div className="flex gap-4 overflow-x-auto px-4 pb-4 scrollbar-hide snap-x snap-mandatory">
+      <div className="scrollbar-hide flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-6 sm:px-6 lg:px-8">
         {TESTIMONIALS.map((t) => (
-          <div
+          <figure
             key={t.name}
-            className="shrink-0 w-80 rounded-2xl border p-6 snap-start flex flex-col"
-            style={{
-              backgroundColor: "#132013",
-              borderColor: "rgba(45,122,46,0.22)",
-            }}
+            className="flex w-80 shrink-0 snap-start flex-col rounded-2xl border border-border bg-card p-7 shadow-soft"
           >
-            {/* Avatar + name */}
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="h-11 w-11 rounded-full flex items-center justify-center text-2xl shrink-0"
-                style={{ backgroundColor: "rgba(45,122,46,0.12)" }}
-              >
+            <div className="mb-3 flex items-center gap-1 text-badge-gold">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="h-3.5 w-3.5 fill-badge-gold" />
+              ))}
+            </div>
+            <blockquote className="flex-1 text-sm leading-relaxed text-muted-foreground">
+              “{t.text}”
+            </blockquote>
+            <figcaption className="mt-6 flex items-center gap-3 border-t border-border pt-5">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-2xl">
                 {t.avatar}
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-white text-sm truncate">{t.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{t.role}</p>
-              </div>
-            </div>
-
-            {/* Stars */}
-            <div className="mb-3 text-sm" style={{ color: "#4ADE80" }}>
-              ★★★★★
-            </div>
-
-            <p className="text-sm text-muted-foreground leading-relaxed flex-1">"{t.text}"</p>
-          </div>
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-semibold">{t.name}</span>
+                <span className="block truncate text-xs text-muted-foreground">{t.role}</span>
+              </span>
+            </figcaption>
+          </figure>
         ))}
       </div>
     </section>
@@ -711,40 +623,65 @@ function Testimonials() {
 // ─────────────────────────────────────────────────────────────────
 function FarmerCTA() {
   return (
-    <section
-      className="py-24 px-4 text-center"
-      style={{
-        background: "linear-gradient(135deg, #060F06 0%, #132013 50%, #060F06 100%)",
-      }}
-    >
-      <div className="mx-auto max-w-2xl">
-        <p className="text-5xl mb-6">🌾</p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Ready to Sell Direct?</h2>
-        <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-          Join 10,000+ verified American farmers already selling direct on DiGiFaMaR. Keep 90% of
-          every sale — no middlemen, no surprises.
-        </p>
+    <section className="px-4 py-24 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-primary text-primary-foreground shadow-lifted">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+          <div className="p-10 sm:p-14">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 px-3.5 py-1.5 text-xs font-semibold">
+              <Sparkles className="h-3.5 w-3.5" /> For farmers
+            </p>
+            <h2 className="text-3xl font-bold text-primary-foreground sm:text-4xl">
+              Ready to sell direct?
+            </h2>
+            <p className="mt-5 max-w-lg text-base leading-relaxed text-primary-foreground/80">
+              Join 10,000+ verified American farmers already selling direct on DiGiFaMaR. Keep 90%
+              of every sale — no middlemen, no surprises.
+            </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button
-            asChild
-            size="lg"
-            className="h-12 px-8 font-bold text-[#060F06] hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#4ADE80" }}
-          >
-            <Link to="/signup">
-              Start Selling — Free
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="h-12 px-8 font-semibold">
-            <Link to="/how-it-works">Learn How It Works</Link>
-          </Button>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="lg" variant="secondary">
+                <Link to="/signup">
+                  Start selling — free
+                  <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="ghost"
+                className="border border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              >
+                <Link to="/how-it-works">Learn how it works</Link>
+              </Button>
+            </div>
+
+            <p className="mt-6 text-xs text-primary-foreground/70">
+              No upfront cost · Free verification · Setup in under 10 minutes
+            </p>
+          </div>
+
+          <div className="relative hidden h-full min-h-[22rem] lg:block">
+            <img
+              src={farmerPortrait}
+              alt="American farmer standing in a field at sunrise"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
         </div>
+      </div>
 
-        <p className="mt-6 text-xs text-muted-foreground">
-          No upfront cost · Free verification · Setup in under 10 minutes
-        </p>
+      <div className="mx-auto mt-6 grid max-w-7xl gap-6 sm:grid-cols-3">
+        {[
+          { t: "Free verification", d: "USDA-aligned checks in under a week." },
+          { t: "Instant payouts", d: "Funds release the moment delivery is confirmed." },
+          { t: "Real buyers", d: "Restaurants, grocers and households near you." },
+        ].map((c) => (
+          <div key={c.t} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
+            <p className="text-sm font-semibold">{c.t}</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">{c.d}</p>
+          </div>
+        ))}
       </div>
     </section>
   );

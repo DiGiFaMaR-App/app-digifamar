@@ -5,20 +5,21 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * DiGiFaMaR — premium dark agri-tech theme.
- * Deep greens (#0A0F0A bg, #121A12 surfaces) with #22C55E accents.
- * All colors in oklch. Dark mode only.
+ * DiGiFaMaR — modern premium agtech/fintech theme.
+ * Light canvas (white + very light warm gray), deep forest green primary (#0F2C1A),
+ * soft sage + muted terracotta accents, soft shadows, generous radii.
  */
 
 @theme inline {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-2xl: calc(var(--radius) + 10px);
+  --radius-3xl: calc(var(--radius) + 18px);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -45,8 +46,13 @@
 
   --color-surface-1: var(--surface-1);
   --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
   --color-leaf: var(--leaf);
   --color-leaf-soft: var(--leaf-soft);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --color-clay: var(--clay);
+  --color-clay-soft: var(--clay-soft);
   --color-harvest: var(--harvest);
   --color-harvest-soft: var(--harvest-soft);
 
@@ -62,71 +68,80 @@
   --color-badge-new-foreground: var(--badge-new-foreground);
   --color-badge-fresh: var(--badge-fresh);
   --color-badge-fresh-foreground: var(--badge-fresh-foreground);
+
+  --shadow-soft: 0 1px 2px oklch(0.2 0.02 155 / 0.04), 0 8px 24px -12px oklch(0.2 0.02 155 / 0.12);
+  --shadow-lifted:
+    0 2px 4px oklch(0.2 0.02 155 / 0.04), 0 18px 40px -16px oklch(0.2 0.02 155 / 0.18);
 }
 
 :root {
-  --radius: 0.85rem;
+  --radius: 0.9rem;
 
-  /* Deep green-black base */
-  --background: oklch(0.16 0.018 150); /* #0A0F0A vibe */
-  --foreground: oklch(0.97 0.01 130);
+  /* Clean light canvas */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2 0.014 154); /* #111813 ink */
 
-  --card: oklch(0.205 0.022 150); /* #121A12 */
-  --card-foreground: oklch(0.97 0.01 130);
-  --popover: oklch(0.22 0.022 150);
-  --popover-foreground: oklch(0.97 0.01 130);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.014 154);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.014 154);
 
-  --primary: oklch(0.72 0.19 145); /* #22C55E vivid green */
-  --primary-foreground: oklch(0.14 0.02 150);
-  --primary-hover: oklch(0.78 0.19 145);
-  --primary-glow: oklch(0.82 0.2 145);
+  /* Deep forest green */
+  --primary: oklch(0.265 0.049 154); /* #0F2C1A */
+  --primary-foreground: oklch(0.985 0.004 130);
+  --primary-hover: oklch(0.34 0.066 154);
+  --primary-glow: oklch(0.5 0.09 152);
 
-  --secondary: oklch(0.28 0.04 150);
-  --secondary-foreground: oklch(0.95 0.01 130);
-  --secondary-hover: oklch(0.32 0.05 150);
+  --secondary: oklch(0.967 0.006 138); /* #F2F5F1 */
+  --secondary-foreground: oklch(0.265 0.049 154);
+  --secondary-hover: oklch(0.94 0.01 138);
 
-  --muted: oklch(0.24 0.018 150);
-  --muted-foreground: oklch(0.72 0.02 130);
+  --muted: oklch(0.972 0.004 130);
+  --muted-foreground: oklch(0.51 0.027 157); /* #5A6B60 */
 
-  --accent: oklch(0.3 0.08 150);
-  --accent-foreground: oklch(0.97 0.01 130);
+  --accent: oklch(0.955 0.012 140);
+  --accent-foreground: oklch(0.265 0.049 154);
 
-  --destructive: oklch(0.65 0.22 27);
+  --destructive: oklch(0.55 0.19 27);
   --destructive-foreground: oklch(0.99 0.003 90);
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.72 0.19 145);
+  --border: oklch(0.918 0.008 145);
+  --input: oklch(0.9 0.01 145);
+  --ring: oklch(0.44 0.08 153);
 
-  --surface-1: oklch(0.205 0.022 150);
-  --surface-2: oklch(0.245 0.025 150);
-  --leaf: oklch(0.72 0.19 145);
-  --leaf-soft: oklch(0.3 0.08 150);
-  --harvest: oklch(0.78 0.15 65);
-  --harvest-soft: oklch(0.32 0.08 70);
+  --surface-1: oklch(0.978 0.003 128); /* #F7F8F6 */
+  --surface-2: oklch(0.953 0.006 138);
+  --ink: oklch(0.181 0.016 165); /* #0B1410 */
 
-  --badge-verified: oklch(0.7 0.18 150);
-  --badge-verified-foreground: oklch(0.14 0.02 150);
-  --badge-delivery: oklch(0.7 0.16 235);
-  --badge-delivery-foreground: oklch(0.14 0.03 240);
-  --badge-organic: oklch(0.4 0.1 150);
-  --badge-organic-foreground: oklch(0.95 0.05 145);
-  --badge-gold: oklch(0.82 0.14 85);
-  --badge-gold-foreground: oklch(0.2 0.05 75);
-  --badge-new: oklch(0.78 0.15 65);
-  --badge-new-foreground: oklch(0.18 0.04 60);
-  --badge-fresh: oklch(0.72 0.19 145);
-  --badge-fresh-foreground: oklch(0.14 0.02 150);
+  --leaf: oklch(0.377 0.076 154); /* #1A4D2E */
+  --leaf-soft: oklch(0.945 0.018 150);
+  --sage: oklch(0.654 0.062 140); /* #7D9A76 */
+  --sage-soft: oklch(0.945 0.02 142);
+  --clay: oklch(0.628 0.111 44); /* #C0714F muted terracotta */
+  --clay-soft: oklch(0.955 0.022 55);
+  --harvest: oklch(0.66 0.13 62);
+  --harvest-soft: oklch(0.96 0.025 70);
+
+  --badge-verified: oklch(0.945 0.03 152);
+  --badge-verified-foreground: oklch(0.36 0.08 152);
+  --badge-delivery: oklch(0.95 0.03 235);
+  --badge-delivery-foreground: oklch(0.42 0.1 240);
+  --badge-organic: oklch(0.945 0.035 145);
+  --badge-organic-foreground: oklch(0.38 0.08 150);
+  --badge-gold: oklch(0.8 0.13 78);
+  --badge-gold-foreground: oklch(0.32 0.06 70);
+  --badge-new: oklch(0.955 0.022 55);
+  --badge-new-foreground: oklch(0.5 0.11 45);
+  --badge-fresh: oklch(0.945 0.03 152);
+  --badge-fresh-foreground: oklch(0.36 0.08 152);
 
   --gradient-radial-glow: radial-gradient(
     circle at center,
-    color-mix(in oklab, var(--primary) 35%, transparent) 0%,
+    color-mix(in oklab, var(--sage) 22%, transparent) 0%,
     transparent 70%
   );
-  --shadow-glow:
-    0 0 40px color-mix(in oklab, var(--primary) 45%, transparent),
-    0 0 80px color-mix(in oklab, var(--primary) 25%, transparent);
-  --shadow-card: 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 20px 60px -30px color-mix(in oklab, var(--primary) 45%, transparent);
+  --shadow-card: 0 1px 2px oklch(0.2 0.02 155 / 0.04), 0 8px 24px -12px oklch(0.2 0.02 155 / 0.12);
 }
 
 @layer base {
@@ -138,64 +153,60 @@
   body {
     font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    background-image:
-      radial-gradient(
-        circle at 15% 0%,
-        color-mix(in oklab, var(--primary) 10%, transparent) 0%,
-        transparent 45%
-      ),
-      radial-gradient(
-        circle at 85% 100%,
-        color-mix(in oklab, var(--primary) 8%, transparent) 0%,
-        transparent 50%
-      );
-    background-attachment: fixed;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    color: var(--color-foreground);
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 18%, transparent);
   }
 }
 
 @layer utilities {
   .card-lift {
     transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease,
-      border-color 0.2s ease;
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.25s ease,
+      border-color 0.25s ease;
+    box-shadow: var(--shadow-card);
   }
   .card-lift:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in oklab, var(--primary) 40%, var(--border));
-    box-shadow: 0 12px 32px -16px color-mix(in oklab, var(--primary) 40%, transparent);
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, var(--primary) 22%, var(--border));
+    box-shadow: var(--shadow-lifted);
   }
   .glow-logo {
-    filter: drop-shadow(0 0 24px color-mix(in oklab, var(--primary) 55%, transparent))
-      drop-shadow(0 0 48px color-mix(in oklab, var(--primary) 30%, transparent));
+    filter: drop-shadow(0 8px 24px oklch(0.2 0.02 155 / 0.18));
   }
-  /* Drops the JPG's dark background by lightening it against the dark canvas,
-     so only the neon glow + wordmark remain. Pairs with .glow-logo. */
   .logo-blend {
-    mix-blend-mode: screen;
-    filter: drop-shadow(0 0 28px color-mix(in oklab, var(--primary) 60%, transparent))
-      drop-shadow(0 0 80px color-mix(in oklab, var(--primary) 35%, transparent))
-      drop-shadow(0 0 140px color-mix(in oklab, var(--primary) 18%, transparent));
+    filter: drop-shadow(0 8px 24px oklch(0.2 0.02 155 / 0.18));
   }
   .glow-ring {
     box-shadow:
-      0 0 0 1px color-mix(in oklab, var(--primary) 50%, transparent),
-      0 0 40px color-mix(in oklab, var(--primary) 35%, transparent);
+      0 0 0 1px color-mix(in oklab, var(--primary) 14%, transparent),
+      var(--shadow-soft);
   }
   .text-glow {
-    text-shadow: 0 0 24px color-mix(in oklab, var(--primary) 50%, transparent);
+    text-shadow: none;
+  }
+  .surface-panel {
+    background-color: var(--surface-1);
+  }
+  .hairline {
+    border: 1px solid var(--border);
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -273,6 +284,10 @@
     animation: splash-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
+  .reveal-up {
+    animation: splash-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   /* Earthy soil texture — subtle warm noise behind the splash */
   .soil-texture {
     background-image:
@@ -282,7 +297,6 @@
     background-blend-mode: overlay;
   }
 
-  /* Dawn-dew glowing particles */
   /* ── Splash screen ──────────────────────────────────────────────── */
   @keyframes splash-logo-in {
     0% {
@@ -433,8 +447,8 @@
     border-radius: 9999px;
     background: radial-gradient(
       circle,
-      color-mix(in oklab, var(--primary) 90%, white) 0%,
-      color-mix(in oklab, var(--primary) 40%, transparent) 60%,
+      color-mix(in oklab, var(--primary-glow) 90%, white) 0%,
+      color-mix(in oklab, var(--primary-glow) 40%, transparent) 60%,
       transparent 100%
     );
     filter: blur(0.5px);
