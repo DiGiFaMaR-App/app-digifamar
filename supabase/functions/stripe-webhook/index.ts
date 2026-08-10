@@ -327,6 +327,14 @@ Deno.serve(async (req) => {
       case "charge.dispute.created":
         await handleChargeDispute(obj);
         break;
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+        await handleSubscriptionEvent(obj, Boolean(event.livemode));
+        break;
+      case "customer.subscription.deleted":
+        await handleSubscriptionEvent(obj, Boolean(event.livemode), true);
+        break;
+
       default:
         console.log("[stripe-webhook] unhandled event", event.type);
     }
