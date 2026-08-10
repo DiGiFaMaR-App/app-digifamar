@@ -33,7 +33,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
-            <Logo />
+            <Logo wordmark />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               From American Farms, Direct To You.
             </p>
