@@ -103,10 +103,16 @@ function Body() {
                   <td className="p-2 max-w-[16rem]">{(f.products ?? []).join(", ") || "—"}</td>
                   <td className="p-2">
                     <span className="capitalize">{f.verification_status.replace("_", " ")}</span>
+                    {f.vip_badge && (
+                      <span className="ml-2 rounded-full bg-amber-400/20 px-2 py-0.5 text-xs font-semibold text-amber-200">
+                        VIP
+                      </span>
+                    )}
                     {f.verification_status === "rejected" && f.rejection_reason && (
                       <div className="text-xs text-red-300/80">{f.rejection_reason}</div>
                     )}
                   </td>
+
                   <td className="p-2">
                     <div className="flex flex-wrap gap-2">
                       {f.verification_status !== "approved" && (
