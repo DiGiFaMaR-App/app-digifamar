@@ -1,5 +1,6 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   loadGoogleMaps,
@@ -358,12 +359,23 @@ export function BrowseMap({
   return (
     <div className="space-y-2">
       <MapProviderToggle value={provider} onChange={handleProviderChange} />
-      <div
-        ref={containerRef}
-        className="h-64 w-full rounded-xl overflow-hidden border border-border bg-muted"
-        role="img"
-        aria-label="Browse location map"
-      />
+      <div className="relative h-64 w-full overflow-hidden rounded-xl border border-border bg-muted">
+        <div
+          ref={containerRef}
+          className="h-full w-full"
+          role="img"
+          aria-label="Browse location map"
+        />
+        {!ready && (
+          <div
+            className="absolute inset-0 flex items-center justify-center gap-2 bg-muted text-sm text-muted-foreground"
+            role="status"
+          >
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            Loading map…
+          </div>
+        )}
+      </div>
       {farms.length > 0 && (
         <p className="text-[11px] text-muted-foreground">
           Tap a green pin — or use the farm buttons below — to see farm details.

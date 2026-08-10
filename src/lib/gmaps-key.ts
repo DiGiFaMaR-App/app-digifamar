@@ -18,6 +18,8 @@ const MANAGED_KEY = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_K
   | string
   | undefined;
 
+const STORED_KEY_TIMEOUT_MS = 2_500;
+
 export const GMAPS_OVERRIDE_STORAGE_KEY = "dfm:gmaps_browser_key_override";
 
 let cached: Promise<string | undefined> | null = null;
@@ -44,7 +46,12 @@ async function fetchStoredKey(): Promise<string | undefined> {
 export function resolveGoogleMapsKey(): Promise<string | undefined> {
   if (typeof window === "undefined") return Promise.resolve(MANAGED_KEY);
   if (!cached) {
-    cached = fetchStoredKey().then((stored) => stored ?? MANAGED_KEY);
+    cached = Promise.race([
+      fetchStoredKey(),
+      new Promise<undefined>((resolve) => {
+        window.setTimeout(() => resolve(undefined), STORED_KEY_TIMEOUT_MS);
+      }),
+    ]).then((stored) => stored ?? MANAGED_KEY);
   }
   return cached;
 }
