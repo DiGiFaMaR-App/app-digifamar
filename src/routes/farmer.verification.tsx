@@ -10,6 +10,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { refreshVerificationAfterResubmit } from "@/lib/kyc/resubmit";
 import { latestPerType } from "@/lib/kyc/status";
 import { ALLOWED_EXTENSIONS, validateKycUpload } from "@/lib/kyc/validate";
+import { VipBadgeCard } from "@/components/subscription/VipBadgeCard";
+
 
 export const Route = createFileRoute("/farmer/verification")({
   head: () => ({
