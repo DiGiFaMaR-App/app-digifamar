@@ -1,5 +1,7 @@
 import { useMemo, useEffect, useState } from "react";
-import logoSrc from "@/assets/logo.jpg";
+import logoAsset from "@/assets/digifamar-logo.png.asset.json";
+
+const logoSrc = logoAsset.url;
 
 const SPLASH_KEY = "dgf_splash_v1";
 
@@ -168,7 +170,7 @@ export function SplashScreen() {
               alt="DiGiFaMaR"
               width={320}
               height={320}
-              className="h-44 sm:h-56 w-auto object-contain"
+              className="h-44 sm:h-56 w-auto rounded-2xl bg-white p-2 object-contain"
               draggable={false}
             />
           </div>

@@ -4,7 +4,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Inbox, LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react";
 import { type ReactNode } from "react";
-import logoSrc from "@/assets/logo.jpg";
+import logoAsset from "@/assets/digifamar-logo.png.asset.json";
+
+const logoSrc = logoAsset.url;
 import { NAVY, scoreTier, TIER_META } from "./-data";
 
 const navItems: { to: string; label: string; icon: LucideIcon }[] = [
@@ -31,7 +33,7 @@ export function LenderShell({
       >
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           <Link to="/lenders/dashboard" className="flex items-center gap-2">
-            <img src={logoSrc} alt="DiGiFaMaR" className="h-9 w-auto object-contain" />
+            <img src={logoSrc} alt="DiGiFaMaR" className="h-9 w-auto rounded-lg bg-white p-0.5 object-contain" />
             <span className="text-sm font-extrabold tracking-tight">
               DiGiFaMaR <span className="text-slate-400 font-semibold">Lending</span>
             </span>
