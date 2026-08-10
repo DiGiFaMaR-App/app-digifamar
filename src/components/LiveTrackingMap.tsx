@@ -1,5 +1,6 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import {
   loadGoogleMaps,
   invalidateGoogleMapsLoader,
@@ -209,12 +210,23 @@ export function LiveTrackingMap({
   return (
     <div className="space-y-2">
       <MapProviderToggle value={provider} onChange={handleProviderChange} />
-      <div
-        ref={containerRef}
-        className="h-56 w-full rounded-xl overflow-hidden border border-border bg-muted"
-        role="img"
-        aria-label="Live farmer location map"
-      />
+      <div className="relative h-56 w-full overflow-hidden rounded-xl border border-border bg-muted">
+        <div
+          ref={containerRef}
+          className="h-full w-full"
+          role="img"
+          aria-label="Live farmer location map"
+        />
+        {!ready && (
+          <div
+            className="absolute inset-0 flex items-center justify-center gap-2 bg-muted text-sm text-muted-foreground"
+            role="status"
+          >
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+            Loading map…
+          </div>
+        )}
+      </div>
     </div>
   );
 }
