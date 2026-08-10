@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { verifyAdminSessionFn } from "@/lib/admin/admin.functions";
+import { Logo } from "@/components/Logo";
+
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({
