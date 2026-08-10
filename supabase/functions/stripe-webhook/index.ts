@@ -243,7 +243,57 @@ async function handleChargeDispute(dispute: Obj) {
   );
 }
 
+// --- Subscriptions (VIP verification badge) ---------------------------------
+// Upsert on stripe_subscription_id keeps this idempotent across retries. The
+// sync_vip_badge() DB function mirrors active status onto farmer_profiles, so
+// cancelled-but-paid-through subscriptions keep the badge until period end.
+async function handleSubscriptionEvent(sub: Obj, livemode: boolean, deleted = false) {
+  const item = sub.items?.data?.[0];
+  const userId = sub.metadata?.userId ?? null;
+  const priceId = item?.price?.lookup_key ?? item?.price?.metadata?.lovable_external_id ??
+    item?.price?.id ?? null;
+  const periodStart = item?.current_period_start ?? sub.current_period_start;
+  const periodEnd = item?.current_period_end ?? sub.current_period_end;
+  const status = deleted ? "canceled" : sub.status;
+  const environment = livemode ? "live" : "sandbox";
+
+  if (!userId) {
+    console.error("[stripe-webhook] subscription without metadata.userId", sub.id);
+    return;
+  }
+
+  const { error } = await sb.from("subscriptions").upsert(
+    {
+      user_id: userId,
+      stripe_subscription_id: sub.id,
+      stripe_customer_id: sub.customer,
+      product_id: item?.price?.product ?? null,
+      price_id: priceId,
+      status,
+      current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
+      current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+      cancel_at_period_end: Boolean(sub.cancel_at_period_end),
+      environment,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "stripe_subscription_id" },
+  );
+  if (error) throw new Error(error.message);
+
+  // Mirror entitlement onto farmer_profiles.vip_badge.
+  await sb.rpc("sync_vip_badge", { _user_id: userId });
+
+  if (deleted) {
+    await notify(userId, "subscription", "VIP badge ended", "Your VIP verification badge subscription has ended.", { subscription_id: sub.id });
+  } else if (status === "active" || status === "trialing") {
+    await notify(userId, "subscription", "VIP badge active", "Your VIP verification badge is now live on your farm profile.", { subscription_id: sub.id });
+  } else if (status === "past_due") {
+    await notify(userId, "subscription", "Payment failed", "We couldn't charge your card for the VIP badge. Update your payment method to keep it.", { subscription_id: sub.id });
+  }
+}
+
 Deno.serve(async (req) => {
+
   if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
   let event: Obj;
