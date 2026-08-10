@@ -140,6 +140,7 @@ interface FarmerProfileRow {
   verification_status: string;
   rejection_reason: string | null;
   verified_at: string | null;
+  vip_badge: boolean | null;
   created_at: string;
 }
 
@@ -151,7 +152,8 @@ export const listFarmerProfilesFn = async ({
   // Non-literal column string so the codegen doesn't validate it against the
   // (pre-migration) generated types; result is cast to FarmerProfileRow below.
   const cols: string =
-    "user_id, farm_name, city, state, products, verification_status, rejection_reason, verified_at, created_at";
+    "user_id, farm_name, city, state, products, verification_status, rejection_reason, verified_at, vip_badge, created_at";
+
   let q = supabase
     .from("farmer_profiles")
     .select(cols)
