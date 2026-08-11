@@ -66,6 +66,7 @@ import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as SettingsDeleteAccountRouteImport } from './routes/settings.delete-account'
+import { Route as SettingsMapKeysRouteImport } from './routes/settings.map-keys'
 import { Route as SettingsMapsRouteImport } from './routes/settings.maps'
 import { Route as SignupIndexRouteImport } from './routes/signup.index'
 import { Route as SignupBuyerRouteImport } from './routes/signup.buyer'
@@ -365,6 +366,11 @@ const SettingsDeleteAccountRoute = SettingsDeleteAccountRouteImport.update({
   path: '/settings/delete-account',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsMapKeysRoute = SettingsMapKeysRouteImport.update({
+  id: '/settings/map-keys',
+  path: '/settings/map-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsMapsRoute = SettingsMapsRouteImport.update({
   id: '/settings/maps',
   path: '/settings/maps',
@@ -477,6 +483,7 @@ export interface FileRoutesByFullPath {
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/settings/delete-account': typeof SettingsDeleteAccountRoute
+  '/settings/map-keys': typeof SettingsMapKeysRoute
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -547,6 +554,7 @@ export interface FileRoutesByTo {
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/settings/delete-account': typeof SettingsDeleteAccountRoute
+  '/settings/map-keys': typeof SettingsMapKeysRoute
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -618,6 +626,7 @@ export interface FileRoutesById {
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
   '/settings/delete-account': typeof SettingsDeleteAccountRoute
+  '/settings/map-keys': typeof SettingsMapKeysRoute
   '/settings/maps': typeof SettingsMapsRoute
   '/signup/buyer': typeof SignupBuyerRoute
   '/signup/farmer': typeof SignupFarmerRoute
@@ -690,6 +699,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/product/$id'
     | '/settings/delete-account'
+    | '/settings/map-keys'
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -760,6 +770,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/product/$id'
     | '/settings/delete-account'
+    | '/settings/map-keys'
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -830,6 +841,7 @@ export interface FileRouteTypes {
     | '/orders/$id'
     | '/product/$id'
     | '/settings/delete-account'
+    | '/settings/map-keys'
     | '/settings/maps'
     | '/signup/buyer'
     | '/signup/farmer'
@@ -901,6 +913,7 @@ export interface RootRouteChildren {
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
   SettingsDeleteAccountRoute: typeof SettingsDeleteAccountRoute
+  SettingsMapKeysRoute: typeof SettingsMapKeysRoute
   SettingsMapsRoute: typeof SettingsMapsRoute
   SignupBuyerRoute: typeof SignupBuyerRoute
   SignupFarmerRoute: typeof SignupFarmerRoute
@@ -1318,6 +1331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsDeleteAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/map-keys': {
+      id: '/settings/map-keys'
+      path: '/settings/map-keys'
+      fullPath: '/settings/map-keys'
+      preLoaderRoute: typeof SettingsMapKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/maps': {
       id: '/settings/maps'
       path: '/settings/maps'
@@ -1465,6 +1485,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
   SettingsDeleteAccountRoute: SettingsDeleteAccountRoute,
+  SettingsMapKeysRoute: SettingsMapKeysRoute,
   SettingsMapsRoute: SettingsMapsRoute,
   SignupBuyerRoute: SignupBuyerRoute,
   SignupFarmerRoute: SignupFarmerRoute,
