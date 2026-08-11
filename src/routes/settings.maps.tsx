@@ -215,6 +215,9 @@ function MapsSettingsPage() {
             Paste your own Google Maps keys and save them per environment. Saved keys take
             priority over the Lovable-managed key.
           </p>
+          <Link to="/settings/map-keys" className="text-sm font-medium underline underline-offset-4">
+            Check key status →
+          </Link>
         </header>
 
         <Card className="space-y-3 p-4">
