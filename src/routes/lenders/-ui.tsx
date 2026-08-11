@@ -4,7 +4,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Inbox, LayoutDashboard, ShieldCheck, type LucideIcon } from "lucide-react";
 import { type ReactNode } from "react";
-import logoAsset from "@/assets/digifamar-logo.png.asset.json";
+import logoAsset from "@/assets/digifamar-logo-v9.png.asset.json";
 
 const logoSrc = logoAsset.url;
 import { NAVY, scoreTier, TIER_META } from "./-data";
