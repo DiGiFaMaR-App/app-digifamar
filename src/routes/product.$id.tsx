@@ -16,6 +16,8 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { getFarm, getProduct } from "@/lib/mock-data";
+import { OG_CARD_HEIGHT, OG_CARD_WIDTH, productOgImage } from "@/lib/og/listing-cards";
+import { breadcrumbJsonLd, productJsonLd, siteUrl } from "@/lib/seo/structured-data";
 
 export const Route = createFileRoute("/product/$id")({
   head: ({ params }) => {
