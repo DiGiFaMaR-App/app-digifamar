@@ -85,7 +85,11 @@ async function sendEmail(
         templateName: "order-status",
         recipientEmail: to,
         idempotencyKey,
-        templateData: { subject: copy.subject, body: copy.body },
+        templateData: {
+          subject: copy.subject,
+          body: copy.body,
+          html: orderStatusEmail({ subject: copy.subject, body: copy.body }).html,
+        },
       }),
     });
     if (!res.ok) {
