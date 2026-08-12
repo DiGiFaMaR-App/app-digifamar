@@ -24,9 +24,13 @@ export const Route = createFileRoute("/market")({
         property: "og:description",
         content: "Browse fresh produce from verified American farms near you.",
       },
-      { property: "og:url", content: "https://farmer-forward.lovable.app/market" },
+      { property: "og:url", content: "https://app.digifamar.com/market" },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: BRAND.og.market },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: BRAND.og.market },
     ],
-    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/market" }],
+    links: [{ rel: "canonical", href: "https://app.digifamar.com/market" }],
     scripts: [
       {
         type: "application/ld+json",
