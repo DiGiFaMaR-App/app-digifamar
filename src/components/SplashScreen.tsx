@@ -1,5 +1,5 @@
 import { useMemo, useEffect, useState } from "react";
-import logoAsset from "@/assets/digifamar-logo-v9.png.asset.json";
+import logoAsset from "@/assets/digifamar-logo-v10.png.asset.json";
 
 const logoSrc = logoAsset.url;
 

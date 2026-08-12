@@ -7,7 +7,7 @@
  */
 
 const ORIGIN = "https://app.digifamar.com";
-const LOGO = `${ORIGIN}/__l5e/assets-v1/2dcf5e9e-dbb9-44a9-bc64-c22fe8d4f261/digifamar-logo-v9.png`;
+const LOGO = `${ORIGIN}/__l5e/assets-v1/2dcf5e9e-dbb9-44a9-bc64-c22fe8d4f261/digifamar-logo-v10.png`;
 
 const FOREST = "#0F2C1A";
 const SAGE = "#9AB79E";
