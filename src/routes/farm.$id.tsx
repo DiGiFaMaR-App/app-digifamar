@@ -7,6 +7,8 @@ import { ProductCard } from "@/components/Cards";
 import { farms, getFarm, getProductsByFarm, products } from "@/lib/mock-data";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { farmOgImage, OG_CARD_HEIGHT, OG_CARD_WIDTH } from "@/lib/og/listing-cards";
+import { breadcrumbJsonLd, farmJsonLd, siteUrl } from "@/lib/seo/structured-data";
 
 export const Route = createFileRoute("/farm/$id")({
   loader: ({ params }) => {
