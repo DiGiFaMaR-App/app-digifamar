@@ -37,3 +37,10 @@ jobs:
 
       - name: Unit tests
         run: bun run test
+
+      - name: Social card check (OG / Twitter)
+        # Fails the build when og:image / twitter:image is missing, unreachable,
+        # not absolute https, or not 1200x630 on the key marketing routes.
+        env:
+          OG_CHECK_BASE_URL: ${{ vars.OG_CHECK_BASE_URL || 'https://app.digifamar.com' }}
+        run: bun run check:og
