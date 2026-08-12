@@ -14,17 +14,45 @@ export const Route = createFileRoute("/farm/$id")({
     if (!farm) throw notFound();
     return { farm };
   },
-  head: ({ loaderData }) => {
+  head: ({ params, loaderData }) => {
     const f = loaderData?.farm;
     if (!f) return { meta: [{ title: "Farm not found | DiGiFaMaR" }] };
+    const url = siteUrl(`/farm/${params.id}`);
+    const title = `${f.name} — ${f.location} | DiGiFaMaR`;
+    const card = farmOgImage(params.id);
     return {
       meta: [
-        { title: `${f.name} — ${f.location} | DiGiFaMaR` },
+        { title },
         { name: "description", content: f.description },
         { property: "og:title", content: `${f.name} | DiGiFaMaR` },
         { property: "og:description", content: f.description },
         { property: "og:type", content: "profile" },
-        { property: "og:image", content: f.image },
+        { property: "og:url", content: url },
+        { property: "og:image", content: card },
+        { property: "og:image:width", content: String(OG_CARD_WIDTH) },
+        { property: "og:image:height", content: String(OG_CARD_HEIGHT) },
+        { property: "og:image:alt", content: `${f.name}, ${f.location}` },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: `${f.name} | DiGiFaMaR` },
+        { name: "twitter:description", content: f.description },
+        { name: "twitter:image", content: card },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(farmJsonLd(f, card, getProductsByFarm(f.id))),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Home", path: "/" },
+              { name: "Marketplace", path: "/market" },
+              { name: f.name, path: `/farm/${f.id}` },
+            ]),
+          ),
+        },
       ],
     };
   },
