@@ -30,7 +30,7 @@ export const BRAND = {
 /** Hex values mirrored from the design tokens in `src/styles.css`. */
 export const BRAND_COLORS = [
   { name: "Forest", token: "--primary", hex: "#0F2C1A", use: "Primary actions, headings, dark surfaces" },
-  { name: "Forest Hover", token: "--primary-hover", hex: "#16built".replace("built", "3F25"), use: "Hover / pressed state of primary" },
+  { name: "Forest Hover", token: "--primary-hover", hex: "#163F25", use: "Hover / pressed state of primary" },
   { name: "Sage", token: "--accent", hex: "#9AB79E", use: "Soft accents, dividers, quiet emphasis" },
   { name: "Terracotta", token: "--destructive", hex: "#B4552F", use: "Warnings, destructive actions" },
   { name: "Canvas", token: "--background", hex: "#FFFFFF", use: "Page background (light mode)" },
