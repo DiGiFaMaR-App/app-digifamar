@@ -14,6 +14,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { initAnalytics } from "@/lib/analytics/posthog";
+import { BRAND } from "@/lib/brand";
 
 
 import appCss from "../styles.css?url";
