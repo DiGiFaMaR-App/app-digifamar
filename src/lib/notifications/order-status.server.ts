@@ -11,6 +11,7 @@
  * tracking update. Every send returns a structured result instead.
  */
 import { sendSms } from "./sms.server";
+import { orderStatusEmail } from "@/lib/email/templates";
 
 export type TrackingStatus = "placed" | "packed" | "shipped" | "delivered";
 
