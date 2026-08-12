@@ -45,6 +45,7 @@ import { Route as AdminFarmersRouteImport } from './routes/admin.farmers'
 import { Route as AdminListingsRouteImport } from './routes/admin.listings'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminMapsRouteImport } from './routes/admin.maps'
+import { Route as AdminOgAuditRouteImport } from './routes/admin.og-audit'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
 import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -262,6 +263,11 @@ const AdminMapsRoute = AdminMapsRouteImport.update({
   path: '/admin/maps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminOgAuditRoute = AdminOgAuditRouteImport.update({
+  id: '/admin/og-audit',
+  path: '/admin/og-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminOrdersRoute = AdminOrdersRouteImport.update({
   id: '/admin/orders',
   path: '/admin/orders',
@@ -471,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
+  '/admin/og-audit': typeof AdminOgAuditRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
@@ -543,6 +550,7 @@ export interface FileRoutesByTo {
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
+  '/admin/og-audit': typeof AdminOgAuditRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
@@ -616,6 +624,7 @@ export interface FileRoutesById {
   '/admin/listings': typeof AdminListingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/maps': typeof AdminMapsRoute
+  '/admin/og-audit': typeof AdminOgAuditRoute
   '/admin/orders': typeof AdminOrdersRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
@@ -690,6 +699,7 @@ export interface FileRouteTypes {
     | '/admin/listings'
     | '/admin/login'
     | '/admin/maps'
+    | '/admin/og-audit'
     | '/admin/orders'
     | '/admin/reveal-key'
     | '/admin/users'
@@ -762,6 +772,7 @@ export interface FileRouteTypes {
     | '/admin/listings'
     | '/admin/login'
     | '/admin/maps'
+    | '/admin/og-audit'
     | '/admin/orders'
     | '/admin/reveal-key'
     | '/admin/users'
@@ -834,6 +845,7 @@ export interface FileRouteTypes {
     | '/admin/listings'
     | '/admin/login'
     | '/admin/maps'
+    | '/admin/og-audit'
     | '/admin/orders'
     | '/admin/reveal-key'
     | '/admin/users'
@@ -907,6 +919,7 @@ export interface RootRouteChildren {
   AdminListingsRoute: typeof AdminListingsRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminMapsRoute: typeof AdminMapsRoute
+  AdminOgAuditRoute: typeof AdminOgAuditRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
   AdminRevealKeyRoute: typeof AdminRevealKeyRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -1195,6 +1208,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/maps'
       fullPath: '/admin/maps'
       preLoaderRoute: typeof AdminMapsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/og-audit': {
+      id: '/admin/og-audit'
+      path: '/admin/og-audit'
+      fullPath: '/admin/og-audit'
+      preLoaderRoute: typeof AdminOgAuditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/orders': {
@@ -1487,6 +1507,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminListingsRoute: AdminListingsRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminMapsRoute: AdminMapsRoute,
+  AdminOgAuditRoute: AdminOgAuditRoute,
   AdminOrdersRoute: AdminOrdersRoute,
   AdminRevealKeyRoute: AdminRevealKeyRoute,
   AdminUsersRoute: AdminUsersRoute,
