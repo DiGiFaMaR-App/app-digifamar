@@ -20,9 +20,10 @@ import { getFarm, getProduct } from "@/lib/mock-data";
 export const Route = createFileRoute("/product/$id")({
   head: ({ params }) => {
     const p = getProduct(params.id);
-    const url = `https://farmer-forward.lovable.app/product/${params.id}`;
+    const url = siteUrl(`/product/${params.id}`);
     const title = p ? `${p.name} — DiGiFaMaR` : "Product — DiGiFaMaR";
     const desc = p?.description ?? "Farm-fresh product on DiGiFaMaR.";
+    const card = productOgImage(params.id);
     return {
       meta: [
         { title },
@@ -31,27 +32,31 @@ export const Route = createFileRoute("/product/$id")({
         { property: "og:description", content: desc },
         { property: "og:url", content: url },
         { property: "og:type", content: "product" },
-        ...(p?.image ? [{ property: "og:image", content: p.image }] : []),
+        { property: "og:image", content: card },
+        { property: "og:image:width", content: String(OG_CARD_WIDTH) },
+        { property: "og:image:height", content: String(OG_CARD_HEIGHT) },
+        { property: "og:image:alt", content: title },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+        { name: "twitter:image", content: card },
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: p
         ? [
             {
               type: "application/ld+json",
-              children: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Product",
-                name: p.name,
-                image: p.image,
-                description: p.description,
-                offers: {
-                  "@type": "Offer",
-                  price: p.price,
-                  priceCurrency: "USD",
-                  availability: "https://schema.org/InStock",
-                  url,
-                },
-              }),
+              children: JSON.stringify(productJsonLd(p, getFarm(p.farmId), card)),
+            },
+            {
+              type: "application/ld+json",
+              children: JSON.stringify(
+                breadcrumbJsonLd([
+                  { name: "Home", path: "/" },
+                  { name: "Marketplace", path: "/market" },
+                  { name: p.name, path: `/product/${p.id}` },
+                ]),
+              ),
             },
           ]
         : [],
