@@ -197,7 +197,7 @@ def main():
             "Farm-direct listing",
             field(b, "name"),
             field(b, "description") or "",
-            [f"${price} / {unit}", "Escrow protected"],
+            [f"${float(price):.2f} / {unit}", "Escrow protected"],
         )
         manifest.append({"kind": "product", "id": pid, "file": out})
 
