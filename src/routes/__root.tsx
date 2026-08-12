@@ -71,9 +71,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap",
       },
 
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "icon", type: "image/png", sizes: "96x96", href: "/favicon.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "stylesheet", href: appCss },
-
     ],
     scripts: [
       {
@@ -84,13 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             {
               "@type": "Organization",
               name: "DiGiFaMaR",
-              url: "https://farmer-forward.lovable.app",
-              logo: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b",
+              url: "https://app.digifamar.com",
+              logo: BRAND.logoAbsoluteUrl,
             },
             {
               "@type": "WebSite",
               name: "DiGiFaMaR",
-              url: "https://farmer-forward.lovable.app",
+              url: "https://app.digifamar.com",
             },
           ],
         }),
