@@ -29,8 +29,13 @@ for (let i = 0; i < args.length; i++) {
 }
 const paths = pathArgs.length
   ? pathArgs
-  : (process.env.OG_CHECK_PATHS || "").split(",").map((s) => s.trim()).filter(Boolean).length
-    ? process.env.OG_CHECK_PATHS.split(",").map((s) => s.trim()).filter(Boolean)
+  : (process.env.OG_CHECK_PATHS || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean).length
+    ? process.env.OG_CHECK_PATHS.split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
     : DEFAULT_PATHS;
 
 base = base.replace(/\/$/, "");

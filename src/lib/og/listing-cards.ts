@@ -42,8 +42,7 @@ const PRODUCT_CARDS: Record<string, string> = {
 };
 
 /** Absolute (crawler-safe) card URL for a farm listing. */
-export const farmOgImage = (id: string) =>
-  FARM_CARDS[id] ? abs(FARM_CARDS[id]) : BRAND.og.market;
+export const farmOgImage = (id: string) => (FARM_CARDS[id] ? abs(FARM_CARDS[id]) : BRAND.og.market);
 
 /** Absolute (crawler-safe) card URL for a product listing. */
 export const productOgImage = (id: string) =>

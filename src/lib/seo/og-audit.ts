@@ -49,7 +49,11 @@ export function parseHeadTags(html: string): { title: string | null; tags: OgAud
   for (const tag of html.match(META_RE) ?? []) {
     const key = ATTR(tag, "property") ?? ATTR(tag, "name");
     const value = ATTR(tag, "content");
-    if (key && value && (key.startsWith("og:") || key.startsWith("twitter:") || key === "description")) {
+    if (
+      key &&
+      value &&
+      (key.startsWith("og:") || key.startsWith("twitter:") || key === "description")
+    ) {
       tags.push({ key, value });
     }
   }
