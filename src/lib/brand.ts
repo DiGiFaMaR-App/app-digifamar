@@ -4,7 +4,7 @@
  * Social cards must be absolute URLs (crawlers do not resolve relative paths),
  * so CDN pointers are joined onto the canonical site origin.
  */
-import logoAsset from "@/assets/digifamar-logo-v9.png.asset.json";
+import logoAsset from "@/assets/digifamar-logo-v10.png.asset.json";
 import ogDefault from "@/assets/og-default.jpg.asset.json";
 import ogMarket from "@/assets/og-market.jpg.asset.json";
 import ogLenders from "@/assets/og-lenders.jpg.asset.json";
