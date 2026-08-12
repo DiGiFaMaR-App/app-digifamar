@@ -9,6 +9,7 @@ import { useReveal } from "@/hooks/use-reveal";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { categories, farms, getFarm, type Product } from "@/lib/mock-data";
 import { useCatalogProducts } from "@/lib/catalog/use-catalog";
+import { BRAND } from "@/lib/brand";
 
 export const Route = createFileRoute("/market")({
   head: () => ({

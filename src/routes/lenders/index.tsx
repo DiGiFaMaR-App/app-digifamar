@@ -13,6 +13,7 @@ import {
 import { SiteLayout } from "@/components/SiteLayout";
 import { WaitlistBanner } from "@/components/lenders/WaitlistBanner";
 import { Button } from "@/components/ui/button";
+import { BRAND } from "@/lib/brand";
 
 export const Route = createFileRoute("/lenders/")({
   head: () => ({
