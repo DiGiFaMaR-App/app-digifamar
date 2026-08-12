@@ -11,6 +11,7 @@
  * tracking update. Every send returns a structured result instead.
  */
 import { sendSms } from "./sms.server";
+import { orderStatusEmail } from "@/lib/email/templates";
 
 export type TrackingStatus = "placed" | "packed" | "shipped" | "delivered";
 
@@ -85,7 +86,11 @@ async function sendEmail(
         templateName: "order-status",
         recipientEmail: to,
         idempotencyKey,
-        templateData: { subject: copy.subject, body: copy.body },
+        templateData: {
+          subject: copy.subject,
+          body: copy.body,
+          html: orderStatusEmail({ subject: copy.subject, body: copy.body }).html,
+        },
       }),
     });
     if (!res.ok) {

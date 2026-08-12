@@ -14,6 +14,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { initAnalytics } from "@/lib/analytics/posthog";
+import { BRAND } from "@/lib/brand";
 
 
 import appCss from "../styles.css?url";
@@ -42,9 +43,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "DiGiFaMaR" },
       {
         property: "og:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b",
+        content: BRAND.og.default,
       },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "DiGiFaMaR — From American Farms, Direct To You" },
       {
@@ -54,9 +56,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         name: "twitter:image",
-        content:
-          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b",
+        content: BRAND.og.default,
       },
+      { name: "theme-color", content: "#0F2C1A" },
+      { name: "apple-mobile-web-app-title", content: "DiGiFaMaR" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -66,9 +71,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap",
       },
 
-      { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "icon", type: "image/png", sizes: "96x96", href: "/favicon.png" },
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "stylesheet", href: appCss },
-
     ],
     scripts: [
       {
@@ -79,13 +85,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             {
               "@type": "Organization",
               name: "DiGiFaMaR",
-              url: "https://farmer-forward.lovable.app",
-              logo: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/82c65f51-ec86-4f20-91c0-912ac1f81a5b",
+              url: "https://app.digifamar.com",
+              logo: BRAND.logoAbsoluteUrl,
             },
             {
               "@type": "WebSite",
               name: "DiGiFaMaR",
-              url: "https://farmer-forward.lovable.app",
+              url: "https://app.digifamar.com",
             },
           ],
         }),

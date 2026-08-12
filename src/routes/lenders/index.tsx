@@ -13,6 +13,7 @@ import {
 import { SiteLayout } from "@/components/SiteLayout";
 import { WaitlistBanner } from "@/components/lenders/WaitlistBanner";
 import { Button } from "@/components/ui/button";
+import { BRAND } from "@/lib/brand";
 
 export const Route = createFileRoute("/lenders/")({
   head: () => ({
@@ -30,8 +31,12 @@ export const Route = createFileRoute("/lenders/")({
           "Working-capital loans for verified farmers, funded by lenders, informed by marketplace delivery data. Not live yet — join the waitlist.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://app.digifamar.com/lenders" },
+      { property: "og:image", content: BRAND.og.lenders },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: BRAND.og.lenders },
     ],
+    links: [{ rel: "canonical", href: "https://app.digifamar.com/lenders" }],
   }),
   component: LendersLanding,
 });
