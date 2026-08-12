@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ProductSheet } from "@/components/ProductSheet";
 import { useReveal } from "@/hooks/use-reveal";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
-import { categories, farms, getFarm, type Product } from "@/lib/mock-data";
+import { categories, farms, getFarm, products, type Product } from "@/lib/mock-data";
+import { itemListJsonLd } from "@/lib/seo/structured-data";
 import { useCatalogProducts } from "@/lib/catalog/use-catalog";
 import { BRAND } from "@/lib/brand";
 
@@ -39,9 +40,13 @@ export const Route = createFileRoute("/market")({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
           name: "DiGiFaMaR Marketplace",
-          url: "https://farmer-forward.lovable.app/market",
+          url: "https://app.digifamar.com/market",
           description: "Fresh produce from verified American farms.",
         }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(itemListJsonLd(products)),
       },
     ],
   }),
