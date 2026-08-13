@@ -275,45 +275,31 @@ function useFarmerDashboard(userId: string | undefined) {
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleActive = async (id: string, value: boolean) => {
+    if (!userId) return;
+    const previous = listings;
     setListings((prev) => prev.map((l) => (l.id === id ? { ...l, is_active: value } : l)));
-    await sb.from("listings").update({ is_active: value }).eq("id", id);
+    try {
+      await setListingActive(id, userId, value);
+    } catch (err) {
+      setListings(previous);
+      toast.error(err instanceof Error ? err.message : "Could not update listing");
+    }
   };
 
   const saveListing = async (draft: ListingDraft, editId?: string): Promise<boolean> => {
-    const payload = {
-      name: draft.name.trim(),
-      category: draft.category,
-      price_per_unit: parseFloat(draft.price_per_unit) || 0,
-      unit: draft.unit,
-      description: draft.description.trim() || null,
-      is_active: draft.is_active,
-      image_url: draft.image_url.trim() || null,
-    };
-    if (editId) {
-      const { error } = await sb
-        .from("listings")
-        .update(payload)
-        .eq("id", editId)
-        .eq("farmer_id", userId);
-      if (error) {
-        toast.error("Failed to update listing");
-        return false;
-      }
-      setListings((prev) => prev.map((l) => (l.id === editId ? { ...l, ...payload } : l)));
-    } else {
-      const { data, error } = await sb
-        .from("listings")
-        .insert({ ...payload, farmer_id: userId, views: 0, orders_count: 0 })
-        .select()
-        .single();
-      if (error) {
-        toast.error("Failed to create listing");
-        return false;
-      }
-      if (data) setListings((prev) => [data as Listing, ...prev]);
+    if (!userId) return false;
+    try {
+      const saved = await saveFarmerListing(userId, draft, editId);
+      setListings((prev) =>
+        editId ? prev.map((l) => (l.id === editId ? saved : l)) : [saved, ...prev],
+      );
+      return true;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save listing");
+      return false;
     }
-    return true;
   };
+
 
   const saveProfile = async (p: FarmProfile): Promise<boolean> => {
     const { error } = await (supabase.from("farmer_profiles") as any)
