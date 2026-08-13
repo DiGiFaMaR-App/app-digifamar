@@ -52,17 +52,6 @@ export const Route = createFileRoute("/dashboard/farmer")({
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────
 
-const LISTING_CATEGORIES = [
-  "Fresh Vegetables",
-  "Fresh Fruits",
-  "Grains & Cereals",
-  "Meat & Poultry",
-  "Dairy & Eggs",
-  "Organic Produce",
-  "Greenhouse Grown",
-  "Other",
-] as const;
-
 const LISTING_UNITS = ["lb", "kg", "crate", "dozen", "jar", "each", "bag"] as const;
 
 const FARM_TYPES = [
