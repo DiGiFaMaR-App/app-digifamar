@@ -221,7 +221,7 @@ function useFarmerDashboard(userId: string | undefined) {
           status: o.status,
           created_at: o.created_at,
         }));
-        const rawListings: Listing[] = listingsRes.data ?? [];
+        const rawListings: Listing[] = listingsRes;
         const rawReviews: any[] = reviewsRes.data ?? [];
 
         const totalSales = rawOrders.length;
