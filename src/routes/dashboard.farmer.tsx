@@ -784,7 +784,9 @@ function ListingsTable({
 function ListingForm({
   draft,
   isEditing,
+  farmerId,
   onChange,
+
   onSave,
   onCancel,
 }: {
