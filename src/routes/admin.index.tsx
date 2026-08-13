@@ -79,6 +79,12 @@ function AdminBody() {
               Maps key
             </Link>
             <Link
+              to="/admin/readiness"
+              className="rounded-md border border-white/15 px-3 py-1.5 hover:bg-white/10"
+            >
+              Go-live readiness
+            </Link>
+            <Link
               to="/admin/reveal-key"
               className="rounded-md border border-[#39FF14]/40 bg-[#39FF14]/10 px-3 py-1.5 text-[#39FF14] hover:bg-[#39FF14]/20"
             >
