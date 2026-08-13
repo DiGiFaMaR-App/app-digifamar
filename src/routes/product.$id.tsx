@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -17,6 +17,7 @@ import { DemoNotice } from "@/components/DemoNotice";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { getFarm, getProduct } from "@/lib/mock-data";
+import { useCatalogProduct } from "@/lib/catalog/use-catalog";
 import { OG_CARD_HEIGHT, OG_CARD_WIDTH, productOgImage } from "@/lib/og/listing-cards";
 import { breadcrumbJsonLd, productJsonLd, siteUrl } from "@/lib/seo/structured-data";
 
@@ -65,11 +66,7 @@ export const Route = createFileRoute("/product/$id")({
         : [],
     };
   },
-  loader: ({ params }) => {
-    const p = getProduct(params.id);
-    if (!p) throw notFound();
-    return { product: p };
-  },
+  loader: ({ params }) => ({ product: getProduct(params.id) ?? null }),
   component: ProductPage,
   notFoundComponent: () => (
     <AppShell>
@@ -79,15 +76,31 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData() as {
-    product: NonNullable<ReturnType<typeof getProduct>>;
-  };
-  const farm = getFarm(product.farmId);
+  const { id } = Route.useParams();
+  const fallback = (Route.useLoaderData() as { product: ReturnType<typeof getProduct> | null })
+    .product;
+  // Live listings are authoritative; the bundled sample product is only used
+  // when this slug isn't a real listing (demo catalog).
+  const { data, isLoading } = useCatalogProduct(id);
+  const product = data?.product ?? fallback;
+  const isDemo = data ? data.source === "demo" : true;
+  const farm = product ? getFarm(product.farmId) : undefined;
   const navigate = useNavigate();
   const { add } = useCart();
   const [added, setAdded] = useState(false);
 
+  if (!product) {
+    return (
+      <AppShell>
+        <div className="p-10 text-center text-muted-foreground">
+          {isLoading ? "Loading product…" : "Product not found."}
+        </div>
+      </AppShell>
+    );
+  }
+
   const addToCart = () => {
+
     add({
       productId: product.id,
       name: product.name,
@@ -110,7 +123,7 @@ function ProductPage() {
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to marketplace
         </Link>
-        <DemoNotice className="mt-3" />
+        {isDemo && <DemoNotice className="mt-3" />}
 
         <div className="mt-4 grid gap-6 md:grid-cols-2">
           <div className="overflow-hidden rounded-2xl border border-border bg-card">

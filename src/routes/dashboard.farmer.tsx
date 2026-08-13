@@ -31,6 +31,17 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { LoanInterestDialog } from "@/components/farmer/LoanInterestDialog";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  emptyListingDraft,
+  fetchFarmerListings,
+  saveFarmerListing,
+  setListingActive,
+  uploadProductImage,
+  validateListingDraft,
+  type FarmerListing,
+  type ListingDraft,
+} from "@/lib/farmer/listings";
+import { categories as MARKET_CATEGORIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/farmer")({
   head: () => ({ meta: [{ title: "Farmer Dashboard — DiGiFaMaR" }] }),
@@ -40,17 +51,6 @@ export const Route = createFileRoute("/dashboard/farmer")({
 // ─────────────────────────────────────────────────────────────────
 // CONSTANTS
 // ─────────────────────────────────────────────────────────────────
-
-const LISTING_CATEGORIES = [
-  "Fresh Vegetables",
-  "Fresh Fruits",
-  "Grains & Cereals",
-  "Meat & Poultry",
-  "Dairy & Eggs",
-  "Organic Produce",
-  "Greenhouse Grown",
-  "Other",
-] as const;
 
 const LISTING_UNITS = ["lb", "kg", "crate", "dozen", "jar", "each", "bag"] as const;
 
@@ -126,19 +126,7 @@ const LENDING_TARGET = 30;
 // TYPES
 // ─────────────────────────────────────────────────────────────────
 
-interface Listing {
-  id: string;
-  farmer_id: string;
-  name: string;
-  category: string;
-  price_per_unit: number;
-  unit: string;
-  description: string | null;
-  is_active: boolean;
-  image_url: string | null;
-  views: number;
-  orders_count: number;
-}
+type Listing = FarmerListing;
 
 interface Order {
   id: string;
@@ -167,25 +155,8 @@ interface FarmProfile {
   rejection_reason: string | null;
 }
 
-interface ListingDraft {
-  name: string;
-  category: string;
-  price_per_unit: string;
-  unit: string;
-  description: string;
-  is_active: boolean;
-  image_url: string;
-}
+const emptyDraft: ListingDraft = emptyListingDraft;
 
-const emptyDraft: ListingDraft = {
-  name: "",
-  category: "Fresh Vegetables",
-  price_per_unit: "",
-  unit: "lb",
-  description: "",
-  is_active: true,
-  image_url: "",
-};
 
 // ─────────────────────────────────────────────────────────────────
 // DATA HOOK
@@ -220,16 +191,13 @@ function useFarmerDashboard(userId: string | undefined) {
             .select("id, total_cents, status, created_at, listings(title)")
             .eq("farmer_id", userId)
             .order("created_at", { ascending: false }),
-          sb
-            .from("listings")
-            .select("*")
-            .eq("farmer_id", userId)
-            .order("created_at", { ascending: false }),
+          fetchFarmerListings(userId),
           sb.from("reviews").select("rating").eq("farmer_id", userId),
           supabase.from("farmer_profiles").select("*").eq("user_id", userId).maybeSingle(),
         ]);
 
         if (cancelled) return;
+
 
         // Map the real `orders` schema (cents + joined listing title) onto the
         // dashboard's view model. Buyer names aren't readable here under RLS.
@@ -242,7 +210,7 @@ function useFarmerDashboard(userId: string | undefined) {
           status: o.status,
           created_at: o.created_at,
         }));
-        const rawListings: Listing[] = listingsRes.data ?? [];
+        const rawListings: Listing[] = listingsRes;
         const rawReviews: any[] = reviewsRes.data ?? [];
 
         const totalSales = rawOrders.length;
@@ -293,45 +261,31 @@ function useFarmerDashboard(userId: string | undefined) {
   }, [userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleActive = async (id: string, value: boolean) => {
+    if (!userId) return;
+    const previous = listings;
     setListings((prev) => prev.map((l) => (l.id === id ? { ...l, is_active: value } : l)));
-    await sb.from("listings").update({ is_active: value }).eq("id", id);
+    try {
+      await setListingActive(id, userId, value);
+    } catch (err) {
+      setListings(previous);
+      toast.error(err instanceof Error ? err.message : "Could not update listing");
+    }
   };
 
   const saveListing = async (draft: ListingDraft, editId?: string): Promise<boolean> => {
-    const payload = {
-      name: draft.name.trim(),
-      category: draft.category,
-      price_per_unit: parseFloat(draft.price_per_unit) || 0,
-      unit: draft.unit,
-      description: draft.description.trim() || null,
-      is_active: draft.is_active,
-      image_url: draft.image_url.trim() || null,
-    };
-    if (editId) {
-      const { error } = await sb
-        .from("listings")
-        .update(payload)
-        .eq("id", editId)
-        .eq("farmer_id", userId);
-      if (error) {
-        toast.error("Failed to update listing");
-        return false;
-      }
-      setListings((prev) => prev.map((l) => (l.id === editId ? { ...l, ...payload } : l)));
-    } else {
-      const { data, error } = await sb
-        .from("listings")
-        .insert({ ...payload, farmer_id: userId, views: 0, orders_count: 0 })
-        .select()
-        .single();
-      if (error) {
-        toast.error("Failed to create listing");
-        return false;
-      }
-      if (data) setListings((prev) => [data as Listing, ...prev]);
+    if (!userId) return false;
+    try {
+      const saved = await saveFarmerListing(userId, draft, editId);
+      setListings((prev) =>
+        editId ? prev.map((l) => (l.id === editId ? saved : l)) : [saved, ...prev],
+      );
+      return true;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save listing");
+      return false;
     }
-    return true;
   };
+
 
   const saveProfile = async (p: FarmProfile): Promise<boolean> => {
     const { error } = await (supabase.from("farmer_profiles") as any)
@@ -395,24 +349,24 @@ function FarmerDashboard() {
       category: l.category,
       price_per_unit: String(l.price_per_unit),
       unit: l.unit,
+      stock: String(l.stock),
       description: l.description ?? "",
       is_active: l.is_active,
       image_url: l.image_url ?? "",
     });
+
     setEditingId(l.id);
     setShowForm(true);
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
   };
 
   const handleSaveListing = async () => {
-    if (!draft.name.trim()) {
-      toast.error("Product name is required");
+    const problem = validateListingDraft(draft);
+    if (problem) {
+      toast.error(problem);
       return;
     }
-    if (!draft.price_per_unit || isNaN(parseFloat(draft.price_per_unit))) {
-      toast.error("Enter a valid price");
-      return;
-    }
+
     const ok = await saveListing(draft, editingId ?? undefined);
     if (ok) {
       setShowForm(false);
@@ -507,6 +461,8 @@ function FarmerDashboard() {
                 <ListingForm
                   draft={draft}
                   isEditing={!!editingId}
+                  farmerId={user?.id}
+
                   onChange={setDraft}
                   onSave={handleSaveListing}
                   onCancel={() => {
@@ -729,8 +685,9 @@ function ListingsTable({
         <span>Price</span>
         <span>Category</span>
         <span>Status</span>
-        <span>Views</span>
-        <span>Orders</span>
+        <span>Stock</span>
+        <span />
+
         <span />
       </div>
 
@@ -778,13 +735,20 @@ function ListingsTable({
             <span className="text-xs text-[#7AAB7A]">{l.is_active ? "Active" : "Off"}</span>
           </div>
 
-          {/* Views — hidden on mobile */}
-          <span className="hidden sm:block text-xs text-[#7AAB7A]">{l.views.toLocaleString()}</span>
-
-          {/* Orders — hidden on mobile */}
+          {/* Stock — hidden on mobile */}
           <span className="hidden sm:block text-xs text-[#7AAB7A]">
-            {l.orders_count.toLocaleString()}
+            {l.stock.toLocaleString()} {l.unit}
           </span>
+
+          {/* Public link — hidden on mobile */}
+          <Link
+            to="/product/$id"
+            params={{ id: l.slug }}
+            className="hidden sm:block text-xs text-[#4ADE80] hover:underline"
+          >
+            View
+          </Link>
+
 
           {/* Edit */}
           <button
@@ -807,18 +771,37 @@ function ListingsTable({
 function ListingForm({
   draft,
   isEditing,
+  farmerId,
   onChange,
+
   onSave,
   onCancel,
 }: {
   draft: ListingDraft;
   isEditing: boolean;
+  farmerId: string | undefined;
   onChange: (d: ListingDraft) => void;
   onSave: () => void;
   onCancel: () => void;
 }) {
+  const [uploading, setUploading] = useState(false);
   const set = <K extends keyof ListingDraft>(k: K, v: ListingDraft[K]) =>
     onChange({ ...draft, [k]: v });
+
+  const onUploadImage = async (file: File) => {
+    if (!farmerId) return;
+    setUploading(true);
+    try {
+      const url = await uploadProductImage(farmerId, file);
+      onChange({ ...draft, image_url: url });
+      toast.success("Photo uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
 
   return (
     <div className="rounded-2xl border border-[#4ADE80]/30 bg-[#132013] p-5">
@@ -854,15 +837,16 @@ function ListingForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#132013] border-[#1E3A1E]">
-                {LISTING_CATEGORIES.map((c) => (
+                {MARKET_CATEGORIES.map((c) => (
                   <SelectItem
-                    key={c}
-                    value={c}
+                    key={c.slug}
+                    value={c.slug}
                     className="text-[#F0FFF0] focus:bg-[#1E3A1E] focus:text-[#F0FFF0]"
                   >
-                    {c}
+                    {c.emoji} {c.name}
                   </SelectItem>
                 ))}
+
               </SelectContent>
             </Select>
           </FormField>
@@ -887,18 +871,38 @@ function ListingForm({
           </FormField>
         </div>
 
-        {/* Price */}
-        <FormField label="Price per Unit ($)">
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={draft.price_per_unit}
-            onChange={(e) => set("price_per_unit", e.target.value)}
-            placeholder="e.g. 3.50"
-            className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
-          />
-        </FormField>
+        {/* Price + stock */}
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Price per Unit ($)">
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={draft.price_per_unit}
+              onChange={(e) => set("price_per_unit", e.target.value)}
+              placeholder="e.g. 3.50"
+              className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
+            />
+          </FormField>
+
+          <FormField label="Quantity available">
+            <Input
+              type="number"
+              min="0"
+              step="1"
+              value={draft.stock}
+              onChange={(e) => set("stock", e.target.value)}
+              placeholder="e.g. 25"
+              className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
+            />
+          </FormField>
+        </div>
+
+        <p className="rounded-xl border border-[#1E3A1E] bg-[#060F06] px-4 py-3 text-xs text-[#7AAB7A]">
+          You keep <span className="font-semibold text-[#4ADE80]">90%</span> of the item subtotal.
+          DiGiFaMaR charges a 10% platform fee; escrow and payment-processing charges are billed
+          separately and shown to the buyer at checkout.
+        </p>
 
         {/* Description */}
         <FormField label="Description">
@@ -911,15 +915,36 @@ function ListingForm({
           />
         </FormField>
 
-        {/* Image URL */}
-        <FormField label="Image URL (optional)">
-          <Input
-            value={draft.image_url}
-            onChange={(e) => set("image_url", e.target.value)}
-            placeholder="https://example.com/photo.jpg"
-            className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
-          />
+        {/* Product photo */}
+        <FormField label="Product photo">
+          <div className="flex items-center gap-3">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#1E3A1E] bg-[#060F06] flex items-center justify-center">
+              {draft.image_url ? (
+                <img src={draft.image_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <ImageIcon className="h-5 w-5 text-[#7AAB7A]" aria-hidden />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <input
+                id="listing-photo"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="block w-full text-xs text-[#7AAB7A] file:mr-3 file:rounded-lg file:border-0 file:bg-[#1E3A1E] file:px-3 file:py-2 file:text-xs file:text-[#F0FFF0]"
+                disabled={uploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void onUploadImage(file);
+                  e.target.value = "";
+                }}
+              />
+              <p className="mt-1 text-[11px] text-[#7AAB7A]">
+                {uploading ? "Uploading…" : "JPG, PNG or WebP · up to 5 MB"}
+              </p>
+            </div>
+          </div>
         </FormField>
+
 
         {/* Stock toggle */}
         <label className="flex items-center justify-between rounded-xl border border-[#1E3A1E] bg-[#060F06] px-4 py-3 cursor-pointer">

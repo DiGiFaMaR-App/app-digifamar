@@ -2,6 +2,12 @@ import * as React from "react";
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { setRouterMockState, routerMockState } from "@/test/router-state";
+
+// The product page prefers a live Supabase listing and falls back to the
+// bundled sample product; stub the hook so these UI tests stay deterministic.
+vi.mock("@/lib/catalog/use-catalog", () => ({
+  useCatalogProduct: () => ({ data: undefined, isLoading: false }),
+}));
 import { Route } from "./product.$id";
 import { products } from "@/lib/mock-data";
 

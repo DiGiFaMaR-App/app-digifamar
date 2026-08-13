@@ -74,11 +74,10 @@ function Marketplace() {
     detect,
   } = useGeolocation();
 
-  const {
-    data: products = [],
-    isLoading: productsLoading,
-    isError: productsError,
-  } = useCatalogProducts();
+  const { data: catalog, isLoading: productsLoading, isError: productsError } = useCatalogProducts();
+  const products = catalog?.products ?? [];
+  const isDemoCatalog = catalog?.source === "demo";
+
 
   const [manualInput, setManualInput] = useState("");
   const [query, setQuery] = useState("");
@@ -160,7 +159,7 @@ function Marketplace() {
     <AppShell role="buyer">
       <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
         <h1 className="sr-only">DiGiFaMaR Marketplace</h1>
-        <DemoNotice className="mb-3" />
+        {isDemoCatalog && <DemoNotice className="mb-3" />}
         <div className="flex flex-col gap-3">
           {/* Location row */}
           <div className="flex flex-wrap items-center gap-2">
