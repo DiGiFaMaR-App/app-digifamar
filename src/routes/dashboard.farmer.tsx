@@ -788,12 +788,29 @@ function ListingForm({
 }: {
   draft: ListingDraft;
   isEditing: boolean;
+  farmerId: string | undefined;
   onChange: (d: ListingDraft) => void;
   onSave: () => void;
   onCancel: () => void;
 }) {
+  const [uploading, setUploading] = useState(false);
   const set = <K extends keyof ListingDraft>(k: K, v: ListingDraft[K]) =>
     onChange({ ...draft, [k]: v });
+
+  const onUploadImage = async (file: File) => {
+    if (!farmerId) return;
+    setUploading(true);
+    try {
+      const url = await uploadProductImage(farmerId, file);
+      onChange({ ...draft, image_url: url });
+      toast.success("Photo uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
 
   return (
     <div className="rounded-2xl border border-[#4ADE80]/30 bg-[#132013] p-5">
