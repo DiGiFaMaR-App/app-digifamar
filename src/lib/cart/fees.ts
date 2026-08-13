@@ -4,7 +4,7 @@
  * Every order carries two fees on top of the item subtotal, both shown to the
  * buyer at checkout and both computed on the item subtotal:
  *   - Platform fee: 10%  (DiGiFaMaR marketplace fee)
- *   - Escrow fee:   3.25% (Escrow.com-protected settlement)
+ *   - Escrow fee:   3.25% (escrow-protected settlement)
  *
  * All math is done in integer cents to avoid floating-point drift, then
  * formatted for display at the edges.

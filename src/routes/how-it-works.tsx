@@ -45,7 +45,7 @@ function HowItWorks() {
             icon: Truck,
             n: 3,
             t: "Receive farm fresh",
-            b: "24-hour local or 48-hour nationwide. Confirm with a 6-digit code and your farmer is paid same day.",
+            b: "Delivery timing is set by your farmer. Confirm receipt with your 6-digit code — funds release right away, or automatically 48 hours after confirmation if you take no further action.",
           },
         ].map((s) => (
           <div key={s.n} className="mt-8 flex gap-4 rounded-2xl border border-border bg-card p-6">

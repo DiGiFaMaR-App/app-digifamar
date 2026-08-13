@@ -50,10 +50,10 @@ function Particles() {
 
 // ─── Trust badge pill ────────────────────────────────────────────────────────
 const BADGES = [
-  { emoji: "🔒", text: "Secured by Escrow.com", delay: "1.4s" },
+  { emoji: "🔒", text: "Escrow-protected", delay: "1.4s" },
   { emoji: "📍", text: "All 50 States", delay: "1.65s" },
-  { emoji: "🌾", text: "10,000+ Verified Farmers", delay: "1.9s" },
-  { emoji: "⭐", text: "98% Delivery Rate", delay: "2.15s" },
+  { emoji: "🌾", text: "Verified U.S. Farms", delay: "1.9s" },
+  { emoji: "⭐", text: "6-Digit Release Code", delay: "2.15s" },
 ];
 
 // ─── Main component ──────────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ export function SplashScreen() {
           className="animate-splash-badge mt-5 text-[11px] tracking-widest uppercase"
           style={{ animationDelay: "2.4s", color: "rgba(255,255,255,0.25)" }}
         >
-          Powered by Escrow.com · Cloudflare · Supabase
+          Escrow-protected · Cloudflare · Supabase
         </p>
       </div>
 
