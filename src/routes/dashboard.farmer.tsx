@@ -31,6 +31,17 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { LoanInterestDialog } from "@/components/farmer/LoanInterestDialog";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  emptyListingDraft,
+  fetchFarmerListings,
+  saveFarmerListing,
+  setListingActive,
+  uploadProductImage,
+  validateListingDraft,
+  type FarmerListing,
+  type ListingDraft,
+} from "@/lib/farmer/listings";
+import { categories as MARKET_CATEGORIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/farmer")({
   head: () => ({ meta: [{ title: "Farmer Dashboard — DiGiFaMaR" }] }),
