@@ -908,7 +908,13 @@ export type Database = {
         Row: {
           buyer_id: string
           created_at: string
+          delivered_at: string | null
+          delivery_confirmed_at: string | null
+          delivery_contact_phone: string | null
           delivery_deadline: string | null
+          delivery_fee_cents: number
+          delivery_method: string
+          delivery_notes: string | null
           escrow_fee_cents: number
           farmer_id: string
           id: string
@@ -929,7 +935,13 @@ export type Database = {
         Insert: {
           buyer_id: string
           created_at?: string
+          delivered_at?: string | null
+          delivery_confirmed_at?: string | null
+          delivery_contact_phone?: string | null
           delivery_deadline?: string | null
+          delivery_fee_cents?: number
+          delivery_method?: string
+          delivery_notes?: string | null
           escrow_fee_cents?: number
           farmer_id: string
           id?: string
@@ -950,7 +962,13 @@ export type Database = {
         Update: {
           buyer_id?: string
           created_at?: string
+          delivered_at?: string | null
+          delivery_confirmed_at?: string | null
+          delivery_contact_phone?: string | null
           delivery_deadline?: string | null
+          delivery_fee_cents?: number
+          delivery_method?: string
+          delivery_notes?: string | null
           escrow_fee_cents?: number
           farmer_id?: string
           id?: string
