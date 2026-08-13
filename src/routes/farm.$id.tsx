@@ -182,7 +182,7 @@ function FarmPage() {
                 </span>
                 <span>·</span>
                 <span className="text-muted-foreground">
-                  {farm.totalSales.toLocaleString()} total sales
+                  {(farm.totalSales ?? 0).toLocaleString()} total sales
                 </span>
               </p>
               )}
