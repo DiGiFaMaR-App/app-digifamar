@@ -8,7 +8,11 @@ import { render, screen, fireEvent, within } from "@testing-library/react";
 vi.mock("@/lib/catalog/use-catalog", async () => {
   const { products } = await import("@/lib/mock-data");
   return {
-    useCatalogProducts: () => ({ data: products, isLoading: false, isError: false }),
+    useCatalogProducts: () => ({
+      data: { products, source: "demo" as const },
+      isLoading: false,
+      isError: false,
+    }),
   };
 });
 
