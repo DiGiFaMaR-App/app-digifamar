@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { BadgeCheck, Heart, MapPin, MessageSquare, Star, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { SiteLayout } from "@/components/SiteLayout";
+import { DemoNotice } from "@/components/DemoNotice";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/Cards";
 import { farms, getFarm, getProductsByFarm, products } from "@/lib/mock-data";
@@ -174,6 +175,7 @@ function FarmPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <DemoNotice className="mb-6" />
         <section>
           <h2 className="text-2xl font-extrabold">Products from {farm.name.split(" ")[0]}</h2>
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
