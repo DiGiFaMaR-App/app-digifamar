@@ -81,6 +81,7 @@ import { Route as OrdersIdAuditRouteImport } from './routes/orders.$id_.audit'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -446,6 +447,12 @@ const ApiPublicHealthMapsRoute = ApiPublicHealthMapsRouteImport.update({
   path: '/api/public/health/maps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -520,6 +527,7 @@ export interface FileRoutesByFullPath {
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -594,6 +602,7 @@ export interface FileRoutesByTo {
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -669,6 +678,7 @@ export interface FileRoutesById {
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -745,6 +755,7 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -819,6 +830,7 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -893,6 +905,7 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -967,6 +980,7 @@ export interface RootRouteChildren {
   OrdersIdAuditRoute: typeof OrdersIdAuditRoute
   ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
   ApiPublicHealthMapsRoute: typeof ApiPublicHealthMapsRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1475,6 +1489,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHealthMapsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1563,6 +1584,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersIdAuditRoute: OrdersIdAuditRoute,
   ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
   ApiPublicHealthMapsRoute: ApiPublicHealthMapsRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
