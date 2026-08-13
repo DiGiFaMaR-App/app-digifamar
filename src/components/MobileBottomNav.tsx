@@ -36,7 +36,7 @@ export function MobileBottomNav() {
               <Link
                 to={it.to}
                 {...("search" in it ? { search: it.search } : {})}
-                className={`flex flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors ${
+                className={`flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-1 py-2 text-[10px] font-medium leading-tight transition-colors ${
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >

@@ -39,7 +39,7 @@ function Auth() {
   const setTab = (t: "signup" | "signin") => navigate({ to: "/auth", search: { tab: t, next } });
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center px-5 py-10">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-hidden px-5 py-10">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
@@ -99,7 +99,7 @@ function SignUpPanel() {
           <div className="flex-1 min-w-0">
             <p className="font-bold text-foreground text-base">I'm a Farmer</p>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Sell direct to buyers · keep 90% of every sale
+              Sell direct to buyers · receive 90% of every sale
             </p>
           </div>
           <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />

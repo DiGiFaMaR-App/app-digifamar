@@ -38,7 +38,7 @@ export const Route = createFileRoute("/signup/farmer")({
       {
         name: "description",
         content:
-          "Register as a farmer on DiGiFaMaR. Sell direct to buyers and keep 90% of every sale.",
+          "Register as a farmer on DiGiFaMaR. Sell direct to buyers and receive 90% of every sale (flat 10% platform fee).",
       },
     ],
   }),
@@ -868,7 +868,7 @@ function Step2({
 
 const VERIFICATION_ITEMS = [
   { icon: Phone, text: "Phone number linked to your account" },
-  { icon: Shield, text: "Farm location validated against USDA records" },
+  { icon: Shield, text: "Farm location and documents reviewed by our team" },
   { icon: Star, text: "Identity verified for buyer trust" },
   { icon: Clock, text: "Review completed within 24–48 hours" },
 ];
@@ -1062,7 +1062,7 @@ const NEXT_STEPS = [
   {
     n: "4",
     title: "Start Receiving Orders",
-    body: "Accept orders, set your prices, and keep up to 90% of every sale.",
+    body: "Accept orders, set your prices, and receive 90% of every sale — our platform fee is a flat 10%, with escrow and payment-processing charges separate.",
   },
 ];
 

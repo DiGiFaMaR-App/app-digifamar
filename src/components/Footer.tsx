@@ -63,7 +63,7 @@ export function Footer() {
           </p>
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5">
-              <Shield className="h-4 w-4" /> USDA Compliant
+              <Shield className="h-4 w-4" /> Escrow-protected
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Lock className="h-4 w-4" /> SSL Secure

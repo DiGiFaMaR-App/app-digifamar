@@ -28,7 +28,7 @@ function About() {
         </p>
         <h2 className="mt-10 text-2xl font-bold">What we believe</h2>
         <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-          <li>• Farmers deserve 80-90% of every sale, not 50%.</li>
+          <li>• Farmers deserve 90% of every sale, not 50%.</li>
           <li>• Buyers deserve to know exactly where their food comes from.</li>
           <li>• Trust is built with verification, escrow, and same-day payouts.</li>
           <li>• Technology should remove friction, not add it.</li>
@@ -36,10 +36,10 @@ function About() {
         <h2 className="mt-10 text-2xl font-bold">By the numbers</h2>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           {[
-            ["2,500+", "Verified farms"],
-            ["50", "States covered"],
-            ["98%", "On-time delivery"],
-            ["$0", "Hidden fees"],
+            ["10%", "Platform fee"],
+            ["90%", "Goes to the farmer"],
+            ["50", "States supported"],
+            ["$0", "Listing fees"],
           ].map(([v, l]) => (
             <div key={l} className="rounded-xl border border-border bg-card p-4 text-center">
               <p className="text-2xl font-extrabold text-primary">{v}</p>

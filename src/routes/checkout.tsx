@@ -311,7 +311,10 @@ function CheckoutPage() {
 
             <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
               Your {formatCents(fees.totalCents)} is held in escrow and released to the farmer only
-              after you confirm delivery. Full refund within 72 hours if anything's off.
+              after you confirm delivery, subject to the applicable terms. The farmer receives 90%
+              of the item subtotal; the {formatRate(PLATFORM_FEE_RATE)} platform fee and the escrow
+              and payment-processing charges above are separate. You can open a dispute within 72
+              hours of delivery.
             </p>
           </aside>
         </div>
