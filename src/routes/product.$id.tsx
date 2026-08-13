@@ -65,11 +65,7 @@ export const Route = createFileRoute("/product/$id")({
         : [],
     };
   },
-  loader: ({ params }) => {
-    const p = getProduct(params.id);
-    if (!p) throw notFound();
-    return { product: p };
-  },
+  loader: ({ params }) => ({ product: getProduct(params.id) ?? null }),
   component: ProductPage,
   notFoundComponent: () => (
     <AppShell>
@@ -79,15 +75,30 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
-  const { product } = Route.useLoaderData() as {
-    product: NonNullable<ReturnType<typeof getProduct>>;
-  };
-  const farm = getFarm(product.farmId);
+  const { id } = Route.useParams();
+  const { product: fallback } = Route.useLoaderData();
+  // Live listings are authoritative; the bundled sample product is only used
+  // when this slug isn't a real listing (demo catalog).
+  const { data, isLoading } = useCatalogProduct(id);
+  const product = data?.product ?? fallback;
+  const isDemo = data ? data.source === "demo" : true;
+  const farm = product ? getFarm(product.farmId) : undefined;
   const navigate = useNavigate();
   const { add } = useCart();
   const [added, setAdded] = useState(false);
 
+  if (!product) {
+    return (
+      <AppShell>
+        <div className="p-10 text-center text-muted-foreground">
+          {isLoading ? "Loading product…" : "Product not found."}
+        </div>
+      </AppShell>
+    );
+  }
+
   const addToCart = () => {
+
     add({
       productId: product.id,
       name: product.name,
