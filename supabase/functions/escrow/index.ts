@@ -347,7 +347,14 @@ async function confirmDelivery(userId: string, orderId: string, otp: string) {
     },
     { onConflict: "order_id" },
   );
-  await sb.from("orders").update({ status: "inspection" }).eq("id", orderId);
+  await sb
+    .from("orders")
+    .update({
+      status: "inspection",
+      delivered_at: now.toISOString(),
+      delivery_confirmed_at: now.toISOString(),
+    })
+    .eq("id", orderId);
   await notify(
     order.buyer_id,
     "order",
@@ -363,6 +370,16 @@ async function release(userId: string, orderId: string) {
   if (order.buyer_id !== userId) throw new Error("Forbidden");
   if (!["inspection", "delivered"].includes(order.status)) {
     throw new Error(`Order in state ${order.status} cannot be released`);
+  }
+  // Escrow only leaves the platform after delivery was confirmed with the
+  // buyer's one-time code.
+  const { data: confirmation } = await sb
+    .from("delivery_confirmations")
+    .select("confirmed_at")
+    .eq("order_id", orderId)
+    .maybeSingle();
+  if (!confirmation?.confirmed_at) {
+    throw new Error("Escrow can only be released after delivery is confirmed");
   }
   const held = await escrowBalanceForOrder(orderId);
   if (held <= 0) throw new Error("No funds in escrow for this order");
