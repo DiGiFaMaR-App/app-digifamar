@@ -360,10 +360,12 @@ function FarmerDashboard() {
       category: l.category,
       price_per_unit: String(l.price_per_unit),
       unit: l.unit,
+      stock: String(l.stock),
       description: l.description ?? "",
       is_active: l.is_active,
       image_url: l.image_url ?? "",
     });
+
     setEditingId(l.id);
     setShowForm(true);
     setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
