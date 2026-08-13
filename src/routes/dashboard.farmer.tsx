@@ -696,8 +696,9 @@ function ListingsTable({
         <span>Price</span>
         <span>Category</span>
         <span>Status</span>
-        <span>Views</span>
-        <span>Orders</span>
+        <span>Stock</span>
+        <span />
+
         <span />
       </div>
 
