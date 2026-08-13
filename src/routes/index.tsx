@@ -108,7 +108,7 @@ function HeroSection() {
         <div>
           <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-primary shadow-soft">
             <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-            10,000+ verified farmers nationwide
+            Verified U.S. farms · escrow-protected orders
           </div>
 
           <h1 className="text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
@@ -528,7 +528,7 @@ function SupplyChainComparison() {
               ))}
             </ul>
             <div className="rounded-xl bg-leaf-soft py-3.5 text-center text-xl font-bold text-primary">
-              Farmer receives 90%
+              Farmer receives 90% before external charges
             </div>
           </div>
         </div>
