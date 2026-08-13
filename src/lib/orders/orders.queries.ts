@@ -16,10 +16,22 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import type { OrderStatus } from "./dto";
+import { notifyOrderStatus, type OrderNotifyStatus } from "@/lib/notifications/notify-order";
 
 export type OrderRow = Tables<"orders">;
 
 export type CartLine = { slug: string; qty: number };
+
+/**
+ * Delivery details captured at checkout and persisted on every order row so
+ * both parties work from the same fulfilment instructions.
+ */
+export type DeliveryDetails = {
+  method: string;
+  feeCents: number;
+  contactPhone?: string | null;
+  notes?: string | null;
+};
 
 async function requireUserId(): Promise<string> {
   const { data, error } = await supabase.auth.getUser();
@@ -35,6 +47,7 @@ async function requireUserId(): Promise<string> {
 export async function createOrdersFromCart(
   lines: CartLine[],
   shippingAddress: string,
+  delivery: DeliveryDetails = { method: "standard", feeCents: 0 },
 ): Promise<OrderRow[]> {
   if (lines.length === 0) throw new Error("Your cart is empty.");
   const buyerId = await requireUserId();
@@ -59,11 +72,19 @@ export async function createOrdersFromCart(
       listing_id: listing.id,
       qty: line.qty,
       shipping_address: shippingAddress,
+      delivery_method: delivery.method,
+      // Recorded for the fulfilment record only; the DB trigger owns the
+      // subtotal / platform fee / escrow fee / total math.
+      delivery_fee_cents: Math.round(delivery.feeCents / lines.length),
+      delivery_contact_phone: delivery.contactPhone?.trim() || null,
+      delivery_notes: delivery.notes?.trim() || null,
     };
   });
 
   const { data, error } = await supabase.from("orders").insert(rows).select();
   if (error) throw error;
+  // In-app notifications are written by a DB trigger; add email/SMS.
+  await Promise.all((data ?? []).map((o) => notifyOrderStatus(o.id, "placed")));
   return data ?? [];
 }
 
@@ -92,5 +113,6 @@ export async function setOrderStatus(id: string, status: OrderStatus): Promise<O
     .select()
     .single();
   if (error) throw error;
+  await notifyOrderStatus(id, status as OrderNotifyStatus);
   return data;
 }

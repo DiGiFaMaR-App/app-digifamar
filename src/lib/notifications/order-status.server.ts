@@ -15,6 +15,18 @@ import { orderStatusEmail } from "@/lib/email/templates";
 
 export type TrackingStatus = "placed" | "packed" | "shipped" | "delivered";
 
+/**
+ * Full order lifecycle statuses that trigger a buyer/farmer notification.
+ * Superset of the delivery-tracking steps above.
+ */
+export type OrderNotifyStatus =
+  | TrackingStatus
+  | "paid"
+  | "requires_action"
+  | "disputed"
+  | "released"
+  | "cancelled";
+
 export type NotifyChannelResult = {
   sent: boolean;
   reason?: string;
@@ -28,14 +40,14 @@ export type NotifyResult = {
 type Copy = { subject: string; sms: string; body: string };
 
 export function statusCopy(
-  status: TrackingStatus,
+  status: OrderNotifyStatus,
   opts: { farmName?: string | null; note?: string | null; carrier?: string | null; trackingNumber?: string | null },
 ): Copy {
   const from = opts.farmName ? ` from ${opts.farmName}` : "";
   const tracking = [opts.carrier, opts.trackingNumber].filter(Boolean).join(" ");
   const extras = [opts.note?.trim(), tracking ? `Tracking: ${tracking}` : ""].filter(Boolean).join(" ");
 
-  const base: Record<TrackingStatus, Copy> = {
+  const base: Record<OrderNotifyStatus, Copy> = {
     placed: {
       subject: "Your DiGiFaMaR order is confirmed",
       sms: `Your order${from} is confirmed. Funds are held safely in escrow.`,
@@ -55,6 +67,31 @@ export function statusCopy(
       subject: "Your order was delivered",
       sms: `Your order${from} was delivered. Confirm delivery in the app to release escrow.`,
       body: `Your order${from} was marked delivered. Confirm delivery in the app so the farmer can be paid from escrow.`,
+    },
+    paid: {
+      subject: "Payment received — funds held in escrow",
+      sms: `Payment for your order${from} is held in escrow until you confirm delivery.`,
+      body: `We received your payment for your order${from}. The money is held in escrow and is only released to the farmer after you confirm delivery.`,
+    },
+    requires_action: {
+      subject: "Action needed to complete your payment",
+      sms: `Your order${from} needs one more step to complete payment. Open DiGiFaMaR to finish.`,
+      body: `Your bank asked for an extra verification step before your payment for your order${from} can complete. Open the app to finish it.`,
+    },
+    disputed: {
+      subject: "A dispute was opened on your order",
+      sms: `A dispute was opened on your order${from}. Escrow is frozen until it is resolved.`,
+      body: `A dispute was opened on your order${from}. Funds stay frozen in escrow until our team resolves it. You can add evidence from the order page.`,
+    },
+    released: {
+      subject: "Escrow released",
+      sms: `Escrow for your order${from} has been released to the farmer.`,
+      body: `Delivery was confirmed and the escrowed funds for your order${from} have been released to the farmer.`,
+    },
+    cancelled: {
+      subject: "Your order was cancelled",
+      sms: `Your order${from} was cancelled.`,
+      body: `Your order${from} was cancelled. Any escrowed funds are returned to you.`,
     },
   };
 
@@ -108,7 +145,7 @@ async function sendEmail(
 /** Notify a buyer over SMS + email about a tracking status change. */
 export async function notifyBuyerOfStatus(input: {
   orderId: string;
-  status: TrackingStatus;
+  status: OrderNotifyStatus;
   buyerPhone?: string | null;
   buyerEmail?: string | null;
   farmName?: string | null;
