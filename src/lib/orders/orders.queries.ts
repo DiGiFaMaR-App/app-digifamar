@@ -83,6 +83,8 @@ export async function createOrdersFromCart(
 
   const { data, error } = await supabase.from("orders").insert(rows).select();
   if (error) throw error;
+  // In-app notifications are written by a DB trigger; add email/SMS.
+  await Promise.all((data ?? []).map((o) => notifyOrderStatus(o.id, "placed")));
   return data ?? [];
 }
 
@@ -111,5 +113,6 @@ export async function setOrderStatus(id: string, status: OrderStatus): Promise<O
     .select()
     .single();
   if (error) throw error;
+  await notifyOrderStatus(id, status as OrderNotifyStatus);
   return data;
 }

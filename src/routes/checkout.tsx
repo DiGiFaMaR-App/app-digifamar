@@ -89,6 +89,11 @@ function CheckoutPage() {
       const orders = await createOrdersFromCart(
         items.map((i) => ({ slug: i.productId, qty: i.quantity })),
         shippingAddress.trim(),
+        {
+          method: deliveryMethod,
+          feeCents: deliveryFeeCents,
+          notes: DELIVERY_METHODS[deliveryMethod].label,
+        },
       );
       setPlaced(true);
       clear();
