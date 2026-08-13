@@ -474,6 +474,8 @@ function FarmerDashboard() {
                 <ListingForm
                   draft={draft}
                   isEditing={!!editingId}
+                  farmerId={user?.id}
+
                   onChange={setDraft}
                   onSave={handleSaveListing}
                   onCancel={() => {
