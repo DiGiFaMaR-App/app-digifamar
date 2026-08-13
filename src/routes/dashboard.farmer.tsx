@@ -829,15 +829,16 @@ function ListingForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#132013] border-[#1E3A1E]">
-                {LISTING_CATEGORIES.map((c) => (
+                {MARKET_CATEGORIES.map((c) => (
                   <SelectItem
-                    key={c}
-                    value={c}
+                    key={c.slug}
+                    value={c.slug}
                     className="text-[#F0FFF0] focus:bg-[#1E3A1E] focus:text-[#F0FFF0]"
                   >
-                    {c}
+                    {c.emoji} {c.name}
                   </SelectItem>
                 ))}
+
               </SelectContent>
             </Select>
           </FormField>
