@@ -372,14 +372,12 @@ function FarmerDashboard() {
   };
 
   const handleSaveListing = async () => {
-    if (!draft.name.trim()) {
-      toast.error("Product name is required");
+    const problem = validateListingDraft(draft);
+    if (problem) {
+      toast.error(problem);
       return;
     }
-    if (!draft.price_per_unit || isNaN(parseFloat(draft.price_per_unit))) {
-      toast.error("Enter a valid price");
-      return;
-    }
+
     const ok = await saveListing(draft, editingId ?? undefined);
     if (ok) {
       setShowForm(false);
