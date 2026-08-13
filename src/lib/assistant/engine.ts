@@ -258,7 +258,7 @@ const HELP_TOPICS: HelpTopic[] = [
     build: () => ({
       intent: "help",
       reply:
-        "Every DiGiFaMaR order is escrow-protected. Your payment is held by Escrow.com and only " +
+        "Every DiGiFaMaR order is escrow-protected. Your payment is held in escrow and only " +
         "released to the farmer after your goods are delivered and you confirm receipt with a " +
         "6-digit code. If something's wrong, you're covered by buyer protection.",
       products: [],

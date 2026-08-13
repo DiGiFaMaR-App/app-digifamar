@@ -220,7 +220,7 @@ const HOW_STEPS = [
   {
     icon: "🔐",
     title: "Order with escrow",
-    desc: "Your payment is held securely by Escrow.com until delivery is confirmed.",
+    desc: "Your payment is held securely in escrow until delivery is confirmed.",
   },
   {
     icon: "🌾",
@@ -282,7 +282,7 @@ function EscrowSection() {
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-primary shadow-soft">
             <Shield className="h-4 w-4" />
-            Powered by Escrow.com
+            Escrow-protected payments
           </div>
           <h2 className="text-3xl font-bold sm:text-4xl">
             Every transaction protected by escrow

@@ -47,6 +47,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminMapsRouteImport } from './routes/admin.maps'
 import { Route as AdminOgAuditRouteImport } from './routes/admin.og-audit'
 import { Route as AdminOrdersRouteImport } from './routes/admin.orders'
+import { Route as AdminReadinessRouteImport } from './routes/admin.readiness'
 import { Route as AdminRevealKeyRouteImport } from './routes/admin.reveal-key'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as ApiOrdersRouteImport } from './routes/api/orders'
@@ -273,6 +274,11 @@ const AdminOrdersRoute = AdminOrdersRouteImport.update({
   path: '/admin/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminReadinessRoute = AdminReadinessRouteImport.update({
+  id: '/admin/readiness',
+  path: '/admin/readiness',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRevealKeyRoute = AdminRevealKeyRouteImport.update({
   id: '/admin/reveal-key',
   path: '/admin/reveal-key',
@@ -479,6 +485,7 @@ export interface FileRoutesByFullPath {
   '/admin/maps': typeof AdminMapsRoute
   '/admin/og-audit': typeof AdminOgAuditRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/admin/readiness': typeof AdminReadinessRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
@@ -552,6 +559,7 @@ export interface FileRoutesByTo {
   '/admin/maps': typeof AdminMapsRoute
   '/admin/og-audit': typeof AdminOgAuditRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/admin/readiness': typeof AdminReadinessRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
@@ -626,6 +634,7 @@ export interface FileRoutesById {
   '/admin/maps': typeof AdminMapsRoute
   '/admin/og-audit': typeof AdminOgAuditRoute
   '/admin/orders': typeof AdminOrdersRoute
+  '/admin/readiness': typeof AdminReadinessRoute
   '/admin/reveal-key': typeof AdminRevealKeyRoute
   '/admin/users': typeof AdminUsersRoute
   '/api/orders': typeof ApiOrdersRouteWithChildren
@@ -701,6 +710,7 @@ export interface FileRouteTypes {
     | '/admin/maps'
     | '/admin/og-audit'
     | '/admin/orders'
+    | '/admin/readiness'
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
@@ -774,6 +784,7 @@ export interface FileRouteTypes {
     | '/admin/maps'
     | '/admin/og-audit'
     | '/admin/orders'
+    | '/admin/readiness'
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
@@ -847,6 +858,7 @@ export interface FileRouteTypes {
     | '/admin/maps'
     | '/admin/og-audit'
     | '/admin/orders'
+    | '/admin/readiness'
     | '/admin/reveal-key'
     | '/admin/users'
     | '/api/orders'
@@ -921,6 +933,7 @@ export interface RootRouteChildren {
   AdminMapsRoute: typeof AdminMapsRoute
   AdminOgAuditRoute: typeof AdminOgAuditRoute
   AdminOrdersRoute: typeof AdminOrdersRoute
+  AdminReadinessRoute: typeof AdminReadinessRoute
   AdminRevealKeyRoute: typeof AdminRevealKeyRoute
   AdminUsersRoute: typeof AdminUsersRoute
   ApiOrdersRoute: typeof ApiOrdersRouteWithChildren
@@ -1224,6 +1237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/readiness': {
+      id: '/admin/readiness'
+      path: '/admin/readiness'
+      fullPath: '/admin/readiness'
+      preLoaderRoute: typeof AdminReadinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/reveal-key': {
       id: '/admin/reveal-key'
       path: '/admin/reveal-key'
@@ -1509,6 +1529,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminMapsRoute: AdminMapsRoute,
   AdminOgAuditRoute: AdminOgAuditRoute,
   AdminOrdersRoute: AdminOrdersRoute,
+  AdminReadinessRoute: AdminReadinessRoute,
   AdminRevealKeyRoute: AdminRevealKeyRoute,
   AdminUsersRoute: AdminUsersRoute,
   ApiOrdersRoute: ApiOrdersRouteWithChildren,

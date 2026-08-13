@@ -126,7 +126,7 @@ function CartPage() {
               </Button>
 
               <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Escrow.com-protected payment
+                <ShieldCheck className="h-3.5 w-3.5 text-primary" /> Escrow-protected payment
               </p>
             </aside>
           </div>
