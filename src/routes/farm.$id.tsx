@@ -6,6 +6,7 @@ import { DemoNotice } from "@/components/DemoNotice";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/Cards";
 import { farms, getFarm, getProductsByFarm, products } from "@/lib/mock-data";
+import { isFarmId, useFarmProfile } from "@/lib/farms/use-farm-profile";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { farmOgImage, OG_CARD_HEIGHT, OG_CARD_WIDTH } from "@/lib/og/listing-cards";
@@ -14,8 +15,10 @@ import { breadcrumbJsonLd, farmJsonLd, siteUrl } from "@/lib/seo/structured-data
 export const Route = createFileRoute("/farm/$id")({
   loader: ({ params }) => {
     const farm = getFarm(params.id);
-    if (!farm) throw notFound();
-    return { farm };
+    // A UUID is a real farmer account: the profile is fetched client-side from
+    // `public_farms`, so don't 404 just because it isn't in the sample catalog.
+    if (!farm && !isFarmId(params.id)) throw notFound();
+    return { farm: farm ?? null };
   },
   head: ({ params, loaderData }) => {
     const f = loaderData?.farm;
@@ -63,13 +66,48 @@ export const Route = createFileRoute("/farm/$id")({
 });
 
 function FarmPage() {
-  const { farm } = Route.useLoaderData();
-  const farmProducts = getProductsByFarm(farm.id);
-  const fallback = farmProducts.length ? farmProducts : products.slice(0, 3);
-  const nearby = farms.filter((f) => f.id !== farm.id).slice(0, 3);
+  const { farm: sampleFarm } = Route.useLoaderData();
+  const { id } = Route.useParams();
+  const { data: live, isLoading: liveLoading } = useFarmProfile(id);
+
+  // Live farms always win; the sample farm is only a fallback for demo ids.
+  const farm = live
+    ? { ...(sampleFarm ?? {}), ...live.farm, image: sampleFarm?.image ?? farms[0].image }
+    : sampleFarm;
+
+  const sampleProducts = sampleFarm ? getProductsByFarm(sampleFarm.id) : [];
+  const isLive = Boolean(live);
+  const fallback = isLive
+    ? (live?.products ?? [])
+    : sampleProducts.length
+      ? sampleProducts
+      : products.slice(0, 3);
+  const nearby = farms.filter((f) => f.id !== id).slice(0, 3);
   const { user } = useAuth();
   const navigate = useNavigate();
   const [messaging, setMessaging] = useState(false);
+
+  if (!farm) {
+    return (
+      <SiteLayout>
+        <div className="mx-auto max-w-3xl px-4 py-24 text-center">
+          {liveLoading ? (
+            <p className="text-sm text-muted-foreground">Loading farm…</p>
+          ) : (
+            <>
+              <h1 className="text-2xl font-extrabold">Farm not found</h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                This farm profile is no longer available.
+              </p>
+              <Button asChild className="mt-6">
+                <Link to="/market">Browse the marketplace</Link>
+              </Button>
+            </>
+          )}
+        </div>
+      </SiteLayout>
+    );
+  }
 
   const handleMessageFarmer = async () => {
     if (!user) {
@@ -133,8 +171,10 @@ function FarmPage() {
               </div>
               <p className="mt-1 text-sm text-muted-foreground">
                 <MapPin className="mr-0.5 inline h-4 w-4" />
-                {farm.location} · est. {farm.established}
+                {farm.location}
+                {farm.established ? ` · est. ${farm.established}` : ""}
               </p>
+              {!isLive && (
               <p className="mt-2 flex items-center gap-3 text-sm">
                 <span className="flex items-center gap-0.5">
                   <Star className="h-4 w-4 fill-badge-gold text-badge-gold" />
@@ -145,6 +185,7 @@ function FarmPage() {
                   {farm.totalSales.toLocaleString()} total sales
                 </span>
               </p>
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               <Button>
@@ -175,14 +216,20 @@ function FarmPage() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-        <DemoNotice className="mb-6" />
+        {!isLive && <DemoNotice className="mb-6" />}
         <section>
           <h2 className="text-2xl font-extrabold">Products from {farm.name.split(" ")[0]}</h2>
-          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {fallback.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
+          {fallback.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">
+              This farm has no active listings right now.
+            </p>
+          ) : (
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {fallback.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="mt-16 grid gap-8 md:grid-cols-3">
@@ -196,7 +243,7 @@ function FarmPage() {
                 className="h-20 w-20 rounded-full object-cover"
               />
               <p className="text-sm text-muted-foreground">
-                Family-run for {2026 - farm.established} years. Our practices center on soil health,
+                {farm.established ? `Family-run for ${2026 - farm.established} years. ` : ""} Our practices center on soil health,
                 animal welfare, and feeding our neighbors better food. We're proud to ship across
                 America through DiGiFaMaR.
               </p>
