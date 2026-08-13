@@ -16,6 +16,7 @@ import {
 } from "@/lib/escrow-v2/escrow.functions";
 import { DisputePanel } from "@/components/order/DisputePanel";
 import { OrderTimeline } from "@/components/order/OrderTimeline";
+import { notifyOrderStatus } from "@/lib/notifications/notify-order";
 
 export const Route = createFileRoute("/orders/$id")({
   head: () => ({
@@ -244,6 +245,43 @@ function OrderDetailPage() {
           </dl>
         </div>
 
+        {/* Delivery details captured at checkout */}
+        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+            Delivery details
+          </h2>
+          <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
+            <dt className="text-muted-foreground">Address</dt>
+            <dd className="col-span-2">{order.shipping_address ?? "—"}</dd>
+            <dt className="text-muted-foreground">Method</dt>
+            <dd className="col-span-2 capitalize">{order.delivery_method ?? "standard"}</dd>
+            <dt className="text-muted-foreground">Delivery fee</dt>
+            <dd className="col-span-2">{dollars(order.delivery_fee_cents ?? 0)}</dd>
+            {order.delivery_contact_phone && (
+              <>
+                <dt className="text-muted-foreground">Contact</dt>
+                <dd className="col-span-2">{order.delivery_contact_phone}</dd>
+              </>
+            )}
+            {order.delivery_notes && (
+              <>
+                <dt className="text-muted-foreground">Notes</dt>
+                <dd className="col-span-2">{order.delivery_notes}</dd>
+              </>
+            )}
+            <dt className="text-muted-foreground">Delivered</dt>
+            <dd className="col-span-2">
+              {order.delivered_at ? new Date(order.delivered_at).toLocaleString() : "Not yet"}
+            </dd>
+            <dt className="text-muted-foreground">Confirmed</dt>
+            <dd className="col-span-2">
+              {order.delivery_confirmed_at
+                ? new Date(order.delivery_confirmed_at).toLocaleString()
+                : "Escrow stays held until delivery is confirmed"}
+            </dd>
+          </dl>
+        </div>
+
         {/* Escrow actions */}
         <div className="mt-6 rounded-2xl border border-border bg-card p-5">
           <div className="flex items-center gap-2">
@@ -265,6 +303,7 @@ function OrderDetailPage() {
                 totalCents={order.total_cents}
                 onFunded={() => {
                   toast.success("Funds placed in escrow");
+                  void notifyOrderStatus(order.id, "paid");
                   void load();
                 }}
               />
@@ -349,7 +388,12 @@ function OrderDetailPage() {
                         disabled={busy || otpInput.length !== 6}
                         onClick={() =>
                           wrap(
-                            () => confirmDelivery({ data: { orderId: order.id, otp: otpInput } }),
+                            async () => {
+                              await confirmDelivery({
+                                data: { orderId: order.id, otp: otpInput },
+                              });
+                              await notifyOrderStatus(order.id, "delivered");
+                            },
                             "Delivery confirmed — inspection window open",
                           )
                         }
@@ -376,7 +420,10 @@ function OrderDetailPage() {
               <Button
                 disabled={busy}
                 onClick={() =>
-                  wrap(() => release({ data: { orderId: order.id } }), "Funds released to farmer")
+                  wrap(async () => {
+                    await release({ data: { orderId: order.id } });
+                    await notifyOrderStatus(order.id, "released");
+                  }, "Funds released to farmer")
                 }
                 className="w-full bg-primary text-primary-foreground hover:bg-primary-hover"
               >
