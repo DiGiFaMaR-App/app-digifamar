@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
+import { DemoNotice } from "@/components/DemoNotice";
 import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -505,6 +506,7 @@ function Browse() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-10">
+        <DemoNotice />
         {origin && (
           <section aria-label="Selected location map">
             <BrowseMap

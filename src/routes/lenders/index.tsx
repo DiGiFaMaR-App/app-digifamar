@@ -141,7 +141,7 @@ function LendersLanding() {
 
         {/* Benefits */}
         <section className="mt-14 grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="min-w-0 rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center gap-2">
               <Sprout className="h-5 w-5 text-primary" />
               <h2 className="text-xl font-bold">Why farmers benefit</h2>
@@ -154,12 +154,12 @@ function LendersLanding() {
                 </li>
               ))}
             </ul>
-            <Button asChild variant="outline" className="mt-5">
+            <Button asChild variant="outline" className="mt-5 h-auto min-h-11 w-full whitespace-normal text-center sm:w-auto">
               <Link to="/dashboard/farmer">Express interest from your dashboard</Link>
             </Button>
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-6">
+          <div className="min-w-0 rounded-2xl border border-border bg-card p-6">
             <div className="flex items-center gap-2">
               <LineChart className="h-5 w-5 text-primary" />
               <h2 className="text-xl font-bold">Why lenders benefit</h2>
@@ -172,7 +172,7 @@ function LendersLanding() {
                 </li>
               ))}
             </ul>
-            <Button asChild className="mt-5">
+            <Button asChild className="mt-5 h-auto min-h-11 w-full whitespace-normal text-center sm:w-auto">
               <Link to="/lenders/apply">Join the lender waitlist</Link>
             </Button>
           </div>

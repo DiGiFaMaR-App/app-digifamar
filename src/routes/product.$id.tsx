@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { DemoNotice } from "@/components/DemoNotice";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { getFarm, getProduct } from "@/lib/mock-data";
@@ -109,6 +110,7 @@ function ProductPage() {
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back to marketplace
         </Link>
+        <DemoNotice className="mt-3" />
 
         <div className="mt-4 grid gap-6 md:grid-cols-2">
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
