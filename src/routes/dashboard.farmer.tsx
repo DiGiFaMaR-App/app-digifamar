@@ -126,19 +126,7 @@ const LENDING_TARGET = 30;
 // TYPES
 // ─────────────────────────────────────────────────────────────────
 
-interface Listing {
-  id: string;
-  farmer_id: string;
-  name: string;
-  category: string;
-  price_per_unit: number;
-  unit: string;
-  description: string | null;
-  is_active: boolean;
-  image_url: string | null;
-  views: number;
-  orders_count: number;
-}
+type Listing = FarmerListing;
 
 interface Order {
   id: string;
@@ -167,25 +155,8 @@ interface FarmProfile {
   rejection_reason: string | null;
 }
 
-interface ListingDraft {
-  name: string;
-  category: string;
-  price_per_unit: string;
-  unit: string;
-  description: string;
-  is_active: boolean;
-  image_url: string;
-}
+const emptyDraft: ListingDraft = emptyListingDraft;
 
-const emptyDraft: ListingDraft = {
-  name: "",
-  category: "Fresh Vegetables",
-  price_per_unit: "",
-  unit: "lb",
-  description: "",
-  is_active: true,
-  image_url: "",
-};
 
 // ─────────────────────────────────────────────────────────────────
 // DATA HOOK
