@@ -74,11 +74,10 @@ function Marketplace() {
     detect,
   } = useGeolocation();
 
-  const {
-    data: products = [],
-    isLoading: productsLoading,
-    isError: productsError,
-  } = useCatalogProducts();
+  const { data: catalog, isLoading: productsLoading, isError: productsError } = useCatalogProducts();
+  const products = catalog?.products ?? [];
+  const isDemoCatalog = catalog?.source === "demo";
+
 
   const [manualInput, setManualInput] = useState("");
   const [query, setQuery] = useState("");
