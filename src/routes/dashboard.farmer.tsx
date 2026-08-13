@@ -745,13 +745,20 @@ function ListingsTable({
             <span className="text-xs text-[#7AAB7A]">{l.is_active ? "Active" : "Off"}</span>
           </div>
 
-          {/* Views — hidden on mobile */}
-          <span className="hidden sm:block text-xs text-[#7AAB7A]">{l.views.toLocaleString()}</span>
-
-          {/* Orders — hidden on mobile */}
+          {/* Stock — hidden on mobile */}
           <span className="hidden sm:block text-xs text-[#7AAB7A]">
-            {l.orders_count.toLocaleString()}
+            {l.stock.toLocaleString()} {l.unit}
           </span>
+
+          {/* Public link — hidden on mobile */}
+          <Link
+            to="/product/$id"
+            params={{ id: l.slug }}
+            className="hidden sm:block text-xs text-[#4ADE80] hover:underline"
+          >
+            View
+          </Link>
+
 
           {/* Edit */}
           <button
