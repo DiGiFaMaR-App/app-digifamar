@@ -8,7 +8,17 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   orderId: z.string().uuid(),
-  status: z.enum(["placed", "packed", "shipped", "delivered"]),
+  status: z.enum([
+    "placed",
+    "packed",
+    "shipped",
+    "delivered",
+    "paid",
+    "requires_action",
+    "disputed",
+    "released",
+    "cancelled",
+  ]),
   note: z.string().max(280).optional(),
   carrier: z.string().max(60).optional(),
   trackingNumber: z.string().max(60).optional(),
@@ -18,14 +28,14 @@ export const notifyBuyerOfOrderStatusFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => Input.parse(input))
   .handler(async ({ data, context }) => {
-    // The caller must be the farmer on this order (RLS-scoped read).
+    // The caller must be a participant on this order (RLS-scoped read).
     const { data: order } = await context.supabase
       .from("orders")
       .select("id, buyer_id, farmer_id")
       .eq("id", data.orderId)
       .maybeSingle();
 
-    if (!order || order.farmer_id !== context.userId) {
+    if (!order || (order.farmer_id !== context.userId && order.buyer_id !== context.userId)) {
       return { ok: false as const, reason: "forbidden" };
     }
 
