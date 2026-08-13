@@ -88,6 +88,7 @@ describe("Checkout route", () => {
     expect(createOrdersFromCart).toHaveBeenCalledWith(
       [{ slug: "heirloom-tomatoes", qty: 2 }],
       "123 Market St, Austin, TX 78701",
+      expect.objectContaining({ method: "standard" }),
     );
     await waitFor(() => expect(cartStore.getItems()).toEqual([]));
   });
