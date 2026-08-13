@@ -39,7 +39,7 @@ function Auth() {
   const setTab = (t: "signup" | "signin") => navigate({ to: "/auth", search: { tab: t, next } });
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center px-5 py-10">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-x-hidden px-5 py-10">
       {/* Ambient glow */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" />
