@@ -202,16 +202,13 @@ function useFarmerDashboard(userId: string | undefined) {
             .select("id, total_cents, status, created_at, listings(title)")
             .eq("farmer_id", userId)
             .order("created_at", { ascending: false }),
-          sb
-            .from("listings")
-            .select("*")
-            .eq("farmer_id", userId)
-            .order("created_at", { ascending: false }),
+          fetchFarmerListings(userId),
           sb.from("reviews").select("rating").eq("farmer_id", userId),
           supabase.from("farmer_profiles").select("*").eq("user_id", userId).maybeSingle(),
         ]);
 
         if (cancelled) return;
+
 
         // Map the real `orders` schema (cents + joined listing title) onto the
         // dashboard's view model. Buyer names aren't readable here under RLS.
