@@ -37,9 +37,9 @@ describe("Footer", () => {
     expect(wa).toHaveAttribute("rel", "noreferrer");
   });
 
-  it("renders trust badges (USDA + SSL)", () => {
+  it("renders trust badges (escrow + SSL)", () => {
     render(<Footer />);
-    expect(screen.getByText(/usda compliant/i)).toBeInTheDocument();
+    expect(screen.getByText(/escrow-protected/i)).toBeInTheDocument();
     expect(screen.getByText(/ssl secure/i)).toBeInTheDocument();
   });
 });
