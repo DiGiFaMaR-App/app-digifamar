@@ -863,18 +863,38 @@ function ListingForm({
           </FormField>
         </div>
 
-        {/* Price */}
-        <FormField label="Price per Unit ($)">
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={draft.price_per_unit}
-            onChange={(e) => set("price_per_unit", e.target.value)}
-            placeholder="e.g. 3.50"
-            className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
-          />
-        </FormField>
+        {/* Price + stock */}
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Price per Unit ($)">
+            <Input
+              type="number"
+              min="0"
+              step="0.01"
+              value={draft.price_per_unit}
+              onChange={(e) => set("price_per_unit", e.target.value)}
+              placeholder="e.g. 3.50"
+              className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
+            />
+          </FormField>
+
+          <FormField label="Quantity available">
+            <Input
+              type="number"
+              min="0"
+              step="1"
+              value={draft.stock}
+              onChange={(e) => set("stock", e.target.value)}
+              placeholder="e.g. 25"
+              className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
+            />
+          </FormField>
+        </div>
+
+        <p className="rounded-xl border border-[#1E3A1E] bg-[#060F06] px-4 py-3 text-xs text-[#7AAB7A]">
+          You keep <span className="font-semibold text-[#4ADE80]">90%</span> of the item subtotal.
+          DiGiFaMaR charges a 10% platform fee; escrow and payment-processing charges are billed
+          separately and shown to the buyer at checkout.
+        </p>
 
         {/* Description */}
         <FormField label="Description">
@@ -887,15 +907,36 @@ function ListingForm({
           />
         </FormField>
 
-        {/* Image URL */}
-        <FormField label="Image URL (optional)">
-          <Input
-            value={draft.image_url}
-            onChange={(e) => set("image_url", e.target.value)}
-            placeholder="https://example.com/photo.jpg"
-            className="bg-[#060F06] border-[#1E3A1E] text-[#F0FFF0] placeholder:text-[#7AAB7A]/50 focus:border-[#4ADE80]"
-          />
+        {/* Product photo */}
+        <FormField label="Product photo">
+          <div className="flex items-center gap-3">
+            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-[#1E3A1E] bg-[#060F06] flex items-center justify-center">
+              {draft.image_url ? (
+                <img src={draft.image_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <ImageIcon className="h-5 w-5 text-[#7AAB7A]" aria-hidden />
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <input
+                id="listing-photo"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="block w-full text-xs text-[#7AAB7A] file:mr-3 file:rounded-lg file:border-0 file:bg-[#1E3A1E] file:px-3 file:py-2 file:text-xs file:text-[#F0FFF0]"
+                disabled={uploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void onUploadImage(file);
+                  e.target.value = "";
+                }}
+              />
+              <p className="mt-1 text-[11px] text-[#7AAB7A]">
+                {uploading ? "Uploading…" : "JPG, PNG or WebP · up to 5 MB"}
+              </p>
+            </div>
+          </div>
         </FormField>
+
 
         {/* Stock toggle */}
         <label className="flex items-center justify-between rounded-xl border border-[#1E3A1E] bg-[#060F06] px-4 py-3 cursor-pointer">
