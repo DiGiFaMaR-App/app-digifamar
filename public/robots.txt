@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://farmer-forward.lovable.app/sitemap.xml
+Sitemap: https://app.digifamar.com/sitemap.xml

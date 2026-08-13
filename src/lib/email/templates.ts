@@ -92,7 +92,7 @@ export function signupEmail(args: { name?: string | null; confirmUrl?: string })
     html: renderBrandedEmail({
       title: `Welcome to DiGiFaMaR${who}`,
       preheader: "Confirm your email and start buying direct from American farms.",
-      body: `Thanks for joining DiGiFaMaR — the marketplace where American farmers sell direct and keep 80–90% of every sale.\nConfirm your email address to activate your account.`,
+      body: `Thanks for joining DiGiFaMaR — the marketplace where American farmers sell direct and receive 90% of every sale.\nConfirm your email address to activate your account.`,
       cta: args.confirmUrl ? { label: "Confirm my email", url: args.confirmUrl } : undefined,
       footnote: "If you didn't create this account, you can safely ignore this email.",
     }),

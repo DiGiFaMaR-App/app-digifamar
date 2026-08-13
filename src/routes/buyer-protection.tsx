@@ -9,11 +9,11 @@ export const Route = createFileRoute("/buyer-protection")({
       {
         name: "description",
         content:
-          "Every DiGiFaMaR order is escrow-protected. Funds release only after you confirm delivery, with a 72-hour refund guarantee.",
+          "Every DiGiFaMaR order is escrow-protected. Funds release only after you confirm delivery, with a 72-hour dispute window subject to the applicable terms.",
       },
-      { property: "og:url", content: "/buyer-protection" },
+      { property: "og:url", content: "https://app.digifamar.com/buyer-protection" },
     ],
-    links: [{ rel: "canonical", href: "/buyer-protection" }],
+    links: [{ rel: "canonical", href: "https://app.digifamar.com/buyer-protection" }],
   }),
   component: Protection,
 });
@@ -33,7 +33,7 @@ function Protection() {
     {
       icon: RefreshCw,
       t: "72-hour refund window",
-      b: "Something wrong? Open a dispute within 72 hours of delivery for an automatic refund and review.",
+      b: "Something wrong? Open a dispute within 72 hours of delivery. Escrow release is paused while the claim is reviewed, subject to the applicable terms.",
     },
     {
       icon: Clock,

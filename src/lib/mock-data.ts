@@ -360,7 +360,7 @@ export const farmerTestimonials = [
     farm: "River Bend Produce, PA",
     rating: 5,
     quote:
-      "Last season I sold 60% of my harvest through DiGiFaMaR. Kept 88% of every dollar. Wholesale buyers were taking 45%.",
+      "Last season I sold 60% of my harvest through DiGiFaMaR. Kept 90% of every dollar before escrow and payment fees. Wholesale buyers were taking 45%.",
   },
   {
     name: "Elena Vasquez",

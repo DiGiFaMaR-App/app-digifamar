@@ -235,9 +235,9 @@ function OrderDetailPage() {
           <dl className="mt-4 grid grid-cols-2 gap-2 text-xs">
             <dt className="text-muted-foreground">Subtotal</dt>
             <dd className="text-right">{dollars(order.subtotal_cents)}</dd>
-            <dt className="text-muted-foreground">Platform fee (5%)</dt>
+            <dt className="text-muted-foreground">Platform fee (10%)</dt>
             <dd className="text-right">{dollars(order.platform_fee_cents)}</dd>
-            <dt className="text-muted-foreground">Escrow fee (2.5%)</dt>
+            <dt className="text-muted-foreground">Escrow fee (3.25%)</dt>
             <dd className="text-right">{dollars(order.escrow_fee_cents)}</dd>
             <dt className="font-semibold">Total</dt>
             <dd className="text-right font-semibold">{dollars(order.total_cents)}</dd>

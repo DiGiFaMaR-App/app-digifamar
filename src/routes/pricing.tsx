@@ -14,9 +14,9 @@ export const Route = createFileRoute("/pricing")({
       },
       { property: "og:title", content: "Farmer pricing plans | DiGiFaMaR" },
       { property: "og:description", content: "Free, Pro, and Elite plans for American farmers." },
-      { property: "og:url", content: "https://farmer-forward.lovable.app/pricing" },
+      { property: "og:url", content: "https://app.digifamar.com/pricing" },
     ],
-    links: [{ rel: "canonical", href: "https://farmer-forward.lovable.app/pricing" }],
+    links: [{ rel: "canonical", href: "https://app.digifamar.com/pricing" }],
   }),
   component: Pricing,
 });
@@ -26,7 +26,7 @@ const tiers = [
     name: "Free",
     price: "$0",
     note: "/month",
-    fee: "15% platform fee",
+    fee: "10% platform fee",
     features: [
       "5 active listings",
       "Standard search placement",
@@ -73,7 +73,8 @@ function Pricing() {
         <div className="mx-auto max-w-2xl text-center">
           <h1 className="text-4xl font-extrabold sm:text-5xl">Farmer pricing</h1>
           <p className="mt-3 text-muted-foreground">
-            Transparent fees. No hidden costs. Cancel anytime.
+            A flat 10% DiGiFaMaR platform fee on every sale. Escrow and payment-processing
+            charges are billed separately and shown at checkout. Cancel anytime.
           </p>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">

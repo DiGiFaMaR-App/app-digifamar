@@ -198,7 +198,9 @@ function HeroSection() {
               Farmer payout
             </p>
             <p className="mt-1 text-2xl font-bold text-primary">90%</p>
-            <p className="text-xs text-muted-foreground">of every sale</p>
+            <p className="text-xs text-muted-foreground">
+              of the sale price, before escrow &amp; payment fees
+            </p>
           </div>
         </div>
       </div>
@@ -286,7 +288,7 @@ function EscrowSection() {
             Every transaction protected by escrow
           </h2>
           <p className="mt-4 text-base text-muted-foreground">
-            Funds are held in trust until you confirm receipt — no payment risk, ever.
+            Funds are held by our escrow partner until you confirm receipt, subject to the applicable terms.
           </p>
         </div>
 
@@ -458,8 +460,8 @@ const TRADITIONAL_POINTS = [
 ];
 
 const DIGIFAMAR_POINTS = [
-  { icon: "📈", text: "Farmer keeps 90% of sale price", highlight: true },
-  { icon: "💰", text: "10% platform fee only", highlight: true },
+  { icon: "📈", text: "Farmer receives 90% of the sale price", highlight: true },
+  { icon: "💰", text: "10% platform fee (escrow & payment fees separate)", highlight: true },
   { icon: "⚡", text: "24–48 hour direct delivery" },
   { icon: "🤝", text: "Direct farmer relationship" },
   { icon: "🔒", text: "Full escrow protection on every order" },
@@ -526,7 +528,7 @@ function SupplyChainComparison() {
               ))}
             </ul>
             <div className="rounded-xl bg-leaf-soft py-3.5 text-center text-xl font-bold text-primary">
-              Farmer keeps 90%
+              Farmer receives 90%
             </div>
           </div>
         </div>
@@ -549,7 +551,7 @@ const TESTIMONIALS = [
     name: "Jennifer K.",
     role: "Texas Restaurant Owner",
     avatar: "🍽️",
-    text: "The escrow protection gives me peace of mind. My funds are safe and the produce is guaranteed fresh or I get a full refund. We've completely eliminated our traditional distributor.",
+    text: "The escrow protection gives me peace of mind. Funds stay in escrow until I confirm delivery, and I can open a dispute if something is off. We've completely eliminated our traditional distributor.",
   },
   {
     name: "Sarah W.",
@@ -561,7 +563,7 @@ const TESTIMONIALS = [
     name: "David T.",
     role: "Texas Cattle Rancher",
     avatar: "🐄",
-    text: "The 6-digit delivery confirmation system is brilliant. No disputes, no fraud. Buyers get what they pay for, ranchers get paid instantly after confirmation.",
+    text: "The 6-digit delivery confirmation system is brilliant. Buyers get what they pay for, and we get paid as soon as delivery is confirmed.",
   },
   {
     name: "Maria R.",
@@ -634,8 +636,8 @@ function FarmerCTA() {
               Ready to sell direct?
             </h2>
             <p className="mt-5 max-w-lg text-base leading-relaxed text-primary-foreground/80">
-              Join 10,000+ verified American farmers already selling direct on DiGiFaMaR. Keep 90%
-              of every sale — no middlemen, no surprises.
+              Sell direct to buyers on DiGiFaMaR and receive 90% of the sale price — our platform
+              fee is a flat 10%, with escrow and payment-processing charges billed separately.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -673,8 +675,8 @@ function FarmerCTA() {
 
       <div className="mx-auto mt-6 grid max-w-7xl gap-6 sm:grid-cols-3">
         {[
-          { t: "Free verification", d: "USDA-aligned checks in under a week." },
-          { t: "Instant payouts", d: "Funds release the moment delivery is confirmed." },
+          { t: "Free verification", d: "Document-based farm checks, usually within a week." },
+          { t: "Fast payouts", d: "Escrow releases once delivery is confirmed." },
           { t: "Real buyers", d: "Restaurants, grocers and households near you." },
         ].map((c) => (
           <div key={c.t} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
