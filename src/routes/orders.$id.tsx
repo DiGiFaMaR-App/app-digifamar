@@ -48,6 +48,13 @@ type OrderRow = {
   status: string;
   created_at: string;
   delivery_deadline: string | null;
+  shipping_address: string | null;
+  delivery_method: string | null;
+  delivery_fee_cents: number | null;
+  delivery_contact_phone: string | null;
+  delivery_notes: string | null;
+  delivered_at: string | null;
+  delivery_confirmed_at: string | null;
 };
 
 type ListingRow = { id: string; title: string; unit: string; images: string[] };
