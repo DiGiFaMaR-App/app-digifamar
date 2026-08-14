@@ -8,6 +8,7 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { listFarmerProfilesFn, setFarmerVerificationFn } from "@/lib/admin/admin.functions";
 import { KycDocList } from "@/components/admin/KycDocList";
+import { sendAppEmail } from "@/lib/email/send";
 
 export const Route = createFileRoute("/admin/farmers")({
   head: () => ({ meta: [{ title: "Admin · Farmers" }, { name: "robots", content: "noindex" }] }),
