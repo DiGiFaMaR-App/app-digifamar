@@ -35,6 +35,7 @@ import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SigninRouteImport } from './routes/signin'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -55,6 +56,7 @@ import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as FarmerVerificationRouteImport } from './routes/farmer.verification'
 import { Route as LendersIndexRouteImport } from './routes/lenders/index'
@@ -77,11 +79,16 @@ import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as OrdersIdAuditRouteImport } from './routes/orders.$id_.audit'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -213,6 +220,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const Char91DotmcpChar93ListToolsRoute =
   Char91DotmcpChar93ListToolsRouteImport.update({
     id: '/.mcp/list-tools',
@@ -313,6 +325,11 @@ const DashboardBuyerRoute = DashboardBuyerRouteImport.update({
 const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
   id: '/dashboard/farmer',
   path: '/dashboard/farmer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FarmIdRoute = FarmIdRouteImport.update({
@@ -426,6 +443,11 @@ const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
   path: '/lenders/farmer/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersIdAuditRoute = OrdersIdAuditRouteImport.update({
   id: '/orders/$id_/audit',
   path: '/orders/$id/audit',
@@ -447,10 +469,32 @@ const ApiPublicHealthMapsRoute = ApiPublicHealthMapsRouteImport.update({
   path: '/api/public/health/maps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
     path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -481,6 +525,7 @@ export interface FileRoutesByFullPath {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -499,6 +544,7 @@ export interface FileRoutesByFullPath {
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/farm/$id': typeof FarmIdRoute
   '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
@@ -523,11 +569,16 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/orders/$id/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -556,6 +607,7 @@ export interface FileRoutesByTo {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -574,6 +626,7 @@ export interface FileRoutesByTo {
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/farm/$id': typeof FarmIdRoute
   '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
@@ -598,11 +651,16 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/orders/$id/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -632,6 +690,7 @@ export interface FileRoutesById {
   '/signin': typeof SigninRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -650,6 +709,7 @@ export interface FileRoutesById {
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/farm/$id': typeof FarmIdRoute
   '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
@@ -674,11 +734,16 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/orders/$id_/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -709,6 +774,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -727,6 +793,7 @@ export interface FileRouteTypes {
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
+    | '/email/unsubscribe'
     | '/farm/$id'
     | '/farmer/verification'
     | '/lenders/admin'
@@ -751,11 +818,16 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/lovable/email/suppression'
     | '/orders/$id/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -784,6 +856,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -802,6 +875,7 @@ export interface FileRouteTypes {
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
+    | '/email/unsubscribe'
     | '/farm/$id'
     | '/farmer/verification'
     | '/lenders/admin'
@@ -826,11 +900,16 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/lovable/email/suppression'
     | '/orders/$id/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   id:
     | '__root__'
     | '/'
@@ -859,6 +938,7 @@ export interface FileRouteTypes {
     | '/signin'
     | '/sitemap.xml'
     | '/terms'
+    | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/admin/audit'
@@ -877,6 +957,7 @@ export interface FileRouteTypes {
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
+    | '/email/unsubscribe'
     | '/farm/$id'
     | '/farmer/verification'
     | '/lenders/admin'
@@ -901,11 +982,16 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/lovable/email/suppression'
     | '/orders/$id_/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -935,6 +1021,7 @@ export interface RootRouteChildren {
   SigninRoute: typeof SigninRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AdminAuditRoute: typeof AdminAuditRoute
@@ -953,6 +1040,7 @@ export interface RootRouteChildren {
   ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FarmIdRoute: typeof FarmIdRoute
   FarmerVerificationRoute: typeof FarmerVerificationRoute
   LendersAdminRoute: typeof LendersAdminRoute
@@ -977,10 +1065,15 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   OrdersIdAuditRoute: typeof OrdersIdAuditRoute
   ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
   ApiPublicHealthMapsRoute: typeof ApiPublicHealthMapsRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1167,6 +1260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.mcp/list-tools': {
       id: '/.mcp/list-tools'
       path: '/.mcp/list-tools'
@@ -1305,6 +1405,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/farmer'
       fullPath: '/dashboard/farmer'
       preLoaderRoute: typeof DashboardFarmerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/farm/$id': {
@@ -1461,6 +1568,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LendersFarmerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id_/audit': {
       id: '/orders/$id_/audit'
       path: '/orders/$id/audit'
@@ -1489,11 +1603,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHealthMapsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
       fullPath: '/lovable/email/queue/process'
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1538,6 +1680,7 @@ const rootRouteChildren: RootRouteChildren = {
   SigninRoute: SigninRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
@@ -1557,6 +1700,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FarmIdRoute: FarmIdRoute,
   FarmerVerificationRoute: FarmerVerificationRoute,
   LendersAdminRoute: LendersAdminRoute,
@@ -1581,10 +1725,15 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   OrdersIdAuditRoute: OrdersIdAuditRoute,
   ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
   ApiPublicHealthMapsRoute: ApiPublicHealthMapsRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

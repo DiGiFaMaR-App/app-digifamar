@@ -8,6 +8,7 @@ import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { listFarmerProfilesFn, setFarmerVerificationFn } from "@/lib/admin/admin.functions";
 import { KycDocList } from "@/components/admin/KycDocList";
+import { sendAppEmail } from "@/lib/email/send";
 
 export const Route = createFileRoute("/admin/farmers")({
   head: () => ({ meta: [{ title: "Admin · Farmers" }, { name: "robots", content: "noindex" }] }),
@@ -36,6 +37,7 @@ function Body() {
     userId: string,
     status: "approved" | "rejected" | "under_review",
     farm: string,
+    email?: string | null,
   ) => {
     try {
       let reason: string | undefined;
@@ -44,6 +46,14 @@ function Body() {
         if (reason === undefined) return; // cancelled
       }
       await setFarmerVerificationFn({ data: { userId, status, reason } });
+      if (email) {
+        void sendAppEmail({
+          templateName: "farm-onboarding-status",
+          recipientEmail: email,
+          idempotencyKey: `farm-status-${userId}-${status}`,
+          templateData: { farmName: farm, status, reason: reason ?? null },
+        });
+      }
       toast.success(`Farmer ${status}`);
       refetch();
     } catch (e) {
@@ -118,7 +128,7 @@ function Body() {
                       {f.verification_status !== "approved" && (
                         <Button
                           size="sm"
-                          onClick={() => act(f.user_id, "approved", f.farm_name)}
+                          onClick={() => act(f.user_id, "approved", f.farm_name, f.email)}
                           className="bg-[#22C55E] text-black hover:bg-[#16A34A]"
                         >
                           Approve
@@ -128,7 +138,7 @@ function Body() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => act(f.user_id, "rejected", f.farm_name)}
+                          onClick={() => act(f.user_id, "rejected", f.farm_name, f.email)}
                           className="border-red-400/40 text-red-300 hover:bg-red-500/10"
                         >
                           Reject

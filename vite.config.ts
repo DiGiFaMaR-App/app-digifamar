@@ -4,8 +4,12 @@
 //     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... } }) if needed.
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Browser-safe backend configuration. Keeping these publishable values in the
 // build config prevents production builds from depending on a tracked .env.
@@ -32,6 +36,13 @@ export default defineConfig({
   },
   vite: {
     plugins: [mcpPlugin()],
+    resolve: {
+      alias: {
+        "entities/lib/decode.js": path.resolve(__dirname, "node_modules/entities/lib/decode.js"),
+        "entities/lib/encode.js": path.resolve(__dirname, "node_modules/entities/lib/encode.js"),
+        entities: path.resolve(__dirname, "node_modules/entities"),
+      },
+    },
     define: {
       "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(publicBackendUrl),
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(publicBackendKey),
