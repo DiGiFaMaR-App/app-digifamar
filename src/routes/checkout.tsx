@@ -31,6 +31,8 @@ import {
   PLATFORM_FEE_RATE,
 } from "@/lib/cart/fees";
 import { createOrdersFromCart } from "@/lib/orders/orders.queries";
+import { sendAppEmail } from "@/lib/email/send";
+import { supabase } from "@/integrations/supabase/client";
 import { EscrowPaymentForm, type PayableOrder } from "@/components/checkout/EscrowPaymentForm";
 
 const DELIVERY_ORDER: DeliveryMethod[] = ["standard", "express", "pickup"];
