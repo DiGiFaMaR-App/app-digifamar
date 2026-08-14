@@ -13,7 +13,7 @@
 const PREVIEW_URL = process.env.E2E_PREVIEW_URL || "http://localhost:8080/";
 const PUBLISHED_URL = process.env.E2E_PUBLISHED_URL || "https://app-digifamar.lovable.app/";
 
-const EXPECTED_PHONE = "14709848198";
+const EXPECTED_PHONE = "19294919491";
 const EXPECTED_TEXT = "Hi, I'd like help with DiGiFaMaR";
 const EXPECTED_TARGET = "_top";
 const FAB_LABEL = "Chat with DiGiFaMaR on WhatsApp";
