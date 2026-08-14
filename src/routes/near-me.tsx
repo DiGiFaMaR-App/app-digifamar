@@ -95,11 +95,21 @@ function NearMe() {
 
   const farms = (results.data?.farms ?? [])
     .filter((f) => f.distance_mi != null && (f.distance_mi as number) <= radius)
-    .sort((a, b) => (a.distance_mi ?? 0) - (b.distance_mi ?? 0));
+    .sort((a, b) => {
+      if (sort === "name") return (a.farm_name ?? "").localeCompare(b.farm_name ?? "");
+      if (sort === "delivery") {
+        const aw = estimateDeliveryWindow(a.distance_mi);
+        const bw = estimateDeliveryWindow(b.distance_mi);
+        const diff = (aw?.minDays ?? 99) - (bw?.minDays ?? 99);
+        if (diff !== 0) return diff;
+      }
+      return (a.distance_mi ?? 0) - (b.distance_mi ?? 0);
+    });
 
   const mapFarms = farms
     .filter((f) => f.lat != null && f.lng != null)
     .map((f) => ({ ...f, lat: f.lat as number, lng: f.lng as number }));
+
 
   return (
     <SiteLayout>
