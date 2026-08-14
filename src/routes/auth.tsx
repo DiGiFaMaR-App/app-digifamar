@@ -187,6 +187,19 @@ function SignInPanel({ next }: { next?: string }) {
 
       const role = roleRow?.role ?? "buyer";
 
+      // Branded welcome email. The idempotency key is derived from the user id,
+      // so this only ever produces one welcome per account no matter how many
+      // times they sign in.
+      void sendAppEmail({
+        templateName: "welcome",
+        recipientEmail: data.user.email ?? email,
+        idempotencyKey: `welcome-${data.user.id}`,
+        templateData: {
+          name: (data.user.user_metadata?.["full_name"] as string | undefined)?.split(" ")[0],
+          role,
+        },
+      });
+
       if (next) {
         // `next` is a dynamic path — use the history API so TanStack Router
         // picks it up without needing a compile-time route literal.
