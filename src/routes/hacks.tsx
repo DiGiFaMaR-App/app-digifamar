@@ -100,7 +100,7 @@ function HacksPage() {
         </ul>
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
-          Got a hack that works on your farm? Email tips@digifamar.com — we credit every
+          Got a hack that works on your farm? Email info@digifamar.com — we credit every
           contributor.
         </p>
       </div>

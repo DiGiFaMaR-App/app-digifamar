@@ -27,6 +27,16 @@ export const BRAND = {
   },
 } as const;
 
+/** Real, monitored DiGiFaMaR inboxes — the only addresses shown to users. */
+export const BRAND_EMAILS = {
+  /** Customer support, orders, escrow, privacy and legal questions. */
+  support: "support@digifamar.com",
+  /** General enquiries, press, partnerships, tips. */
+  info: "info@digifamar.com",
+  /** Lending programme, lender partners and farmer financing. */
+  lenders: "lenders@digifamar.com",
+} as const;
+
 /** Hex values mirrored from the design tokens in `src/styles.css`. */
 export const BRAND_COLORS = [
   { name: "Forest", token: "--primary", hex: "#0F2C1A", use: "Primary actions, headings, dark surfaces" },

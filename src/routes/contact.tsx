@@ -3,6 +3,7 @@ import { Mail, MessageCircle, Phone } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { getWhatsAppWebUrl, SUPPORT_PHONE_E164 } from "@/components/WhatsAppFab";
 import { trackWhatsAppClick } from "@/lib/analytics/whatsapp";
+import { BRAND_EMAILS } from "@/lib/brand";
 import { formatE164Display, toTelHref } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,16 +67,24 @@ function Contact() {
                 <p className="text-xs text-muted-foreground">{SUPPORT_DISPLAY}</p>
               </div>
             </a>
-            <a
-              href="mailto:hello@digifamar.com"
-              className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4"
-            >
-              <Mail className="h-6 w-6 text-primary" />
-              <div>
-                <p className="font-semibold">Email</p>
-                <p className="text-xs text-muted-foreground">hello@digifamar.com</p>
-              </div>
-            </a>
+            {[
+              { label: "Support", email: BRAND_EMAILS.support, hint: "Orders, escrow, account" },
+              { label: "General enquiries", email: BRAND_EMAILS.info, hint: "Press, partnerships, tips" },
+              { label: "Lending", email: BRAND_EMAILS.lenders, hint: "Lenders & farmer financing" },
+            ].map((item) => (
+              <a
+                key={item.email}
+                href={`mailto:${item.email}`}
+                className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4"
+              >
+                <Mail className="h-6 w-6 text-primary" />
+                <div>
+                  <p className="font-semibold">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">{item.email}</p>
+                  <p className="text-xs text-muted-foreground">{item.hint}</p>
+                </div>
+              </a>
+            ))}
             <a
               href={SUPPORT_TEL}
               className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4"
