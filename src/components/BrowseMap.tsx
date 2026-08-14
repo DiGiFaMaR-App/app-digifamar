@@ -32,6 +32,8 @@ interface BrowseMapProps {
   selectedFarmId?: string | null;
   /** Called when the selection changes so the route can sync the URL. */
   onSelectFarm?: (farmId: string | null) => void;
+  /** Notifies the page when Google Maps can't be shown (so it can promote the list view). */
+  onGoogleUnavailableChange?: (unavailable: boolean) => void;
 }
 
 export function BrowseMap({
