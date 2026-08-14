@@ -265,6 +265,12 @@ export function BrowseMap({
 
   const googleUnavailable = Boolean(error) || authFailed;
 
+  useEffect(() => {
+    onGoogleUnavailableChange?.(googleUnavailable);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleUnavailable]);
+
+
   const drawer = (
     <FarmDetailDrawer
       farm={selected}
