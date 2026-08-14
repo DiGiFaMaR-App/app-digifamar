@@ -81,6 +81,8 @@ import { Route as OrdersIdAuditRouteImport } from './routes/orders.$id_.audit'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
 import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/health/maps'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const IndexRoute = IndexRouteImport.update({
@@ -447,6 +449,16 @@ const ApiPublicHealthMapsRoute = ApiPublicHealthMapsRouteImport.update({
   path: '/api/public/health/maps',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
@@ -527,6 +539,8 @@ export interface FileRoutesByFullPath {
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
@@ -602,6 +616,8 @@ export interface FileRoutesByTo {
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
@@ -678,6 +694,8 @@ export interface FileRoutesById {
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
   '/api/public/health/maps': typeof ApiPublicHealthMapsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
@@ -755,6 +773,8 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -830,6 +850,8 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
   id:
     | '__root__'
@@ -905,6 +927,8 @@ export interface FileRouteTypes {
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
     | '/api/public/health/maps'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
@@ -980,6 +1004,8 @@ export interface RootRouteChildren {
   OrdersIdAuditRoute: typeof OrdersIdAuditRoute
   ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
   ApiPublicHealthMapsRoute: typeof ApiPublicHealthMapsRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
@@ -1489,6 +1515,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHealthMapsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
       path: '/lovable/email/queue/process'
@@ -1584,6 +1624,8 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersIdAuditRoute: OrdersIdAuditRoute,
   ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
   ApiPublicHealthMapsRoute: ApiPublicHealthMapsRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
