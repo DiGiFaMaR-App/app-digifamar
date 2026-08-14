@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { BadgeCheck, Crosshair, Loader2, MapPin, Navigation, Sprout } from "lucide-react";
+import { BadgeCheck, Clock, Crosshair, Loader2, MapPin, Navigation, Sprout } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,15 @@ import { GeoPermissionHelp } from "@/components/GeoPermissionHelp";
 import { LocationAutocompleteInput } from "@/components/LocationAutocompleteInput";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
+import { estimateDeliveryWindow } from "@/lib/delivery-window";
 
 const RADIUS_OPTIONS = [10, 25, 50, 100] as const;
+const SORT_OPTIONS = [
+  { value: "distance", label: "Distance" },
+  { value: "delivery", label: "Fastest delivery" },
+  { value: "name", label: "Farm name" },
+] as const;
+type SortKey = (typeof SORT_OPTIONS)[number]["value"];
 
 export const Route = createFileRoute("/near-me")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -59,6 +66,8 @@ function NearMe() {
   const selectFarm = (farmId: string | null) =>
     navigate({ search: { farm: farmId ?? undefined }, replace: true });
   const [radius, setRadius] = useState<(typeof RADIUS_OPTIONS)[number]>(25);
+  const [sort, setSort] = useState<SortKey>("distance");
+  const [mapUnavailable, setMapUnavailable] = useState(false);
 
   const hasCoords = geo.lat != null && geo.lng != null;
 
@@ -95,11 +104,21 @@ function NearMe() {
 
   const farms = (results.data?.farms ?? [])
     .filter((f) => f.distance_mi != null && (f.distance_mi as number) <= radius)
-    .sort((a, b) => (a.distance_mi ?? 0) - (b.distance_mi ?? 0));
+    .sort((a, b) => {
+      if (sort === "name") return (a.farm_name ?? "").localeCompare(b.farm_name ?? "");
+      if (sort === "delivery") {
+        const aw = estimateDeliveryWindow(a.distance_mi);
+        const bw = estimateDeliveryWindow(b.distance_mi);
+        const diff = (aw?.minDays ?? 99) - (bw?.minDays ?? 99);
+        if (diff !== 0) return diff;
+      }
+      return (a.distance_mi ?? 0) - (b.distance_mi ?? 0);
+    });
 
   const mapFarms = farms
     .filter((f) => f.lat != null && f.lng != null)
     .map((f) => ({ ...f, lat: f.lat as number, lng: f.lng as number }));
+
 
   return (
     <SiteLayout>
@@ -196,18 +215,46 @@ function NearMe() {
       </section>
 
       <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        <div className="order-2 lg:order-1">
-          <div className="flex items-center gap-2">
+        <div className={mapUnavailable ? "order-1" : "order-2 lg:order-1"}>
+          <div className="flex flex-wrap items-center gap-2">
             <Sprout className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Nearby farms
             </h2>
             {results.isFetching && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            <div className="ml-auto flex items-center gap-1.5">
+              <label
+                htmlFor="near-me-sort"
+                className="text-xs font-medium text-muted-foreground"
+              >
+                Sort by
+              </label>
+              <select
+                id="near-me-sort"
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortKey)}
+                className="rounded-md border border-border bg-background px-2 py-1 text-xs font-medium"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {mapUnavailable && (
+            <p className="mt-3 rounded-md border border-border bg-muted/50 p-3 text-xs text-muted-foreground">
+              The map couldn&apos;t load, so we&apos;ve put the sortable farm list first. Everything
+              below still works normally.
+            </p>
+          )}
 
           {!hasCoords && !geo.loading && (
             <p className="mt-4 rounded-md border border-dashed border-border bg-card/50 p-6 text-sm text-muted-foreground">
-              Allow location access above, or enter a city/ZIP to start searching.
+              Allow location access above, or enter an address, city or ZIP to start searching — no
+              GPS permission needed.
             </p>
           )}
 
@@ -228,6 +275,7 @@ function NearMe() {
             {farms.map((f) => {
               const dist =
                 f.distance_mi ?? (origin ? haversineDistance(origin.lat, origin.lng, 0, 0) : null);
+              const window = estimateDeliveryWindow(dist);
               return (
                 <li
                   key={f.user_id}
@@ -256,6 +304,15 @@ function NearMe() {
                           {[f.city, f.state].filter(Boolean).join(", ")}
                         </p>
                       )}
+                      {window && (
+                        <p
+                          className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                          title={window.detail}
+                        >
+                          <Clock className="h-3 w-3" />
+                          Est. delivery: {window.label}
+                        </p>
+                      )}
                       {f.description && (
                         <p className="mt-1.5 line-clamp-2 text-sm text-muted-foreground">
                           {f.description}
@@ -273,15 +330,29 @@ function NearMe() {
               );
             })}
           </ul>
+          {farms.length > 0 && (
+            <p className="mt-3 text-[11px] text-muted-foreground">
+              Delivery windows are estimates based on distance. Farmers set their own delivery
+              terms at checkout.
+            </p>
+          )}
         </div>
 
-        <div className="order-1 lg:order-2 lg:sticky lg:top-20 lg:h-fit">
+        <div
+          className={
+            mapUnavailable
+              ? "order-2 lg:sticky lg:top-20 lg:h-fit"
+              : "order-1 lg:order-2 lg:sticky lg:top-20 lg:h-fit"
+          }
+        >
           <BrowseMap
             origin={origin}
             farms={mapFarms}
             selectedFarmId={farmParam ?? null}
             onSelectFarm={selectFarm}
+            onGoogleUnavailableChange={setMapUnavailable}
           />
+
           {origin && (
             <p className="mt-2 text-xs text-muted-foreground">
               Centered on {origin.formatted} · {radius}-mile radius

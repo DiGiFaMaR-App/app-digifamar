@@ -32,12 +32,15 @@ interface BrowseMapProps {
   selectedFarmId?: string | null;
   /** Called when the selection changes so the route can sync the URL. */
   onSelectFarm?: (farmId: string | null) => void;
+  /** Notifies the page when Google Maps can't be shown (so it can promote the list view). */
+  onGoogleUnavailableChange?: (unavailable: boolean) => void;
 }
 
 export function BrowseMap({
   origin,
   farms = [],
   selectedFarmId = null,
+  onGoogleUnavailableChange,
   onSelectFarm,
 }: BrowseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -261,6 +264,12 @@ export function BrowseMap({
   }, [farms, ready, provider, origin]);
 
   const googleUnavailable = Boolean(error) || authFailed;
+
+  useEffect(() => {
+    onGoogleUnavailableChange?.(googleUnavailable);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [googleUnavailable]);
+
 
   const drawer = (
     <FarmDetailDrawer
