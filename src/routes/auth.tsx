@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GoogleAuthButton } from "@/components/GoogleAuthButton";
 import { supabase } from "@/integrations/supabase/client";
+import { sendAppEmail } from "@/lib/email/send";
 
 const searchSchema = z.object({
   tab: z.enum(["signup", "signin"]).default("signin").catch("signin"),
