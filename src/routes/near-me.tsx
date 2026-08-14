@@ -9,8 +9,15 @@ import { GeoPermissionHelp } from "@/components/GeoPermissionHelp";
 import { LocationAutocompleteInput } from "@/components/LocationAutocompleteInput";
 import { useGeolocation, haversineDistance } from "@/hooks/use-geolocation";
 import { searchBrowse, type BrowseResults } from "@/lib/browse.functions";
+import { estimateDeliveryWindow } from "@/lib/delivery-window";
 
 const RADIUS_OPTIONS = [10, 25, 50, 100] as const;
+const SORT_OPTIONS = [
+  { value: "distance", label: "Distance" },
+  { value: "delivery", label: "Fastest delivery" },
+  { value: "name", label: "Farm name" },
+] as const;
+type SortKey = (typeof SORT_OPTIONS)[number]["value"];
 
 export const Route = createFileRoute("/near-me")({
   validateSearch: (search: Record<string, unknown>) => ({
