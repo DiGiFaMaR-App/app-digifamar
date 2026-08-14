@@ -66,6 +66,8 @@ function NearMe() {
   const selectFarm = (farmId: string | null) =>
     navigate({ search: { farm: farmId ?? undefined }, replace: true });
   const [radius, setRadius] = useState<(typeof RADIUS_OPTIONS)[number]>(25);
+  const [sort, setSort] = useState<SortKey>("distance");
+  const [mapUnavailable, setMapUnavailable] = useState(false);
 
   const hasCoords = geo.lat != null && geo.lng != null;
 
