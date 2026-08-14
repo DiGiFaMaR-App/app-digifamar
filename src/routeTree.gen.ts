@@ -55,6 +55,7 @@ import { Route as ChatIndexRouteImport } from './routes/chat.index'
 import { Route as ChatProductIdRouteImport } from './routes/chat.$productId'
 import { Route as DashboardBuyerRouteImport } from './routes/dashboard.buyer'
 import { Route as DashboardFarmerRouteImport } from './routes/dashboard.farmer'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as FarmIdRouteImport } from './routes/farm.$id'
 import { Route as FarmerVerificationRouteImport } from './routes/farmer.verification'
 import { Route as LendersIndexRouteImport } from './routes/lenders/index'
@@ -77,6 +78,7 @@ import { Route as SignupFarmerRouteImport } from './routes/signup.farmer'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 import { Route as ChatFarmFarmIdRouteImport } from './routes/chat.farm.$farmId'
 import { Route as LendersFarmerIdRouteImport } from './routes/lenders/farmer.$id'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as OrdersIdAuditRouteImport } from './routes/orders.$id_.audit'
 import { Route as ApiOrdersIdReleaseRouteImport } from './routes/api/orders.$id.release'
 import { Route as ApiPublicCronAutoReleaseRouteImport } from './routes/api/public/cron/auto-release'
@@ -84,6 +86,8 @@ import { Route as ApiPublicHealthMapsRouteImport } from './routes/api/public/hea
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -317,6 +321,11 @@ const DashboardFarmerRoute = DashboardFarmerRouteImport.update({
   path: '/dashboard/farmer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FarmIdRoute = FarmIdRouteImport.update({
   id: '/farm/$id',
   path: '/farm/$id',
@@ -428,6 +437,11 @@ const LendersFarmerIdRoute = LendersFarmerIdRouteImport.update({
   path: '/lenders/farmer/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdersIdAuditRoute = OrdersIdAuditRouteImport.update({
   id: '/orders/$id_/audit',
   path: '/orders/$id/audit',
@@ -463,6 +477,18 @@ const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
     id: '/lovable/email/queue/process',
     path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -511,6 +537,7 @@ export interface FileRoutesByFullPath {
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/farm/$id': typeof FarmIdRoute
   '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
@@ -535,6 +562,7 @@ export interface FileRoutesByFullPath {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/orders/$id/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
@@ -542,6 +570,8 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -588,6 +618,7 @@ export interface FileRoutesByTo {
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/farm/$id': typeof FarmIdRoute
   '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
@@ -612,6 +643,7 @@ export interface FileRoutesByTo {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/orders/$id/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
@@ -619,6 +651,8 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -666,6 +700,7 @@ export interface FileRoutesById {
   '/chat/$productId': typeof ChatProductIdRoute
   '/dashboard/buyer': typeof DashboardBuyerRoute
   '/dashboard/farmer': typeof DashboardFarmerRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/farm/$id': typeof FarmIdRoute
   '/farmer/verification': typeof FarmerVerificationRoute
   '/lenders/admin': typeof LendersAdminRoute
@@ -690,6 +725,7 @@ export interface FileRoutesById {
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/chat/farm/$farmId': typeof ChatFarmFarmIdRoute
   '/lenders/farmer/$id': typeof LendersFarmerIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/orders/$id_/audit': typeof OrdersIdAuditRoute
   '/api/orders/$id/release': typeof ApiOrdersIdReleaseRoute
   '/api/public/cron/auto-release': typeof ApiPublicCronAutoReleaseRoute
@@ -697,6 +733,8 @@ export interface FileRoutesById {
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -745,6 +783,7 @@ export interface FileRouteTypes {
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
+    | '/email/unsubscribe'
     | '/farm/$id'
     | '/farmer/verification'
     | '/lenders/admin'
@@ -769,6 +808,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/lovable/email/suppression'
     | '/orders/$id/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
@@ -776,6 +816,8 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -822,6 +864,7 @@ export interface FileRouteTypes {
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
+    | '/email/unsubscribe'
     | '/farm/$id'
     | '/farmer/verification'
     | '/lenders/admin'
@@ -846,6 +889,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/lovable/email/suppression'
     | '/orders/$id/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
@@ -853,6 +897,8 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   id:
     | '__root__'
     | '/'
@@ -899,6 +945,7 @@ export interface FileRouteTypes {
     | '/chat/$productId'
     | '/dashboard/buyer'
     | '/dashboard/farmer'
+    | '/email/unsubscribe'
     | '/farm/$id'
     | '/farmer/verification'
     | '/lenders/admin'
@@ -923,6 +970,7 @@ export interface FileRouteTypes {
     | '/.mcp/invoke-tool/$tool'
     | '/chat/farm/$farmId'
     | '/lenders/farmer/$id'
+    | '/lovable/email/suppression'
     | '/orders/$id_/audit'
     | '/api/orders/$id/release'
     | '/api/public/cron/auto-release'
@@ -930,6 +978,8 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -977,6 +1027,7 @@ export interface RootRouteChildren {
   ChatProductIdRoute: typeof ChatProductIdRoute
   DashboardBuyerRoute: typeof DashboardBuyerRoute
   DashboardFarmerRoute: typeof DashboardFarmerRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   FarmIdRoute: typeof FarmIdRoute
   FarmerVerificationRoute: typeof FarmerVerificationRoute
   LendersAdminRoute: typeof LendersAdminRoute
@@ -1001,12 +1052,15 @@ export interface RootRouteChildren {
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ChatFarmFarmIdRoute: typeof ChatFarmFarmIdRoute
   LendersFarmerIdRoute: typeof LendersFarmerIdRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   OrdersIdAuditRoute: typeof OrdersIdAuditRoute
   ApiPublicCronAutoReleaseRoute: typeof ApiPublicCronAutoReleaseRoute
   ApiPublicHealthMapsRoute: typeof ApiPublicHealthMapsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1333,6 +1387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardFarmerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/farm/$id': {
       id: '/farm/$id'
       path: '/farm/$id'
@@ -1487,6 +1548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LendersFarmerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orders/$id_/audit': {
       id: '/orders/$id_/audit'
       path: '/orders/$id/audit'
@@ -1534,6 +1602,20 @@ declare module '@tanstack/react-router' {
       path: '/lovable/email/queue/process'
       fullPath: '/lovable/email/queue/process'
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -1597,6 +1679,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChatProductIdRoute: ChatProductIdRoute,
   DashboardBuyerRoute: DashboardBuyerRoute,
   DashboardFarmerRoute: DashboardFarmerRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   FarmIdRoute: FarmIdRoute,
   FarmerVerificationRoute: FarmerVerificationRoute,
   LendersAdminRoute: LendersAdminRoute,
@@ -1621,12 +1704,15 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ChatFarmFarmIdRoute: ChatFarmFarmIdRoute,
   LendersFarmerIdRoute: LendersFarmerIdRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   OrdersIdAuditRoute: OrdersIdAuditRoute,
   ApiPublicCronAutoReleaseRoute: ApiPublicCronAutoReleaseRoute,
   ApiPublicHealthMapsRoute: ApiPublicHealthMapsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
