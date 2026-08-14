@@ -3,6 +3,7 @@ import { Mail, MessageCircle, Phone } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { getWhatsAppWebUrl, SUPPORT_PHONE_E164 } from "@/components/WhatsAppFab";
 import { trackWhatsAppClick } from "@/lib/analytics/whatsapp";
+import { BRAND_EMAILS } from "@/lib/brand";
 import { formatE164Display, toTelHref } from "@/lib/phone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
