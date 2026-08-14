@@ -5,7 +5,9 @@ import { renderErrorPage } from "./lib/error-page";
 
 const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
   const url = new URL(request.url);
-  if (url.pathname.startsWith("/lovable/")) {
+  // Email infrastructure + public unsubscribe endpoints must never be
+  // redirected or auth-gated.
+  if (url.pathname.startsWith("/lovable/") || url.pathname.startsWith("/email/unsubscribe")) {
     return next();
   }
   try {
