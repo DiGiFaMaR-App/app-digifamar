@@ -37,6 +37,7 @@ function Body() {
     userId: string,
     status: "approved" | "rejected" | "under_review",
     farm: string,
+    email?: string | null,
   ) => {
     try {
       let reason: string | undefined;
@@ -45,6 +46,14 @@ function Body() {
         if (reason === undefined) return; // cancelled
       }
       await setFarmerVerificationFn({ data: { userId, status, reason } });
+      if (email) {
+        void sendAppEmail({
+          templateName: "farm-onboarding-status",
+          recipientEmail: email,
+          idempotencyKey: `farm-status-${userId}-${status}`,
+          templateData: { farmName: farm, status, reason: reason ?? null },
+        });
+      }
       toast.success(`Farmer ${status}`);
       refetch();
     } catch (e) {
