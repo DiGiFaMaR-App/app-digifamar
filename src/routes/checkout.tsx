@@ -100,6 +100,27 @@ function CheckoutPage() {
       setPlaced(true);
       clear();
       setPendingOrders(orders.map((o) => ({ id: o.id, totalCents: o.total_cents })));
+
+      // Branded buyer order confirmation (one per order, keyed by order id).
+      const { data: auth } = await supabase.auth.getUser();
+      const buyerEmail = auth.user?.email;
+      if (buyerEmail) {
+        for (const o of orders) {
+          void sendAppEmail({
+            templateName: "order-confirmation",
+            recipientEmail: buyerEmail,
+            idempotencyKey: `order-confirmation-${o.id}`,
+            templateData: {
+              buyerName: (auth.user?.user_metadata?.["full_name"] as string | undefined)?.split(
+                " ",
+              )[0],
+              orderId: o.id,
+              total: `$${(o.total_cents / 100).toFixed(2)}`,
+              deliveryTerms: DELIVERY_METHODS[deliveryMethod].label,
+            },
+          });
+        }
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Checkout failed. Please try again.";
       toast.error(/unauthorized/i.test(message) ? "Please sign in to complete checkout." : message);
