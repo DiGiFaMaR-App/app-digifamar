@@ -3,9 +3,9 @@ import { trackWhatsAppClick, type WhatsAppClickSource } from "@/lib/analytics/wh
 
 // Canonical support number stored as raw input — normalized via the shared util
 // so we get one source of truth for every place WhatsApp/tel links are built.
-export const SUPPORT_PHONE_RAW = "+1 (470) 984-8198";
-export const SUPPORT_PHONE_E164 = normalizeToE164(SUPPORT_PHONE_RAW) ?? "+14709848198";
-const PHONE = toWhatsAppNumber(SUPPORT_PHONE_RAW) ?? "14709848198";
+export const SUPPORT_PHONE_RAW = "+1 (929) 491-9491";
+export const SUPPORT_PHONE_E164 = normalizeToE164(SUPPORT_PHONE_RAW) ?? "+19294919491";
+const PHONE = toWhatsAppNumber(SUPPORT_PHONE_RAW) ?? "19294919491";
 const MESSAGE = "Hi, I'd like help with DiGiFaMaR";
 
 export function getWhatsAppWebUrl() {
