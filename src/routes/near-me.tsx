@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { BadgeCheck, Crosshair, Loader2, MapPin, Navigation, Sprout } from "lucide-react";
+import { BadgeCheck, Clock, Crosshair, Loader2, MapPin, Navigation, Sprout } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { BrowseMap } from "@/components/BrowseMap";
 import { Button } from "@/components/ui/button";
