@@ -117,7 +117,7 @@ function PrivacyPage() {
           </li>
         </ol>
         <p>
-          If you can't sign in, email <strong>privacy@digifamar.com</strong> and we'll process the
+          If you can't sign in, email <strong>support@digifamar.com</strong> and we'll process the
           deletion within 30 days.
         </p>
 
@@ -126,7 +126,7 @@ function PrivacyPage() {
 
         <h2>9. Contact</h2>
         <p>
-          Questions about this policy: <strong>privacy@digifamar.com</strong>.
+          Questions about this policy: <strong>support@digifamar.com</strong>.
         </p>
       </article>
     </SiteLayout>

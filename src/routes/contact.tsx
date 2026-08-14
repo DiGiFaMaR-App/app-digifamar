@@ -67,13 +67,13 @@ function Contact() {
               </div>
             </a>
             <a
-              href="mailto:hello@digifamar.com"
+              href="mailto:support@digifamar.com"
               className="card-lift flex items-center gap-3 rounded-xl border border-border bg-card p-4"
             >
               <Mail className="h-6 w-6 text-primary" />
               <div>
                 <p className="font-semibold">Email</p>
-                <p className="text-xs text-muted-foreground">hello@digifamar.com</p>
+                <p className="text-xs text-muted-foreground">support@digifamar.com</p>
               </div>
             </a>
             <a
