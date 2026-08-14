@@ -40,6 +40,7 @@ export function BrowseMap({
   origin,
   farms = [],
   selectedFarmId = null,
+  onGoogleUnavailableChange,
   onSelectFarm,
 }: BrowseMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
