@@ -243,10 +243,22 @@ async function handleChargeDispute(dispute: Obj) {
   );
 }
 
-// --- Subscriptions (VIP verification badge) ---------------------------------
+// --- Subscriptions (farmer plans + VIP verification badge) ------------------
 // Upsert on stripe_subscription_id keeps this idempotent across retries. The
-// sync_vip_badge() DB function mirrors active status onto farmer_profiles, so
-// cancelled-but-paid-through subscriptions keep the badge until period end.
+// subscriptions trigger mirrors entitlements onto farmer_profiles (vip_badge
+// and plan), so cancelled-but-paid-through rows keep access until period end.
+const PLAN_LABELS: Record<string, string> = {
+  pro_monthly: "Pro",
+  elite_monthly: "Elite",
+};
+
+function subjectFor(priceId: string | null): string {
+  if (!priceId) return "Your subscription";
+  if (priceId === "vip_badge_monthly") return "Your VIP verification badge";
+  const plan = PLAN_LABELS[priceId];
+  return plan ? `Your ${plan} plan` : "Your subscription";
+}
+
 async function handleSubscriptionEvent(sub: Obj, livemode: boolean, deleted = false) {
   const item = sub.items?.data?.[0];
   const userId = sub.metadata?.userId ?? null;
@@ -280,15 +292,55 @@ async function handleSubscriptionEvent(sub: Obj, livemode: boolean, deleted = fa
   );
   if (error) throw new Error(error.message);
 
-  // Mirror entitlement onto farmer_profiles.vip_badge.
-  await sb.rpc("sync_vip_badge", { _user_id: userId });
+  const subject = subjectFor(priceId);
 
   if (deleted) {
-    await notify(userId, "subscription", "VIP badge ended", "Your VIP verification badge subscription has ended.", { subscription_id: sub.id });
+    await notify(userId, "subscription", `${subject} ended`, `${subject} has ended. You can resubscribe any time from Billing.`, { subscription_id: sub.id, price_id: priceId });
   } else if (status === "active" || status === "trialing") {
-    await notify(userId, "subscription", "VIP badge active", "Your VIP verification badge is now live on your farm profile.", { subscription_id: sub.id });
+    await notify(userId, "subscription", `${subject} is active`, `${subject} is active on your DiGiFaMaR account.`, { subscription_id: sub.id, price_id: priceId });
   } else if (status === "past_due") {
-    await notify(userId, "subscription", "Payment failed", "We couldn't charge your card for the VIP badge. Update your payment method to keep it.", { subscription_id: sub.id });
+    await notify(userId, "subscription", "Payment failed", `We couldn't charge your card for ${subject.toLowerCase()}. Update your payment method in Billing to keep it — Stripe will retry.`, { subscription_id: sub.id, price_id: priceId });
+  }
+}
+
+// --- Invoices (renewals, receipts, dunning) ---------------------------------
+// Renewal money events do not change entitlements on their own — the paired
+// customer.subscription.updated event does. These only inform the customer.
+async function handleInvoiceEvent(invoice: Obj, livemode: boolean, failed: boolean) {
+  const subscriptionId = invoice.subscription ??
+    invoice.parent?.subscription_details?.subscription ?? null;
+  if (!subscriptionId) return;
+
+  const environment = livemode ? "live" : "sandbox";
+  const { data: row } = await sb
+    .from("subscriptions")
+    .select("user_id, price_id")
+    .eq("stripe_subscription_id", subscriptionId)
+    .eq("environment", environment)
+    .maybeSingle();
+  if (!row?.user_id) return;
+
+  const subject = subjectFor(row.price_id ?? null);
+  const amount = typeof invoice.amount_due === "number"
+    ? `$${(invoice.amount_due / 100).toFixed(2)}`
+    : null;
+
+  if (failed) {
+    await notify(
+      row.user_id,
+      "subscription",
+      "Payment failed",
+      `We couldn't collect ${amount ?? "your renewal payment"} for ${subject.toLowerCase()}. Update your card in Billing — Stripe will retry over the next few days.`,
+      { invoice_id: invoice.id, subscription_id: subscriptionId, hosted_invoice_url: invoice.hosted_invoice_url ?? null },
+    );
+  } else {
+    await notify(
+      row.user_id,
+      "subscription",
+      "Payment received",
+      `${subject} renewed${amount ? ` for ${amount}` : ""}. Your receipt is available in the billing portal.`,
+      { invoice_id: invoice.id, subscription_id: subscriptionId, hosted_invoice_url: invoice.hosted_invoice_url ?? null },
+    );
   }
 }
 
