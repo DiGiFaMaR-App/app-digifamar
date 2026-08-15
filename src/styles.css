@@ -144,27 +144,29 @@
 
 
 
-  --badge-verified: oklch(0.945 0.03 152);
-  --badge-verified-foreground: oklch(0.36 0.08 152);
-  --badge-delivery: oklch(0.95 0.03 235);
-  --badge-delivery-foreground: oklch(0.42 0.1 240);
-  --badge-organic: oklch(0.945 0.035 145);
-  --badge-organic-foreground: oklch(0.38 0.08 150);
+  --badge-verified: oklch(0.9449 0.0133 262.4);
+  --badge-verified-foreground: oklch(0.313 0.1251 263);
+  --badge-delivery: oklch(0.95 0.03 255);
+  --badge-delivery-foreground: oklch(0.4925 0.1776 264.2);
+  --badge-organic: oklch(0.951 0.035 147);
+  --badge-organic-foreground: oklch(0.4103 0.1168 146.8);
   --badge-gold: oklch(0.8 0.13 78);
   --badge-gold-foreground: oklch(0.32 0.06 70);
-  --badge-new: oklch(0.955 0.022 55);
-  --badge-new-foreground: oklch(0.5 0.11 45);
-  --badge-fresh: oklch(0.945 0.03 152);
-  --badge-fresh-foreground: oklch(0.36 0.08 152);
+  --badge-new: oklch(0.955 0.03 22);
+  --badge-new-foreground: oklch(0.5304 0.2074 22.3);
+  --badge-fresh: oklch(0.951 0.035 147);
+  --badge-fresh-foreground: oklch(0.4103 0.1168 146.8);
 
   --gradient-radial-glow: radial-gradient(
     circle at center,
-    color-mix(in oklab, var(--sage) 22%, transparent) 0%,
+    color-mix(in oklab, var(--primary-glow) 22%, transparent) 0%,
     transparent 70%
   );
   --shadow-glow: 0 20px 60px -30px color-mix(in oklab, var(--primary) 45%, transparent);
-  --shadow-card: 0 1px 2px oklch(0.2 0.02 155 / 0.04), 0 8px 24px -12px oklch(0.2 0.02 155 / 0.12);
+  --shadow-card: 0 1px 2px oklch(0.2 0.05 265 / 0.05), 0 8px 24px -12px oklch(0.2 0.05 265 / 0.14);
 }
+
+
 
 @layer base {
   * {
