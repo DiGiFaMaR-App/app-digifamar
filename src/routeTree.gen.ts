@@ -70,6 +70,7 @@ import { Route as LendersLoginRouteImport } from './routes/lenders/login'
 import { Route as OrdersIndexRouteImport } from './routes/orders.index'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as SettingsBillingRouteImport } from './routes/settings.billing'
 import { Route as SettingsDeleteAccountRouteImport } from './routes/settings.delete-account'
 import { Route as SettingsMapKeysRouteImport } from './routes/settings.map-keys'
 import { Route as SettingsMapsRouteImport } from './routes/settings.maps'
@@ -397,6 +398,11 @@ const ProductIdRoute = ProductIdRouteImport.update({
   path: '/product/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsBillingRoute = SettingsBillingRouteImport.update({
+  id: '/settings/billing',
+  path: '/settings/billing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsDeleteAccountRoute = SettingsDeleteAccountRouteImport.update({
   id: '/settings/delete-account',
   path: '/settings/delete-account',
@@ -556,6 +562,7 @@ export interface FileRoutesByFullPath {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/billing': typeof SettingsBillingRoute
   '/settings/delete-account': typeof SettingsDeleteAccountRoute
   '/settings/map-keys': typeof SettingsMapKeysRoute
   '/settings/maps': typeof SettingsMapsRoute
@@ -638,6 +645,7 @@ export interface FileRoutesByTo {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/billing': typeof SettingsBillingRoute
   '/settings/delete-account': typeof SettingsDeleteAccountRoute
   '/settings/map-keys': typeof SettingsMapKeysRoute
   '/settings/maps': typeof SettingsMapsRoute
@@ -721,6 +729,7 @@ export interface FileRoutesById {
   '/lenders/login': typeof LendersLoginRoute
   '/orders/$id': typeof OrdersIdRoute
   '/product/$id': typeof ProductIdRoute
+  '/settings/billing': typeof SettingsBillingRoute
   '/settings/delete-account': typeof SettingsDeleteAccountRoute
   '/settings/map-keys': typeof SettingsMapKeysRoute
   '/settings/maps': typeof SettingsMapsRoute
@@ -805,6 +814,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/billing'
     | '/settings/delete-account'
     | '/settings/map-keys'
     | '/settings/maps'
@@ -887,6 +897,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/billing'
     | '/settings/delete-account'
     | '/settings/map-keys'
     | '/settings/maps'
@@ -969,6 +980,7 @@ export interface FileRouteTypes {
     | '/lenders/login'
     | '/orders/$id'
     | '/product/$id'
+    | '/settings/billing'
     | '/settings/delete-account'
     | '/settings/map-keys'
     | '/settings/maps'
@@ -1052,6 +1064,7 @@ export interface RootRouteChildren {
   LendersLoginRoute: typeof LendersLoginRoute
   OrdersIdRoute: typeof OrdersIdRoute
   ProductIdRoute: typeof ProductIdRoute
+  SettingsBillingRoute: typeof SettingsBillingRoute
   SettingsDeleteAccountRoute: typeof SettingsDeleteAccountRoute
   SettingsMapKeysRoute: typeof SettingsMapKeysRoute
   SettingsMapsRoute: typeof SettingsMapsRoute
@@ -1505,6 +1518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/billing': {
+      id: '/settings/billing'
+      path: '/settings/billing'
+      fullPath: '/settings/billing'
+      preLoaderRoute: typeof SettingsBillingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/delete-account': {
       id: '/settings/delete-account'
       path: '/settings/delete-account'
@@ -1712,6 +1732,7 @@ const rootRouteChildren: RootRouteChildren = {
   LendersLoginRoute: LendersLoginRoute,
   OrdersIdRoute: OrdersIdRoute,
   ProductIdRoute: ProductIdRoute,
+  SettingsBillingRoute: SettingsBillingRoute,
   SettingsDeleteAccountRoute: SettingsDeleteAccountRoute,
   SettingsMapKeysRoute: SettingsMapKeysRoute,
   SettingsMapsRoute: SettingsMapsRoute,
