@@ -41,6 +41,7 @@ import {
   type FarmerListing,
   type ListingDraft,
 } from "@/lib/farmer/listings";
+import { PlanUsageCard } from "@/components/subscription/PlanUsageCard";
 import { categories as MARKET_CATEGORIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/farmer")({
