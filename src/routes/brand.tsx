@@ -93,7 +93,7 @@ function BrandGuide() {
               </div>
               <div
                 className="flex min-h-48 items-center justify-center rounded-2xl p-8"
-                style={{ backgroundColor: "#0F2C1A" }}
+                style={{ backgroundColor: "#0B2A6F" }}
               >
                 <Logo size="lg" linked={false} />
               </div>
@@ -172,11 +172,11 @@ function BrandGuide() {
                   Primary action
                 </button>
               </div>
-              <div className="rounded-2xl p-6" style={{ backgroundColor: "#0F2C1A" }}>
+              <div className="rounded-2xl p-6" style={{ backgroundColor: "#0B2A6F" }}>
                 <p className="text-xs uppercase tracking-widest" style={{ color: "#9AB79E" }}>
                   Dark
                 </p>
-                <p className="mt-2 font-display text-xl font-bold" style={{ color: "#F5F7F3" }}>
+                <p className="mt-2 font-display text-xl font-bold" style={{ color: "#EAF1FA" }}>
                   From American farms
                 </p>
                 <p className="mt-1 text-sm" style={{ color: "#9AB79E" }}>
@@ -184,7 +184,7 @@ function BrandGuide() {
                 </p>
                 <button
                   className="mt-4 rounded-lg px-4 py-2 text-sm font-semibold"
-                  style={{ backgroundColor: "#F5F7F3", color: "#0F2C1A" }}
+                  style={{ backgroundColor: "#EAF1FA", color: "#0B2A6F" }}
                 >
                   Primary action
                 </button>

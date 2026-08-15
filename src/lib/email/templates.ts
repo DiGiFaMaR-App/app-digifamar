@@ -9,10 +9,10 @@
 const ORIGIN = "https://app.digifamar.com";
 const LOGO = `${ORIGIN}/__l5e/assets-v1/e967540e-ec58-4039-9edf-61e96db18f7c/digifamar-logo-v10.png`;
 
-const FOREST = "#0F2C1A";
+const FOREST = "#0B2A6F";
 const SAGE = "#9AB79E";
 const INK = "#0B1410";
-const MIST = "#F5F7F3";
+const MIST = "#EAF1FA";
 
 export function escapeHtml(s: string): string {
   return s
