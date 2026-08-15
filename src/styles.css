@@ -56,6 +56,16 @@
   --color-harvest: var(--harvest);
   --color-harvest-soft: var(--harvest-soft);
 
+  /* Canva hero design tokens (exported from the DiGiFaMaR Canva hero) */
+  --color-hero-canvas: var(--hero-canvas);
+  --color-hero-ink: var(--hero-ink);
+  --color-hero-cta: var(--hero-cta);
+  --color-hero-cta-foreground: var(--hero-cta-foreground);
+  --color-hero-accent: var(--hero-accent);
+  --color-hero-accent-foreground: var(--hero-accent-foreground);
+  --color-hero-hairline: var(--hero-hairline);
+
+
   --color-badge-verified: var(--badge-verified);
   --color-badge-verified-foreground: var(--badge-verified-foreground);
   --color-badge-delivery: var(--badge-delivery);
