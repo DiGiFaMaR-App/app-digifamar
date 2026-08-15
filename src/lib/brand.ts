@@ -37,13 +37,15 @@ export const BRAND_EMAILS = {
   lenders: "lenders@digifamar.com",
 } as const;
 
-/** Hex values mirrored from the design tokens in `src/styles.css`. */
+/** Hex values mirrored from the design tokens in `src/styles.css` (sampled from the logo). */
 export const BRAND_COLORS = [
-  { name: "Forest", token: "--primary", hex: "#0F2C1A", use: "Primary actions, headings, dark surfaces" },
-  { name: "Forest Hover", token: "--primary-hover", hex: "#163F25", use: "Hover / pressed state of primary" },
-  { name: "Sage", token: "--accent", hex: "#9AB79E", use: "Soft accents, dividers, quiet emphasis" },
-  { name: "Terracotta", token: "--destructive", hex: "#B4552F", use: "Warnings, destructive actions" },
+  { name: "Navy", token: "--primary", hex: "#0B2A6F", use: "Primary actions, headings, dark surfaces" },
+  { name: "Navy Hover", token: "--primary-hover", hex: "#133A8C", use: "Hover / pressed state of primary" },
+  { name: "Sky", token: "--primary-glow", hex: "#2B57C4", use: "Focus rings, glows, highlights" },
+  { name: "Flag Red", token: "--destructive", hex: "#C8102E", use: "Alerts, destructive actions, hero CTA" },
+  { name: "Field Green", token: "--leaf", hex: "#1E7A32", use: "Agriculture accents, success states" },
   { name: "Canvas", token: "--background", hex: "#FFFFFF", use: "Page background (light mode)" },
-  { name: "Mist", token: "--muted", hex: "#F5F7F3", use: "Cards, subtle fills" },
-  { name: "Ink", token: "--foreground", hex: "#0B1410", use: "Body text" },
+  { name: "Mist", token: "--muted", hex: "#F4F7FC", use: "Cards, subtle fills" },
+  { name: "Ink", token: "--foreground", hex: "#0F1A33", use: "Body text" },
 ] as const;
+
