@@ -97,108 +97,109 @@ function HeroSection() {
   }
 
   return (
-    <section className="relative overflow-hidden border-b border-border bg-surface-1">
+    <section className="relative overflow-hidden bg-hero-canvas text-hero-ink">
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-[36rem] w-[64rem] -translate-x-1/2 rounded-full opacity-60"
-        style={{ background: "var(--gradient-radial-glow)" }}
+        className="pointer-events-none absolute -top-52 left-1/2 h-[40rem] w-[70rem] -translate-x-1/2 rounded-full opacity-25 blur-3xl"
+        style={{ background: "radial-gradient(closest-side, var(--hero-accent), transparent)" }}
       />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.05fr_1fr] lg:gap-20 lg:px-8">
-        <div>
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-xs font-semibold text-primary shadow-soft">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-            Verified U.S. farms · escrow-protected orders
-          </div>
-
-          <h1 className="text-4xl font-extrabold leading-[1.05] sm:text-5xl lg:text-6xl">
-            From American farms,
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.08fr_1fr] lg:gap-16 lg:px-8">
+        {/* Copy column — mobile-first stack, matching the Canva hero */}
+        <div className="text-center lg:text-left">
+          <h1
+            style={{ color: "var(--hero-ink)" }}
+            className="font-display text-[2.5rem] font-extrabold leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.25rem]"
+          >
+            America&rsquo;s Farmers.
             <br />
-            <span className="text-primary">direct to you.</span>
+            Direct to Market.
+            <br />
+            <span className="text-hero-accent">No Middlemen.</span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            An escrow-protected marketplace connecting verified farmers with buyers across all 50
-            states — fair prices, traceable produce, zero middlemen.
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-hero-ink/85 sm:text-lg lg:mx-0">
+            Where We Prioritize Our Customers — an escrow-protected marketplace connecting verified
+            U.S. farmers directly with buyers.
           </p>
 
-          {/* Geolocation search */}
-          <div className="mt-9 flex max-w-xl flex-col gap-3 rounded-2xl border border-border bg-background p-3 shadow-soft sm:flex-row">
+          {/* CTAs — full-width stacked on phones, inline from sm up */}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <Button
+              asChild
+              size="lg"
+              className="h-14 w-full rounded-full bg-hero-cta px-8 text-base font-bold text-hero-cta-foreground shadow-lifted hover:bg-hero-cta/90 sm:w-auto"
+            >
+              <Link to="/market">
+                Browse the marketplace
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              className="h-14 w-full rounded-full bg-hero-accent px-8 text-base font-bold text-hero-accent-foreground shadow-lifted hover:bg-hero-accent/90 sm:w-auto"
+            >
+              <Link to="/signup">Sell your harvest</Link>
+            </Button>
+          </div>
+
+          {/* Location search */}
+          <div className="mx-auto mt-6 flex max-w-xl flex-col gap-3 rounded-2xl border border-hero-hairline bg-hero-cta-foreground/40 p-2.5 sm:flex-row lg:mx-0">
             <div className="relative flex-1">
-              <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-hero-ink/70" />
               <Input
                 placeholder="Enter ZIP code or city…"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="h-12 border-transparent bg-transparent pl-10 shadow-none focus-visible:ring-0"
+                aria-label="ZIP code or city"
+                className="h-12 border-transparent bg-transparent pl-10 text-hero-ink shadow-none placeholder:text-hero-ink/55 focus-visible:ring-0"
               />
             </div>
             <Button
-              variant="secondary"
               onClick={detectLocation}
               disabled={detecting}
-              className="h-12 shrink-0 gap-2 whitespace-nowrap"
+              className="h-12 shrink-0 gap-2 whitespace-nowrap rounded-xl border border-hero-hairline bg-transparent text-hero-ink hover:bg-hero-ink/10"
             >
               <MapPin className="h-4 w-4" />
               {detecting ? "Detecting…" : "Detect location"}
             </Button>
           </div>
 
-          {/* CTAs */}
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg">
-              <Link to="/market">
-                Browse marketplace
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/signup">Sell on DiGiFaMaR</Link>
-            </Button>
-          </div>
-
-          {/* Trust row */}
-          <dl className="mt-12 grid max-w-xl grid-cols-2 gap-x-6 gap-y-6 border-t border-border pt-8 sm:grid-cols-4">
+          {/* Trust row — three pills, exactly as in the Canva hero */}
+          <ul className="mt-8 flex flex-wrap justify-center gap-2.5 lg:justify-start">
             {[
-              { v: "50", l: "States served" },
-              { v: "10k+", l: "Verified farms" },
-              { v: "98%", l: "Delivery rate" },
-              { v: "100%", l: "Escrow backed" },
-            ].map((s) => (
-              <div key={s.l}>
-                <dt className="text-2xl font-bold text-primary">{s.v}</dt>
-                <dd className="mt-0.5 text-xs text-muted-foreground">{s.l}</dd>
-              </div>
+              { icon: Shield, label: "Escrow-protected payments" },
+              { icon: CheckCircle2, label: "Verified farmers" },
+              { icon: MapPin, label: "All 50 states" },
+            ].map(({ icon: Icon, label }) => (
+              <li
+                key={label}
+                className="inline-flex items-center gap-2 rounded-full border border-hero-hairline px-4 py-2 text-xs font-semibold text-hero-ink/90 sm:text-sm"
+              >
+                <Icon className="h-4 w-4 text-hero-accent" />
+                {label}
+              </li>
             ))}
-          </dl>
+          </ul>
         </div>
 
-        {/* Editorial image stack */}
-        <div className="relative hidden lg:block">
-          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-lifted">
+        {/* Produce image — lower block on mobile, right card on desktop */}
+        <div className="relative">
+          <div className="overflow-hidden rounded-3xl border border-hero-hairline shadow-lifted">
             <img
               src={heroFarm}
-              alt="Sunlit American farmland at harvest time"
-              className="h-[30rem] w-full object-cover"
+              alt="Freshly harvested American produce ready for direct delivery"
+              loading="eager"
+              className="h-64 w-full object-cover sm:h-80 lg:h-[30rem]"
             />
           </div>
-          <div className="absolute -bottom-8 -left-10 w-64 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-lifted">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-leaf-soft text-primary">
-                <Shield className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold">Escrow protected</p>
-                <p className="text-xs text-muted-foreground">Funds release on delivery</p>
-              </div>
-            </div>
-          </div>
-          <div className="absolute -right-6 top-10 w-52 overflow-hidden rounded-2xl border border-border bg-card p-4 shadow-lifted">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="absolute -bottom-5 left-4 rounded-2xl border border-hero-hairline bg-hero-canvas/95 px-5 py-4 shadow-lifted backdrop-blur sm:left-6">
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-hero-ink/70">
               Farmer payout
             </p>
-            <p className="mt-1 text-2xl font-bold text-primary">90%</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-1 text-2xl font-bold text-hero-accent">90%</p>
+            <p className="text-xs text-hero-ink/75">
               of the sale price, before escrow &amp; payment fees
             </p>
           </div>
@@ -207,6 +208,7 @@ function HeroSection() {
     </section>
   );
 }
+
 
 // ─────────────────────────────────────────────────────────────────
 // HOW IT WORKS

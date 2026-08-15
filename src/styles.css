@@ -56,6 +56,16 @@
   --color-harvest: var(--harvest);
   --color-harvest-soft: var(--harvest-soft);
 
+  /* Canva hero design tokens (exported from the DiGiFaMaR Canva hero) */
+  --color-hero-canvas: var(--hero-canvas);
+  --color-hero-ink: var(--hero-ink);
+  --color-hero-cta: var(--hero-cta);
+  --color-hero-cta-foreground: var(--hero-cta-foreground);
+  --color-hero-accent: var(--hero-accent);
+  --color-hero-accent-foreground: var(--hero-accent-foreground);
+  --color-hero-hairline: var(--hero-hairline);
+
+
   --color-badge-verified: var(--badge-verified);
   --color-badge-verified-foreground: var(--badge-verified-foreground);
   --color-badge-delivery: var(--badge-delivery);
@@ -121,6 +131,16 @@
   --clay-soft: oklch(0.955 0.022 55);
   --harvest: oklch(0.66 0.13 62);
   --harvest-soft: oklch(0.96 0.025 70);
+
+  /* Sampled directly from the Canva hero export */
+  --hero-canvas: oklch(0.3216 0.0568 158.5); /* #0F3A26 */
+  --hero-ink: oklch(0.8927 0.0663 76.5); /* #F8D9A7 */
+  --hero-cta: oklch(0.9316 0.0553 82.6); /* #FFE6BA */
+  --hero-cta-foreground: oklch(0.3106 0.0605 161.4); /* #0B3A28 */
+  --hero-accent: oklch(0.7288 0.1424 65.6); /* #E49932 */
+  --hero-accent-foreground: oklch(0.3106 0.0605 161.4); /* #0B3A28 */
+  --hero-hairline: oklch(0.5 0.055 95 / 0.45);
+
 
   --badge-verified: oklch(0.945 0.03 152);
   --badge-verified-foreground: oklch(0.36 0.08 152);
