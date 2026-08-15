@@ -36,6 +36,21 @@ export const Route = createFileRoute("/api/public/health/maps")({
 
           if (!response.ok) {
             const text = await response.text().catch(() => "");
+
+            // A browser-restricted key (HTTP referrer allowlist) legitimately rejects
+            // server-side calls. That means the key is valid and billing is active —
+            // it simply can't be exercised from the server. Not an outage.
+            if (
+              response.status === 403 &&
+              /API_KEY_HTTP_REFERRER_BLOCKED|Requests from referer/i.test(text)
+            ) {
+              return Response.json({
+                status: "browser_restricted",
+                ok: true,
+                note: "GOOGLE_API_KEY is valid but restricted to browser HTTP referrers, so it cannot be verified server-side. Maps will load in the browser from allowlisted domains.",
+              });
+            }
+
             return Response.json(
               {
                 status: "degraded",
@@ -45,6 +60,7 @@ export const Route = createFileRoute("/api/public/health/maps")({
               { status: 503 },
             );
           }
+
 
           const data = (await response.json()) as {
             id?: string;
