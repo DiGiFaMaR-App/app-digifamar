@@ -429,6 +429,11 @@ function FarmerDashboard() {
               </div>
             )}
 
+            {/* Plan + listing quota */}
+            {!loading && (
+              <PlanUsageCard activeListings={listings.filter((l) => l.is_active).length} />
+            )}
+
             {/* Stats row */}
             <StatsRow stats={stats} loading={loading} />
 
