@@ -178,7 +178,12 @@ function BillingSettings() {
             Update your card, download invoices, switch plans, or cancel in the secure Stripe
             billing portal. It opens in a new tab.
           </p>
-          <Button className="mt-4" variant="outline" onClick={openPortal} disabled={busy || plan === "free" ? !vip && plan === "free" : false}>
+          <Button
+            className="mt-4"
+            variant="outline"
+            onClick={openPortal}
+            disabled={busy || (plan === "free" && !vip)}
+          >
             {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
             Open billing portal
             <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
