@@ -14,7 +14,7 @@ import {
 } from "@/hooks/use-subscription";
 import { createBillingPortalSession } from "@/lib/subscriptions/plans.functions";
 import { PLANS, planFromPriceId } from "@/lib/entitlements/plans";
-import { VIP_PRICE_ID } from "@/lib/subscriptions/vip-plan";
+import { VIP_PRICE_ID } from "@/lib/subscriptions/vip.functions";
 
 export const Route = createFileRoute("/settings/billing")({
   head: () => ({
