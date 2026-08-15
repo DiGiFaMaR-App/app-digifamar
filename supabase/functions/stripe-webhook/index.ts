@@ -386,6 +386,13 @@ Deno.serve(async (req) => {
       case "customer.subscription.deleted":
         await handleSubscriptionEvent(obj, Boolean(event.livemode), true);
         break;
+      case "invoice.paid":
+        await handleInvoiceEvent(obj, Boolean(event.livemode), false);
+        break;
+      case "invoice.payment_failed":
+        await handleInvoiceEvent(obj, Boolean(event.livemode), true);
+        break;
+
 
       default:
         console.log("[stripe-webhook] unhandled event", event.type);
