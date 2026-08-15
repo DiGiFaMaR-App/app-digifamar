@@ -6,6 +6,7 @@
  * server function / Edge Function is required for browse reads.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { planRank } from "@/lib/entitlements/plans";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type ListingRow = Tables<"listings">;
