@@ -41,6 +41,7 @@ import {
   type FarmerListing,
   type ListingDraft,
 } from "@/lib/farmer/listings";
+import { PlanUsageCard } from "@/components/subscription/PlanUsageCard";
 import { categories as MARKET_CATEGORIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/farmer")({
@@ -427,6 +428,11 @@ function FarmerDashboard() {
                   </>
                 )}
               </div>
+            )}
+
+            {/* Plan + listing quota */}
+            {!loading && (
+              <PlanUsageCard activeListings={listings.filter((l) => l.is_active).length} />
             )}
 
             {/* Stats row */}

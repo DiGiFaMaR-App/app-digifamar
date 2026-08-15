@@ -540,6 +540,7 @@ export type Database = {
           lat_approx: number | null
           lng: number | null
           lng_approx: number | null
+          plan: string
           products: string[]
           state: string | null
           updated_at: string
@@ -561,6 +562,7 @@ export type Database = {
           lat_approx?: number | null
           lng?: number | null
           lng_approx?: number | null
+          plan?: string
           products?: string[]
           state?: string | null
           updated_at?: string
@@ -582,6 +584,7 @@ export type Database = {
           lat_approx?: number | null
           lng?: number | null
           lng_approx?: number | null
+          plan?: string
           products?: string[]
           state?: string | null
           updated_at?: string
@@ -1419,6 +1422,10 @@ export type Database = {
       }
     }
     Functions: {
+      active_plan: {
+        Args: { _env?: string; _user_id: string }
+        Returns: string
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1448,6 +1455,7 @@ export type Database = {
         }
         Returns: number
       }
+      plan_listing_limit: { Args: { _plan: string }; Returns: number }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {
