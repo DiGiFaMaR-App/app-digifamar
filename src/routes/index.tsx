@@ -107,7 +107,10 @@ function HeroSection() {
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.08fr_1fr] lg:gap-16 lg:px-8">
         {/* Copy column — mobile-first stack, matching the Canva hero */}
         <div className="text-center lg:text-left">
-          <h1 className="font-display text-hero-ink text-[2.5rem] font-extrabold leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.25rem]">
+          <h1
+            style={{ color: "var(--hero-ink)" }}
+            className="font-display text-[2.5rem] font-extrabold leading-[1.04] tracking-tight sm:text-6xl lg:text-[4.25rem]"
+          >
             America&rsquo;s Farmers.
             <br />
             Direct to Market.
