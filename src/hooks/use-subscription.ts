@@ -50,7 +50,7 @@ export function useSubscriptions() {
       .eq("environment", getStripeEnvironment())
       .order("created_at", { ascending: false })
       .limit(20);
-    setRows(((data ?? []) as SubscriptionRow[]) ?? []);
+    setRows((data ?? []) as SubscriptionRow[]);
     setLoading(false);
   }, [user?.id]);
 
