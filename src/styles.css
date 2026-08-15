@@ -79,90 +79,95 @@
   --color-badge-fresh: var(--badge-fresh);
   --color-badge-fresh-foreground: var(--badge-fresh-foreground);
 
-  --shadow-soft: 0 1px 2px oklch(0.2 0.02 155 / 0.04), 0 8px 24px -12px oklch(0.2 0.02 155 / 0.12);
+  --shadow-soft: 0 1px 2px oklch(0.2 0.05 265 / 0.05), 0 8px 24px -12px oklch(0.2 0.05 265 / 0.14);
   --shadow-lifted:
-    0 2px 4px oklch(0.2 0.02 155 / 0.04), 0 18px 40px -16px oklch(0.2 0.02 155 / 0.18);
+    0 2px 4px oklch(0.2 0.05 265 / 0.05), 0 18px 40px -16px oklch(0.2 0.05 265 / 0.2);
+
 }
 
 :root {
   --radius: 0.9rem;
 
-  /* Clean light canvas */
+  /* Clean light canvas (cool, matching the logo's white) */
   --background: oklch(1 0 0);
-  --foreground: oklch(0.2 0.014 154); /* #111813 ink */
+  --foreground: oklch(0.2226 0.0515 264.7); /* #0F1A33 */
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.014 154);
+  --card-foreground: oklch(0.2226 0.0515 264.7);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.014 154);
+  --popover-foreground: oklch(0.2226 0.0515 264.7);
 
-  /* Deep forest green */
-  --primary: oklch(0.265 0.049 154); /* #0F2C1A */
-  --primary-foreground: oklch(0.985 0.004 130);
-  --primary-hover: oklch(0.34 0.066 154);
-  --primary-glow: oklch(0.5 0.09 152);
+  /* Logo navy */
+  --primary: oklch(0.313 0.1251 263); /* #0B2A6F */
+  --primary-foreground: oklch(0.9844 0.0045 258.3);
+  --primary-hover: oklch(0.3768 0.1435 262.6); /* #133A8C */
+  --primary-glow: oklch(0.4925 0.1776 264.2); /* #2B57C4 */
 
-  --secondary: oklch(0.967 0.006 138); /* #F2F5F1 */
-  --secondary-foreground: oklch(0.265 0.049 154);
-  --secondary-hover: oklch(0.94 0.01 138);
+  --secondary: oklch(0.9555 0.0142 254.6); /* #EAF1FA */
+  --secondary-foreground: oklch(0.313 0.1251 263);
+  --secondary-hover: oklch(0.9078 0.021 261.8);
 
-  --muted: oklch(0.972 0.004 130);
-  --muted-foreground: oklch(0.51 0.027 157); /* #5A6B60 */
+  --muted: oklch(0.9753 0.0074 260.7); /* #F4F7FC */
+  --muted-foreground: oklch(0.527 0.0562 263.4); /* #5A6B8C */
 
-  --accent: oklch(0.955 0.012 140);
-  --accent-foreground: oklch(0.265 0.049 154);
+  --accent: oklch(0.9449 0.0133 262.4); /* #E8EDF6 */
+  --accent-foreground: oklch(0.313 0.1251 263);
 
-  --destructive: oklch(0.55 0.19 27);
-  --destructive-foreground: oklch(0.99 0.003 90);
+  /* Logo red */
+  --destructive: oklch(0.5304 0.2074 22.3); /* #C8102E */
+  --destructive-foreground: oklch(0.9844 0.0045 258.3);
 
-  --border: oklch(0.918 0.008 145);
-  --input: oklch(0.9 0.01 145);
-  --ring: oklch(0.44 0.08 153);
+  --border: oklch(0.9078 0.021 261.8); /* #D9E1EF */
+  --input: oklch(0.8699 0.03 261);
+  --ring: oklch(0.4925 0.1776 264.2);
 
-  --surface-1: oklch(0.978 0.003 128); /* #F7F8F6 */
-  --surface-2: oklch(0.953 0.006 138);
-  --ink: oklch(0.181 0.016 165); /* #0B1410 */
+  --surface-1: oklch(0.9844 0.0045 258.3); /* #F8FAFD */
+  --surface-2: oklch(0.9449 0.0133 262.4);
+  --ink: oklch(0.2007 0.0576 266.5); /* #0A1430 */
 
-  --leaf: oklch(0.377 0.076 154); /* #1A4D2E */
-  --leaf-soft: oklch(0.945 0.018 150);
-  --sage: oklch(0.654 0.062 140); /* #7D9A76 */
-  --sage-soft: oklch(0.945 0.02 142);
-  --clay: oklch(0.628 0.111 44); /* #C0714F muted terracotta */
-  --clay-soft: oklch(0.955 0.022 55);
-  --harvest: oklch(0.66 0.13 62);
-  --harvest-soft: oklch(0.96 0.025 70);
+  --leaf: oklch(0.5103 0.1368 146.8); /* #1E7A32 logo green */
+  --leaf-soft: oklch(0.951 0.035 147);
+  --sage: oklch(0.7199 0.0574 258.7); /* #8FA6C9 */
+  --sage-soft: oklch(0.9449 0.0133 262.4);
+  --clay: oklch(0.5304 0.2074 22.3); /* logo red */
+  --clay-soft: oklch(0.955 0.03 22);
+  --harvest: oklch(0.4606 0.179 22.2); /* deep red */
+  --harvest-soft: oklch(0.96 0.025 22);
 
-  /* Sampled directly from the Canva hero export */
-  --hero-canvas: oklch(0.3216 0.0568 158.5); /* #0F3A26 */
-  --hero-ink: oklch(0.8927 0.0663 76.5); /* #F8D9A7 */
-  --hero-cta: oklch(0.9316 0.0553 82.6); /* #FFE6BA */
-  --hero-cta-foreground: oklch(0.3106 0.0605 161.4); /* #0B3A28 */
-  --hero-accent: oklch(0.7288 0.1424 65.6); /* #E49932 */
-  --hero-accent-foreground: oklch(0.3106 0.0605 161.4); /* #0B3A28 */
-  --hero-hairline: oklch(0.5 0.055 95 / 0.45);
+  /* Hero — logo navy canvas with red/white accents */
+  --hero-canvas: oklch(0.2007 0.0576 266.5); /* #0A1430 */
+  --hero-ink: oklch(1 0 0); /* white */
+  --hero-cta: oklch(0.5304 0.2074 22.3); /* #C8102E */
+  --hero-cta-foreground: oklch(0.9844 0.0045 258.3);
+  --hero-accent: oklch(0.5103 0.1368 146.8); /* #1E7A32 */
+  --hero-accent-foreground: oklch(0.9844 0.0045 258.3);
+  --hero-hairline: oklch(0.72 0.057 259 / 0.35);
 
 
-  --badge-verified: oklch(0.945 0.03 152);
-  --badge-verified-foreground: oklch(0.36 0.08 152);
-  --badge-delivery: oklch(0.95 0.03 235);
-  --badge-delivery-foreground: oklch(0.42 0.1 240);
-  --badge-organic: oklch(0.945 0.035 145);
-  --badge-organic-foreground: oklch(0.38 0.08 150);
+
+  --badge-verified: oklch(0.9449 0.0133 262.4);
+  --badge-verified-foreground: oklch(0.313 0.1251 263);
+  --badge-delivery: oklch(0.95 0.03 255);
+  --badge-delivery-foreground: oklch(0.4925 0.1776 264.2);
+  --badge-organic: oklch(0.951 0.035 147);
+  --badge-organic-foreground: oklch(0.4103 0.1168 146.8);
   --badge-gold: oklch(0.8 0.13 78);
   --badge-gold-foreground: oklch(0.32 0.06 70);
-  --badge-new: oklch(0.955 0.022 55);
-  --badge-new-foreground: oklch(0.5 0.11 45);
-  --badge-fresh: oklch(0.945 0.03 152);
-  --badge-fresh-foreground: oklch(0.36 0.08 152);
+  --badge-new: oklch(0.955 0.03 22);
+  --badge-new-foreground: oklch(0.5304 0.2074 22.3);
+  --badge-fresh: oklch(0.951 0.035 147);
+  --badge-fresh-foreground: oklch(0.4103 0.1168 146.8);
 
   --gradient-radial-glow: radial-gradient(
     circle at center,
-    color-mix(in oklab, var(--sage) 22%, transparent) 0%,
+    color-mix(in oklab, var(--primary-glow) 22%, transparent) 0%,
     transparent 70%
   );
   --shadow-glow: 0 20px 60px -30px color-mix(in oklab, var(--primary) 45%, transparent);
-  --shadow-card: 0 1px 2px oklch(0.2 0.02 155 / 0.04), 0 8px 24px -12px oklch(0.2 0.02 155 / 0.12);
+  --shadow-card: 0 1px 2px oklch(0.2 0.05 265 / 0.05), 0 8px 24px -12px oklch(0.2 0.05 265 / 0.14);
 }
+
+
 
 @layer base {
   * {

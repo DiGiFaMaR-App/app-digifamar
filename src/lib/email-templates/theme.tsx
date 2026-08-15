@@ -14,11 +14,11 @@ import {
 
 /** DiGiFaMaR brand palette (mirrors src/styles.css design tokens). */
 export const COLORS = {
-  forest: '#0F2C1A',
+  forest: '#0B2A6F',
   forestHover: '#163F25',
   sage: '#9AB79E',
   terracotta: '#B4552F',
-  mist: '#F5F7F3',
+  mist: '#EAF1FA',
   ink: '#0B1410',
   muted: '#5A6B60',
   border: '#E3E9E2',

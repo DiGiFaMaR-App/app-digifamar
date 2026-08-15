@@ -58,7 +58,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "twitter:image",
         content: BRAND.og.default,
       },
-      { name: "theme-color", content: "#0F2C1A" },
+      { name: "theme-color", content: "#0B2A6F" },
       { name: "apple-mobile-web-app-title", content: "DiGiFaMaR" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
