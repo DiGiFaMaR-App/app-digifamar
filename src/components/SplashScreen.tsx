@@ -50,30 +50,47 @@ function Particles() {
 
 // ─── Trust badge pill ────────────────────────────────────────────────────────
 const BADGES = [
-  { emoji: "🔒", text: "Escrow-protected", delay: "1.4s" },
-  { emoji: "📍", text: "All 50 States", delay: "1.65s" },
-  { emoji: "🌾", text: "Verified U.S. Farms", delay: "1.9s" },
-  { emoji: "⭐", text: "6-Digit Release Code", delay: "2.15s" },
+  { emoji: "🔒", text: "Escrow-protected", delay: "0.5s" },
+  { emoji: "📍", text: "All 50 States", delay: "0.65s" },
+  { emoji: "🌾", text: "Verified U.S. Farms", delay: "0.8s" },
+  { emoji: "⭐", text: "6-Digit Release Code", delay: "0.95s" },
 ];
 
 // ─── Main component ──────────────────────────────────────────────────────────
 export function SplashScreen() {
   const [visible, setVisible] = useState(() => {
     if (typeof window === "undefined") return false;
-    return !localStorage.getItem(SPLASH_KEY);
+    if (localStorage.getItem(SPLASH_KEY)) return false;
+    // Deep links (a shared product, a checkout return, an emailed order) must
+    // never be delayed by the brand intro — only the home page shows it.
+    if (window.location.pathname !== "/") return false;
+    // Respect reduced-motion preferences.
+    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   });
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
-    const t = window.setTimeout(() => {
+
+    let fadeTimer = 0;
+    const dismiss = () => {
       setFading(true);
-      window.setTimeout(() => {
+      fadeTimer = window.setTimeout(() => {
         localStorage.setItem(SPLASH_KEY, "1");
         setVisible(false);
-      }, 700);
-    }, 3200);
-    return () => window.clearTimeout(t);
+      }, 400);
+    };
+
+    const t = window.setTimeout(dismiss, 1800);
+    window.addEventListener("pointerdown", dismiss, { once: true });
+    window.addEventListener("keydown", dismiss, { once: true });
+
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(fadeTimer);
+      window.removeEventListener("pointerdown", dismiss);
+      window.removeEventListener("keydown", dismiss);
+    };
   }, [visible]);
 
   if (!visible) return null;
@@ -86,7 +103,7 @@ export function SplashScreen() {
       style={{
         backgroundColor: "#060F06",
         opacity: fading ? 0 : 1,
-        transition: "opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: "opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
         pointerEvents: fading ? "none" : "auto",
       }}
     >
@@ -211,7 +228,7 @@ export function SplashScreen() {
         {/* Powered-by line */}
         <p
           className="animate-splash-badge mt-5 text-[11px] tracking-widest uppercase"
-          style={{ animationDelay: "2.4s", color: "rgba(255,255,255,0.25)" }}
+          style={{ animationDelay: "1.1s", color: "rgba(255,255,255,0.25)" }}
         >
           Escrow-protected · Cloudflare · Supabase
         </p>
@@ -234,7 +251,7 @@ export function SplashScreen() {
         style={{
           background: "linear-gradient(90deg, transparent, #4ADE80, transparent)",
           width: 0,
-          animationDuration: "3.2s",
+          animationDuration: "1.8s",
         }}
       />
     </div>

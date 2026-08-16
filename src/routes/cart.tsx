@@ -3,7 +3,14 @@ import { ArrowRight, Minus, Plus, ShieldCheck, ShoppingCart, Trash2 } from "luci
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
-import { dollarsToCents, formatCents } from "@/lib/cart/fees";
+import {
+  dollarsToCents,
+  formatCents,
+  formatRate,
+  ESCROW_FEE_RATE,
+  PLATFORM_FEE_RATE,
+} from "@/lib/cart/fees";
+
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -13,7 +20,7 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
-  const { items, isEmpty, subtotalCents, count, setQuantity, remove } = useCart();
+  const { items, isEmpty, subtotalCents, count, fees, setQuantity, remove } = useCart();
   const navigate = useNavigate();
 
   return (
@@ -108,15 +115,36 @@ function CartPage() {
               <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
                 Summary
               </h2>
-              <div className="mt-3 flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Subtotal · {count} item{count === 1 ? "" : "s"}
-                </span>
-                <span className="font-semibold">{formatCents(subtotalCents)}</span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Platform &amp; escrow fees are calculated at checkout.
+              <dl className="mt-3 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">
+                    Subtotal · {count} item{count === 1 ? "" : "s"}
+                  </dt>
+                  <dd className="font-semibold tabular-nums">{formatCents(subtotalCents)}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">
+                    Platform fee ({formatRate(PLATFORM_FEE_RATE)})
+                  </dt>
+                  <dd className="tabular-nums">{formatCents(fees.platformFeeCents)}</dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-muted-foreground">
+                    Escrow fee ({formatRate(ESCROW_FEE_RATE)})
+                  </dt>
+                  <dd className="tabular-nums">{formatCents(fees.escrowFeeCents)}</dd>
+                </div>
+                <div className="flex items-center justify-between border-t border-border pt-2 text-base">
+                  <dt className="font-bold">Estimated total</dt>
+                  <dd className="font-extrabold tabular-nums text-primary">
+                    {formatCents(fees.totalCents)}
+                  </dd>
+                </div>
+              </dl>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Delivery is priced at checkout once you choose pickup or courier.
               </p>
+
 
               <Button
                 onClick={() => navigate({ to: "/checkout" })}

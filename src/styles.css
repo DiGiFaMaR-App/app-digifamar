@@ -434,7 +434,7 @@
     }
   }
   .animate-splash-bar {
-    animation: splash-bar-fill 3s linear forwards;
+    animation: splash-bar-fill 1.8s linear forwards;
   }
 
   @keyframes splash-bar-glow {

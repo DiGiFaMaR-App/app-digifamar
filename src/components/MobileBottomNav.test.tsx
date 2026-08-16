@@ -8,7 +8,7 @@ describe("MobileBottomNav", () => {
     const nav = screen.getByRole("navigation");
     const items = within(nav).getAllByRole("listitem");
     expect(items).toHaveLength(6);
-    ["Home", "Browse", "Sell", "Orders", "Hacks", "Profile"].forEach((label) => {
+    ["Home", "Shop", "Sell", "Cart", "Orders", "Profile"].forEach((label) => {
       expect(within(nav).getByText(label)).toBeInTheDocument();
     });
   });
@@ -16,9 +16,9 @@ describe("MobileBottomNav", () => {
   it("wires links to their target routes", () => {
     render(<MobileBottomNav />);
     expect(screen.getByText("Home").closest("a")).toHaveAttribute("href", "/");
-    expect(screen.getByText("Browse").closest("a")).toHaveAttribute("href", "/browse");
+    expect(screen.getByText("Shop").closest("a")).toHaveAttribute("href", "/market");
     expect(screen.getByText("Orders").closest("a")).toHaveAttribute("href", "/orders");
-    expect(screen.getByText("Hacks").closest("a")).toHaveAttribute("href", "/hacks");
+    expect(screen.getByText("Cart").closest("a")).toHaveAttribute("href", "/cart");
   });
 
   it("is hidden on md+ via Tailwind utility", () => {

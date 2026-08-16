@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, Clock, KeyRound, Package, ShieldCheck, Copy } from "lucide-react";
 import { toast } from "sonner";
+import { OrderStatusBadge } from "@/components/order/OrderStatusBadge";
 import { AppShell } from "@/components/AppShell";
 import { RequireAuth } from "@/components/RequireAuth";
 import { Button } from "@/components/ui/button";
@@ -59,22 +60,6 @@ type OrderRow = {
 
 type ListingRow = { id: string; title: string; unit: string; images: string[] };
 type InspectionRow = { auto_release_at: string; released_at: string | null };
-
-const STATUS_LABEL: Record<string, string> = {
-  pending: "Awaiting payment",
-  negotiating: "Negotiating",
-  escrow_funded: "Funds in escrow",
-  awaiting_delivery: "OTP issued — awaiting delivery",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  inspection: "In inspection window",
-  released: "Released to farmer",
-  refunded: "Refunded",
-  disputed: "Disputed",
-  penalized: "Farmer penalized",
-  cancelled: "Cancelled",
-  paid: "Paid",
-};
 
 function dollars(cents: number) {
   return `$${(cents / 100).toFixed(2)}`;
@@ -218,9 +203,7 @@ function OrderDetailPage() {
                 Placed {new Date(order.created_at).toLocaleString()}
               </p>
             </div>
-            <span className="shrink-0 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
-              {STATUS_LABEL[order.status] ?? order.status}
-            </span>
+            <OrderStatusBadge status={order.status} className="px-3 py-1 text-xs" />
           </div>
 
           {listing && (
