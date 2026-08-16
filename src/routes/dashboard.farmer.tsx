@@ -42,6 +42,9 @@ import {
   type ListingDraft,
 } from "@/lib/farmer/listings";
 import { PlanUsageCard } from "@/components/subscription/PlanUsageCard";
+import { UpgradePrompt } from "@/components/subscription/UpgradePrompt";
+import { usePlan } from "@/hooks/use-subscription";
+import { canPublishAnother, listingLimitLabel } from "@/lib/entitlements/plans";
 import { categories as MARKET_CATEGORIES } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/dashboard/farmer")({
@@ -326,6 +329,8 @@ function FarmerDashboard() {
   const { stats, listings, orders, profile, loading, toggleActive, saveListing, saveProfile } =
     useFarmerDashboard(user?.id);
 
+  const { plan } = usePlan();
+  const [limitBlocked, setLimitBlocked] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ListingDraft>(emptyDraft);
@@ -338,6 +343,12 @@ function FarmerDashboard() {
       toast.error("Your farm must be approved before you can list products.");
       return;
     }
+    if (!canPublishAnother(plan, listings.filter((l) => l.is_active).length)) {
+      setLimitBlocked(true);
+      toast.error(`Your ${plan === "free" ? "Free" : plan === "pro" ? "Pro" : "Elite"} plan allows ${listingLimitLabel(plan)} active listings.`);
+      return;
+    }
+    setLimitBlocked(false);
     setDraft(emptyDraft);
     setEditingId(null);
     setShowForm(true);
@@ -433,6 +444,15 @@ function FarmerDashboard() {
             {/* Plan + listing quota */}
             {!loading && (
               <PlanUsageCard activeListings={listings.filter((l) => l.is_active).length} />
+            )}
+
+            {limitBlocked && (
+              <UpgradePrompt
+                plan={plan}
+                title="Listing limit reached"
+                detail={`Your ${plan === "free" ? "Free" : plan === "pro" ? "Pro" : "Elite"} plan allows ${listingLimitLabel(plan)} active listings, and this cap is enforced when the listing is saved. Deactivate an existing listing to free a slot.`}
+                onDismiss={() => setLimitBlocked(false)}
+              />
             )}
 
             {/* Stats row */}
