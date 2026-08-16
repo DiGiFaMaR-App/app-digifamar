@@ -9,6 +9,9 @@ import { isStripeConfigured } from "@/lib/payments/stripe-client";
 import { usePlan } from "@/hooks/use-subscription";
 import { useAuth } from "@/hooks/use-auth";
 import { PLANS, PLAN_ORDER, planRank, type PlanId } from "@/lib/entitlements/plans";
+import { FEATURE_GROUPS, PLAN_POSITIONING } from "@/lib/entitlements/plan-features";
+import { PlanComparison } from "@/components/subscription/PlanComparison";
+import { PlanBadge } from "@/components/subscription/PlanBadge";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -91,7 +94,13 @@ function Pricing() {
                     Most popular
                   </span>
                 )}
-                <h2 className="text-xl font-bold">{t.name}</h2>
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-xl font-bold">{t.name}</h2>
+                  <PlanBadge plan={t.id} showTag />
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {PLAN_POSITIONING[t.id].blurb}
+                </p>
                 <div className="mt-3 flex items-baseline gap-1">
                   <span className="text-4xl font-extrabold">{t.priceLabel}</span>
                   <span className="text-muted-foreground">/month</span>
@@ -108,13 +117,13 @@ function Pricing() {
                 {planId === "free" ? (
                   <Button
                     asChild
-                    className="mt-6 w-full border border-border bg-card text-foreground hover:bg-muted"
+                    className="mt-6 min-h-[44px] w-full border border-border bg-card text-foreground hover:bg-muted"
                   >
                     <Link to="/signup/farmer">Start free</Link>
                   </Button>
                 ) : (
                   <Button
-                    className={`mt-6 w-full ${
+                    className={`mt-6 min-h-[44px] w-full ${
                       t.highlight ? "" : "border border-border bg-card text-foreground hover:bg-muted"
                     }`}
                     disabled={isCurrent || loading || !isStripeConfigured}
@@ -128,6 +137,8 @@ function Pricing() {
             );
           })}
         </div>
+
+        <PlanComparison groups={FEATURE_GROUPS} currentPlan={user ? currentPlan : null} />
 
         {!isStripeConfigured ? (
           <p className="mt-6 text-center text-sm text-muted-foreground">
