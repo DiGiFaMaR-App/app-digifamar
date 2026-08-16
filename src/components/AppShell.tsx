@@ -3,12 +3,13 @@ import {
   Home,
   Search,
   Package,
-  User,
   Tractor,
   MessageCircle,
   ShoppingCart,
   MessageSquare,
   Sparkles,
+  Map,
+  Landmark,
 } from "lucide-react";
 import { type ReactNode } from "react";
 import { useCart } from "@/hooks/use-cart";
@@ -16,28 +17,26 @@ import { useNotifications } from "@/lib/notifications/use-notifications";
 import { Logo } from "./Logo";
 import { openWhatsApp } from "./WhatsAppFab";
 
-type NavItem = { to: string; label: string; icon: React.ElementType };
+type NavItem = { to: string; label: string; icon: React.ElementType; exact?: boolean };
 
 const buyerNav: NavItem[] = [
-  { to: "/", label: "Home", icon: Home },
+  { to: "/", label: "Home", icon: Home, exact: true },
   { to: "/market", label: "Shop", icon: Search },
-  { to: "/browse", label: "Browse", icon: Search },
+  { to: "/browse", label: "Map", icon: Map },
   { to: "/orders", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
   { to: "/assistant", label: "Assistant", icon: Sparkles },
-  { to: "/lending", label: "Lending", icon: Package },
-  { to: "/auth", label: "Account", icon: User },
+  { to: "/lending", label: "Lending", icon: Landmark },
 ];
 
 const farmerNav: NavItem[] = [
-  { to: "/", label: "Home", icon: Home },
-  { to: "/market", label: "Browse", icon: Search },
+  { to: "/", label: "Home", icon: Home, exact: true },
+  { to: "/market", label: "Shop", icon: Search },
   { to: "/dashboard/farmer", label: "Dashboard", icon: Tractor },
   { to: "/orders", label: "Orders", icon: Package },
   { to: "/chat", label: "Messages", icon: MessageSquare },
   { to: "/assistant", label: "Assistant", icon: Sparkles },
-  { to: "/lending", label: "Lending", icon: Package },
-  { to: "/auth", label: "Account", icon: User },
+  { to: "/lending", label: "Lending", icon: Landmark },
 ];
 
 export function AppShell({
@@ -49,7 +48,6 @@ export function AppShell({
 }) {
   const path = useRouterState({ select: (r) => r.location.pathname });
   const nav = role === "farmer" ? farmerNav : buyerNav;
-  const { count } = useCart();
   // Subscribe to Supabase Realtime notifications and surface them as toasts.
   useNotifications();
 
@@ -60,11 +58,14 @@ export function AppShell({
           <Logo size="sm" glow />
           <nav className="hidden items-center gap-1 md:flex">
             {nav.map((n) => {
-              const active = path.startsWith(n.to);
+              const active = n.exact
+                ? path === n.to
+                : path === n.to || path.startsWith(n.to + "/");
               return (
                 <Link
                   key={n.to}
                   to={n.to}
+                  aria-current={active ? "page" : undefined}
                   className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
                     active
                       ? "bg-primary/15 text-primary"
@@ -130,56 +131,6 @@ function CartButton({ path }: { path: string }) {
           {count > 99 ? "99+" : count}
         </span>
       )}
-    </Link>
-  );
-}
-
-function BottomItem({
-  to,
-  icon: Icon,
-  label,
-  path,
-  exact = false,
-}: {
-  to: string;
-  icon: React.ElementType;
-  label: string;
-  path: string;
-  exact?: boolean;
-}) {
-  const active = exact ? path === to : path.startsWith(to);
-  return (
-    <Link
-      to={to}
-      {...(to === "/auth" ? { search: { tab: "signin" as const } } : {})}
-      className={`flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-        active ? "text-primary" : "text-muted-foreground"
-      }`}
-    >
-      <Icon className="h-5 w-5" />
-      {label}
-    </Link>
-  );
-}
-
-function BottomItemCart({ to, path, count }: { to: string; path: string; count: number }) {
-  const active = path.startsWith(to);
-  return (
-    <Link
-      to={to}
-      className={`flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-        active ? "text-primary" : "text-muted-foreground"
-      }`}
-    >
-      <span className="relative">
-        <ShoppingCart className="h-5 w-5" />
-        {count > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
-            {count > 9 ? "9+" : count}
-          </span>
-        )}
-      </span>
-      Cart
     </Link>
   );
 }

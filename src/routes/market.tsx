@@ -12,6 +12,7 @@ import { itemListJsonLd } from "@/lib/seo/structured-data";
 import { useCatalogProducts } from "@/lib/catalog/use-catalog";
 import { BRAND } from "@/lib/brand";
 import { DemoNotice } from "@/components/DemoNotice";
+import { ProductGridSkeleton } from "@/components/common/LoadingSkeletons";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -61,6 +62,13 @@ const PRICE_TIERS = [
   { label: "$25+", min: 25, max: Infinity },
 ];
 const DISTANCES = [10, 25, 50, 100];
+const SORTS = [
+  { key: "distance", label: "Nearest" },
+  { key: "price-asc", label: "Price: low to high" },
+  { key: "price-desc", label: "Price: high to low" },
+  { key: "rating", label: "Top rated" },
+] as const;
+type SortKey = (typeof SORTS)[number]["key"];
 
 function Marketplace() {
   const {
@@ -85,6 +93,7 @@ function Marketplace() {
   const [tier, setTier] = useState(0);
   const [maxDist, setMaxDist] = useState(100);
   const [active, setActive] = useState<Product | null>(null);
+  const [sort, setSort] = useState<SortKey>("distance");
 
   const farmDistances = useMemo<Map<string, number> | null>(() => {
     if (lat === null || lng === null) return null;
@@ -114,12 +123,15 @@ function Marketplace() {
         return true;
       })
       .sort((a, b) => {
+        if (sort === "price-asc") return a.price - b.price;
+        if (sort === "price-desc") return b.price - a.price;
+        if (sort === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
         if (!farmDistances) return 0;
         const da = farmDistances.get(a.farmId) ?? 999;
         const db = farmDistances.get(b.farmId) ?? 999;
         return da - db;
       });
-  }, [products, cat, tier, maxDist, query, farmDistances]);
+  }, [products, cat, tier, maxDist, query, farmDistances, sort]);
 
   const gridRef = useReveal<HTMLDivElement>({ stagger: 0.05, y: 32, scale: 0.96 });
 
@@ -251,6 +263,24 @@ function Marketplace() {
           ))}
         </div>
 
+        {/* Sort */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Sort:</span>
+          {SORTS.map((s) => (
+            <Chip key={s.key} active={sort === s.key} onClick={() => setSort(s.key)} small>
+              {s.label}
+            </Chip>
+          ))}
+          {!productsLoading && (
+            <span
+              aria-live="polite"
+              className="ml-auto text-muted-foreground"
+            >
+              {filtered.length} item{filtered.length === 1 ? "" : "s"}
+            </span>
+          )}
+        </div>
+
         {/* Fresh today banner */}
         <div className="mt-5 flex items-center justify-between rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3">
           <div className="flex items-center gap-2 text-sm">
@@ -329,14 +359,23 @@ function Marketplace() {
         </div>
 
         {productsLoading && (
-          <div className="mt-12 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading fresh listings…
+          <div className="mt-5">
+            <span className="sr-only" role="status">
+              Loading fresh listings
+            </span>
+            <ProductGridSkeleton count={8} />
           </div>
         )}
 
         {productsError && !productsLoading && (
-          <div className="mt-12 text-center text-sm text-destructive">
-            Couldn't load listings. Check your connection and try again.
+          <div className="mt-12 rounded-2xl border border-destructive/30 bg-destructive/5 p-8 text-center">
+            <p className="text-sm font-semibold text-destructive">Couldn&apos;t load listings</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Check your connection and try again.
+            </p>
+            <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
           </div>
         )}
 
