@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Check, Clock, Minus } from "lucide-react";
 import { PLANS, PLAN_ORDER, type PlanId } from "@/lib/entitlements/plans";
 import type { FeatureRow, FeatureState } from "@/lib/entitlements/plan-features";
@@ -74,8 +75,8 @@ export function PlanComparison({
           </thead>
           <tbody>
             {groups.map((group) => (
-              <>
-                <tr key={group.title}>
+              <Fragment key={group.title}>
+                <tr>
                   <th
                     scope="colgroup"
                     colSpan={4}
@@ -101,7 +102,7 @@ export function PlanComparison({
                     ))}
                   </tr>
                 ))}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>
