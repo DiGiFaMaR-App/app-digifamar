@@ -14,6 +14,8 @@ import {
 } from "@/hooks/use-subscription";
 import { createBillingPortalSession } from "@/lib/subscriptions/plans.functions";
 import { PLANS, planFromPriceId } from "@/lib/entitlements/plans";
+import { PLAN_POSITIONING } from "@/lib/entitlements/plan-features";
+import { PlanBadge } from "@/components/subscription/PlanBadge";
 import { VIP_PRICE_ID } from "@/lib/subscriptions/vip.functions";
 
 export const Route = createFileRoute("/settings/billing")({
@@ -98,13 +100,17 @@ function BillingSettings() {
             <>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Current plan</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm text-muted-foreground">Current plan</p>
+                    <PlanBadge plan={plan} showTag />
+                  </div>
                   <p className="text-2xl font-bold">
                     {definition.name}{" "}
                     <span className="text-base font-medium text-muted-foreground">
                       {definition.priceLabel}/month
                     </span>
                   </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{PLAN_POSITIONING[plan].blurb}</p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {definition.listingLimit === null
                       ? "Unlimited active listings"

@@ -1,52 +1,103 @@
 import { Link } from "@tanstack/react-router";
-import { canPublishAnother, listingLimitLabel } from "@/lib/entitlements/plans";
+import { canPublishAnother, listingLimitLabel, PLANS } from "@/lib/entitlements/plans";
+import { PLAN_POSITIONING } from "@/lib/entitlements/plan-features";
+import { PlanBadge } from "./PlanBadge";
 import { usePlan } from "@/hooks/use-subscription";
 
+const ACTION =
+  "inline-flex min-h-[44px] items-center rounded-lg px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#4ADE80]";
+
 /**
- * Farmer plan + listing-quota summary. The hard limit is enforced in the
- * database; this only makes the quota visible before the farmer hits it.
+ * "Current plan" card for the farmer dashboard: plan, real listing usage
+ * against the database-enforced cap, renewal state, and manage/upgrade
+ * actions that use the existing subscription flow.
  */
 export function PlanUsageCard({ activeListings }: { activeListings: number }) {
   const { plan, definition, renewsAt, cancelAtPeriodEnd, pastDue, loading } = usePlan();
   if (loading) return null;
 
+  const limit = definition.listingLimit;
   const atLimit = !canPublishAnother(plan, activeListings);
+  const pct = limit === null ? 0 : Math.min(100, Math.round((activeListings / limit) * 100));
 
   return (
-    <div className="rounded-xl border border-[#1E3A1E] bg-[#0B1A0B] p-4 text-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="font-semibold">
-            {definition.name} plan · {definition.priceLabel}/month
+    <section
+      aria-label="Current plan"
+      className="rounded-xl border border-[#1E3A1E] bg-[#0B1A0B] p-4 text-sm"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-[220px] flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs uppercase tracking-wider text-[#7AAB7A]">Current plan</p>
+            <PlanBadge plan={plan} showTag />
+          </div>
+          <p className="mt-1 font-semibold">
+            {definition.name} · {definition.priceLabel}/month
+            {definition.featuredPlacement ? " · featured placement active" : ""}
           </p>
-          <p className="mt-0.5 text-[#7AAB7A]">
-            {activeListings} of {listingLimitLabel(plan)} active listings used
-            {definition.featuredPlacement ? " · featured placement on" : ""}
-            {renewsAt
-              ? ` · ${cancelAtPeriodEnd ? "ends" : "renews"} ${renewsAt.toLocaleDateString()}`
-              : ""}
-          </p>
+          <p className="mt-0.5 text-[#7AAB7A]">{PLAN_POSITIONING[plan].blurb}</p>
+
+          <div className="mt-3 max-w-sm">
+            <div className="flex items-center justify-between text-xs text-[#7AAB7A]">
+              <span>Active listings</span>
+              <span>
+                {activeListings} of {listingLimitLabel(plan)}
+              </span>
+            </div>
+            {limit === null ? (
+              <p className="mt-1 text-xs text-[#7AAB7A]">No listing cap on Elite.</p>
+            ) : (
+              <div
+                className="mt-1 h-2 w-full overflow-hidden rounded-full bg-[#122A12]"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={limit}
+                aria-valuenow={Math.min(activeListings, limit)}
+                aria-label={`${activeListings} of ${limit} active listings used`}
+              >
+                <div
+                  className={`h-full rounded-full ${atLimit ? "bg-amber-400" : "bg-[#4ADE80]"}`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            )}
+          </div>
+
+          {renewsAt ? (
+            <p className="mt-2 text-xs text-[#7AAB7A]">
+              {cancelAtPeriodEnd ? "Access ends" : "Renews"} {renewsAt.toLocaleDateString()}
+            </p>
+          ) : null}
           {pastDue ? (
             <p className="mt-1 text-red-300">
-              Payment failed — update your card to keep your plan.
+              Payment failed — update your card in billing to keep your {definition.name} plan.
             </p>
           ) : null}
           {atLimit ? (
-            <p className="mt-1 text-amber-300">
-              You&apos;ve reached your plan&apos;s listing limit. Upgrade or deactivate a listing to
-              add another.
+            <p className="mt-2 text-amber-300">
+              You&apos;ve used all {listingLimitLabel(plan)} active listings. Deactivate one, or
+              upgrade to {plan === "free" ? PLANS.pro.name : PLANS.elite.name} for{" "}
+              {plan === "free" ? PLANS.pro.listingLimit : "unlimited"} active listings.
             </p>
           ) : null}
         </div>
-        <div className="flex gap-3">
-          <Link to="/pricing" className="font-semibold text-[#4ADE80] hover:underline">
+
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to="/pricing"
+            className={`${ACTION} bg-[#4ADE80] text-black hover:bg-[#22C55E]`}
+            aria-label={plan === "elite" ? "Compare plans" : "Upgrade plan"}
+          >
             {plan === "elite" ? "Compare plans" : "Upgrade"}
           </Link>
-          <Link to="/settings/billing" className="font-semibold text-[#7AAB7A] hover:underline">
-            Billing
+          <Link
+            to="/settings/billing"
+            className={`${ACTION} border border-[#1E3A1E] text-[#CFE9CF] hover:bg-[#122A12]`}
+          >
+            {plan === "free" ? "Billing" : "Manage plan"}
           </Link>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

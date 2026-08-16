@@ -52,8 +52,8 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     features: [
       "5 active listings",
       "Standard search placement",
-      "Basic sales summary",
-      "Email support",
+      "Escrow-protected orders (10% platform fee)",
+      "Buyer messaging & basic sales summary",
     ],
   },
   pro: {
@@ -69,10 +69,10 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     highlight: true,
     features: [
       "25 active listings",
-      "Featured search placement",
-      "Full analytics dashboard",
-      "Priority support",
-      "Verified plan badge",
+      "Featured search placement above free farms",
+      "Escrow-protected orders (10% platform fee)",
+      "Buyer messaging & basic sales summary",
+      "Advanced analytics — coming soon",
     ],
   },
   elite: {
@@ -87,11 +87,11 @@ export const PLANS: Record<PlanId, PlanDefinition> = {
     planBadge: "elite",
     features: [
       "Unlimited active listings",
-      "Top featured placement",
-      "Full analytics dashboard",
-      "Dedicated support",
-      "Elite farmer badge",
-      "Early lending access",
+      "Top featured search placement",
+      "Escrow-protected orders (10% platform fee)",
+      "Buyer messaging & basic sales summary",
+      "Advanced analytics — coming soon",
+      "Elite plan badge — coming soon",
     ],
   },
 };
