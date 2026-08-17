@@ -67,7 +67,9 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return errorResponse("Method not allowed", 405);
   try {
-    const key = (await storedServerKey(req)) ?? Deno.env.get("GOOGLE_API_KEY");
+    // GOOGLE_API_KEY (Lovable secret store) is authoritative; an admin-saved
+    // per-environment key in app_settings is only a fallback.
+    const key = Deno.env.get("GOOGLE_API_KEY") ?? (await storedServerKey(req));
     if (!key) return jsonResponse({ notConfigured: true, result: null });
 
     const body = await req.json().catch(() => ({}));

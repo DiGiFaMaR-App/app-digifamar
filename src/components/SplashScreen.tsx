@@ -58,19 +58,24 @@ const BADGES = [
 
 // ─── Main component ──────────────────────────────────────────────────────────
 export function SplashScreen() {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    if (localStorage.getItem(SPLASH_KEY)) return false;
-    // Deep links (a shared product, a checkout return, an emailed order) must
-    // never be delayed by the brand intro — only the home page shows it.
-    if (window.location.pathname !== "/") return false;
-    // Respect reduced-motion preferences.
-    return !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
+  // Must start `false` on both server and client so hydration matches; the
+  // browser-only checks run after mount.
+  const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    if (localStorage.getItem(SPLASH_KEY)) return;
+    // Deep links (a shared product, a checkout return, an emailed order) must
+    // never be delayed by the brand intro — only the home page shows it.
+    if (window.location.pathname !== "/") return;
+    // Respect reduced-motion preferences.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setVisible(true);
+  }, []);
+
+  useEffect(() => {
     if (!visible) return;
+
 
     let fadeTimer = 0;
     const dismiss = () => {
