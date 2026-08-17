@@ -12,6 +12,14 @@ import type { Tables } from "@/integrations/supabase/types";
 export type ListingRow = Tables<"listings">;
 
 /**
+ * Columns readable by anon/authenticated clients. Precise `lat`/`lng` are
+ * withheld at the database grant level (only `lat_approx`/`lng_approx` are
+ * public), so `select("*")` must never be used against `listings`.
+ */
+export const PUBLIC_LISTING_COLUMNS =
+  "id, farmer_id, title, slug, description, category, price_cents, unit, qty_available, images, status, created_at, updated_at, lat_approx, lng_approx";
+
+/**
  * Active listings, newest first, with paid-plan farmers surfaced ahead of free
  * ones (the "featured placement" entitlement of Pro and Elite). Placement is a
  * sort bias only — no listing is ever hidden because of a farmer's plan.
@@ -19,11 +27,11 @@ export type ListingRow = Tables<"listings">;
 export async function fetchActiveListings(): Promise<ListingRow[]> {
   const { data, error } = await supabase
     .from("listings")
-    .select("*")
+    .select(PUBLIC_LISTING_COLUMNS)
     .eq("status", "active")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  const rows = data ?? [];
+  const rows = (data ?? []) as unknown as ListingRow[];
   if (rows.length === 0) return rows;
 
   const farmerIds = [...new Set(rows.map((r) => r.farmer_id).filter(Boolean))];
@@ -44,9 +52,9 @@ export async function fetchActiveListings(): Promise<ListingRow[]> {
 export async function fetchListingBySlug(slug: string): Promise<ListingRow | null> {
   const { data, error } = await supabase
     .from("listings")
-    .select("*")
+    .select(PUBLIC_LISTING_COLUMNS)
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;
-  return data;
+  return (data as unknown as ListingRow) ?? null;
 }

@@ -805,7 +805,9 @@ export type Database = {
           id: string
           images: string[]
           lat: number | null
+          lat_approx: number | null
           lng: number | null
+          lng_approx: number | null
           price_cents: number
           qty_available: number
           slug: string
@@ -822,7 +824,9 @@ export type Database = {
           id?: string
           images?: string[]
           lat?: number | null
+          lat_approx?: number | null
           lng?: number | null
+          lng_approx?: number | null
           price_cents: number
           qty_available?: number
           slug: string
@@ -839,7 +843,9 @@ export type Database = {
           id?: string
           images?: string[]
           lat?: number | null
+          lat_approx?: number | null
           lng?: number | null
+          lng_approx?: number | null
           price_cents?: number
           qty_available?: number
           slug?: string
