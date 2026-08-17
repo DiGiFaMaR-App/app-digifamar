@@ -124,36 +124,45 @@ function NearMe() {
     <SiteLayout>
       <h1 className="sr-only">Find verified farms near you</h1>
 
-      <section className="border-b border-border bg-card">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary via-primary to-primary-glow text-primary-foreground">
+        {/* decorative color blooms */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-destructive/30 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-16 top-10 h-64 w-64 rounded-full bg-leaf/40 blur-3xl"
+        />
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                Find farms near me
-              </p>
-              <h2 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/90 ring-1 ring-white/25 backdrop-blur">
+                <Sprout className="h-3.5 w-3.5" /> Find farms near me
+              </span>
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
                 {geo.loading
                   ? "Detecting your location…"
                   : hasCoords
                     ? `Farms near ${origin?.formatted}`
                     : "Share your location to see nearby farms"}
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-white/75">
                 We use your device location only to filter results. Nothing is stored.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex overflow-hidden rounded-md border border-border">
+              <div className="inline-flex overflow-hidden rounded-lg border border-white/25 bg-white/10 backdrop-blur">
                 {RADIUS_OPTIONS.map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => setRadius(r)}
-                    className={`px-3 py-1.5 text-xs font-medium ${
+                    className={`px-3 py-1.5 text-xs font-semibold transition ${
                       radius === r
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-background text-muted-foreground hover:text-foreground"
+                        ? "bg-white text-primary shadow-sm"
+                        : "text-white/80 hover:bg-white/15 hover:text-white"
                     }`}
                     aria-pressed={radius === r}
                   >
@@ -161,7 +170,13 @@ function NearMe() {
                   </button>
                 ))}
               </div>
-              <Button type="button" variant="outline" onClick={geo.detect} disabled={geo.loading}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={geo.detect}
+                disabled={geo.loading}
+                className="border-0 bg-white text-primary hover:bg-white/90"
+              >
                 {geo.loading ? (
                   <>
                     <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Locating…
@@ -176,7 +191,7 @@ function NearMe() {
           </div>
 
           {geo.error && (
-            <div className="mt-4">
+            <div className="mt-4 rounded-xl bg-white/10 p-1 ring-1 ring-white/20 backdrop-blur">
               <GeoPermissionHelp
                 error={geo.error}
                 loading={geo.loading}
@@ -188,10 +203,10 @@ function NearMe() {
             </div>
           )}
 
-          <div className="mt-4 max-w-xl">
+          <div className="mt-5 max-w-xl">
             <label
               htmlFor="near-me-place-search"
-              className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+              className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-white/80"
             >
               Search an address, city or ZIP
             </label>
@@ -205,12 +220,32 @@ function NearMe() {
               }}
             />
             {hasCoords && (
-              <p className="mt-1.5 text-xs text-muted-foreground">
+              <p className="mt-1.5 text-xs text-white/75">
                 Showing farms near {origin?.formatted}. Pick another place to move the search.
               </p>
             )}
           </div>
 
+          {hasCoords && farms.length > 0 && (
+            <div className="mt-5 grid grid-cols-3 gap-3 sm:max-w-md">
+              <div className="rounded-xl bg-white/12 px-3 py-2 ring-1 ring-white/20 backdrop-blur">
+                <p className="text-lg font-extrabold text-white">{farms.length}</p>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-white/75">Farms found</p>
+              </div>
+              <div className="rounded-xl bg-leaf/30 px-3 py-2 ring-1 ring-white/20 backdrop-blur">
+                <p className="text-lg font-extrabold text-white">
+                  {farms.filter((f) => f.verification_status === "verified").length}
+                </p>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-white/75">Verified</p>
+              </div>
+              <div className="rounded-xl bg-destructive/30 px-3 py-2 ring-1 ring-white/20 backdrop-blur">
+                <p className="text-lg font-extrabold text-white">
+                  {Math.min(...farms.map((f) => f.distance_mi ?? 0)).toFixed(1)} mi
+                </p>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-white/75">Closest</p>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
