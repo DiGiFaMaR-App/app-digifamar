@@ -44,7 +44,7 @@ export async function fetchFarmProfile(id: string): Promise<FarmProfile> {
 
   const { data: listings } = await supabase
     .from("listings")
-    .select("*")
+    .select(PUBLIC_LISTING_COLUMNS)
     .eq("farmer_id", id)
     .eq("status", "active")
     .order("created_at", { ascending: false });

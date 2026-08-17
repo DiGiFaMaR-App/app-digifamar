@@ -27,11 +27,11 @@ export const PUBLIC_LISTING_COLUMNS =
 export async function fetchActiveListings(): Promise<ListingRow[]> {
   const { data, error } = await supabase
     .from("listings")
-    .select("*")
+    .select(PUBLIC_LISTING_COLUMNS)
     .eq("status", "active")
     .order("created_at", { ascending: false });
   if (error) throw error;
-  const rows = data ?? [];
+  const rows = (data ?? []) as unknown as ListingRow[];
   if (rows.length === 0) return rows;
 
   const farmerIds = [...new Set(rows.map((r) => r.farmer_id).filter(Boolean))];
@@ -52,9 +52,9 @@ export async function fetchActiveListings(): Promise<ListingRow[]> {
 export async function fetchListingBySlug(slug: string): Promise<ListingRow | null> {
   const { data, error } = await supabase
     .from("listings")
-    .select("*")
+    .select(PUBLIC_LISTING_COLUMNS)
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw error;
-  return data;
+  return (data as unknown as ListingRow) ?? null;
 }
