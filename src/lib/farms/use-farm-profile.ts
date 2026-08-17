@@ -10,7 +10,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { listingToProduct } from "@/lib/catalog/use-catalog";
-import type { ListingRow } from "@/lib/catalog/catalog";
+import { PUBLIC_LISTING_COLUMNS, type ListingRow } from "@/lib/catalog/catalog";
 import type { Product } from "@/lib/mock-data";
 
 export type LiveFarm = {

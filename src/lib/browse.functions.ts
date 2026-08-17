@@ -120,7 +120,7 @@ export const searchBrowse = async ({ data }: { data: unknown }): Promise<BrowseR
   // ── Listings (public) ───────────────────────────────────────────
   const listingsBase = supabase
     .from("listings")
-    .select("id, farmer_id, title, slug, category, price_cents, unit, images, lat, lng", {
+    .select("id, farmer_id, title, slug, category, price_cents, unit, images, lat_approx, lng_approx", {
       count: "exact",
     })
     .eq("status", "active");
