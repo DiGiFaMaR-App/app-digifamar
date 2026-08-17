@@ -40,9 +40,21 @@ export const Route = createFileRoute("/api/public/health/maps")({
             // A browser-restricted key (HTTP referrer allowlist) legitimately rejects
             // server-side calls. That means the key is valid and billing is active —
             // it simply can't be exercised from the server. Not an outage.
+            let googleReason = "";
+            try {
+              const body = JSON.parse(text) as {
+                error?: { details?: Array<{ reason?: string; metadata?: { httpReferrer?: string } }> };
+              };
+              googleReason =
+                body.error?.details?.find((detail) => detail.reason)?.reason ?? "";
+            } catch {
+              // Some Google endpoints return plain text instead of structured JSON.
+            }
+
             if (
               response.status === 403 &&
-              /API_KEY_HTTP_REFERRER_BLOCKED|Requests from referer/i.test(text)
+              (googleReason === "API_KEY_HTTP_REFERRER_BLOCKED" ||
+                /API_KEY_HTTP_REFERRER_BLOCKED|Requests from referer/i.test(text))
             ) {
               return Response.json({
                 status: "browser_restricted",
