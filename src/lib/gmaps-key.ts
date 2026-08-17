@@ -44,6 +44,8 @@ async function fetchStoredKey(): Promise<string | undefined> {
 }
 
 export function resolveGoogleMapsKey(): Promise<string | undefined> {
+  // The project key (GOOGLE_API_KEY, injected at build time) is authoritative.
+  if (MANAGED_KEY) return Promise.resolve(MANAGED_KEY);
   if (typeof window === "undefined") return Promise.resolve(MANAGED_KEY);
   if (!cached) {
     cached = Promise.race([

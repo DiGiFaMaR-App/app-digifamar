@@ -18,9 +18,15 @@ type FetchInit = { method?: string; headers?: Record<string, string>; body?: Bod
  * path (like `key=...`) are appended automatically.
  */
 export async function fetchGoogleMaps(path: string, init: FetchInit = {}): Promise<Response> {
+  // The project's own key is authoritative.
+  const directKey = process.env.GOOGLE_API_KEY;
+  if (directKey) {
+    const sep = path.includes("?") ? "&" : "?";
+    return fetch(`${DIRECT_URL}${path}${sep}key=${encodeURIComponent(directKey)}`, init);
+  }
+
   const lovableKey = process.env.LOVABLE_API_KEY;
   const connectorKey = process.env.GOOGLE_MAPS_API_KEY;
-
   if (lovableKey && connectorKey) {
     return fetch(`${GATEWAY_URL}${path}`, {
       ...init,
@@ -32,12 +38,7 @@ export async function fetchGoogleMaps(path: string, init: FetchInit = {}): Promi
     });
   }
 
-  const directKey = process.env.GOOGLE_API_KEY;
-  if (!directKey) {
-    throw new Error(
-      "Google Maps unavailable: neither the Lovable connector (LOVABLE_API_KEY + GOOGLE_MAPS_API_KEY) nor GOOGLE_API_KEY is configured.",
-    );
-  }
-  const sep = path.includes("?") ? "&" : "?";
-  return fetch(`${DIRECT_URL}${path}${sep}key=${encodeURIComponent(directKey)}`, init);
+  throw new Error(
+    "Google Maps unavailable: neither GOOGLE_API_KEY nor the Lovable connector (LOVABLE_API_KEY + GOOGLE_MAPS_API_KEY) is configured.",
+  );
 }
