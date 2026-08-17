@@ -147,8 +147,8 @@ export const searchBrowse = async ({ data }: { data: unknown }): Promise<BrowseR
     price_cents: number;
     unit: string;
     images: string[];
-    lat: number | null;
-    lng: number | null;
+    lat_approx: number | null;
+    lng_approx: number | null;
   };
   const rows = (listingRows ?? []) as ListingRow[];
 
@@ -168,10 +168,10 @@ export const searchBrowse = async ({ data }: { data: unknown }): Promise<BrowseR
 
   let listings: BrowseListing[] = rows.map((r) => {
     const distance_mi =
-      hasOrigin && r.lat != null && r.lng != null
-        ? haversineMiles(input.originLat!, input.originLng!, r.lat, r.lng)
+      hasOrigin && r.lat_approx != null && r.lng_approx != null
+        ? haversineMiles(input.originLat!, input.originLng!, r.lat_approx, r.lng_approx)
         : null;
-    const { lat: _lat, lng: _lng, ...rest } = r;
+    const { lat_approx: _lat, lng_approx: _lng, ...rest } = r;
     void _lat;
     void _lng;
     return {
