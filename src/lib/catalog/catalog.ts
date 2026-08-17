@@ -12,6 +12,14 @@ import type { Tables } from "@/integrations/supabase/types";
 export type ListingRow = Tables<"listings">;
 
 /**
+ * Columns readable by anon/authenticated clients. Precise `lat`/`lng` are
+ * withheld at the database grant level (only `lat_approx`/`lng_approx` are
+ * public), so `select("*")` must never be used against `listings`.
+ */
+export const PUBLIC_LISTING_COLUMNS =
+  "id, farmer_id, title, slug, description, category, price_cents, unit, qty_available, images, status, created_at, updated_at, lat_approx, lng_approx";
+
+/**
  * Active listings, newest first, with paid-plan farmers surfaced ahead of free
  * ones (the "featured placement" entitlement of Pro and Elite). Placement is a
  * sort bias only — no listing is ever hidden because of a farmer's plan.
